@@ -10,13 +10,13 @@ export default function LoginPage() {
   return (
     <Fragment>
       <TopNavbar />
-      {/* Contenedor principal con estilo flex */}
+      
       <div
         style={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "80vh", // Ajusta la altura según sea necesario
+          height: "80vh", 
         }}
       >
         <Card
@@ -33,7 +33,7 @@ export default function LoginPage() {
             <Input
               placeholder="Usuario"
               prefix={<UserOutlined />}
-              style={{ height: 33, width: "100%", marginBottom: 20 }} // Ancho 100% para ajustar al contenedor
+              style={{ height: 33, width: "100%", marginBottom: 20 }} 
             />
 
             <Input.Password
@@ -41,12 +41,12 @@ export default function LoginPage() {
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
-              style={{ height: 33, width: "100%", marginBottom: 20 }} // Ancho 100% para ajustar al contenedor
+              style={{ height: 33, width: "100%", marginBottom: 20 }} 
             />
 
             <Button
               type="primary"
-              style={{ width: "100%", height: 33 }} // Ancho 100% para igualar a los inputs
+              style={{ width: "100%", height: 33 }} 
             >
               Iniciar sesión
             </Button>

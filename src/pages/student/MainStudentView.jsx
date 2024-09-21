@@ -8,7 +8,7 @@ const MainStudentView = () => {
       <IconCircle 
         icon={<img src={LogoBecas} alt="Logo Becas" className="w-full h-full object-contain" />}
         text="Becas de alimentación"
-        size="2xl"
+        size="xxl"
         bgColor="bg-gray-200"
       />
     </div>
