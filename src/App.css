@@ -103,6 +103,6 @@
 }
 
 .menu-becas {
-  margin-bottom: 3rem; /* Margen inferior para el menú */
+  margin: 0; /* Margen inferior para el menú */
 }
 
