@@ -4,6 +4,7 @@ import "antd/dist/reset.css";
 import LoginPage from "./pages/auth/LoginPage";
 import AdminPage from "./pages/AdminPage";
 import StudentPage from "./pages/StudentPage";
+import Becas from "./pages/student/Becas";
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
       <Route path="/admin/*" element={<AdminPage />} />
       
       <Route path="/student/*" element={<StudentPage />} />
-    
+      <Route path="/student/becas" element={<Becas />} />
+      <Route path="/student/citas" element={<Becas />} />
     </Routes>
   );
 }
