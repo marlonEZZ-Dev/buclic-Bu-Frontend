@@ -13,11 +13,15 @@ export default function TopNavbar(props) {
       className={session}
       style={{
         backgroundColor: '#C20E1A',
-        width: '100vw',
+        width: '100vw', // Para que ocupe todo el ancho de la pantalla
         height: '90px',
         display: 'flex',
         alignItems: 'center',
         padding: '0 20px',
+        position: 'fixed', // Para mantenerlo fijo en la parte superior
+        top: 0, // Alineado con la parte superior de la ventana
+        left: 0, // Alineado con la parte izquierda
+        zIndex: 1000, // Para asegurarse de que esté por encima del contenido
       }}
     >
       <Link to="/" style={{ marginRight: 'auto' }}>
@@ -30,8 +34,3 @@ export default function TopNavbar(props) {
     </header>
   );
 }
-
-TopNavbar.propTypes = {
-  session: PropTypes.bool,
-  dark: PropTypes.bool
-};

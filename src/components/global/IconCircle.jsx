@@ -48,7 +48,7 @@ const IconCircle = ({ icon, hoverIcon, text, size = 64, bgColor = 'bg-gray-200',
         </div>
       </div>
       {text && (
-        <span className="mt-2 text-sm text-center font-medium">
+        <span className="icon-circle-text">
           {text}
         </span>
       )}

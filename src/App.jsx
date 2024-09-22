@@ -5,6 +5,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import AdminPage from "./pages/AdminPage";
 import StudentPage from "./pages/StudentPage";
 import Becas from "./pages/student/Becas";
+import './App.css';
 
 function App() {
   return (

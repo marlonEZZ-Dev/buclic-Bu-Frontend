@@ -40,3 +40,69 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Estilo para el contenedor principal */
+.main-student-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Título centrado */
+.main-student-view h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Contenedor de iconos */
+.icon-container {
+  display: flex;
+  gap: 6rem; /* Espacio entre los iconos */
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+/* Estilo para los textos debajo de los iconos */
+.icon-circle-text {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 1rem;
+  display: block;
+}
+
+#univalle-logo-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 90px;
+  background-color: #C20E1A;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.becas-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 6rem 0; /* Ajusta según sea necesario */
+}
+
+.becas-section h1,
+.becas-section p {
+  margin-bottom: 2rem; /* Margen entre el título, párrafo y el menú */
+  text-align: center; /* Asegúrate de que el texto esté centrado */
+}
+
+.menu-becas {
+  margin-bottom: 3rem; /* Margen inferior para el menú */
+}
+
