@@ -7,26 +7,30 @@ import CalendarLight from '../../assets/icons/calendar_light.svg'
 
 const MainStudentView = () => {
   return (
-    <div className="p-4">
-      <h1>Titulo</h1>
-      <IconCircle 
-        icon={<img src={LogoBecas} alt="Logo Becas" className="w-full h-full object-contain" />}
-        hoverIcon={<img src={LogoBecasLight} alt="Logo Becas Light" className="w-full h-full object-contain" />} // Versión en blanco
-        text="Becas de alimentación"
-        size="xxl"
-        url="/student/becas"
-      />
+    <div className="main-student-view">
+      {/* Título centrado */}
+      <h1>Título</h1>
 
-      <IconCircle
-        icon={<img src={Calendar} alt="Logo Citas" className="w-full h-full object-contain" />}
-        hoverIcon={<img src={CalendarLight} alt="Logo Citas Light" className="w-full h-full object-contain" />} // Versión en blanco
-        text="Citas"
-        size="xxl"
-        url="/student/citas"
-      />
+      {/* Contenedor para los iconos */}
+      <div className="icon-container">
+        <IconCircle 
+          icon={<img src={LogoBecas} alt="Logo Becas" className="w-full h-full object-contain" />}
+          hoverIcon={<img src={LogoBecasLight} alt="Logo Becas Light" className="w-full h-full object-contain" />}
+          text="Becas de alimentación"
+          size="xxl"
+          url="/student/becas"
+        />
+
+        <IconCircle
+          icon={<img src={Calendar} alt="Logo Citas" className="w-full h-full object-contain" />}
+          hoverIcon={<img src={CalendarLight} alt="Logo Citas Light" className="w-full h-full object-contain" />}
+          text="Citas"
+          size="xxl"
+          url="/student/citas"
+        />
+      </div>
     </div>
   );
 };
 
 export default MainStudentView;
-
