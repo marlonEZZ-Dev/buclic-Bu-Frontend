@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import TopNavbar from '../../components/TopNavbar';
-import Tabla from '../../components/global/Tabla'; 
+import Tables from '../../components/global/Tables'; 
 import MenuBecas from '../../components/global/MenuBecas';
 import { Card, Button } from 'antd'; 
 
@@ -26,7 +26,7 @@ const Becas = () => {
       
       <div className="becas-section">
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
-        <p className="text-md">Nota: La beca de alimentación finaliza el 13 de diciembre.</p>
+        <p className="text-md">Nota: La beca de alimentación finaliza el 09 de diciembre.</p>
         
         <MenuBecas onSelect={setSelectedType} />
         
@@ -35,7 +35,7 @@ const Becas = () => {
           bordered={true}
           style={{ width: '100%', maxWidth: '800px', marginTop: '0' }}
         >
-          <Tabla 
+          <Tables 
             rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows} 
             columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo} 
           />
