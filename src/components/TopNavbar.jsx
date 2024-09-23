@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import MenuButton from '../components/global/MenuButton';
 import LogoUnivalleLight from '../assets/logo_univalle_light.svg';
 import PropTypes from 'prop-types';
 import '../styles/TopNavbar.css';
@@ -31,6 +32,17 @@ export default function TopNavbar(props) {
           style={{ height: '60px' }} 
         />
       </Link>
+
+      {/* Contenedor para los botones */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+        <Link to="/student/becas">
+          <MenuButton text="Becas" />
+        </Link>
+        <Link to="/student/citas">
+          <MenuButton text="Citas" />
+        </Link>
+      </div>
+
     </header>
   );
 }

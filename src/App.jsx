@@ -5,6 +5,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import AdminPage from "./pages/AdminPage";
 import StudentPage from "./pages/StudentPage";
 import Becas from "./pages/student/Becas";
+import Appointments from "./pages/student/Appointments";
 import './App.css';
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
       
       <Route path="/student/*" element={<StudentPage />} />
       <Route path="/student/becas" element={<Becas />} />
-      <Route path="/student/citas" element={<Becas />} />
+      <Route path="/student/citas" element={<Appointments />} />
     </Routes>
   );
 }
