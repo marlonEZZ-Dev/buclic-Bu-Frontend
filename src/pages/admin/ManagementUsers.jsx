@@ -4,14 +4,14 @@ import {
   Row 
 } from "antd";
 
-import TopNavbar from "../components/TopNavbar.jsx";
+import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 
 export default function ManagementUsers(){
   //const [changeTypeUser, setChangeTypeUser] = useState(false);
 
   return (
     <>
-      <TopNavbar/>
+      <HeaderAdmin/>
       <Row>
         <Col span={5}></Col>
         <Col span={14}>
