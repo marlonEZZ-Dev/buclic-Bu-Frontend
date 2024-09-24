@@ -20,6 +20,7 @@ function App() {
       
       <Route path="login" element={<LoginPage />} />
       <Route path="reestablecercontrasena" element={<MainStudentView/>}/>
+      
       <Route path="/admin/*" element={<AdminPage />} />
       <Route path="/usuarios" element={<ManagementUsers/>}/>
       <Route path="/informes" element={<Informs/>}/>
