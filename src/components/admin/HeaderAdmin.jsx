@@ -10,32 +10,38 @@ export default function TopNavbar(props) {
   const session = props.session ? 'session' : 'top-navbar';
 
   return (
-    <header 
-      id='univalle-logo-header' 
+    <header
+      id='univalle-logo-header'
       className={session}
       style={{
         backgroundColor: '#C20E1A',
-        width: '100vw', // Para que ocupe todo el ancho de la pantalla
+        width: '100vw',
         height: '90px',
         display: 'flex',
         alignItems: 'center',
         padding: '0 20px',
-        position: 'fixed', // Para mantenerlo fijo en la parte superior
-        top: 0, // Alineado con la parte superior de la ventana
-        left: 0, // Alineado con la parte izquierda
-        zIndex: 1000, // Para asegurarse de que esté por encima del contenido
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 1000
       }}
     >
       <Link to="/" style={{ marginRight: 'auto' }}>
-        <img 
-          src={LogoUnivalleLight} 
-          alt="Logo Universidad del Valle" 
-          style={{ height: '60px' }} 
+        <img
+          src={LogoUnivalleLight}
+          alt="Logo Universidad del Valle"
+          style={{ height: '60px' }}
         />
       </Link>
 
       {/* Contenedor para los botones */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+      {/* div para centrarlos */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        flexGrow: 1
+      }}>
         <Link to="/usuarios">
           <MenuButton text="Gestión de usuarios" />
         </Link>
@@ -52,7 +58,7 @@ export default function TopNavbar(props) {
           <MenuButton text="citas" />
         </Link>
       </div>
-      <LogoutButton/>
+      <LogoutButton />
     </header>
   );
 }
