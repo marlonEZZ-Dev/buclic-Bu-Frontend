@@ -7,6 +7,11 @@ import StudentPage from "./pages/StudentPage";
 import Becas from "./pages/student/Becas";
 import Appointments from "./pages/student/Appointments";
 import './App.css';
+import MainStudentView from "./pages/student/MainStudentView";
+import ManagementUsers from "./pages/admin/ManagementUsers";
+import Informs from "./pages/admin/Informs";
+import Menu from "./pages/admin/Menu";
+import Settings from "./pages/student/Settings";
 
 function App() {
   return (
@@ -15,12 +20,20 @@ function App() {
       <Route path="/" element={<HomePage />} />
       
       <Route path="login" element={<LoginPage />} />
+      <Route path="reestablecercontrasena" element={<MainStudentView/>}/>
       
       <Route path="/admin/*" element={<AdminPage />} />
+      <Route path="/usuarios" element={<ManagementUsers/>}/>
+      <Route path="/informes" element={<Informs/>}/>
+      <Route path="/menu" element={<Menu/>}/>
+      <Route path="/becaAdm" element={<Becas/>}/>
+      <Route path="/citasAdm" element={<Appointments/>}/>
       
-      <Route path="/student/*" element={<StudentPage />} />
-      <Route path="/student/becas" element={<Becas />} />
-      <Route path="/student/citas" element={<Appointments />} />
+      
+      {/* <Route path="/student/*" element={<StudentPage />} /> */}
+      <Route path="/becas" element={<Becas />} />
+      <Route path="/citas" element={<Appointments />} />
+      <Route path="/ajustes" element={<Settings />} />
     </Routes>
   );
 }

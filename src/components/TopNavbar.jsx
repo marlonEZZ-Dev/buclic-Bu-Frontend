@@ -4,6 +4,7 @@ import MenuButton from '../components/global/MenuButton';
 import LogoUnivalleLight from '../assets/logo_univalle_light.svg';
 import PropTypes from 'prop-types';
 import '../styles/TopNavbar.css';
+import LogoutButton from './auth/LogoutButton';
 
 export default function TopNavbar(props) {
   const session = props.session ? 'session' : 'top-navbar';
@@ -35,14 +36,14 @@ export default function TopNavbar(props) {
 
       {/* Contenedor para los botones */}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-        <Link to="/student/becas">
+        <Link to="/becas">
           <MenuButton text="Becas" />
         </Link>
-        <Link to="/student/citas">
+        <Link to="/citas">
           <MenuButton text="Citas" />
         </Link>
       </div>
-
+      <LogoutButton/>
     </header>
   );
 }
