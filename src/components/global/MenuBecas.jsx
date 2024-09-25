@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Card } from 'antd';
 
-const MenuBecas = ({ onSelect }) => {
+const MenuBecas = ({ onSelect, buttons, selectedType, children }) => {
   const [selected, setSelected] = useState('');
 
   const handleClick = (type) => {
@@ -29,22 +30,33 @@ const MenuBecas = ({ onSelect }) => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <button
-        style={{ ...buttonStyle, ...(selected === 'almuerzo' ? activeStyle : {}) }}
-        onClick={() => handleClick('almuerzo')}
+    <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Botones */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {buttons.map((button) => (
+          <button
+            key={button.type}
+            style={{ ...buttonStyle, ...(selected === button.type ? activeStyle : {}) }}
+            onClick={() => handleClick(button.type)}
+          >
+            {button.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Card */}
+      <Card
+        title={selectedType}  // Título dinámico basado en el tipo seleccionado
+        bordered={true}
+        style={{ width: '600px', marginTop: '0' }}
       >
-        Almuerzo
-      </button>
-      <button
-        style={{ ...buttonStyle, ...(selected === 'refrigerio' ? activeStyle : {}) }}
-        onClick={() => handleClick('refrigerio')}
-      >
-        Refrigerio
-      </button>
+        {children} {/* Contenido dinámico: tablas, inputs, texto, etc. */}
+        <p style={{ textAlign: 'left', marginTop: '8px' }}>
+          Eres beneficiario/a de la beca tipo {selected}
+        </p>
+      </Card>
     </div>
   );
 };
 
 export default MenuBecas;
-
