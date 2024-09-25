@@ -11,6 +11,7 @@ import MainStudentView from "./pages/student/MainStudentView";
 import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
 import Menu from "./pages/admin/Menu";
+import Settings from "./pages/student/Settings";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       {/* <Route path="/student/*" element={<StudentPage />} /> */}
       <Route path="/becas" element={<Becas />} />
       <Route path="/citas" element={<Appointments />} />
+      <Route path="/ajustes" element={<Settings />} />
     </Routes>
   );
 }
