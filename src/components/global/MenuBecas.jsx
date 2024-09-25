@@ -51,9 +51,7 @@ const MenuBecas = ({ onSelect, buttons, selectedType, children }) => {
         style={{ width: '600px', marginTop: '0' }}
       >
         {children} {/* Contenido dinámico: tablas, inputs, texto, etc. */}
-        <p style={{ textAlign: 'left', marginTop: '8px' }}>
-          Eres beneficiario/a de la beca tipo {selected}
-        </p>
+        
       </Card>
     </div>
   );

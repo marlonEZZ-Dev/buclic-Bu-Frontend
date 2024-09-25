@@ -8,8 +8,8 @@ const Becas = () => {
   const [selectedType, setSelectedType] = useState('almuerzo'); // Estado para el tipo de beca
 
   const buttons = [
-    { type: 'almuerzo', label: 'Almuerzo' },
-    { type: 'refrigerio', label: 'Refrigerio' }
+    { type: 'Almuerzo', label: 'Almuerzo' },
+    { type: 'Refrigerio', label: 'Refrigerio' }
   ];
 
   const almuerzoRows = [['Dato 1-1', 'Dato 1-2', 'Dato 1-3']];
@@ -29,6 +29,11 @@ const Becas = () => {
             rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows} 
             columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo} 
           />
+
+          {/* Párrafo antes de los botones */}
+          <p style={{ textAlign: 'left', marginTop: '8px' }}>
+            Eres beneficiario/a de la beca tipo {selectedType}
+          </p>
 
           {/* Botones "Reservar" y "Cancelar reserva" */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
