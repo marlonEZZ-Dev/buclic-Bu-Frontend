@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
-import MenuButton from '../components/global/MenuButton';
-import LogoUnivalleLight from '../assets/logo_univalle_light.svg';
-import '../styles/TopNavbar.css';
-import LogoutButton from './auth/LogoutButton';
+import LogoUnivalleLight from '../../assets/logo_univalle_light.svg';
+import '../../styles/TopNavbar.css';
+
 
 export default function TopNavbar(props) {
   const session = props.session ? 'session' : 'top-navbar';
@@ -32,16 +31,7 @@ export default function TopNavbar(props) {
         />
       </Link>
 
-      {/* Contenedor para los botones */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-        <Link to="/becas">
-          <MenuButton text="Becas" />
-        </Link>
-        <Link to="/citas">
-          <MenuButton text="Citas" />
-        </Link>
-      </div>
-      <LogoutButton/>
+      
     </header>
   );
 }

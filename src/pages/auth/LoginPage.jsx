@@ -1,15 +1,15 @@
 import { Fragment } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import { Card } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { Input, Button } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import "../../styles/background.css"; // Asegúrate de importar tu archivo CSS
+import Header from '../../components/auth/Header'
 
 export default function LoginPage() {
   return (
     <Fragment>
-      <TopNavbar />
+      <Header />
       
       <div
         style={{
