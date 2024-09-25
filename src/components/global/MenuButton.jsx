@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const MenuButton = ({ text }) => {
-  const [isClicked, setIsClicked] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+const MenuButton = ({ text, isActive, onClick }) => {
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
-  const handleClick = () => setIsClicked(!isClicked);
 
   const buttonStyle = {
-    backgroundColor: isClicked ? 'white' : (isHovered ? '#841F1C' : '#C20E1A'),
-    color: isClicked ? '#C20E1A' : 'white',
-    borderTopLeftRadius: '8px',
-    borderTopRightRadius: '8px',
+    backgroundColor: isActive ? 'white' : (isHovered ? '#841F1C' : '#C20E1A'),
+    color: isActive ? '#C20E1A' : 'white',
+    borderRadius: '8px',
     border: 'none',
-    padding: '10px 20px', // Ajusta el padding según necesites
+    padding: '10px 20px',
     cursor: 'pointer',
     transition: 'background-color 0.3s, color 0.3s',
-    margin: '5px', // Margen para separar del resto
+    margin: '5px',
   };
 
   return (
@@ -25,7 +22,7 @@ const MenuButton = ({ text }) => {
       style={buttonStyle}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
+      onClick={onClick}
     >
       {text}
     </button>
