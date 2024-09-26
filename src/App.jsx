@@ -12,6 +12,8 @@ import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
 import Menu from "./pages/admin/Menu";
 import Settings from "./pages/student/Settings";
+import ChangePassword from "./pages/student/ChangePassword";
+
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
       <Route path="login" element={<LoginPage />} />
       <Route path="reestablecercontrasena" element={<MainStudentView/>}/>
       
+      {/* Rutas para admin */}
       <Route path="/admin/*" element={<AdminPage />} />
       <Route path="/usuarios" element={<ManagementUsers/>}/>
       <Route path="/informes" element={<Informs/>}/>
@@ -29,11 +32,12 @@ function App() {
       <Route path="/becaAdm" element={<Becas/>}/>
       <Route path="/citasAdm" element={<Appointments/>}/>
       
-      
+      {/* Rutas para Estudiante */}
       {/* <Route path="/student/*" element={<StudentPage />} /> */}
       <Route path="/becas" element={<Becas />} />
       <Route path="/citas" element={<Appointments />} />
       <Route path="/ajustes" element={<Settings />} />
+      <Route path="/cambiarContrasena" element={<ChangePassword />} />
     </Routes>
   );
 }

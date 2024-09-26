@@ -14,7 +14,7 @@ const Settings = () => {
                 bordered={true}
                 style={{
                     width: '600px',
-                    marginTop: '98px',
+                    marginTop: '100px',
                     margin: '3px auto',
                     justifyContent: 'center',
                 }}
