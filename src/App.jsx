@@ -12,6 +12,8 @@ import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
 import Menu from "./pages/admin/Menu";
 import Settings from "./pages/student/Settings";
+import ChangePassword from "./pages/student/ChangePassword";
+
 
 function App() {
   return (
@@ -35,6 +37,7 @@ function App() {
       <Route path="/becas" element={<Becas />} />
       <Route path="/citas" element={<Appointments />} />
       <Route path="/ajustes" element={<Settings />} />
+      <Route path="/cambiarContrasena" element={<ChangePassword />} />
     </Routes>
   );
 }
