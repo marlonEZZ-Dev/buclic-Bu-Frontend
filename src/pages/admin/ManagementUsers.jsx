@@ -2,8 +2,9 @@ import {
   Divider,
   Flex, 
   Select } from 'antd'
-import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
-import MenuBecas from "../../components/global/MenuBecas.jsx";
+
+import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
+import MenuBecas from "../../components/global/MenuBecas.jsx"
 import styles from "../../styles/managementUsers.module.css"
 
 export default function ManagementUsers(){
@@ -20,7 +21,7 @@ export default function ManagementUsers(){
         <MenuBecas
           buttons={buttons}
         >
-        <button className={styles.buttonImport}>
+        <button className={[styles.buttons,styles.buttonImport]}>
           Importar
         </button>
         <div className={styles.contentTitles}>
@@ -91,8 +92,8 @@ export default function ManagementUsers(){
           <Flex
           align='center'
           justify='space-evenly'>
-            <button>Guardar</button>
-            <button>Cancelar</button>
+            <button className={styles.buttons}>Guardar</button>
+            <button className={styles.buttonCancel}>Cancelar</button>
           </Flex>
           <Divider/>
         </MenuBecas>
