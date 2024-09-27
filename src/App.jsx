@@ -6,7 +6,6 @@ import AdminPage from "./pages/AdminPage";
 import StudentPage from "./pages/StudentPage";
 import Becas from "./pages/student/Becas";
 import Appointments from "./pages/student/Appointments";
-import './App.css';
 import MainStudentView from "./pages/student/MainStudentView";
 import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
