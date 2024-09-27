@@ -110,3 +110,14 @@ body {
   margin: 0; /* Margen inferior para el menú */
 }
 
+.buttons{
+  padding: 10px 20px;
+  margin: 0 5px;
+  background-color: var(--red);
+  color: 'white';
+  border: 2px solid var(--red);
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
