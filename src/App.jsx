@@ -6,11 +6,11 @@ import AdminPage from "./pages/AdminPage";
 import StudentPage from "./pages/StudentPage";
 import Becas from "./pages/student/Becas";
 import Appointments from "./pages/student/Appointments";
-import './App.css';
 import MainStudentView from "./pages/student/MainStudentView";
 import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
 import Menu from "./pages/admin/Menu";
+import Reservations from "./pages/admin/Reservations";
 import Settings from "./pages/student/Settings";
 import ChangePassword from "./pages/student/ChangePassword";
 
@@ -31,6 +31,7 @@ function App() {
       <Route path="/menu" element={<Menu/>}/>
       <Route path="/becaAdm" element={<Becas/>}/>
       <Route path="/citasAdm" element={<Appointments/>}/>
+      <Route path="/reservas" element={<Reservations/>}/>
       
       {/* Rutas para Estudiante */}
       {/* <Route path="/student/*" element={<StudentPage />} /> */}

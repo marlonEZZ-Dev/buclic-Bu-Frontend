@@ -20,7 +20,8 @@ const Becas = () => {
   return (
     <>
       <TopNavbar />
-      <div className="becas-section">
+      <main className="becas-section" style={{ marginTop: '100px' }}>
+      
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
         <p className="text-md">Nota: La beca de alimentación finaliza el 09 de diciembre.</p>
 
@@ -37,46 +38,26 @@ const Becas = () => {
 
           {/* Botones "Reservar" y "Cancelar reserva" */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
-            <Button 
-              type="primary"
-              style={{
-                backgroundColor: '#C20E1A',
-                color: '#FFFFFF',
-                border: 'none',
-                height: '30px',
-                width: '90px',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#841F1C';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#C20E1A';
-              }}
-            >
-              Reservar
-            </Button>
+            {/* Botón Guardar */}
+            <Button
+                type="default"
+                htmlType="submit"
+                className="button-save"
+              >
+                Reservar
+              </Button>
 
-            <Button 
-              type="default"
-              style={{
-                backgroundColor: '#C20E1A',
-                color: '#FFFFFF',
-                border: 'none',
-                height: '30px',
-                width: '149px',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#841F1C';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#C20E1A';
-              }}
-            >
-              Cancelar reserva
-            </Button>
+              {/* Botón Cancelar */}
+              <Button
+                type="default"
+                htmlType="reset"
+                className="button-cancel"
+              >
+                Cancelar reserva
+              </Button>
           </div>
         </MenuBecas>
-      </div>
+      </main>
     </>
   );
 };
