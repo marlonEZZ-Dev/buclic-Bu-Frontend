@@ -1,10 +1,14 @@
-import { Flex, Select } from 'antd'
-import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
-import MenuBecas from "../../components/global/MenuBecas.jsx";
+import { 
+  Divider,
+  Flex, 
+  Select } from 'antd'
+
+import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
+import MenuBecas from "../../components/global/MenuBecas.jsx"
 import styles from "../../styles/managementUsers.module.css"
 
 export default function ManagementUsers(){
-  //const [changeTypeUser, setChangeTypeUser] = useState(false);
+  
   const buttons = [
     {type:"Estudiantes",label:"Estudiantes"},
     {type:"Funcionarios",label:"Funcionarios"}
@@ -13,17 +17,21 @@ export default function ManagementUsers(){
   return (
     <>
       <HeaderAdmin/>
-      <MenuBecas
-        buttons={buttons}
-      >
+      <div className={styles.menuGrant}>
+        <MenuBecas
+          buttons={buttons}
+        >
+        <button className={[styles.buttons,styles.buttonImport]}>
+          Importar
+        </button>
         <div className={styles.contentTitles}>
           <h3>Estudiantes del sistema</h3>
           <p>Aquí puedes agregar estudiantes beneficiarios o no de la beca</p>
         </div>
         <Flex
-        align='center'
-        justify='space-evenly'
-        >
+          align='center'
+          justify='space-evenly'
+          >
 
           <Flex 
           vertical
@@ -52,7 +60,7 @@ export default function ManagementUsers(){
               placeholder='Correo del estudiante'/>
             </label>
           </Flex>
-          
+
           <Flex vertical>
           <label className={styles.labels}>
               Apellidos
@@ -73,11 +81,23 @@ export default function ManagementUsers(){
               <Select
               placeholder="Selecciona"
               className={styles.comboboxes}
+              options={[
+                {value:"almuerzo", label:"Beneficiario almuerzo"},
+                {value:"refrigerio", label:"Beneficiario refrigerio"}
+              ]}
               />
             </label>
           </Flex>
-        </Flex>
-      </MenuBecas>
+          </Flex>
+          <Flex
+          align='center'
+          justify='space-evenly'>
+            <button className={styles.buttons}>Guardar</button>
+            <button className={styles.buttonCancel}>Cancelar</button>
+          </Flex>
+          <Divider/>
+        </MenuBecas>
+      </div>
     </>
   )
 }
