@@ -1,3 +1,8 @@
+.menuGrant{
+  margin-top: 6rem;
+  position: relative;
+}
+
 .inputs{
   display: block; 
 }
@@ -10,6 +15,15 @@
   display: block;
 }
 
-.content-titles{
+.contentTitles{
   width: 100%;
+}
+
+.buttonImport{
+  z-index: 999;
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-top: 1.25rem;
+  margin-right: 1.75rem;
 }
