@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 
 :root{
-  --red:'#C20E1A',
-  --red-dark: '#841F1C',
-  --gray-dark:'#636363',
-  --gray:'#CFCFCF',
-  --blue:'#3D5AA2',
-  --white:'#f4f4f4' 
+  --red:#C20E1A;
+  --red-dark: #841F1C;
+  --gray-dark:#636363;
+  --gray:#CFCFCF;
+  --blue:#3D5AA2;
+  --white:#f4f4f4; 
 }
 
 body {
@@ -111,13 +111,9 @@ body {
 }
 
 .buttons{
-  padding: 10px 20px;
-  margin: 0 5px;
   background-color: var(--red);
-  color: 'white';
-  border: 2px solid var(--red);
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  color: white;
+  border: none;
+  height: 30px;
+  width: 90px;
 }
