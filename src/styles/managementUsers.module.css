@@ -1,12 +1,13 @@
-/* module.css */
-
 .menuGrant{
   margin-top: 6rem;
   position: relative;
 }
 
 .inputs{
-  display: block; 
+  display: block;
+  border: solid 1px var(--gray); 
+  border-radius: .5rem;
+  padding-left: .8125rem;
 }
 
 .labels{
@@ -15,6 +16,11 @@
 
 .comboboxes{
   display: block;
+}
+
+.inputs, .comboboxes{
+  width: 14.3125rem;
+  height: 2.75rem;
 }
 
 .contentTitles{
@@ -30,28 +36,39 @@
   margin-right: 1.75rem;
 }
 
-.buttons{
-  background-color: var(--red);
-  color: var(--white);
-  border: none;
-}
-
 .buttonCancel{
   background-color: var(--white);
   color: var(--red);
   border: solid 1px var(--gray);
 }
 
-.buttons, .buttonCancel{
-  height: 3ex;
-  width: 10ch;
-}
-
-.buttons:hover, .buttonCancel:hover{
-  cursor: pointer;
-  background-color: var(--red-dark);
-}
-
 .buttonCancel:hover{
   color: var(--white);
+}
+
+.buttonSave,
+.buttonImport{
+  background-color: var(--red);
+  color: var(--white);
+  border: none;
+}
+
+.buttonSave, .buttonCancel{
+  margin-top: 1.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.buttonSave,
+.buttonCancel,
+.buttonImport{
+  height: 1.875rem;
+  width: 5.625rem;
+  border-radius: .5rem;
+}
+
+.buttonSave:hover, 
+.buttonCancel:hover, 
+.buttonImport:hover{
+  cursor: pointer;
+  background-color: var(--red-dark);
 }

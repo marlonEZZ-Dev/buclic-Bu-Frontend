@@ -18,63 +18,63 @@ export default function ManagementUsers(){
     <>
       <HeaderAdmin/>
       <div className={styles.menuGrant}>
-        <MenuBecas
-          buttons={buttons}
-        >
-        <button className={[styles.buttons,styles.buttonImport]}>
+        <MenuBecas buttons={buttons}>
+        <button className={styles.buttonImport}>
           Importar
         </button>
         <div className={styles.contentTitles}>
           <h3>Estudiantes del sistema</h3>
           <p>Aquí puedes agregar estudiantes beneficiarios o no de la beca</p>
         </div>
+
         <Flex
           align='center'
-          justify='space-evenly'
-          >
-
-          <Flex 
-          vertical
-          align='center'
           justify='center'
+          wrap
+          gap={30}
           >
+          
+          <Flex gap={29}>
           <label className={styles.labels}>
-              Nombre
+              Nombre <span>*</span>
               <input 
               type="text"
               className={styles.inputs} 
-              placeholder='Nombre(s) de estudiante'/>
+              placeholder='Nombre(s) del estudiante'/>
             </label>
             <label className={styles.labels}>
-              Código estudiantil
+              Apellidos <span>*</span>
+              <input 
+              type="text" 
+              className={styles.inputs}
+              placeholder='Apellidos del estudiante'/>
+            </label>
+          </Flex>
+
+          <Flex gap={29}>
+          <label className={styles.labels}>
+              Código estudiantil <span>*</span>
               <input 
               type="text" 
               className={styles.inputs}
               placeholder='Código del estudiante'/>
             </label>
             <label className={styles.labels}>
-              Correo electrónico
-              <input 
-              type="text" 
-              className={styles.inputs}
-              placeholder='Correo del estudiante'/>
-            </label>
-          </Flex>
-
-          <Flex vertical>
-          <label className={styles.labels}>
-              Apellidos
-              <input 
-              type="text" 
-              className={styles.inputs}
-              placeholder='Apellidos del estudiante'/>
-            </label>
-            <label className={styles.labels}>
-              Plan
+              Plan <span>*</span>
               <input 
               type="text" 
               className={styles.inputs}
               placeholder='Plan del estudiante'/>
+            </label>
+          </Flex>
+          
+          <Flex gap={29}>
+          <label className={styles.labels}>
+              Correo electrónico <span>*</span>
+              <input 
+              type="text" 
+              className={styles.inputs}
+              placeholder='Correo del estudiante'/>
             </label>
             <label className={styles.labels}>
               Tipo de beca
@@ -88,14 +88,24 @@ export default function ManagementUsers(){
               />
             </label>
           </Flex>
-          </Flex>
-          <Flex
-          align='center'
-          justify='space-evenly'>
-            <button className={styles.buttons}>Guardar</button>
-            <button className={styles.buttonCancel}>Cancelar</button>
-          </Flex>
-          <Divider/>
+        </Flex>
+
+        <Flex
+        align='center'
+        justify='space-evenly'>
+          <button className={styles.buttonSave}>Guardar</button>
+          <button className={styles.buttonCancel}>Cancelar</button>
+        </Flex>
+        <Divider/>
+        <Flex
+        justify='center'
+        >
+          <input 
+          type="text"
+          className={styles.inputs}
+          placeholder='código estudiantíl' />
+          <button className=''></button>
+        </Flex>
         </MenuBecas>
       </div>
     </>
