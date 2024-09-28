@@ -36,9 +36,12 @@
   margin-right: 1.75rem;
 }
 
+.asteric, .buttonCancel{
+  color: var(--red);
+}
+
 .buttonCancel{
   background-color: var(--white);
-  color: var(--red);
   border: solid 1px var(--gray);
 }
 
@@ -66,9 +69,17 @@
   border-radius: .5rem;
 }
 
+/* Son pseudoClases */
 .buttonSave:hover, 
 .buttonCancel:hover, 
 .buttonImport:hover{
   cursor: pointer;
   background-color: var(--red-dark);
 }
+
+:global(.ant-select-selector:hover),
+.inputs:focus{
+  border: solid 1px var(--blue) !important;
+  outline: none !important;
+}
+
