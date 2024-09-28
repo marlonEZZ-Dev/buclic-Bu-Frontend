@@ -173,3 +173,7 @@ body {
   font-weight: bold; /* Texto en negrita para el título */
   color: #C20E1A; /* Color personalizado para el título */
 }
+
+.visibility-hidden{
+  visibility: hidden;
+}
