@@ -2,29 +2,50 @@ import {
   Divider,
   Flex, 
   Select } from 'antd'
-
+import { useState } from 'react'
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
-import styles from "../../styles/managementUsers.module.css"
+import styles from "../../styles/admin/managementUsers.module.css"
 
 export default function ManagementUsers(){
   
   const buttons = [
+    {type:"Beneficiarios",label:"Beneficiarios"},
     {type:"Estudiantes",label:"Estudiantes"},
     {type:"Funcionarios",label:"Funcionarios"}
   ]
 
+  const [changesDescription, setChangesDescription] = useState(0)
+  const [selectedType, setSelectedType] = useState("Estudiantes")
+  
+  const descriptions = [
+    {
+      title:"Beneficiarios del sistema",
+      description:"Aquí puedes agregar estudiantes beneficiarios de la beca"
+    },
+    {
+      title:"Estudiantes del sistema",
+      description:"Aquí puedes agregar estudiantes del sistema"
+    },
+    {
+      title:"Funcionarios del sistema",
+      description:"Aquí puedes agregar personas con alguna dependencia en la universidado externas"
+    }
+  ]
+  
   return (
     <>
       <HeaderAdmin/>
       <div className={styles.menuGrant}>
-        <MenuBecas buttons={buttons}>
+        <MenuBecas 
+        buttons={buttons}
+        selectedType={selectedType}>
         <button className={styles.buttonImport}>
           Importar
         </button>
         <div className={styles.contentTitles}>
-          <h3>Estudiantes del sistema</h3>
-          <p>Aquí puedes agregar estudiantes beneficiarios o no de la beca</p>
+          <h3>{descriptions[changesDescription].title}</h3>
+          <p>{descriptions[changesDescription].description}</p>
         </div>
 
         <Flex
@@ -104,7 +125,7 @@ export default function ManagementUsers(){
           type="text"
           className={styles.inputs}
           placeholder='código estudiantíl' />
-          <button className=''></button>
+          <button></button>
         </Flex>
         </MenuBecas>
       </div>
