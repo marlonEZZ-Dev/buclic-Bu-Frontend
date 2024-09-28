@@ -3,7 +3,6 @@ import { Card } from 'antd';
 import PropTypes from 'prop-types'
 
 /*
-- bordered: This add or not a Divider under title in the Card, its type is boolean
 - buttons: This add the quantity of buttons should set it with one or more objects that contain two porperties 
   type and label with strings, its type is a list
 - childrem: This property is descendant, in other words MenuBecas should be contained others components
@@ -11,7 +10,7 @@ import PropTypes from 'prop-types'
 - selectedTyped: This change title in a Card, its type is string
 */
 
-const MenuBecas = ({ bordered, buttons, children, onSelect, selectedType }) => {
+const MenuBecas = ({ buttons, children, onSelect, selectedType }) => {
   const [selected, setSelected] = useState('');
 
   const handleClick = (type) => {
@@ -57,7 +56,7 @@ const MenuBecas = ({ bordered, buttons, children, onSelect, selectedType }) => {
       {/* Card */}
       <Card
         title={selectedType}  // Título dinámico basado en el tipo seleccionado
-        bordered={bordered}
+        bordered
         style={{ width: '600px', marginTop: '0' }}
       >
         {children} {/* Contenido dinámico: tablas, inputs, texto, etc. */}
