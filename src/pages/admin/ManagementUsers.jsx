@@ -1,7 +1,11 @@
 import { 
   Divider,
   Flex, 
-  Select } from 'antd'
+  Select,
+  Table,
+  Pagination
+} from 'antd'
+import { SearchOutlined } from '@ant-design/icons';
 import { useState } from 'react'
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
@@ -46,6 +50,8 @@ export default function ManagementUsers(){
     {value:"psicologo", label:"Psicólogo (a)"}
   ]
 
+  const headersTb = ["Código","Nombre","Correo","Activo","Editar"] 
+
   //useStates
   const [changesDescription, setChangesDescription] = useState(0)
   
@@ -81,7 +87,7 @@ export default function ManagementUsers(){
           >
           
           <Flex gap={29}>
-          <label className={styles.labels}>
+            <label className={styles.labels}>
               Nombre <span className={styles.asteric}>*</span>
               <input 
               type="text"
@@ -126,11 +132,11 @@ export default function ManagementUsers(){
           <label className={`${styles.labels} ${isStudent ? "visibility-hidden" : ""}`}>
             {isFuncionary ? "Rol" : 
             <span>Tipo de beca <span className={styles.asteric}>*</span></span>}          
-          <Select
-          placeholder="Selecciona"
-          className={styles.comboboxes}
-          options={isFuncionary ? cbxFuncionary : cbxStudents}
-          />
+            <Select
+            placeholder="Selecciona"
+            className={styles.comboboxes}
+            options={isFuncionary ? cbxFuncionary : cbxStudents}
+            />
           </label>
           </Flex>
         </Flex>
@@ -144,12 +150,13 @@ export default function ManagementUsers(){
         <Divider/>
         <Flex
         justify='center'
+        gap={11}
         >
           <input 
           type="text"
           className={styles.inputs}
           placeholder='código estudiantíl' />
-          <button></button>
+          <button className={styles.buttonSearch}><SearchOutlined/></button>
         </Flex>
         </MenuBecas>
       </div>

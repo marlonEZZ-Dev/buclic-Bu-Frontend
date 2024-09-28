@@ -173,7 +173,8 @@ body {
   font-weight: bold; /* Texto en negrita para el título */
   color: #C20E1A; /* Color personalizado para el título */
 }
-
+/* Permite a un elemento mantenerse oculto pero ocupando el espacio
+que debería ocupar si no lo estuviera */
 .visibility-hidden{
   visibility: hidden;
 }
