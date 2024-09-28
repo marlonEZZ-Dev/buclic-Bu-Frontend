@@ -160,12 +160,13 @@ body {
 
 .descriptions-item {
   font-size: 16px; /* Tamaño del texto */
-  width: 300px; /* Ancho de la fila */
+  width: 200px; /* Ancho de la fila */
   background-color: #f9f9f9; /* Color de fondo */
   padding: 10px; /* Espaciado interno */
   border: 1px solid #d9d9d9; /* Borde */
-  border-radius: 5px; /* Bordes redondeados */
+  border-radius: 8px; /* Bordes redondeados */
   margin-bottom: 10px; /* Espaciado entre filas */
+  font-weight: normal; /* Eliminar negrita */
 }
 
 .descriptions-title {

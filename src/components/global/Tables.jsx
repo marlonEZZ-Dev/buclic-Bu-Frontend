@@ -5,7 +5,7 @@ const Tables = ({ rows, columns }) => {
   const headerStyle = {
     backgroundColor: '#CFCFCF', // Fondo gris oscuro
     color: 'black', // Texto blanco
-    fontSize: '1.125rem', // 18px
+    fontSize: '16px', // 18px
     padding: '8px',
     textAlign: 'center',
   };
