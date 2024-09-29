@@ -1,0 +1,16 @@
+.buttonEdit{
+  background-color: var(--red);
+  color: var(--white);
+  border: none;
+  border-radius: .5rem;
+  width: min-content;
+}
+
+.buttonEdit:hover{
+  cursor: pointer;
+  background-color: var(--red-dark);
+}
+
+.color{
+  color: var(--white);
+}
