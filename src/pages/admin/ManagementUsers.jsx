@@ -1,14 +1,17 @@
 import { 
   Divider,
   Flex, 
-  Select,
-  Table,
-  Pagination
+  Select 
 } from 'antd'
 import { SearchOutlined } from '@ant-design/icons';
 import { useState } from 'react'
+
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
+import ButtonEdit from "../../components/global/ButtonEdit.jsx"
+import StateUser from '../../components/global/StateUser.jsx';
+import TablePagination from '../../components/global/TablePagination.jsx';
+
 import styles from "../../styles/admin/managementUsers.module.css"
 
 export default function ManagementUsers(){
@@ -50,10 +53,26 @@ export default function ManagementUsers(){
     {value:"psicologo", label:"Psicólogo (a)"}
   ]
 
-  const headersTb = ["Código","Nombre","Correo","Activo","Editar"] 
+  const o = {
+    code : number => <span id={styles.code}>{202059125 + number}</span>,
+    name: text => <span id={styles.name}>{ `Carolina Perez${text}`}</span>,
+    email : text => <span id={styles.email}>{ `carolina.perez@correounivalle.edu.co${text}`}</span>,
+    active : <StateUser id={styles.active} active/>,
+    edit : <ButtonEdit id={styles.edit}/>
+  }
+
+  const headerTb = ["Código", "Nombre", "Correo","Activo","Editar"]
+
+  const rows = Array.from({length: 10}, (_,index) => [
+    o.code(index), 
+    o.name(index),
+    o.email(index), 
+    o.active,
+    o.edit
+  ])
 
   //useStates
-  const [changesDescription, setChangesDescription] = useState(0)
+  const [changesDescription, setChangesDescription] = useState(1)
   
   //Handlers
   const handlerClick = type => {
@@ -67,7 +86,7 @@ export default function ManagementUsers(){
   return (
     <>
       <HeaderAdmin/>
-      <div className={styles.menuGrant}>
+      <main className={styles.menuGrant}>
         <MenuBecas 
         buttons={buttons}
         onSelect={type => handlerClick(type)}>
@@ -155,11 +174,25 @@ export default function ManagementUsers(){
           <input 
           type="text"
           className={styles.inputs}
-          placeholder='código estudiantíl' />
+          placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'} />
           <button className={styles.buttonSearch}><SearchOutlined/></button>
         </Flex>
+        <Flex vertical
+        >
+          <p className={styles.marginTable}>
+          {`Tabla de ${
+          isFuncionary ? "funcionarios y externos registrados": 
+            isStudent ? "estudiantes registrados" : "beneficiarios registrados"}`}
+          </p>
+        <TablePagination
+        columns={headerTb}
+        rows={rows}
+        currentPage={1}
+        itemsPerPage={1}
+        />
+        </Flex>        
         </MenuBecas>
-      </div>
+      </main>
     </>
   )
 }

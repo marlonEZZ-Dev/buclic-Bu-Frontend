@@ -1,3 +1,28 @@
+#code{
+  width: 6.3125rem;
+}
+
+#name{
+  width: 7rem;
+}
+
+#email{
+  /* width: 11.9375rem; */
+  width: 11rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+#active{
+  width: 3rem;
+  background-color: white;  
+  border-color: transparent;
+}
+
+#edit{
+  width: 4.5625rem;
+}
+
 .menuGrant{
   margin-top: 6rem;
   position: relative;
@@ -37,7 +62,10 @@
     font-size: 15px;
   }
 }
-
+.marginTable{
+  margin-top: 1.625rem;
+  text-align: left;
+}
 .buttonImport{
   z-index: 999;
   position: absolute;
@@ -69,6 +97,16 @@
   border: none;
 }
 
+#code,
+#name,
+#email,
+#active,
+#edit{
+  display: block;
+  height: 2.375rem;
+  margin: auto;
+}
+
 .buttonSave, 
 .buttonCancel{
   margin-top: 1.875rem;
@@ -88,6 +126,7 @@
 .buttonSearch{
   border-radius: .5rem;
 }
+
 /* Son pseudoClases */
 .buttonCancel:hover{
   color: var(--white);
