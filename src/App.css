@@ -192,3 +192,41 @@ que debería ocupar si no lo estuviera */
     font-weight: bold;                    /* Hacer el texto más grueso */
     border-radius: 5px 5px 0 0;           /* Bordes redondeados solo en la parte superior */
 }
+
+
+/* Diseño para pantallas pequeñas */
+@media (max-width: 768px) {
+  .becas-section {
+    margin-top: 50px;
+    padding: 10px; /* Reduce el padding para dispositivos móviles */
+  }
+
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Asegúrate de que las tablas puedan desplazarse en pantallas pequeñas */
+  table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+  
+  /* Aumenta el espacio entre los botones para evitar solapamiento en móviles */
+  .button-save, .button-cancel {
+    width: 100%; /* Aumenta el ancho de los botones en pantallas pequeñas */
+    margin-bottom: 10px;
+  }
+}
+
+/* Diseño para pantallas grandes */
+@media (min-width: 769px) {
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+}
+
