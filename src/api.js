@@ -5,7 +5,7 @@ import { ACCESS_TOKEN } from "./constants"
 const api = axios.create({
     // baseURL: 'http://127.0.0.1:8080',
     baseURL: import.meta.env.VITE_API_URL,
-    withCredentials: true, // Importante para las solicitudes CORS
+    
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
