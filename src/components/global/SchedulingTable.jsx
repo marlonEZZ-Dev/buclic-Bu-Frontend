@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'antd';
 
 const SchedulingTable = ({ headers, rows }) => {
     const tableStyle = {
@@ -8,11 +9,11 @@ const SchedulingTable = ({ headers, rows }) => {
     };
 
     const headerStyle = {
-        backgroundColor: '#841F1C',
-        color: 'white',
+        backgroundColor: '#D9D9D9',
+        color: '#000000',
         fontSize: '19px',
         padding: '10px',
-        textAlign: 'left',
+        textAlign: 'center',
         border: '1px solid #CFCFCF',
     };
 
@@ -21,12 +22,19 @@ const SchedulingTable = ({ headers, rows }) => {
         border: '1px solid #CFCFCF',
     };
 
+    // Manejo del click del botón
+    const handleSchedule = (row) => {
+        console.log(`Agendar cita para: ${row[0]}`); // Puedes implementar tu lógica aquí
+    };
+
     return (
         <table style={tableStyle}>
             <thead>
                 <tr>
                     {headers.map((header, index) => (
-                        <th key={index} style={headerStyle}>{header}</th>
+                        <th key={index} style={headerStyle}>
+                            {header}
+                        </th>
                     ))}
                 </tr>
             </thead>
@@ -34,7 +42,15 @@ const SchedulingTable = ({ headers, rows }) => {
                 {rows.map((row, rowIndex) => (
                     <tr key={rowIndex}>
                         {row.map((cell, cellIndex) => (
-                            <td key={cellIndex} style={cellStyle}>{cell}</td>
+                            <td key={cellIndex} style={cellStyle}>
+                                {cellIndex === 2 ? ( // Verifica si es la columna 'Agendar'
+                                    <Button className="button-save" type="primary" onClick={() => handleSchedule(row)}>
+                                        Agendar
+                                    </Button>
+                                ) : (
+                                    cell
+                                )}
+                            </td>
                         ))}
                     </tr>
                 ))}
