@@ -12,6 +12,7 @@ import Informs from "./pages/admin/Informs";
 import Menu from "./pages/admin/Menu";
 import Reservations from "./pages/admin/Reservations";
 import Settings from "./pages/student/Settings";
+import Psychologist from "./pages/student/Psychologist";
 import ChangePassword from "./pages/student/ChangePassword";
 
 
@@ -39,6 +40,7 @@ function App() {
       <Route path="/citas" element={<Appointments />} />
       <Route path="/ajustes" element={<Settings />} />
       <Route path="/cambiarContrasena" element={<ChangePassword />} />
+      <Route path="/psicologia" element={<Psychologist />} />
     </Routes>
   );
 }
