@@ -1,4 +1,6 @@
 import { Routes, Route} from "react-router-dom";
+import RecoverPassword from "./pages/auth/RecoverPassword";
+import ConfirmationPassword from "./pages/auth/ConfirmationPassword";
 import HomePage from "./pages/HomePage";
 import "antd/dist/reset.css";
 import LoginPage from "./pages/auth/LoginPage";
@@ -22,7 +24,8 @@ function App() {
       <Route path="/" element={<HomePage />} />
       
       <Route path="login" element={<LoginPage />} />
-      <Route path="reestablecercontrasena" element={<MainStudentView/>}/>
+      <Route path="reestablecercontrasena" element={<RecoverPassword/>}/>
+      <Route path="confirmarcontrasena" element={<ConfirmationPassword/>}/>
       
       {/* Rutas para admin */}
       <Route path="/admin/*" element={<AdminPage />} />
