@@ -178,3 +178,17 @@ que debería ocupar si no lo estuviera */
 .visibility-hidden{
   visibility: hidden;
 }
+
+
+/* Tabla para citas*/
+/* Estilos para los encabezados (primera fila) */
+/* Estilos para los encabezados (primera fila) */
+.red-header {
+    background-color: #841F1C !important; /* Fondo rojo */
+    color: white !important;              /* Texto blanco */
+    font-size: 19px !important;           /* Tamaño de letra */
+    text-align: center;                   /* Alineación del texto */
+    padding: 12px 16px !important;        /* Mayor espacio interno para mejorar el diseño */
+    font-weight: bold;                    /* Hacer el texto más grueso */
+    border-radius: 5px 5px 0 0;           /* Bordes redondeados solo en la parte superior */
+}

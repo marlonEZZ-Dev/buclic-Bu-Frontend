@@ -8,11 +8,11 @@ const onPanelChange = (value, mode) => {
     console.log(value.format('YYYY-MM-DD'), mode);
 };
 
-const headers = ['Nombre', 'Fecha', 'Hora', 'Ubicación'];
+const headers = ['Hora', 'Lugar de atencion', '(fecha seleccionada)'];
 const rows = [
-    ['Juan Pérez', '2024-10-01', '10:00 AM', 'Oficina 1'],
-    ['Ana Gómez', '2024-10-02', '11:00 AM', 'Oficina 2'],
-    ['Carlos Ruiz', '2024-10-03', '12:00 PM', 'Oficina 3'],
+    ['1:00p.m', '205 bloque', ''],
+    ['1:00p.m', '205 bloque', ''],
+    ['1:00p.m', '205 bloque', ''],
 ];
 
 const Psychologist = () => {
@@ -23,22 +23,25 @@ const Psychologist = () => {
         border: `1px solid ${token.colorBorderSecondary}`,
         borderRadius: token.borderRadiusLG,
         padding: '16px',
-        width: '100%',
+        width: '70%', // Hacemos que el calendario ocupe el 100% de su contenedor
     };
 
     const containerStyle = {
         display: 'flex',
         justifyContent: 'space-between',
+        flexWrap: 'wrap', // Para que los elementos se apilen en pantallas pequeñas
         marginTop: '20px',
     };
 
     const leftColumnStyle = {
         flex: '1',
-        marginRight: '20px', // Espacio entre el calendario y la tabla
+        marginRight: '30px', // Espacio entre el calendario y la tabla
+        minWidth: '300px', // Definir un ancho mínimo para pantallas pequeñas
     };
 
     const rightColumnStyle = {
         flex: '1',
+        minWidth: '300px', // Definir un ancho mínimo para pantallas pequeñas
     };
 
     const formWrapperStyle = {
@@ -55,22 +58,23 @@ const Psychologist = () => {
                 {/* Formulario en la parte superior con distribución horizontal */}
                 <Form layout="vertical" style={formWrapperStyle}>
                     <Row gutter={16}> {/* Configuración para colocar los campos de forma horizontal */}
-                        <Col span={6}>
+                        <Col xs={24} sm={12} md={6}>
                             <Form.Item label="Nombre">
                                 <Input placeholder="input placeholder" disabled />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
-                            <Form.Item label="Teléfono">
-                                <Input type="number" placeholder="input placeholder" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
+                        <Col xs={24} sm={12} md={6}>
                             <Form.Item label="Programa académico">
                                 <Input placeholder="input placeholder" disabled />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
+                        <Col xs={24} sm={12} md={6}>
+                            <Form.Item label="Teléfono">
+                                <Input type="number" placeholder="input placeholder" />
+                            </Form.Item>
+                        </Col>
+
+                        <Col xs={24} sm={12} md={6}>
                             <Form.Item label="Semestre">
                                 <Input type="number" placeholder="input placeholder" />
                             </Form.Item>
@@ -99,5 +103,6 @@ const Psychologist = () => {
 };
 
 export default Psychologist;
+
 
 
