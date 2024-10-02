@@ -15,15 +15,19 @@ import TablePagination from '../../components/global/TablePagination.jsx';
 import styles from "../../styles/admin/managementUsers.module.css"
 
 export default function ManagementUsers(){
-  
+  //useStates
+  const [changesDescription, setChangesDescription] = useState(1)
+
+  //Predicados
+  let isStudent = changesDescription === 1
+  let isFuncionary = changesDescription === 2
+
   //Definicion de variables
   const buttons = [
     {type:"Beneficiarios",label:"Beneficiarios"},
     {type:"Estudiantes",label:"Estudiantes"},
     {type:"Funcionarios",label:"Funcionarios"}
   ]
-  
-  const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
   
   const descriptions = [
     {
@@ -57,31 +61,26 @@ export default function ManagementUsers(){
     code : number => <span id={styles.code}>{202059125 + number}</span>,
     name: text => <span id={styles.name}>{ `Carolina Perez${text}`}</span>,
     email : text => <span id={styles.email}>{ `carolina.perez@correounivalle.edu.co${text}`}</span>,
-    active : <StateUser id={styles.active} active/>,
+    active : status => <StateUser id={styles.active} active={status}/>,
     edit : <ButtonEdit id={styles.edit}/>
   }
 
-  const headerTb = ["Código", "Nombre", "Correo","Activo","Editar"]
+  const headerTb = [isFuncionary ? "Cédula":"Código", "Nombre", "Correo","Estado","Editar"]
 
   const rows = Array.from({length: 10}, (_,index) => [
     o.code(index), 
     o.name(index),
     o.email(index), 
-    o.active,
+    o.active(),
     o.edit
   ])
+  //functions  
+  const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
-  //useStates
-  const [changesDescription, setChangesDescription] = useState(1)
-  
   //Handlers
   const handlerClick = type => {
     setChangesDescription(users.get(type))
   }
-
-  //Predicados
-  let isStudent = changesDescription === 1
-  let isFuncionary = changesDescription === 2
   
   return (
     <>
@@ -182,13 +181,14 @@ export default function ManagementUsers(){
           <p className={styles.marginTable}>
           {`Tabla de ${
           isFuncionary ? "funcionarios y externos registrados": 
-            isStudent ? "estudiantes registrados" : "beneficiarios registrados"}`}
+            isStudent ? "estudiantes registrados" : 
+              "beneficiarios registrados"}`}
           </p>
         <TablePagination
         columns={headerTb}
         rows={rows}
         currentPage={1}
-        itemsPerPage={1}
+        itemsPerPage={10}
         />
         </Flex>        
         </MenuBecas>
