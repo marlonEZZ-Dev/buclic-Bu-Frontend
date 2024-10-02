@@ -12,12 +12,12 @@ const Reservations = () => {
         name: 'John Doe',
         code: 2255675,
         dateTime: new Date().toLocaleString(),
-        typeBeca: 'Almuerzo',
+        plan: '2724',
     };
 
     // Datos para la tabla
     const columns = ['Código', 'Nombre', 'Plan', 'Hora de Reserva'];
-    const rows = Array.from({ length: 25 }, (_, index) => [person.code + index, person.name + ' ' + index, person.typeBeca, person.dateTime]); // Simulación de más datos
+    const rows = Array.from({ length: 25 }, (_, index) => [person.code + index, person.name + ' ' + index, person.plan, person.dateTime]); // Simulación de más datos
 
     return (
         <>
@@ -55,7 +55,7 @@ const Reservations = () => {
                         </Descriptions.Item>
 
                         <Descriptions.Item label={<span style={styles.boldLabel}>Tipo beca</span>} className="descriptions-item">
-                            {person.typeBeca}
+                            {person.plan}
                         </Descriptions.Item>
                     </Descriptions>
 

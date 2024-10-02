@@ -51,7 +51,7 @@ const Nursing = () => {
     return (
         <>
             <TopNavbar />
-            <main className="psicologia-section" style={{ marginTop: '100px' }}>
+            <main className="enfermeria-section" style={{ marginTop: '100px' }}>
                 <h1 className="text-xl font-bold">Cita enfermería - Médico general</h1>
 
                 {/* Formulario en la parte superior con distribución horizontal */}
