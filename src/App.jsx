@@ -18,6 +18,8 @@ import Psychologist from "./pages/student/Psychologist";
 import Nursing from "./pages/student/Nursing";
 import Dentist from "./pages/student/Dentist";
 import ChangePassword from "./pages/student/ChangePassword";
+import BecasAdmin from "./pages/admin/BecasAdmin";
+import AppointmentsAdmin from "./pages/admin/AppointmentsAdmin";
 
 
 function App() {
@@ -31,16 +33,14 @@ function App() {
       <Route path="confirmarcontrasena" element={<ConfirmationPassword/>}/>
       
       {/* Rutas para admin */}
-      <Route path="/admin/*" element={<AdminPage />} />
       <Route path="/usuarios" element={<ManagementUsers/>}/>
       <Route path="/informes" element={<Informs/>}/>
       <Route path="/menu" element={<Menu/>}/>
-      <Route path="/becaAdm" element={<Becas/>}/>
-      <Route path="/citasAdm" element={<Appointments/>}/>
+      <Route path="/becaAdm" element={<BecasAdmin/>}/>
+      <Route path="/citasAdm" element={<AppointmentsAdmin/>}/>
       <Route path="/reservas" element={<Reservations/>}/>
       
       {/* Rutas para Estudiante */}
-      {/* <Route path="/student/*" element={<StudentPage />} /> */}
       <Route path="/becas" element={<Becas />} />
       <Route path="/citas" element={<Appointments />} />
       <Route path="/ajustes" element={<Settings />} />
