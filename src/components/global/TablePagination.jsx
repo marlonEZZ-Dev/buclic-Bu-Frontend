@@ -22,35 +22,34 @@ const TablePagination = ({ rows, columns, currentPage, itemsPerPage, onPageChang
 
     // Estilo para los botones
     const buttonStyle = {
-        backgroundColor: '#FFFFFF',   // Fondo blanco
-        color: '#B3B3B3',             // Texto gris claro
-        border: 'none',                // Sin borde
-        height: '30px',                // Altura
-        width: '149px',                // Ancho
-        fontSize: '16px',              // Tamaño de fuente
-        cursor: 'pointer',             // Cursor pointer
-        margin: '0 5px',               // Margen entre botones
-        borderRadius: '8px',           // Esquinas redondeadas
-        transition: 'background-color 0.3s', // Transición suave
+        backgroundColor: '#FFFFFF',
+        color: '#B3B3B3',
+        border: 'none',
+        height: '30px',
+        flex: 1, // Permitir que el botón crezca
+        margin: '0 5px', // Margen entre botones
+        borderRadius: '8px',
+        transition: 'background-color 0.3s',
+        cursor: 'pointer',
     };
 
     // Estilo para el hover
     const buttonHoverStyle = {
-        backgroundColor: '#E3DEDE',   // Color de fondo al pasar el mouse
+        backgroundColor: '#E3DEDE',
     };
 
     // Estilo para la página actual
     const pageIndicatorStyle = {
-        backgroundColor: '#C20E1A',  // Fondo rojo
-        color: '#FFFFFF',             // Texto blanco
-        padding: '5px 10px',         // Espaciado interno
-        borderRadius: '8px',          // Esquinas redondeadas
-        display: 'inline-block',      // Para que el fondo se ajuste al contenido
+        backgroundColor: '#C20E1A',
+        color: '#FFFFFF',
+        padding: '5px 10px',
+        borderRadius: '8px',
+        display: 'inline-block',
     };
 
     return (
-        <div style={{ textAlign: 'center' }}>
-            <table style={{ minWidth: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ textAlign: 'center', margin: '20px 0' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
                         {columns.map((column, index) => (
@@ -74,11 +73,11 @@ const TablePagination = ({ rows, columns, currentPage, itemsPerPage, onPageChang
             </table>
 
             {/* Paginación */}
-            <div style={{ marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <button 
                     onClick={() => onPageChange(currentPage - 1)} 
                     disabled={currentPage === 1}
-                    style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none' } : {}) }} // Desactiva el botón si está en la primera página
+                    style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si está en la primera página
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
                 >
@@ -88,7 +87,7 @@ const TablePagination = ({ rows, columns, currentPage, itemsPerPage, onPageChang
                 <button 
                     onClick={() => onPageChange(currentPage + 1)} 
                     disabled={indexOfLastItem >= rows.length}
-                    style={{ ...buttonStyle, ...(indexOfLastItem >= rows.length ? { pointerEvents: 'none' } : {}) }} // Desactiva el botón si no hay más elementos
+                    style={{ ...buttonStyle, ...(indexOfLastItem >= rows.length ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si no hay más elementos
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
                 >

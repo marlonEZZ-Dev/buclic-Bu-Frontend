@@ -1,4 +1,6 @@
 import { Routes, Route} from "react-router-dom";
+import RecoverPassword from "./pages/auth/RecoverPassword";
+import ConfirmationPassword from "./pages/auth/ConfirmationPassword";
 import HomePage from "./pages/HomePage";
 import "antd/dist/reset.css";
 import LoginPage from "./pages/auth/LoginPage";
@@ -12,6 +14,9 @@ import Informs from "./pages/admin/Informs";
 import Menu from "./pages/admin/Menu";
 import Reservations from "./pages/admin/Reservations";
 import Settings from "./pages/student/Settings";
+import Psychologist from "./pages/student/Psychologist";
+import Nursing from "./pages/student/Nursing";
+import Dentist from "./pages/student/Dentist";
 import ChangePassword from "./pages/student/ChangePassword";
 
 
@@ -22,7 +27,8 @@ function App() {
       <Route path="/" element={<HomePage />} />
       
       <Route path="login" element={<LoginPage />} />
-      <Route path="reestablecercontrasena" element={<MainStudentView/>}/>
+      <Route path="reestablecercontrasena" element={<RecoverPassword/>}/>
+      <Route path="confirmarcontrasena" element={<ConfirmationPassword/>}/>
       
       {/* Rutas para admin */}
       <Route path="/admin/*" element={<AdminPage />} />
@@ -39,6 +45,9 @@ function App() {
       <Route path="/citas" element={<Appointments />} />
       <Route path="/ajustes" element={<Settings />} />
       <Route path="/cambiarContrasena" element={<ChangePassword />} />
+      <Route path="/psicologia" element={<Psychologist />} />
+      <Route path="/enfermeria" element={<Nursing />} />
+      <Route path="/odontologia" element={<Dentist />} />
     </Routes>
   );
 }
