@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInput from '../../components/global/SearchInput.jsx';
@@ -23,18 +22,15 @@ const Reservations = () => {
     return (
         <>
             <HeaderAdmin />
-            <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
-                <Card
-                    bordered={true}
-                    style={{ width: '700px', marginTop: '100px', margin: '3px auto', justifyContent: 'center' }}
-                >
-                    <Space style={{ marginTop: '5px', alignItems: 'center' }}>
+            <main style={styles.main}>
+                <Card bordered={true} style={styles.card}>
+                    <Space style={styles.titleSpace}>
                         <h1 className="titleCard">Reservas realizadas</h1>
                     </Space>
 
                     <p>Aquí puedes buscar las personas que han reservado la beca de alimentación.</p>
 
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                    <div style={styles.searchContainer}>
                         <SearchInput />
                     </div>
 
@@ -43,43 +39,35 @@ const Reservations = () => {
                         title="Información de la persona"
                         className="descriptions-title"
                         bordered
-                        column={1}
-                        style={{ marginTop: '15px', width: '70%', margin: 'auto' }}
+                        column={1} // Cambiado a 2 para mejor visualización
+                        style={styles.descriptions}
                     >
-                        <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Nombre</span>} className="descriptions-item">
+                        <Descriptions.Item label={<span style={styles.boldLabel}>Nombre</span>} className="descriptions-item">
                             {person.name}
                         </Descriptions.Item>
 
-                        <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Código</span>} className="descriptions-item">
+                        <Descriptions.Item label={<span style={styles.boldLabel}>Código</span>} className="descriptions-item">
                             {person.code}
                         </Descriptions.Item>
 
-                        <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Fecha y hora de la reserva</span>} className="descriptions-item">
+                        <Descriptions.Item label={<span style={styles.boldLabel}>Fecha y hora de la reserva</span>} className="descriptions-item">
                             {person.dateTime}
                         </Descriptions.Item>
 
-                        <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Tipo beca</span>} className="descriptions-item">
+                        <Descriptions.Item label={<span style={styles.boldLabel}>Tipo beca</span>} className="descriptions-item">
                             {person.typeBeca}
                         </Descriptions.Item>
                     </Descriptions>
 
-                    {/* Botón "Pagó" */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px', marginBottom: '20px' }}>
-                        <Button
-                            type="primary"
-                            style={{ backgroundColor: '#52C41A', borderColor: '#52C41A', color: 'white' }}
-                        >
+                    {/* Botones */}
+                    <div style={styles.buttonContainer}>
+                        <Button type="primary" style={styles.payButton}>
                             Pagó
                         </Button>
-                        <Button
-                            type="default"
-                            htmlType="reset"
-                            className="button-cancel"
-                        >
+                        <Button type="default" htmlType="reset" className="button-cancel">
                             Cancelar reserva
                         </Button>
                     </div>
-
 
                     {/* Componente de Tabla con Paginación */}
                     <TablePagination
@@ -93,6 +81,52 @@ const Reservations = () => {
             </main>
         </>
     );
+};
+
+const styles = {
+    main: {
+        marginTop: '100px',
+        padding: '0 20px',
+        display: 'flex',
+        justifyContent: 'center',
+    },
+    card: {
+        width: '100%',
+        maxWidth: '700px',
+        marginTop: '100px',
+        margin: '3px auto',
+        justifyContent: 'center',
+    },
+    titleSpace: {
+        marginTop: '5px',
+        alignItems: 'center',
+    },
+    descriptions: {
+        marginTop: '15px',
+        width: '100%', // Cambiado a 100% para ocupar el ancho completo
+        margin: 'auto',
+    },
+    boldLabel: {
+        fontWeight: 'bold', // Asegura que el texto en las etiquetas sea negrita
+    },
+    searchContainer: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop: '20px',
+    },
+    buttonContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+        marginTop: '20px',
+        marginBottom: '20px',
+    },
+    payButton: {
+        backgroundColor: '#52C41A',
+        borderColor: '#52C41A',
+        color: 'white',
+    },
 };
 
 export default Reservations;

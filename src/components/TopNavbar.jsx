@@ -57,6 +57,11 @@ export default function TopNavbar(props) {
           isActive={location.pathname === "/citas"} 
           onClick={() => handleButtonClick("/citas")} 
         />
+        <MenuButton 
+          text="Ajustes" 
+          isActive={location.pathname === "/ajustes"} 
+          onClick={() => handleButtonClick("/ajustes")} 
+        />
       </div>
       <LogoutButton/>
     </header>

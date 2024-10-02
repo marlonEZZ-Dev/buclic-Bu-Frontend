@@ -6,28 +6,42 @@ const SearchInput = () => {
   const [hover, setHover] = useState(false);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div style={styles.container}>
       {/* Campo de entrada */}
       <Input
         placeholder="Buscar"
-        style={{ width: '300px', marginRight: '10px' }}
+        style={styles.input}
       />
 
       {/* Botón de buscar con lupa */}
       <Button
         type="primary"
         icon={<SearchOutlined style={{ color: 'white' }} />}
-        style={{
-          backgroundColor: hover ? '#841F1C' : '#C20E1A',  // Cambiar el color cuando hover es true
-          borderColor: hover ? '#841F1C' : '#C20E1A',     // Cambiar el borde también
-          color: 'white',  
-        }}
+        style={{ ...styles.button, backgroundColor: hover ? '#841F1C' : '#C20E1A', borderColor: hover ? '#841F1C' : '#C20E1A' }}
         onMouseEnter={() => setHover(true)}  // Cuando el mouse está sobre el botón
         onMouseLeave={() => setHover(false)} // Cuando el mouse sale del botón
       >
       </Button>
     </div>
   );
+};
+
+// Estilos en línea
+const styles = {
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center', // Centrar horizontalmente
+    flexWrap: 'wrap', // Permitir que los elementos se ajusten en diferentes líneas si es necesario
+  },
+  input: {
+    flex: 1, // Permite que el input ocupe el espacio disponible
+    maxWidth: '300px', // Ancho máximo para pantallas grandes
+    marginRight: '10px', // Espacio entre el input y el botón
+  },
+  button: {
+    color: 'white',
+  },
 };
 
 export default SearchInput;
