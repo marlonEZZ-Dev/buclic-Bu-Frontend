@@ -23,7 +23,7 @@ export default function LoginPage() {
       if (response.data && response.data.token) {
         localStorage.setItem(ACCESS_TOKEN, response.data.token);
         message.success('Inicio de sesión exitoso');
-        navigate('/admin'); 
+        navigate('/usuarios'); 
       } else {
         throw new Error('Token no recibido');
       }
