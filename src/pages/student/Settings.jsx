@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
 import { Card, Button, Form, Input, Flex } from 'antd';
 import { Space } from 'antd';
 
 const Settings = () => {
+
+    const navigate = useNavigate(); // Inicializa el hook useNavigate
+
+    // Función para manejar el clic en "Cambiar contraseña"
+    const handleChangePasswordClick = () => {
+        navigate('/cambiarContrasena'); // Redirigir a la ruta de cambio de contraseña
+    };
 
     return (
         <>
@@ -39,30 +47,16 @@ const Settings = () => {
                             <Input placeholder="input placeholder" disabled />
                         </Form.Item>
 
-                        <div style={{ display: 'flex', justifyContent: 'left', marginTop: '10px' }}>
-                            <Button type="text">Cambiar contraseña</Button>
+                        <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
+                            <Button className="button-actionsGeneral"  type="primary" onClick={handleChangePasswordClick}>
+                                Cambiar contraseña
+                            </Button>
                         </div>
 
                     </Form>
                 </Card>
             </main>
 
-            {/* Media query para ajustar el diseño en pantallas más pequeñas */}
-            <style jsx>{`
-                @media (max-width: 768px) {
-                    main {
-                        padding: 0 10px; /* Reducir el padding en pantallas pequeñas */
-                    }
-
-                    .titleCard {
-                        font-size: 1.5rem; /* Ajustar el tamaño del título en pantallas pequeñas */
-                    }
-
-                    p {
-                        font-size: 1rem; /* Ajustar el tamaño del texto en pantallas pequeñas */
-                    }
-                }
-            `}</style>
         </>
     );
 };

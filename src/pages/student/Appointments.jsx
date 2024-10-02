@@ -1,8 +1,15 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 
 const Appointments = () => {
+  const navigate = useNavigate(); // Inicializa el hook useNavigate
+
+  // Función para manejar el clic
+  const handleNavigation = (path) => {
+    navigate(path); // Cambia la ruta
+  };
+
   return (
     <>
       <TopNavbar />
@@ -29,7 +36,10 @@ const Appointments = () => {
         >
           
           {/* Opción 1: Psicología */}
-          <article style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }}>
+          <article 
+            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
+            onClick={() => handleNavigation('/psicologia')} // Manejo de clic para redirigir
+          >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
               title="Psicología"
@@ -38,12 +48,16 @@ const Appointments = () => {
                 borderRadius: '8px',
                 width: '100%', // Ajusta el ancho al contenedor
                 marginBottom: '20px',
+                cursor: 'pointer', // Cambia el cursor a pointer para indicar clic
               }}
             />
           </article>
 
           {/* Opción 2: Enfermería - Médico general */}
-          <article style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }}>
+          <article 
+            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
+            onClick={() => handleNavigation('/enfermeria')} // Manejo de clic para redirigir
+          >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
               title="Enfermería - Médico general"
@@ -52,12 +66,16 @@ const Appointments = () => {
                 borderRadius: '8px',
                 width: '100%',
                 marginBottom: '20px',
+                cursor: 'pointer', // Cambia el cursor a pointer para indicar clic
               }}
             />
           </article>
 
           {/* Opción 3: Odontología */}
-          <article style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }}>
+          <article 
+            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
+            onClick={() => handleNavigation('/odontologia')} // Manejo de clic para redirigir
+          >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
               title="Odontología"
@@ -66,6 +84,7 @@ const Appointments = () => {
                 borderRadius: '8px',
                 width: '100%',
                 marginBottom: '20px',
+                cursor: 'pointer', // Cambia el cursor a pointer para indicar clic
               }}
             />
           </article>

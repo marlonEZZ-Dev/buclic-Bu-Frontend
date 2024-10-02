@@ -156,6 +156,23 @@ body {
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
+.button-actionsGeneral {
+  background-color: #FFFFFF !important;
+  color: black !important;
+  height: 30px;
+  width: 149px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.button-actionsGeneral:hover {
+  background-color: #CFCFCF !important;
+  /* Fondo rojo oscuro al hacer hover */
+  color: black !important;
+  /* Texto sigue siendo blanco */
+}
+
 .button-cancel:hover {
   background-color: #841F1C !important;
   color: #FFFFFF !important;
