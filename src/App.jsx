@@ -31,7 +31,6 @@ function App() {
     <Routes>
       
       <Route path="/" element={<HomePage />} />
-      
       <Route path="login" element={<LoginPage />} />
       <Route path="reestablecercontrasena" element={<RecoverPassword/>}/>
       <Route path="confirmarcontrasena" element={<ConfirmationPassword/>}/>

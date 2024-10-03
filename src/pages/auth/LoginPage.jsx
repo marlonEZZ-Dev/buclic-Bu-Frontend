@@ -35,16 +35,15 @@ export default function LoginPage() {
         localStorage.setItem(ACCESS_TOKEN, token);
         message.success('Inicio de sesión exitoso');
 
-        // Decodificamos el token manualmente sin usar jwt-decode
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const decodedData = JSON.parse(window.atob(base64));
 
-        const userRole = decodedData.authorities; // Obtenemos el rol del token
+        const userRole = decodedData.authorities;
         const route = roleToRouteMap[userRole];
 
         if (route) {
-          navigate(route); // Redirigimos según el rol
+          navigate(route);
         } else {
           message.error('No se encontró una ruta correspondiente al rol del usuario');
         }
@@ -58,6 +57,8 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  const isFormValid = username !== "" && password !== "";
 
   return (
     <Fragment>
@@ -109,11 +110,12 @@ export default function LoginPage() {
               type="primary"
               htmlType="submit"
               loading={loading}
+              disabled={!isFormValid}  // Deshabilitar el botón si el formulario no es válido
               style={{
                 width: "100%",
                 height: 33,
-                backgroundColor: "#C20E1A",
-                borderColor: "#C20E1A",
+                backgroundColor: isFormValid ? "#C20E1A" : "#D64545", // Cambiar color cuando esté habilitado
+                borderColor: isFormValid ? "#C20E1A" : "#D64545",
               }}
             >
               Iniciar sesión
