@@ -23,7 +23,7 @@ const Becas = () => {
       <main className="becas-section" style={{ marginTop: '100px' }}>
       
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
-        <p className="text-md">Nota: La beca de alimentación finaliza el 09 de diciembre.</p>
+        <p>Nota: La beca de alimentación finaliza el 09 de diciembre.</p>
 
         <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
           <Tables 

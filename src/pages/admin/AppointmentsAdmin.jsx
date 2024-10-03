@@ -15,7 +15,7 @@ const AppointmentsAdmin = () => {
       <HeaderAdmin />
       
       {/* Contenido principal */}
-      <main style={{ marginTop: '100px', padding: '0 20px' }}> 
+      <main className="citas-section" style={{ marginTop: '100px', padding: '0 20px' }}> 
         
         {/* Título principal */}
         <header>
