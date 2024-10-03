@@ -67,11 +67,11 @@ export default function HeaderPsych(props) {
           isActive={location.pathname === "/agenda"} 
           onClick={() => handleButtonClick("/agenda")} 
         />
-        {/* <MenuButton 
+        <MenuButton 
           text="Seguimiento" 
-          isActive={location.pathname === "/citasAdm"} 
-          onClick={() => handleButtonClick("/citasAdm")} 
-        /> */}
+          isActive={location.pathname === "/seguimiento"} 
+          onClick={() => handleButtonClick("/seguimiento")} 
+        />
         
       </div>
       <LogoutButton />

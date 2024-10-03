@@ -24,6 +24,7 @@ import BecasPsych from "./pages/psychology/BecasPsych";
 import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
 import SchedulesPsych from "./pages/psychology/SchedulesPsych";
 import AgendaPsych from "./pages/psychology/AgendaPsych";
+import Tracking from "./pages/psychology/Tracking";
 
 function App() {
   return (
@@ -57,7 +58,8 @@ function App() {
       <Route path="/cita" element={<AppointmentsPsych/>}/>
       <Route path="/horario" element={<SchedulesPsych/>}/>
       <Route path="/agenda" element={<AgendaPsych/>}/>
-      
+      <Route path="/seguimiento" element={<Tracking/>}/>
+
     </Routes>
   );
 }
