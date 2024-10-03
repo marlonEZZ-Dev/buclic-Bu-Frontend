@@ -1,6 +1,23 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import PropTypes from 'prop-types';
 
-const TablePagination = ({ rows, columns, currentPage, itemsPerPage, onPageChange }) => {
+import ButtonEdit from './ButtonEdit.jsx';
+
+/*
+onRowClick: una funcion que se crea en el onClick de table row para manejar la selección de una fila
+addButtonForEdit: si es true crea el boton edit, ademas debe pasarse la función que controla el estado click como onRowbuttonEdit
+*/
+
+const TablePagination = ({ 
+    rows= [],
+    columns= [],
+    currentPage= 1, 
+    itemsPerPage= 10,
+    addButtonForEdit= false,
+    onPageChange= () => {}, 
+    onRowClick= () => {}, 
+    onRowButtonEdit= () => {}
+    }) => {
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
@@ -61,12 +78,18 @@ const TablePagination = ({ rows, columns, currentPage, itemsPerPage, onPageChang
                 </thead>
                 <tbody>
                     {currentItems.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
+                        <tr 
+                        key={rowIndex}
+                        onClick={() => onRowClick(row)}>
                             {row.map((cell, cellIndex) => (
                                 <td key={cellIndex} style={cellStyle}>
                                     {cell}
                                 </td>
                             ))}
+                            {
+                                addButtonForEdit ? <td><ButtonEdit onClick={() => onRowButtonEdit(row)}/></td> 
+                                : ""
+                            }
                         </tr>
                     ))}
                 </tbody>
@@ -97,5 +120,16 @@ const TablePagination = ({ rows, columns, currentPage, itemsPerPage, onPageChang
         </div>
     );
 };
+
+TablePagination.propTypes = {
+    rows : PropTypes.array,
+    columns : PropTypes.array,
+    currentPage : PropTypes.number,
+    itemsPerPage: PropTypes.number,
+    onPageChange : PropTypes.func,
+    onRowClick : PropTypes.func,
+    addButtonForEdit: PropTypes.bool,
+    onRowButtonEdit: PropTypes.func
+}
 
 export default TablePagination;
