@@ -13,6 +13,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const roleToRouteMap = {
+    "ROLE_ADMINISTRADOR": "/usuarios",
+    "ROLE_MONITOR": "/usuarios",
+    "ROLE_ESTUDIANTE": "/becas",
+    "ROLE_PSICOLOGO": "/usuarios",
+    "ROLE_ENFERMERO": "/usuarios",
+    "ROLE_ODONTOLOGO": "/usuarios",
+    "ROLE_EXTERNO": "/usuarios",
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -21,9 +31,23 @@ export default function LoginPage() {
       const response = await api.post('/auth/login', { username, password });
       
       if (response.data && response.data.token) {
-        localStorage.setItem(ACCESS_TOKEN, response.data.token);
+        const token = response.data.token;
+        localStorage.setItem(ACCESS_TOKEN, token);
         message.success('Inicio de sesión exitoso');
-        navigate('/usuarios'); 
+
+        // Decodificamos el token manualmente sin usar jwt-decode
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decodedData = JSON.parse(window.atob(base64));
+
+        const userRole = decodedData.authorities; // Obtenemos el rol del token
+        const route = roleToRouteMap[userRole];
+
+        if (route) {
+          navigate(route); // Redirigimos según el rol
+        } else {
+          message.error('No se encontró una ruta correspondiente al rol del usuario');
+        }
       } else {
         throw new Error('Token no recibido');
       }
