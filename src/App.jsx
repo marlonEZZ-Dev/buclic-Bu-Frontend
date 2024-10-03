@@ -23,14 +23,17 @@ import NursingAdmin from "./pages/admin/NursingAdmin";
 import PsychologistAdmin from "./pages/admin/PsychologistAdmin";
 import DentistAdmin from "./pages/admin/DentistAdmin";
 import AppointmentsAdmin from "./pages/admin/AppointmentsAdmin";
-
+import BecasPsych from "./pages/psychology/BecasPsych";
+import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
+import SchedulesPsych from "./pages/psychology/SchedulesPsych";
+import AgendaPsych from "./pages/psychology/AgendaPsych";
+import Tracking from "./pages/psychology/Tracking";
 
 function App() {
   return (
     <Routes>
       
       <Route path="/" element={<HomePage />} />
-      
       <Route path="login" element={<LoginPage />} />
       <Route path="reestablecercontrasena" element={<RecoverPassword/>}/>
       <Route path="confirmarcontrasena" element={<ConfirmationPassword/>}/>
@@ -54,6 +57,14 @@ function App() {
       <Route path="/psicologia" element={<Psychologist />} />
       <Route path="/enfermeria" element={<Nursing />} />
       <Route path="/odontologia" element={<Dentist />} />
+
+      {/* Rutas para Psicologo */}
+      <Route path="/beca" element={<BecasPsych/>} />
+      <Route path="/cita" element={<AppointmentsPsych/>}/>
+      <Route path="/horario" element={<SchedulesPsych/>}/>
+      <Route path="/agenda" element={<AgendaPsych/>}/>
+      <Route path="/seguimiento" element={<Tracking/>}/>
+
     </Routes>
   );
 }
