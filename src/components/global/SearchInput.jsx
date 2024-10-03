@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons'
+import PropTypes from "prop-types"
 
-const SearchInput = () => {
+const SearchInput = ({placeholder="Buscar"}) => {
   const [hover, setHover] = useState(false);
 
   return (
     <div style={styles.container}>
       {/* Campo de entrada */}
       <Input
-        placeholder="Buscar"
+        placeholder={placeholder}
         style={styles.input}
       />
 
@@ -43,5 +44,9 @@ const styles = {
     color: 'white',
   },
 };
+
+SearchInput.propTypes = {
+  placeholder : PropTypes.string
+}
 
 export default SearchInput;
