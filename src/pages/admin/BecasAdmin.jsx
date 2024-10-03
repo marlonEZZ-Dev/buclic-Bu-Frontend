@@ -55,7 +55,7 @@ const BecasAdmin = () => {
 
   return (
     <>
-      <TopNavbar />
+      <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
 
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
