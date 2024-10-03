@@ -56,7 +56,7 @@ const AppointmentsAdmin = () => {
           {/* Opción 2: Enfermería - Médico general */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/enfermeria')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/enfermeriaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
