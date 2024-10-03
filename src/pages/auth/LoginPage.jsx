@@ -17,7 +17,7 @@ export default function LoginPage() {
     "ROLE_ADMINISTRADOR": "/usuarios",
     "ROLE_MONITOR": "/usuarios",
     "ROLE_ESTUDIANTE": "/becas",
-    "ROLE_PSICOLOGO": "/usuarios",
+    "ROLE_PSICOLOGO": "/beca",
     "ROLE_ENFERMERO": "/usuarios",
     "ROLE_ODONTOLOGO": "/usuarios",
     "ROLE_EXTERNO": "/usuarios",

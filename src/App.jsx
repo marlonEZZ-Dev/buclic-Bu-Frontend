@@ -20,7 +20,10 @@ import Dentist from "./pages/student/Dentist";
 import ChangePassword from "./pages/student/ChangePassword";
 import BecasAdmin from "./pages/admin/BecasAdmin";
 import AppointmentsAdmin from "./pages/admin/AppointmentsAdmin";
-
+import BecasPsych from "./pages/psychology/BecasPsych";
+import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
+import SchedulesPsych from "./pages/psychology/SchedulesPsych";
+import AgendaPsych from "./pages/psychology/AgendaPsych";
 
 function App() {
   return (
@@ -48,6 +51,13 @@ function App() {
       <Route path="/psicologia" element={<Psychologist />} />
       <Route path="/enfermeria" element={<Nursing />} />
       <Route path="/odontologia" element={<Dentist />} />
+
+      {/* Rutas para Psicologo */}
+      <Route path="/beca" element={<BecasPsych/>} />
+      <Route path="/cita" element={<AppointmentsPsych/>}/>
+      <Route path="/horario" element={<SchedulesPsych/>}/>
+      <Route path="/agenda" element={<AgendaPsych/>}/>
+      
     </Routes>
   );
 }
