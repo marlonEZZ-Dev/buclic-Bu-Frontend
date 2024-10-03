@@ -33,6 +33,7 @@ export default function LoginPage() {
       if (response.data && response.data.token) {
         const token = response.data.token;
         localStorage.setItem(ACCESS_TOKEN, token);
+        localStorage.setItem('username', username); // Guardar el nombre de usuario
         message.success('Inicio de sesión exitoso');
 
         const base64Url = token.split('.')[1];

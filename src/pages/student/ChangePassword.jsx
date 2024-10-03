@@ -51,46 +51,6 @@ const ChangePassword = () => {
       </main>
 
       {/* Estilos en línea para la responsividad */}
-      <style jsx>{`
-        main {
-          margin-top: 100px;
-          padding: 0 20px;
-          display: flex;
-          justify-content: center;
-        }
-
-        .card {
-          width: 100%;       /* Ancho del 100% para ser flexible */
-          max-width: 500px;  /* Limitar el ancho máximo a 500px */
-          margin-top: 100px;
-          margin: 3px auto;
-          justify-content: center;
-        }
-
-        .titleCard {
-          color: #C20E1A; /* Cambia el color según sea necesario */
-        }
-
-        p {
-          text-align: center; /* Centrar texto */
-          margin: 10px 0;    /* Margen para el párrafo */
-        }
-
-        /* Media query para ajustar el diseño en pantallas más pequeñas */
-        @media (max-width: 768px) {
-          main {
-            padding: 0 10px; /* Reducir el padding en pantallas pequeñas */
-          }
-
-          .titleCard {
-            font-size: 1.5rem; /* Ajustar el tamaño del título en pantallas pequeñas */
-          }
-
-          p {
-            font-size: 0.9rem; /* Ajustar el tamaño del texto en pantallas pequeñas */
-          }
-        }
-      `}</style>
     </>
   );
 };

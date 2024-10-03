@@ -23,6 +23,8 @@ import NursingAdmin from "./pages/admin/NursingAdmin";
 import PsychologistAdmin from "./pages/admin/PsychologistAdmin";
 import DentistAdmin from "./pages/admin/DentistAdmin";
 import AppointmentsAdmin from "./pages/admin/AppointmentsAdmin";
+import SettingsAdmin from "./pages/admin/SettingsAdmin";
+import PasswordAdmin from "./pages/admin/PasswordAdmin";
 import BecasPsych from "./pages/psychology/BecasPsych";
 import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
 import SchedulesPsych from "./pages/psychology/SchedulesPsych";
@@ -48,6 +50,8 @@ function App() {
       <Route path="/enfermeriaAdmin" element={<NursingAdmin/>}/>
       <Route path="/psicologiaAdmin" element={<PsychologistAdmin/>}/>
       <Route path="/odontologiaAdmin" element={<DentistAdmin/>}/>
+      <Route path="/perfilAdmin" element={<SettingsAdmin/>}/>
+      <Route path="/contrasenaAdmin" element={<PasswordAdmin/>}/>
       
       {/* Rutas para Estudiante */}
       <Route path="/becas" element={<Becas />} />
