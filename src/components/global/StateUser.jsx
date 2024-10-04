@@ -1,21 +1,17 @@
-import { useState } from "react"
 import PropTypes from "prop-types"
 import ActiveIcon from "../../assets/icons/active.svg"
 import InactiveIcon from "../../assets/icons/inactive.svg"
-
+import styles from "../../styles/global/stateUser.module.css"
+import { useState } from "react"
 // active : active or inactive the image showm
 
-export default function StateUser({active, ...props}){
-  
+export default function StateUser({active}){
+
   const [isActive, setIsActive] = useState(active)
   
-  const handlerClick = () => setIsActive(!isActive)
-
-  return(
-    <button
-    {...props}
-    onClick={ handlerClick }>
-      <img src={isActive ? ActiveIcon : InactiveIcon}/>      
+  return (
+    <button className={styles.button} onClick={() => setIsActive(!isActive)}>
+      <img className={styles.image} src={isActive ? ActiveIcon : InactiveIcon}/>
     </button>
   )
 }
