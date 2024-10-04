@@ -21,16 +21,15 @@ import otherStyles from "../../styles/global/inputSmall.module.css"
 export default function ManagementUsers(){
   //useStates
   const [changesDescription, setChangesDescription] = useState(1)
-  const [data, setData] = useState(null)
-  const [rowToEdit, setRowToEdit] = useState(null)
+  const [objectSelected, setObjectSelected] = useState(null)
   const [isModalImport, setIsModalImport] = useState(false)
   const [isModalEdit, setIsModalEdit] = useState(false)
   const [rows, setRows] = useState(null)
-  const [isResponsive, setIsResponsive] = useState(false)
+  const [deviceType, setDeviceType] = useState("")
   //Predicados
   let isStudent = changesDescription === 1
   let isFuncionary = changesDescription === 2
-
+  let enableResponsive = deviceType === "mobile" || deviceType === "tablet"
   //Definicion de variables
   const buttons = [
     {type:"Beneficiarios",label:"Beneficiarios"},
@@ -65,10 +64,11 @@ export default function ManagementUsers(){
     {value:"odontologo", label:"Odontólogo (a)"},
     {value:"psicologo", label:"Psicólogo (a)"}
   ]
-
+  //Las porperties se llaman como las llaves en inglés para que se puedan encontrar en el componente table
   const headerTb = [
     {key: isFuncionary  ? "uniqueDoc" : "code", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
+    {key: enableResponsive ? "":"email", label: enableResponsive ? "":"Correo"},
     {key: "status", label: "Estado"},
     {key: "edit", label: "Editar"}
   ]
@@ -142,7 +142,7 @@ export default function ManagementUsers(){
   const handlerClick = type => setChangesDescription(users.get(type))
   
   const handlerRowEdit = row => {
-    setRowToEdit(row)
+    setObjectSelected(row)
     console.dir(row)
   }
 
@@ -156,7 +156,30 @@ export default function ManagementUsers(){
   const handlerOpenModalEdit = () => setIsModalEdit(true)
   const handlerCloseModalEdit = () => setIsModalEdit(false)
   
-  //ajustes para mantener el orden imports, variables, funciones, logica
+  const handleResize = () => {
+    const width = window.innerWidth;
+
+    if (width <= 767) {
+      setDeviceType('mobile');
+    } else if (width >= 768 && width <= 1024) {
+      setDeviceType('tablet');
+    } else {
+      setDeviceType('desktop');
+    }
+  };
+
+  useEffect(() => {
+    handleResize();
+
+    // Añade el event listener para cambios en el tamaño de la pantalla
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup al desmontar el componente
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  },[])
+  
   useEffect(() => {
     setRows(createRows(handlerOpenModalEdit, changesDescription))
   }, [changesDescription])
@@ -165,6 +188,7 @@ export default function ManagementUsers(){
     <>
       <HeaderAdmin/>
       <main className={styles.menuGrant}>
+      {/* Modal import */}
       {isModalImport ? (
       <Modal 
         open={isModalImport}
@@ -187,6 +211,7 @@ export default function ManagementUsers(){
         </Flex>
         </Flex>
       </Modal> ) : ""}
+      {/* Modal edit table */}
       {isModalEdit ? (
       <Modal
       open={isModalEdit}
@@ -300,12 +325,14 @@ export default function ManagementUsers(){
             isStudent ? "estudiantes registrados" : 
               "beneficiarios registrados"}`}
           </p>
-        <TablePaginationV2
-          columns={headerTb}
-          rows={rows}
-          currentPage={1}
-          itemsPerPage={10}
-          onRowClick={(row => handlerRowEdit(row))}/>
+          <Flex align='center' justify='center' wrap>
+            <TablePaginationV2
+              columns={headerTb}
+              rows={rows}
+              currentPage={1}
+              itemsPerPage={10}
+              onRowClick={(row => handlerRowEdit(row))}/>
+          </Flex>
         </Flex>        
         </MenuBecas>
       </main>
