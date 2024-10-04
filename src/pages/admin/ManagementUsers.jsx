@@ -13,7 +13,7 @@ import Modal from '../../components/global/Modal.jsx'
 import SearchInput from '../../components/global/SearchInput.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
 import StateUser from '../../components/global/StateUser.jsx'
-import TablePaginationV2 from '../../components/global/TablePaginationV2.jsx'
+import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
 
 import styles from "../../styles/admin/managementUsers.module.css"
 import otherStyles from "../../styles/global/inputSmall.module.css"
@@ -64,7 +64,12 @@ export default function ManagementUsers(){
     {value:"odontologo", label:"Odontólogo (a)"},
     {value:"psicologo", label:"Psicólogo (a)"}
   ]
-  //Las porperties se llaman como las llaves en inglés para que se puedan encontrar en el componente table
+  /*
+  Las porperties estan en inglés entonces es necesario que correctamente se encuentren 
+  los valores para cada columna, así hay una key que contiene el nombre de la property 
+  del objeto y luego esta relacionada con el nombre de la columna que es el label esto
+  para filtrar las columnas que se debe mostrar
+  */
   const headerTb = [
     {key: isFuncionary  ? "uniqueDoc" : "code", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
@@ -119,7 +124,7 @@ export default function ManagementUsers(){
             }));
         case 2:
             o.typeUser = 2;
-            o.uniqueDoc = number => <span id={styles.code}>{BigInt("0123456789") + number}</span>;
+            o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
             o.area = "Adminstrativa";
             o.rol = "monitor";
             return Array.from({ length: 10 }, (_, index) => ({
@@ -129,7 +134,7 @@ export default function ManagementUsers(){
                 status: o.status(index % 2 === 0),
                 edit: o.edit,
                 typeUser: o.typeUser,
-                uniqueDoc: o.uniqueDoc(index),
+                uniqueDoc: o.uniqueDoc,
                 area: o.area,
                 rol: o.rol
             }));
@@ -140,11 +145,6 @@ export default function ManagementUsers(){
 
   //Handlers
   const handlerClick = type => setChangesDescription(users.get(type))
-  
-  const handlerRowEdit = row => {
-    setObjectSelected(row)
-    console.dir(row)
-  }
 
   const showError = () => {
     console.dir(rows)
@@ -153,7 +153,12 @@ export default function ManagementUsers(){
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
   
-  const handlerOpenModalEdit = () => setIsModalEdit(true)
+  const handlerOpenModalEdit = row => {
+    setIsModalEdit(true)
+    setObjectSelected(row)
+    console.dir(row)
+  }
+
   const handlerCloseModalEdit = () => setIsModalEdit(false)
   
   const handleResize = () => {
@@ -221,16 +226,16 @@ export default function ManagementUsers(){
           <SmallInput
             isRenderAsteric={false}
             title='Nombre'
-            value={"s"}/>
+            value={objectSelected.name.props.childrem}/>
           <SmallInput
             title='Apellidos'
-            placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
+            value={objectSelected.lastName.props.childrem}/>
         </Flex>
 
         <Flex gap={29}>
           <SmallInput
             title={isFuncionary ? "Cédula" : "Código estudiantil"}
-            placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}/>
+            value={isFuncionary ? objectSelected.uniqueDoc.props.childrem : objectSelected.code}/>
           <SmallInput
             isRenderAsteric={isFuncionary ? false:true}
             title={isFuncionary ? "Área dependiente":"Plan"}
@@ -326,12 +331,12 @@ export default function ManagementUsers(){
               "beneficiarios registrados"}`}
           </p>
           <Flex align='center' justify='center' wrap>
-            <TablePaginationV2
+            <TablePaginationUsers
               columns={headerTb}
               rows={rows}
+              onCellClick={handlerOpenModalEdit}
               currentPage={1}
-              itemsPerPage={10}
-              onRowClick={(row => handlerRowEdit(row))}/>
+              itemsPerPage={10}/>
           </Flex>
         </Flex>        
         </MenuBecas>

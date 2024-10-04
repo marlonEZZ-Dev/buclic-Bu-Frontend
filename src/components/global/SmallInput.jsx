@@ -5,7 +5,6 @@ import PropTypes from "prop-types"
 export default function InputSmall({
   isRenderAsteric= true,
   labelClassname= "",
-  placeholder= "placeholder",
   title= "title",
   ...props
 }){
@@ -15,7 +14,6 @@ export default function InputSmall({
       <input 
       type="text"
       className={styles.inputs}
-      placeholder={placeholder}
       {...props}/>
     </label>
     )

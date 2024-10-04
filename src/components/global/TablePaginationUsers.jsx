@@ -1,13 +1,13 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
-const TablePagination = ({ 
+const TablePaginationUsers = ({ 
     rows = [], 
     columns = [], // Este será un array de objetos que define qué propiedades del objeto se deben mostrar en la tabla.
     currentPage = 0, 
     itemsPerPage = 0, 
     onPageChange = () => {}, 
-    onRowClick = () => {}, 
+    onCellClick = () => {}, 
 }) => {
     const isRowNull = rows === null;
 
@@ -71,9 +71,12 @@ const TablePagination = ({
                 </thead>
                 <tbody>
                     {currentItems.map((row, rowIndex) => (
-                        <tr key={rowIndex} onClick={() => onRowClick(row)}>
+                        <tr key={rowIndex}>
                             {columns.map(({ key }, cellIndex) => (
-                                <td key={cellIndex} style={cellStyle}>
+                                <td 
+                                key={cellIndex} 
+                                style={cellStyle} 
+                                onClick={() => key === "edit" ? onCellClick(row) : {}}>
                                     {row[key]} {/* Mostrar el valor correspondiente a la clave de la columna */}
                                 </td>
                             ))}
@@ -108,7 +111,7 @@ const TablePagination = ({
     );
 };
 
-TablePagination.propTypes = {
+TablePaginationUsers.propTypes = {
     rows : PropTypes.arrayOf(PropTypes.object), // Arreglo de objetos
     columns : PropTypes.arrayOf(PropTypes.shape({
         key: PropTypes.string.isRequired, // Clave que indica qué propiedad del objeto mostrar
@@ -117,7 +120,7 @@ TablePagination.propTypes = {
     currentPage : PropTypes.number,
     itemsPerPage: PropTypes.number,
     onPageChange : PropTypes.func,
-    onRowClick : PropTypes.func, 
+    onCellClick : PropTypes.func, 
 }
 
-export default TablePagination;
+export default TablePaginationUsers;
