@@ -1,23 +1,15 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
-import ButtonEdit from './ButtonEdit.jsx';
-
-/*
-onRowClick: una funcion que se crea en el onClick de table row para manejar la selección de una fila
-addButtonForEdit: si es true crea el boton edit, ademas debe pasarse la función que controla el estado click como onRowbuttonEdit
-*/
-
 const TablePagination = ({ 
     rows= [],
     columns= [],
-    currentPage= 1, 
-    itemsPerPage= 10,
-    addButtonForEdit= false,
+    currentPage= 0, 
+    itemsPerPage= 0,
     onPageChange= () => {}, 
-    onRowClick= () => {}, 
-    onRowButtonEdit= () => {}
+    onRowClick= () => {},
     }) => {
+    let isRowNull = rows === null
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
@@ -35,7 +27,7 @@ const TablePagination = ({
     // Calcular el índice de inicio y fin para la paginación
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = rows.slice(indexOfFirstItem, indexOfLastItem); // Obtener los elementos actuales
+    const currentItems = isRowNull ? [] : rows.slice(indexOfFirstItem, indexOfLastItem); // Obtener los elementos actuales
 
     // Estilo para los botones
     const buttonStyle = {
@@ -86,10 +78,6 @@ const TablePagination = ({
                                     {cell}
                                 </td>
                             ))}
-                            {
-                                addButtonForEdit ? <td><ButtonEdit onClick={() => onRowButtonEdit(row)}/></td> 
-                                : ""
-                            }
                         </tr>
                     ))}
                 </tbody>
@@ -109,8 +97,8 @@ const TablePagination = ({
                 <div style={pageIndicatorStyle}> {currentPage}</div>
                 <button 
                     onClick={() => onPageChange(currentPage + 1)} 
-                    disabled={indexOfLastItem >= rows.length}
-                    style={{ ...buttonStyle, ...(indexOfLastItem >= rows.length ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si no hay más elementos
+                    disabled={indexOfLastItem >= (isRowNull ? 0 : rows.length)}
+                    style={{ ...buttonStyle, ...(indexOfLastItem >= (isRowNull ? 0 : rows.length) ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si no hay más elementos
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
                 >
@@ -128,8 +116,6 @@ TablePagination.propTypes = {
     itemsPerPage: PropTypes.number,
     onPageChange : PropTypes.func,
     onRowClick : PropTypes.func,
-    addButtonForEdit: PropTypes.bool,
-    onRowButtonEdit: PropTypes.func
 }
 
 export default TablePagination;
