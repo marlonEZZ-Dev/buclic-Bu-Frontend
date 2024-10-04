@@ -256,7 +256,7 @@ export default function ManagementUsers(){
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
           <Select
-            value={isStudent ? objectSelected.status.pros.children : 
+            value={isStudent ? objectSelected.status.props.active : 
               isFuncionary ? objectSelected.rol 
               : objectSelected.grant}
             className={styles.comboboxes}
@@ -272,7 +272,7 @@ export default function ManagementUsers(){
             Estado
           <Select
             placeholder="Selecciona"
-            value={objectSelected.status.props.children}
+            value={objectSelected.status.props.active}
             className={styles.comboboxes}
             options={cbxStatus}/>
         </label>
@@ -304,7 +304,9 @@ export default function ManagementUsers(){
           wrap
           gap={30}>
           
-            <Flex gap={29}>
+            <Flex 
+            gap={29} 
+            vertical={deviceType === "mobile" ? true:false}>
               <SmallInput
                 title='Nombre'
                 placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
@@ -313,7 +315,10 @@ export default function ManagementUsers(){
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
             </Flex>
 
-          <Flex gap={29}>
+          <Flex 
+          gap={29}
+          vertical={deviceType === "mobile" ? true:false}
+          >
             <SmallInput
               title={isFuncionary ? "Cédula" : "Código estudiantil"}
               placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}/>
@@ -323,7 +328,10 @@ export default function ManagementUsers(){
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}/>
           </Flex>
           
-          <Flex gap={29}>
+          <Flex 
+          gap={29}
+          vertical={deviceType === "mobile" ? true:false}
+          >
             <SmallInput 
               title='Correo electrónico'
               placeholder='Correo del estudiante'/>
