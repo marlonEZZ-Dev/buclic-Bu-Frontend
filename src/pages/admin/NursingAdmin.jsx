@@ -1,5 +1,5 @@
-import React from 'react';
-import TopNavbar from '../../components/TopNavbar';
+import { useNavigate } from 'react-router-dom';
+import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { Form, Input, Calendar, theme, ConfigProvider, Row, Col } from 'antd';
 import SchedulingTable from '../../components/global/SchedulingTable';
 import esES from 'antd/es/locale/es_ES';  // Importar el locale para español
@@ -15,7 +15,7 @@ const rows = [
     ['1:00p.m', '205 bloque', ''],
 ];
 
-const Nursing = () => {
+const NursingAdmin = () => {
 
     const { token } = theme.useToken();
 
@@ -50,7 +50,7 @@ const Nursing = () => {
 
     return (
         <>
-            <TopNavbar />
+            <HeaderAdmin />
             <main className="enfermeria-section" style={{ marginTop: '100px' }}>
                 <h1 className="text-xl font-bold">Cita enfermería - Médico general</h1>
 
@@ -112,4 +112,4 @@ const Nursing = () => {
     );
 };
 
-export default Nursing;
+export default NursingAdmin;

@@ -1,59 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Asegúrate de importar axios
-import TopNavbar from '../../components/TopNavbar';
+import api from '../../api';
+import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import Tables from '../../components/global/Tables';
 import MenuBecas from '../../components/global/MenuBecas';
 import { Button } from 'antd';
 
-
-const Becas = () => {
+const BecasAdmin = () => {
   const [selectedType, setSelectedType] = useState('almuerzo'); // Estado para el tipo de beca
   const [almuerzoRows, setAlmuerzoRows] = useState([]);
   const [refrigerioRows, setRefrigerioRows] = useState([]);
 
   const buttons = [
-    { type: 'Almuerzo', label: 'Almuerzo' },
-    { type: 'Refrigerio', label: 'Refrigerio' }
+    { type: 'almuerzo', label: 'Almuerzo' },
+    { type: 'refrigerio', label: 'Refrigerio' }
   ];
 
   const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
   const columnsRefrigerio = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
 
-  // useEffect para cargar datos cuando se monta el componente
+  // useEffect para cargar datos cada vez que cambia el tipo seleccionado
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        // Llama al backend para obtener el menú de almuerzo
-        const almuerzoResponse = await axios.get('/menu/1');  // Asegúrate de usar la ruta correcta
-        console.log('Almuerzo data:', almuerzoResponse.data);
-        setAlmuerzoRows([[
-          almuerzoResponse.data.mainDish,
-          almuerzoResponse.data.drink,
-          almuerzoResponse.data.dessert,
-          almuerzoResponse.data.price,
-          almuerzoResponse.data.note
-        ]]);
-
-        // Llama al backend para obtener el menú de refrigerio
-        const refrigerioResponse = await axios.get('/menu/2');
-        console.log('Refrigerio data:', refrigerioResponse.data);
-        setRefrigerioRows([[
-          refrigerioResponse.data.mainDish,
-          refrigerioResponse.data.drink,
-          refrigerioResponse.data.dessert,
-          refrigerioResponse.data.price,
-          refrigerioResponse.data.note
-        ]]);
+        if (selectedType === 'almuerzo') {
+          // Cargar menú de almuerzo
+          const almuerzoResponse = await api.get('/menu/1');
+          console.log('Almuerzo data:', almuerzoResponse.data);
+          setAlmuerzoRows([[
+            almuerzoResponse.data.mainDish,
+            almuerzoResponse.data.drink,
+            almuerzoResponse.data.dessert,
+            almuerzoResponse.data.price,
+            almuerzoResponse.data.note
+          ]]);
+        } else if (selectedType === 'refrigerio') {
+          // Cargar menú de refrigerio
+          const refrigerioResponse = await api.get('/menu/2');
+          console.log('Refrigerio data:', refrigerioResponse.data);
+          setRefrigerioRows([[
+            refrigerioResponse.data.mainDish,
+            refrigerioResponse.data.drink,
+            refrigerioResponse.data.dessert,
+            refrigerioResponse.data.price,
+            refrigerioResponse.data.note
+          ]]);
+        }
       } catch (error) {
         console.error('Error al obtener los menús:', error);
       }
     };
 
     fetchMenus();
-  }, []); // Solo se ejecuta cuando el componente se monta
+  }, [selectedType]); // Se ejecuta cada vez que cambia selectedType
+
   return (
     <>
-      <TopNavbar />
+      <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
 
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
@@ -96,7 +98,5 @@ const Becas = () => {
   );
 };
 
-export default Becas;
-
-
+export default BecasAdmin;
 

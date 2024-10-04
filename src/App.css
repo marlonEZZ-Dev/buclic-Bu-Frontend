@@ -103,12 +103,51 @@ body {
   /* Ajusta según sea necesario */
 }
 
-.becas-section h1,
-.becas-section p {
+.citas-section h1 {
   margin-bottom: 2rem;
   /* Margen entre el título, párrafo y el menú */
   text-align: center;
-  /* Asegúrate de que el texto esté centrado */
+  color: #C20E1A;
+  font-weight: bold;
+}
+
+.becas-section h1 {
+  margin-bottom: 2rem;
+  /* Margen entre el título, párrafo y el menú */
+  text-align: center;
+  color: #C20E1A;
+  font-weight: bold;
+}
+
+
+p {
+  margin-bottom: 2rem;
+  /* Margen entre el título, párrafo y el menú */
+  text-align: center;
+  color: black;
+}
+
+.psicologia-section h1 {
+  margin-bottom: 2rem;
+  /* Margen entre el título, párrafo y el menú */
+  text-align: center;
+  color: #C20E1A;
+  font-weight: bold;
+}
+
+.enfermeria-section h1 {
+  margin-bottom: 2rem;
+  /* Margen entre el título, párrafo y el menú */
+  text-align: center;
+  color: #C20E1A;
+  font-weight: bold;
+}
+.odontologia-section h1 {
+  margin-bottom: 2rem;
+  /* Margen entre el título, párrafo y el menú */
+  text-align: center;
+  color: #C20E1A;
+  font-weight: bold;
 }
 
 .menu-becas {

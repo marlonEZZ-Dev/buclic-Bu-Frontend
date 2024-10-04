@@ -9,7 +9,6 @@ export default function TopNavbar(props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Esta función se encarga de navegar a la ruta proporcionada
   const handleButtonClick = (path) => {
     navigate(path);
   };
@@ -18,18 +17,6 @@ export default function TopNavbar(props) {
     <header 
       id='univalle-logo-header' 
       className={session}
-      style={{
-        backgroundColor: '#C20E1A',
-        width: '100vw',
-        height: '90px',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 20px',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 1000,
-      }}
     >
       <div style={{ marginRight: 'auto' }}>
         <img 
@@ -39,14 +26,12 @@ export default function TopNavbar(props) {
         />
       </div>
 
-      {/* Contenedor para los botones */}
-      <div style={{
+      <div className="menu-buttons" style={{
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-end',
-        flexGrow: 1 }}>
-        
-        {/* Botones de navegación */}
+        alignItems: 'center',
+        flexGrow: 1
+      }}>
         <MenuButton 
           text="Becas" 
           isActive={location.pathname === "/becas"} 
@@ -58,7 +43,7 @@ export default function TopNavbar(props) {
           onClick={() => handleButtonClick("/citas")} 
         />
         <MenuButton 
-          text="Ajustes" 
+          text="Perfil" 
           isActive={location.pathname === "/ajustes"} 
           onClick={() => handleButtonClick("/ajustes")} 
         />
