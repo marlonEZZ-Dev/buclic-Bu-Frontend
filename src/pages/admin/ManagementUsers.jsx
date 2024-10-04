@@ -52,7 +52,7 @@ export default function ManagementUsers(){
     }
   ]
 
-  const cbxStudents = [
+  const cbxBeneficiaries = [
     {value:"almuerzo", label:"Beneficiario almuerzo"},
     {value:"refrigerio", label:"Beneficiario refrigerio"}
   ]
@@ -63,6 +63,11 @@ export default function ManagementUsers(){
     {value:"monitor", label:"Monitor (a)"},
     {value:"odontologo", label:"Odontólogo (a)"},
     {value:"psicologo", label:"Psicólogo (a)"}
+  ]
+
+  const cbxStatus = [
+    {value:true, label:"Activo"},
+    {value:false, label:"Inactivo"}    
   ]
   /*
   Las porperties estan en inglés entonces es necesario que correctamente se encuentren 
@@ -226,34 +231,58 @@ export default function ManagementUsers(){
           <SmallInput
             isRenderAsteric={false}
             title='Nombre'
-            value={objectSelected.name.props.childrem}/>
+            value={objectSelected.name.props.children}/>
           <SmallInput
             title='Apellidos'
-            value={objectSelected.lastName.props.childrem}/>
+            value={objectSelected.lastName.props.children}/>
         </Flex>
 
         <Flex gap={29}>
           <SmallInput
             title={isFuncionary ? "Cédula" : "Código estudiantil"}
-            value={isFuncionary ? objectSelected.uniqueDoc.props.childrem : objectSelected.code}/>
+            value={isFuncionary ? objectSelected.uniqueDoc.props.children : objectSelected.code}/>
           <SmallInput
             isRenderAsteric={isFuncionary ? false:true}
             title={isFuncionary ? "Área dependiente":"Plan"}
-            placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}/>
+            value={isFuncionary ? objectSelected.area : objectSelected.plan}/>
         </Flex>
           
         <Flex gap={29}>
           <SmallInput 
             title='Correo electrónico'
-            placeholder='Correo del estudiante'/>
-          <label className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" : ""}`}>
-          {isFuncionary ? "Rol" : 
-          <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
+            value={objectSelected.email.props.children}/>
+          <label className={`${otherStyles.labels}`}>
+            {isStudent ? "Estado" 
+            : isFuncionary ? "Rol" 
+            : "Tipo de Beca"}
+          <Select
+            value={isStudent ? objectSelected.status.pros.children : 
+              isFuncionary ? objectSelected.rol 
+              : objectSelected.grant}
+            className={styles.comboboxes}
+            options={isStudent ? cbxStatus 
+              : isFuncionary ? cbxFuncionary 
+              : cbxBeneficiaries}/>
+          </label>
+        </Flex>
+
+        {isStudent ? "" 
+        : <Flex align='center' justify='flex-start'>
+        <label className={`${otherStyles.labels}`}>
+            Estado
           <Select
             placeholder="Selecciona"
+            value={objectSelected.status.props.children}
             className={styles.comboboxes}
-            options={isFuncionary ? cbxFuncionary : cbxStudents}/>
-          </label>
+            options={cbxStatus}/>
+        </label>
+        </Flex>}
+        <Flex
+        align='center'
+        gap='small'
+        justify='space-evenly'>
+          <button className={styles.buttonSave}>Guardar</button>
+          <button className={styles.buttonCancel}>Cancelar</button>
         </Flex>
       </Modal>) : ""}
         <MenuBecas 
@@ -304,7 +333,7 @@ export default function ManagementUsers(){
             <Select
               placeholder="Selecciona"
               className={styles.comboboxes}
-              options={isFuncionary ? cbxFuncionary : cbxStudents}/>
+              options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}/>
             </label>
           </Flex>
         </Flex>
