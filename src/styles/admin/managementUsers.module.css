@@ -6,12 +6,6 @@
   width: 7rem;
 }
 
-#email{
-  /* width: 11.9375rem; */
-  width: 11rem;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
 
 #active{
   width: 3rem;
@@ -22,7 +16,14 @@
 #edit{
   width: 4.5625rem;
 }
-
+#code,
+#name,
+#email{
+  /* width: 11.9375rem; */
+  width: 11rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 .menuGrant{
   margin-top: 6rem;
   position: relative;
