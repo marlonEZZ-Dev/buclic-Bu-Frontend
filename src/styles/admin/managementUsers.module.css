@@ -54,6 +54,7 @@
   margin-top: 1.625rem;
   text-align: left;
 }
+
 .buttonImport{
   z-index: 999;
   position: absolute;
@@ -61,6 +62,12 @@
   top: 0;
   margin-top: 1.25rem;
   margin-right: 1.75rem;
+}
+
+.buttonLoad{
+  border-radius: .3125rem;
+  background-color: var(--gray);
+  color: var(--gray-dark);
 }
 
 .buttonCancel{
@@ -92,6 +99,12 @@
   display: block;
   height: 2.375rem;
   margin: auto;
+}
+
+.buttonLoad{
+  width: 11.25rem;
+  border-color: transparent;
+  transition: box-shadow 0.3s ease-in-out; /* Suaviza la transición */
 }
 
 .buttonSave, 
@@ -127,7 +140,8 @@
   background-color: var(--red-dark);
 }
 
-:global(.ant-select-selector:hover){
-  border: solid 1px var(--blue) !important;
-  outline: none !important;
+.buttonLoad:hover{
+  cursor: pointer;
+  box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.5),
+  inset -1px -1px 3px rgba(0, 0, 0, 0.1);
 }
