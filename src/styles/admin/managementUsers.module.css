@@ -16,11 +16,15 @@
 #edit{
   width: 4.5625rem;
 }
+
+#email{
+  width: 11rem;
+}
+
 #code,
 #name,
 #email{
   /* width: 11.9375rem; */
-  width: 11rem;
   text-overflow: ellipsis;
   overflow: hidden;
 }
