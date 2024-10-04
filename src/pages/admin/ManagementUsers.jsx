@@ -3,21 +3,30 @@ import {
   Flex, 
   Select 
 } from 'antd'
-import { SearchOutlined } from '@ant-design/icons';
-import { useState } from 'react'
+import { UploadOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
 
+import ButtonEdit from "../../components/global/ButtonEdit.jsx"
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
-import ButtonEdit from "../../components/global/ButtonEdit.jsx"
-import StateUser from '../../components/global/StateUser.jsx';
-import TablePagination from '../../components/global/TablePagination.jsx';
+import Modal from '../../components/global/Modal.jsx'
+import SearchInput from '../../components/global/SearchInput.jsx'
+import SmallInput from '../../components/global/SmallInput.jsx'
+import StateUser from '../../components/global/StateUser.jsx'
+import TablePaginationV2 from '../../components/global/TablePaginationV2.jsx'
 
 import styles from "../../styles/admin/managementUsers.module.css"
+import otherStyles from "../../styles/global/inputSmall.module.css"
 
 export default function ManagementUsers(){
   //useStates
   const [changesDescription, setChangesDescription] = useState(1)
-
+  const [data, setData] = useState(null)
+  const [rowToEdit, setRowToEdit] = useState(null)
+  const [isModalImport, setIsModalImport] = useState(false)
+  const [isModalEdit, setIsModalEdit] = useState(false)
+  const [rows, setRows] = useState(null)
+  const [isResponsive, setIsResponsive] = useState(false)
   //Predicados
   let isStudent = changesDescription === 1
   let isFuncionary = changesDescription === 2
@@ -57,139 +66,246 @@ export default function ManagementUsers(){
     {value:"psicologo", label:"Psicólogo (a)"}
   ]
 
-  const o = {
-    code : number => <span id={styles.code}>{202059125 + number}</span>,
-    name: text => <span id={styles.name}>{ `Carolina Perez${text}`}</span>,
-    email : text => <span id={styles.email}>{ `carolina.perez@correounivalle.edu.co${text}`}</span>,
-    active : status => <StateUser id={styles.active} active={status}/>,
-    edit : <ButtonEdit id={styles.edit}/>
-  }
+  const headerTb = [
+    {key: isFuncionary  ? "uniqueDoc" : "code", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "name", label: "Nombre"},
+    {key: "status", label: "Estado"},
+    {key: "edit", label: "Editar"}
+  ]
 
-  const headerTb = [isFuncionary ? "Cédula":"Código", "Nombre", "Correo","Estado","Editar"]
-
-  const rows = Array.from({length: 10}, (_,index) => [
-    o.code(index), 
-    o.name(index),
-    o.email(index), 
-    o.active(),
-    o.edit
-  ])
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
+  
+  
+  const createRows = (onClickBtnEdit, whoIs) => {
+    const o = {
+        name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
+        lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
+        email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
+        status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
+        edit: <ButtonEdit id={styles.edit} onClick={onClickBtnEdit} />
+    };
+    
+    switch (whoIs) {
+        case 0:
+            o.typeUser = 0;
+            o.code = number => <span id={styles.code}>{202059431 + number}</span>;
+            o.plan = 2711;
+            o.grant = "almuerzo";
+            return Array.from({ length: 10 }, (_, index) => ({
+                name: o.name(index),
+                lastName: o.lastName(index),
+                email: o.email(index),
+                status: o.status(index % 2 === 0),
+                edit: o.edit,
+                typeUser: o.typeUser,
+                code: o.code(index),
+                plan: o.plan,
+                grant: o.grant
+            }));
+        case 1:
+            o.typeUser = 1;
+            o.code = 202059431;
+            o.plan = 2711;
+            return Array.from({ length: 10 }, (_, index) => ({
+                name: o.name(index),
+                lastName: o.lastName(index),
+                email: o.email(index),
+                status: o.status(index % 2 === 0),
+                edit: o.edit,
+                typeUser: o.typeUser,
+                code: o.code,
+                plan: o.plan
+            }));
+        case 2:
+            o.typeUser = 2;
+            o.uniqueDoc = number => <span id={styles.code}>{BigInt("0123456789") + number}</span>;
+            o.area = "Adminstrativa";
+            o.rol = "monitor";
+            return Array.from({ length: 10 }, (_, index) => ({
+                name: o.name(index),
+                lastName: o.lastName(index),
+                email: o.email(index),
+                status: o.status(index % 2 === 0),
+                edit: o.edit,
+                typeUser: o.typeUser,
+                uniqueDoc: o.uniqueDoc(index),
+                area: o.area,
+                rol: o.rol
+            }));
+        default:
+            return [];
+    }
+};
 
   //Handlers
-  const handlerClick = type => {
-    setChangesDescription(users.get(type))
-  }
+  const handlerClick = type => setChangesDescription(users.get(type))
   
+  const handlerRowEdit = row => {
+    setRowToEdit(row)
+    console.dir(row)
+  }
+
+  const showError = () => {
+    console.dir(rows)
+  }
+
+  const handlerOpenModalImport = () => setIsModalImport(true)
+  const handlerCloseModalImport = () => setIsModalImport(false)
+  
+  const handlerOpenModalEdit = () => setIsModalEdit(true)
+  const handlerCloseModalEdit = () => setIsModalEdit(false)
+  
+  //ajustes para mantener el orden imports, variables, funciones, logica
+  useEffect(() => {
+    setRows(createRows(handlerOpenModalEdit, changesDescription))
+  }, [changesDescription])
+
   return (
     <>
       <HeaderAdmin/>
       <main className={styles.menuGrant}>
+      {isModalImport ? (
+      <Modal 
+        open={isModalImport}
+        onClose={handlerCloseModalImport}>
+        <Flex vertical>
+          <h4>Importar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</h4>
+          <p>Descarga la plantilla <a href="#">aquí</a> y selecciona el archivo modificado</p>
+        <Flex justify='flex-start'>
+          <button className={styles.buttonLoad}>
+            <UploadOutlined /> Selecciona archivo
+          </button>              
+        </Flex>
+        <Flex align='center' justify='center' gap={25}>
+          <button 
+          className={styles.buttonCancel}
+          onClick={handlerCloseModalImport}>
+            Cancelar
+          </button>
+          <button className={styles.buttonSave}>Aceptar</button>
+        </Flex>
+        </Flex>
+      </Modal> ) : ""}
+      {isModalEdit ? (
+      <Modal
+      open={isModalEdit}
+      onClose={handlerCloseModalEdit}>
+        <h4>Editar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</h4>
+        <Flex gap={29}>
+          <SmallInput
+            isRenderAsteric={false}
+            title='Nombre'
+            value={"s"}/>
+          <SmallInput
+            title='Apellidos'
+            placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
+        </Flex>
+
+        <Flex gap={29}>
+          <SmallInput
+            title={isFuncionary ? "Cédula" : "Código estudiantil"}
+            placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}/>
+          <SmallInput
+            isRenderAsteric={isFuncionary ? false:true}
+            title={isFuncionary ? "Área dependiente":"Plan"}
+            placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}/>
+        </Flex>
+          
+        <Flex gap={29}>
+          <SmallInput 
+            title='Correo electrónico'
+            placeholder='Correo del estudiante'/>
+          <label className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" : ""}`}>
+          {isFuncionary ? "Rol" : 
+          <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
+          <Select
+            placeholder="Selecciona"
+            className={styles.comboboxes}
+            options={isFuncionary ? cbxFuncionary : cbxStudents}/>
+          </label>
+        </Flex>
+      </Modal>) : ""}
         <MenuBecas 
-        buttons={buttons}
-        onSelect={type => handlerClick(type)}>
-        <button className={styles.buttonImport}>
-          Importar
-        </button>
-        <div className={styles.contentTitles}>
-          <h3>{descriptions[changesDescription].title}</h3>
-          <p>{descriptions[changesDescription].description}</p>
-        </div>
+          buttons={buttons}
+          onSelect={type => handlerClick(type)}>
+            <button 
+            className={styles.buttonImport} 
+            onClick={handlerOpenModalImport}>
+              Importar
+            </button>
+            <div className={styles.contentTitles}>
+              <h3>{descriptions[changesDescription].title}</h3>
+              <p>{descriptions[changesDescription].description}</p>
+            </div>
 
         <Flex
           align='center'
           justify='center'
           wrap
-          gap={30}
-          >
+          gap={30}>
           
-          <Flex gap={29}>
-            <label className={styles.labels}>
-              Nombre <span className={styles.asteric}>*</span>
-              <input 
-              type="text"
-              className={styles.inputs} 
-              placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
-            </label>
-            <label className={styles.labels}>
-              Apellidos <span className={styles.asteric}>*</span>
-              <input 
-              type="text" 
-              className={styles.inputs}
-              placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
-            </label>
-          </Flex>
+            <Flex gap={29}>
+              <SmallInput
+                title='Nombre'
+                placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
+              <SmallInput
+                title='Apellidos'
+                placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}/>
+            </Flex>
 
           <Flex gap={29}>
-          <label className={styles.labels}>
-              {isFuncionary ? "Cédula" : "Código estudiantil"} <span className={styles.asteric}>*</span>
-              <input 
-              type="text" 
-              className={styles.inputs}
+            <SmallInput
+              title={isFuncionary ? "Cédula" : "Código estudiantil"}
               placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}/>
-            </label>
-            <label className={styles.labels}>
-              {isFuncionary ? "Área dependiente" : 
-              <span>Plan <span className={styles.asteric}>*</span></span>}
-              <input 
-              type="text" 
-              className={styles.inputs}
+            <SmallInput
+              isRenderAsteric={isFuncionary ? false:true}
+              title={isFuncionary ? "Área dependiente":"Plan"}
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}/>
-            </label>
           </Flex>
           
           <Flex gap={29}>
-          <label className={styles.labels}>
-              Correo electrónico <span className={styles.asteric}>*</span>
-              <input 
-              type="text" 
-              className={styles.inputs}
+            <SmallInput 
+              title='Correo electrónico'
               placeholder='Correo del estudiante'/>
-          </label>
-          <label className={`${styles.labels} ${isStudent ? "visibility-hidden" : ""}`}>
+            <label className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" : ""}`}>
             {isFuncionary ? "Rol" : 
-            <span>Tipo de beca <span className={styles.asteric}>*</span></span>}          
+            <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
             <Select
-            placeholder="Selecciona"
-            className={styles.comboboxes}
-            options={isFuncionary ? cbxFuncionary : cbxStudents}
-            />
-          </label>
+              placeholder="Selecciona"
+              className={styles.comboboxes}
+              options={isFuncionary ? cbxFuncionary : cbxStudents}/>
+            </label>
           </Flex>
         </Flex>
 
         <Flex
         align='center'
+        gap='small'
         justify='space-evenly'>
-          <button className={styles.buttonSave}>Guardar</button>
+          <button className={styles.buttonSave} onClick={showError}>Guardar</button>
           <button className={styles.buttonCancel}>Cancelar</button>
         </Flex>
         <Divider/>
         <Flex
         justify='center'
-        gap={11}
-        >
-          <input 
-          type="text"
-          className={styles.inputs}
-          placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'} />
-          <button className={styles.buttonSearch}><SearchOutlined/></button>
+        gap={11}>
+          <SearchInput
+            placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'}/>
         </Flex>
-        <Flex vertical
-        >
+        <Flex vertical>
           <p className={styles.marginTable}>
           {`Tabla de ${
           isFuncionary ? "funcionarios y externos registrados": 
             isStudent ? "estudiantes registrados" : 
               "beneficiarios registrados"}`}
           </p>
-        <TablePagination
-        columns={headerTb}
-        rows={rows}
-        currentPage={1}
-        itemsPerPage={10}
-        />
+        <TablePaginationV2
+          columns={headerTb}
+          rows={rows}
+          currentPage={1}
+          itemsPerPage={10}
+          onRowClick={(row => handlerRowEdit(row))}/>
         </Flex>        
         </MenuBecas>
       </main>
