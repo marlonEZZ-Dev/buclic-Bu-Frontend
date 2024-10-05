@@ -33,15 +33,16 @@ export default function TopNavbar(props) {
         flexGrow: 1
       }}>
         <MenuButton 
-          text="Becas" 
-          isActive={location.pathname === "/becas"} 
-          onClick={() => handleButtonClick("/becas")} 
-        />
-        <MenuButton 
           text="Citas" 
           isActive={location.pathname === "/citas"} 
           onClick={() => handleButtonClick("/citas")} 
         />
+        <MenuButton 
+          text="Becas" 
+          isActive={location.pathname === "/becas"} 
+          onClick={() => handleButtonClick("/becas")} 
+        />
+        
         <MenuButton 
           text="Perfil" 
           isActive={location.pathname === "/ajustes"} 

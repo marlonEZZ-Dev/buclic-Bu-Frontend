@@ -1,56 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Asegúrate de importar axios
+import React, { useState, useContext } from 'react';
+import { MenuContext } from '../../utils/MenuContext';  // Importar el contexto
 import TopNavbar from '../../components/TopNavbar';
 import Tables from '../../components/global/Tables';
 import MenuBecas from '../../components/global/MenuBecas';
 import { Button } from 'antd';
 
-
 const Becas = () => {
-  const [selectedType, setSelectedType] = useState('almuerzo'); // Estado para el tipo de beca
-  const [almuerzoRows, setAlmuerzoRows] = useState([]);
-  const [refrigerioRows, setRefrigerioRows] = useState([]);
+  const { menuData } = useContext(MenuContext);  // Acceder a datos del contexto
+  const [selectedType, setSelectedType] = useState('Almuerzo');  // Estado para el tipo de menú seleccionado (corregido)
 
-  const buttons = [
-    { type: 'Almuerzo', label: 'Almuerzo' },
-    { type: 'Refrigerio', label: 'Refrigerio' }
+  // Definir las columnas para cada tipo de menú
+  const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
+  const columnsRefrigerio = ['Aperitivo', 'Bebida', 'Precio', 'Nota'];
+
+  // Convertir los datos del menú en filas para la tabla
+  const almuerzoRows = [
+    [
+      menuData.Almuerzo.mainDish,
+      menuData.Almuerzo.drink,
+      menuData.Almuerzo.dessert,
+      menuData.Almuerzo.price,
+      menuData.Almuerzo.note,
+    ],
   ];
 
-  const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
-  const columnsRefrigerio = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
+  const refrigerioRows = [
+    [
+      menuData.Refrigerio.appetizer,
+      menuData.Refrigerio.drink,
+      menuData.Refrigerio.price,
+      menuData.Refrigerio.note,
+    ],
+  ];
 
-  // useEffect para cargar datos cuando se monta el componente
-  useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        // Llama al backend para obtener el menú de almuerzo
-        const almuerzoResponse = await axios.get('/menu/1');  // Asegúrate de usar la ruta correcta
-        console.log('Almuerzo data:', almuerzoResponse.data);
-        setAlmuerzoRows([[
-          almuerzoResponse.data.mainDish,
-          almuerzoResponse.data.drink,
-          almuerzoResponse.data.dessert,
-          almuerzoResponse.data.price,
-          almuerzoResponse.data.note
-        ]]);
+  // Botones para seleccionar el tipo de menú
+  const buttons = [
+    { type: 'Almuerzo', label: 'Almuerzo' },  // Usar las mismas claves del contexto
+    { type: 'Refrigerio', label: 'Refrigerio' },
+  ];
 
-        // Llama al backend para obtener el menú de refrigerio
-        const refrigerioResponse = await axios.get('/menu/2');
-        console.log('Refrigerio data:', refrigerioResponse.data);
-        setRefrigerioRows([[
-          refrigerioResponse.data.mainDish,
-          refrigerioResponse.data.drink,
-          refrigerioResponse.data.dessert,
-          refrigerioResponse.data.price,
-          refrigerioResponse.data.note
-        ]]);
-      } catch (error) {
-        console.error('Error al obtener los menús:', error);
-      }
-    };
-
-    fetchMenus();
-  }, []); // Solo se ejecuta cuando el componente se monta
   return (
     <>
       <TopNavbar />
@@ -61,8 +49,8 @@ const Becas = () => {
 
         <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
           <Tables
-            rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows}
-            columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
+            rows={selectedType === 'Refrigerio' ? refrigerioRows : almuerzoRows}  // Corregir para que coincidan las claves
+            columns={selectedType === 'Refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
           />
 
           {/* Párrafo antes de los botones */}
@@ -97,6 +85,3 @@ const Becas = () => {
 };
 
 export default Becas;
-
-
-

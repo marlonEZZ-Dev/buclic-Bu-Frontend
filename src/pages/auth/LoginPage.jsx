@@ -16,7 +16,7 @@ export default function LoginPage() {
   const roleToRouteMap = {
     "ROLE_ADMINISTRADOR": "/usuarios",
     "ROLE_MONITOR": "/usuarios",
-    "ROLE_ESTUDIANTE": "/becas",
+    "ROLE_ESTUDIANTE": "/citas",
     "ROLE_PSICOLOGO": "/beca",
     "ROLE_ENFERMERO": "/usuarios",
     "ROLE_ODONTOLOGO": "/usuarios",
