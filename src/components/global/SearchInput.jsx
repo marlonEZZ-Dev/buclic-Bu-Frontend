@@ -3,7 +3,7 @@ import { Button, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons'
 import PropTypes from "prop-types"
 
-const SearchInput = ({placeholder="Buscar"}) => {
+const SearchInput = ({placeholder="Buscar",...props}) => {
   const [hover, setHover] = useState(false);
 
   return (
@@ -12,6 +12,7 @@ const SearchInput = ({placeholder="Buscar"}) => {
       <Input
         placeholder={placeholder}
         style={styles.input}
+        {...props}
       />
 
       {/* Botón de buscar con lupa */}
