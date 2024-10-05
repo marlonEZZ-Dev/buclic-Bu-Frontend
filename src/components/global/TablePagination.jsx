@@ -57,7 +57,8 @@ const TablePagination = ({
     };
 
     return (
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <div 
+        style={{ textAlign: 'center', margin: '20px 0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
@@ -115,7 +116,7 @@ TablePagination.propTypes = {
     currentPage : PropTypes.number,
     itemsPerPage: PropTypes.number,
     onPageChange : PropTypes.func,
-    onRowClick : PropTypes.func,
+    onRowClick : PropTypes.func
 }
 
 export default TablePagination;

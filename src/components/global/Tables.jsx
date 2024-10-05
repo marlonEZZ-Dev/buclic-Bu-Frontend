@@ -1,4 +1,11 @@
-const Tables = ({ rows, columns }) => {
+import PropTypes from "prop-types"
+
+const Tables = ({ 
+  rows = [[]], 
+  columns = [],
+  enableClassname = false,
+  classNameContainer = ""
+}) => {
   const headerStyle = {
     backgroundColor: '#CFCFCF', // Fondo gris oscuro
     color: 'black', // Texto negro
@@ -23,7 +30,9 @@ const Tables = ({ rows, columns }) => {
   };
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div 
+    style={ enableClassname ? {} : { textAlign: 'center' }}
+    className={classNameContainer}>
       {/* Contenedor con scroll horizontal en pantallas pequeñas */}
       <div style={tableContainerStyle}>
         <table style={tableStyle}>
@@ -52,6 +61,13 @@ const Tables = ({ rows, columns }) => {
     </div>
   );
 };
+
+Tables.propTypes = {
+  rows: PropTypes.arrayOf(PropTypes.array),
+  columns: PropTypes.array,
+  enableClassname: PropTypes.bool,
+  classNameContainer: PropTypes.string
+}
 
 export default Tables;
 

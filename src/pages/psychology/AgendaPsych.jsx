@@ -11,10 +11,13 @@ import moment from "moment/moment.js"
 import 'moment/locale/es'
 
 import styles from "../../styles/psychology/agendaPsych.module.css"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 export default function AgendaPsych(){
 	moment.locale("es")
+
+	const [enableConfirm, setEnableConfirm] = useState(false)
+	const [whoClicked, setWhoClicked] = useState("")
   let date = moment()
 	
 	const cbxPsych = [
@@ -58,7 +61,9 @@ export default function AgendaPsych(){
 			className={styles.card}
 			bordered
 			>
-			<Modal></Modal>
+			<Modal open={enableConfirm}>
+
+			</Modal>
 				<Flex 
 				vertical
 				align="center"
@@ -70,7 +75,8 @@ export default function AgendaPsych(){
     				: palabra).join(' ')}`}
 					</p>
 					<Tables
-					className={styles.table}
+					enableClassname
+					classNameContainer={styles.table}
 					columns={appointmentPendingColums}
 					rows={rowsAppoinmentPending}/>
 					<SearchInput
@@ -81,8 +87,6 @@ export default function AgendaPsych(){
 				<Flex vertical>
 					<p className="text-left">Tabla historial de citas realizadas</p>
 					<TablePagination
-					enableClassname
-					className={styles.table}
 					columns={appointmentDoneColums}
 					rows={rowsAppointmentDone}
 					currentPage={1}
