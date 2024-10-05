@@ -17,7 +17,7 @@ const Menu = () => {
     Almuerzo: false,
     Refrigerio: false,
   });
-  
+
   // Estado temporal para manejar los datos durante la edición
   const [tempMenuData, setTempMenuData] = useState(menuData);
 
