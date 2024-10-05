@@ -9,7 +9,7 @@ import Tables from "../../components/global/Tables.jsx"
 import { Flex, Select } from "antd"
 import moment from "moment/moment.js"
 
-import styles from "../../styles/admin/agendaPsych.module.css"
+import styles from "../../styles/psychology/agendaPsych.module.css"
 
 export default function AgendaPsych(){
 	moment.locale("es")
