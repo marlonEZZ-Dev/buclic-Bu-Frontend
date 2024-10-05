@@ -24,6 +24,10 @@ body {
   color: var(--red);
 }
 
+.text-left{
+  text-align: left;
+}
+
 .bg-dark-gray{
   background-color: var(--gray-dark);
 }
