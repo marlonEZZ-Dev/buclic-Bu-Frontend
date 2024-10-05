@@ -1,19 +1,21 @@
-import Absense from "../../components/global/Absense.jsx"
+import Attendance from "../../components/global/Attendance.jsx"
 import HeaderPsych from "../../components/psychology/HeaderPsych.jsx"
-import MenuBecas from "../../components/global/MenuBecas.jsx"
 import Modal from "../../components/global/Modal.jsx"
 import SearchInput from "../../components/global/SearchInput.jsx"
-import TablePaginationUsers from "../../components/global/TablePaginationUsers.jsx"
+import StateUser from "../../components/global/StateUser.jsx"
+import TablePagination from "../../components/global/TablePagination.jsx"
 import Tables from "../../components/global/Tables.jsx"
 
-import { Flex, Select } from "antd"
+import { Card, Flex, Select } from "antd"
 import moment from "moment/moment.js"
+import 'moment/locale/es'
 
 import styles from "../../styles/psychology/agendaPsych.module.css"
+import { useEffect } from "react"
 
 export default function AgendaPsych(){
 	moment.locale("es")
-  const date = moment()
+  let date = moment()
 	
 	const cbxPsych = [
 		{value:"psicologo1", label:"Psicólogo 1"},
@@ -21,47 +23,74 @@ export default function AgendaPsych(){
 	]
 
 	const appointmentPendingColums = ["Hora","Paciente", "Psicólogo (a)", "Asistencia"]
+	
 	const appointmentDoneColums = ["Horario cita","Paciente", "Código/Cédula", "Asistencia"]
+	
 	const rowsAppoinmentPending = [
 		[
-			"2 PM","Carolina Perez",<Select key={1}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={1} justify="space-evenly">
-				<button>✅</button>
-				<button><Absense/></button>
+			"2 PM","Carolina Perez",<Select key={1}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={1} justify="space-around" align="center">
+				<button className={styles.assistance}><Attendance non={false}/></button>
+				<button className={styles.assistance}><Attendance/></button>
 				</Flex>],
 		[
-			"3 PM","José Casanova",<Select key={2}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={2} justify="space-evenly">
-				<button>✅</button>
-				<button><Absense/></button>
+			"3 PM","José Casanova",<Select key={2}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={2} justify="space-around" align="center">
+				<button className={styles.assistance}><Attendance non={false}/></button>
+				<button className={styles.assistance}><Attendance/></button>
 				</Flex>]
 	]
+
+	const rowsAppointmentDone = [
+		[moment("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez","2057165",<StateUser key={1} active={false}/>]
+	]
+
+	useEffect(() => console.dir(date), [])
 		return(	
 		<>
       <HeaderPsych/>
-			<Flex align="center" justify="center">
+			<div className={styles.contentTitle}>
 				<h1 className="text-red">Agenda</h1>
-				<p>
-					Aquí se visualizan las citas pendientes para ser atendidas</p>
-			</Flex>			
-			<MenuBecas>
+				<p>Aquí se visualizan las citas pendientes para ser atendidas</p>
+			</div>
+			<Flex
+			align="center" 
+			justify="center">			
+			<Card
+			className={styles.card}
+			bordered
+			>
 			<Modal></Modal>
-				<Flex>
-					<p className={`${styles.pseudoTableHeader}`}>
-						{`${date.format("dddd D [de] MMMM [del] YYYY")}`}
+				<Flex 
+				vertical
+				align="center"
+				justify="center"
+				>
+					<p className={`${styles.pseudoTableHeader} text-left`}>
+						{`${date.format("dddd D [de] MMMM [del] YYYY").split(' ')
+  					.map(palabra => (palabra !== 'de' && palabra !== 'del') ? palabra.charAt(0).toUpperCase() + palabra.slice(1) 
+    				: palabra).join(' ')}`}
 					</p>
-				</Flex>
-				<Flex>
 					<Tables
+					className={styles.table}
 					columns={appointmentPendingColums}
 					rows={rowsAppoinmentPending}/>
 					<SearchInput
+					className={styles.searchInput}
 					placeholder="Fecha de consulta"
 					/>
 				</Flex>
-				<Flex>
-					<p></p>
-					<TablePaginationUsers></TablePaginationUsers>
+				<Flex vertical>
+					<p className="text-left">Tabla historial de citas realizadas</p>
+					<TablePagination
+					enableClassname
+					className={styles.table}
+					columns={appointmentDoneColums}
+					rows={rowsAppointmentDone}
+					currentPage={1}
+					itemsPerPage={1}
+					/>
 				</Flex>
-			</MenuBecas>
+			</Card>
+			</Flex>
 		</>
     );
 }
