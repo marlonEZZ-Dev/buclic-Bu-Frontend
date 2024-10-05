@@ -8,6 +8,8 @@ const { Text } = Typography;
 export default function LogoutButton() {
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isActive, setIsActive] = useState(false);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -17,17 +19,31 @@ export default function LogoutButton() {
         setIsModalOpen(false);
     };
 
+    const buttonStyle = {
+        backgroundColor: (isHovered || isActive) ? 'white' : '#C20E1A',
+        color: (isHovered || isActive) ? '#C20E1A' : 'white',
+        borderRadius: '8px',
+        border: 'none',
+        padding: '10px 20px',  // Igual que en MenuButton
+        cursor: 'pointer',
+        transition: 'background-color 0.3s, color 0.3s',
+        margin: '5px',         // Igual que en MenuButton
+        fontFamily: 'Open Sans, sans-serif', // Aplicar Open Sans aquí
+    };
+
     return (
         <>
-            <Button
-                icon={<LogoutOutlined />}
+            <button
                 onClick={handleOpenModal}
-                type="text"
-                size="small"
-                style={{ fontFamily: 'Open Sans, sans-serif' }}  // Aplicar Open Sans aquí
+                onMouseEnter={() => setIsHovered(true)} // Cambia el estado de hover al pasar el mouse
+                onMouseLeave={() => setIsHovered(false)} // Cambia el estado de hover al quitar el mouse
+                onMouseDown={() => setIsActive(true)} // Cambia el estado de active al hacer clic
+                onMouseUp={() => setIsActive(false)} // Cambia el estado de active al soltar el clic
+                style={buttonStyle}
             >
+                <LogoutOutlined style={{ marginRight: '8px' }} />
                 Cerrar Sesión
-            </Button>
+            </button>
 
             <Modal
                 open={isModalOpen}
@@ -37,7 +53,7 @@ export default function LogoutButton() {
                 <Text 
                     type="secondary" 
                     style={{ 
-                        fontFamily: 'Open Sans, sans-serif',  // Aplicar Open Sans aquí
+                        fontFamily: 'Open Sans, sans-serif', 
                         minWidth: '500px', 
                         display: 'block', 
                         marginBottom: '16px' 
@@ -48,7 +64,7 @@ export default function LogoutButton() {
                 <Space direction="horizontal" style={{ width: '100%', justifyContent: 'flex-end' }}>
                     <Button
                         onClick={handleCloseModal}
-                        style={{ fontFamily: 'Open Sans, sans-serif' }}  // Aplicar Open Sans aquí
+                        style={{ fontFamily: 'Open Sans, sans-serif' }}
                     >
                         Cancelar
                     </Button>
@@ -58,7 +74,7 @@ export default function LogoutButton() {
                         href='/login'
                         loading={loading}
                         onClick={() => { handleOpenModal(); setLoading(true); }}
-                        style={{ fontFamily: 'Open Sans, sans-serif' }}  // Aplicar Open Sans aquí
+                        style={{ fontFamily: 'Open Sans, sans-serif' }}
                     >
                         Salir
                     </Button>
