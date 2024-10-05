@@ -20,6 +20,13 @@ body {
   text-align: center;
 }
 
+.text-red{
+  color: var(--red);
+}
+
+.bg-dark-gray{
+  background-color: var(--gray-dark);
+}
 
 @keyframes logo-spin {
   from {
