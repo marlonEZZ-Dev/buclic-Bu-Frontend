@@ -7,10 +7,13 @@ import TablePagination from "../../components/global/TablePagination.jsx"
 import Tables from "../../components/global/Tables.jsx"
 
 import { Card, Flex, Select } from "antd"
+import {ExclamationCircleOutlined} from "@ant-design/icons"
 import moment from "moment/moment.js"
 import 'moment/locale/es'
 
 import styles from "../../styles/psychology/agendaPsych.module.css"
+import cssButtonsModal from "../../styles/admin/managementUsers.module.css"
+
 import { useEffect, useState } from "react"
 
 export default function AgendaPsych(){
@@ -18,7 +21,8 @@ export default function AgendaPsych(){
 
 	const [enableConfirm, setEnableConfirm] = useState(false)
 	const [whoClicked, setWhoClicked] = useState("")
-  let date = moment()
+  
+	let date = moment()
 	
 	const cbxPsych = [
 		{value:"psicologo1", label:"Psicólogo 1"},
@@ -29,16 +33,32 @@ export default function AgendaPsych(){
 	
 	const appointmentDoneColums = ["Horario cita","Paciente", "Código/Cédula", "Asistencia"]
 	
+	const handlerAttendanceClick = (event) => {
+		setEnableConfirm(true)
+		setWhoClicked(event.currentTarget.name)
+	}
+	
+
 	const rowsAppoinmentPending = [
 		[
 			"2 PM","Carolina Perez",<Select key={1}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={1} justify="space-around" align="center">
-				<button className={styles.assistance}><Attendance non={false}/></button>
-				<button className={styles.assistance}><Attendance/></button>
+				<button 
+				name="btnAttendance" 
+				onClick={handlerAttendanceClick} 
+				className={styles.assistance}>
+					<Attendance non={false}/>
+				</button>
+				<button 
+				name="btnNonAttendance" 
+				onClick={handlerAttendanceClick} 
+				className={styles.assistance}>
+					<Attendance/>
+				</button>
 				</Flex>],
 		[
 			"3 PM","José Casanova",<Select key={2}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={2} justify="space-around" align="center">
-				<button className={styles.assistance}><Attendance non={false}/></button>
-				<button className={styles.assistance}><Attendance/></button>
+				<button name="btnAttendance" onClick={handlerAttendanceClick} className={styles.assistance}><Attendance non={false}/></button>
+				<button name="btnNonAttendance" onClick={handlerAttendanceClick} className={styles.assistance}><Attendance/></button>
 				</Flex>]
 	]
 
@@ -62,7 +82,21 @@ export default function AgendaPsych(){
 			bordered
 			>
 			<Modal open={enableConfirm}>
-
+				<Flex vertical
+				align="center"
+				justify="center">
+					<div>
+						<ExclamationCircleOutlined />    <h3 style={{display:"inline"}}>Confirmar</h3>
+					</div>
+					<p>{`¿Desea confirmar la ${whoClicked === "btnAttendance" ? "asistencia?" : whoClicked ? "inasistencia" : ""}`}</p>
+				</Flex>
+			<Flex
+        align='center'
+        gap='small'
+        justify='space-around'>
+          <button className={cssButtonsModal.buttonCancel} onClick={() => setEnableConfirm(false)} >Cancelar</button>
+          <button className={cssButtonsModal.buttonSave}>Guardar</button>
+        </Flex>
 			</Modal>
 				<Flex 
 				vertical
