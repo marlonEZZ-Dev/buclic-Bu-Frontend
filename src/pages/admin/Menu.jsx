@@ -297,19 +297,7 @@ const Menu = () => {
                 <>
                   <Button
                     type="default"
-                    style={{
-                      backgroundColor: "#C20E1A",
-                      color: "#FFFFFF",
-                      border: "none",
-                      height: "30px",
-                      width: "149px",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#841F1C";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "#C20E1A";
-                    }}
+                    className="button-save"
                     onClick={saveMenu} // Llamar a la función para guardar el menú
                   >
                     Guardar
@@ -317,13 +305,7 @@ const Menu = () => {
 
                   <Button
                     type="default"
-                    style={{
-                      backgroundColor: "#FFFFFF",
-                      color: "#C20E1A",
-                      border: "1px solid #C20E1A",
-                      height: "30px",
-                      width: "149px",
-                    }}
+                    className='button-cancel'
                     onClick={handleCancel} // Cancelar edición solo del menú seleccionado
                   >
                     Cancelar
