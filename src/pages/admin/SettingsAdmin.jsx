@@ -28,19 +28,15 @@ const SettingsAdmin = () => {
     });
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchSetting(); // Obtener configuración al cargar el componente
-    }, []);
+    // Eliminamos la llamada a fetchSetting desde useEffect
+    // useEffect(() => {
+    //     fetchSetting(); // Ya no se llama automáticamente al cargar el componente
+    // }, []);
 
     const fetchSetting = async () => {
         try {
-            const response = await axios.get('/setting/1');  // Esta URL debe ser diferente para becas si es un endpoint separado
-
-            // Verifica si la respuesta contiene los datos en settingRequest
+            const response = await axios.get('/setting/1');
             const data = response.data.settingRequest;
-            if (!data) {
-                throw new Error('No se encontraron datos');
-            }
 
             setSettingData({
                 id: data.id,
@@ -59,10 +55,7 @@ const SettingsAdmin = () => {
             });
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                // Solo muestra el mensaje si estás en el apartado de becas
-                if (isBecasSection) {
-                    message.info('No se encontraron datos de becas, por favor crea una nueva configuración.');
-                }
+                // Si el recurso no se encuentra (404), no se hace nada. El estado ya se resetea.
                 setSettingData({
                     id: null,
                     startSemester: null,
@@ -79,11 +72,13 @@ const SettingsAdmin = () => {
                     endSnack: null,
                 });
             } else {
+                // Si es otro tipo de error, lo mostramos en consola y al usuario.
                 console.error('Error al obtener la configuración:', error);
                 message.error('Error al obtener la configuración');
             }
         }
     };
+
 
 
 
@@ -95,7 +90,7 @@ const SettingsAdmin = () => {
         setIsEditing(true);
     };
 
-    const handleCreateClick = () => {
+    const handleCreateClick = async () => {
         setIsEditing(true);
         setSettingData({
             id: null,
@@ -141,8 +136,8 @@ const SettingsAdmin = () => {
                 message.success('Configuración creada exitosamente');
             }
 
-            // Aquí puedes forzar una nueva llamada al backend para obtener los datos actualizados
-            await fetchSetting(); // <-- Llama a esta función para obtener los datos más recientes
+            // Aquí llamamos a fetchSetting después de crear o actualizar
+            await fetchSetting();
 
             setIsEditing(false); // Cambiar a modo no-edición
         } catch (error) {
@@ -150,8 +145,6 @@ const SettingsAdmin = () => {
             console.error(error);
         }
     };
-
-
 
 
     const handleCancelClick = () => {
@@ -203,10 +196,11 @@ const SettingsAdmin = () => {
                                     onChange={(dates) => {
                                         setSettingData((prev) => ({
                                             ...prev,
-                                            startSemester: dates[0],
-                                            endSemester: dates[1],
+                                            startSemester: dates ? dates[0] : null,
+                                            endSemester: dates ? dates[1] : null,
                                         }));
                                     }}
+                                    allowEmpty={[true, true]}  // Agrega allowEmpty para permitir campos vacíos
                                 />
                             </Space>
                             <div style={{ marginTop: '20px' }}>
