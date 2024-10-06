@@ -102,12 +102,12 @@ const PasswordAdmin = () => {
             {/* Botones */}
             <div style={styles.buttonContainer}>
               {/* Botón Guardar */}
-              <Button type="default" htmlType="submit" loading={loading} className="button-save">
+              <Button className="button-save" type="default" htmlType="submit" loading={loading} >
                 Guardar
               </Button>
 
               {/* Botón Cancelar */}
-              <Button type="default" htmlType="reset" onClick={() => form.resetFields()} className="button-cancel">
+              <Button className="button-cancel" type="default" htmlType="reset" onClick={() => form.resetFields()} >
                 Cancelar
               </Button>
             </div>
