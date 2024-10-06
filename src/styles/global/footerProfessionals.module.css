@@ -1,0 +1,49 @@
+.footer{
+  background-color: var(--red-dark);
+  margin-top: 1rem;
+  position: relative;
+  left: -4.5rem;
+  bottom: -2rem;
+}
+
+.ancle{
+  color: white;
+}
+
+.parag{
+  color: white;
+  font-size: .8125rem;
+}
+
+.footer, .email, .box{
+  color: white;  
+}
+
+
+.title{
+  font-size: 2.1875rem;
+  font-weight: 100;
+  margin: 2rem 3.0625rem;
+  color: #ffffff90;
+}
+
+.subtitle{
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.boxLeft{
+  margin-left: 3.0625rem;
+}
+
+.boxRight{
+  margin-left: 13.3125rem;
+}
+
+.boxRight a, .pTranspa{
+  color: #ffffff90;
+}
+
+.boxRight a{
+  margin-left: 1rem;
+}
