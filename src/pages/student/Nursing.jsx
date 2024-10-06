@@ -15,7 +15,7 @@ const rows = [
     ['1:00p.m', '205 bloque', ''],
 ];
 
-const Psychologist = () => {
+const Nursing = () => {
 
     const { token } = theme.useToken();
 
@@ -51,8 +51,8 @@ const Psychologist = () => {
     return (
         <>
             <TopNavbar />
-            <main className="psicologia-section" style={{ marginTop: '100px' }}>
-                <h1 className="text-xl font-bold">Cita psicología</h1>
+            <main className="enfermeria-section" style={{ marginTop: '100px' }}>
+                <h1 className="text-xl font-bold">Cita enfermería - Médico general</h1>
 
                 {/* Formulario en la parte superior con distribución horizontal */}
                 <Form layout="vertical" style={formWrapperStyle}>
@@ -68,16 +68,27 @@ const Psychologist = () => {
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={12} md={6}>
+                            <Form.Item label="Código">
+                                <Input placeholder="input placeholder" disabled />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={6}>
+                            <Form.Item label="Correo">
+                                <Input placeholder="input placeholder" disabled />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12} md={6}>
                             <Form.Item label="Teléfono">
                                 <Input type="number" placeholder="input placeholder" />
                             </Form.Item>
                         </Col>
-
                         <Col xs={24} sm={12} md={6}>
-                            <Form.Item label="Semestre">
-                                <Input type="number" placeholder="input placeholder" />
+                            <Form.Item label="Eps">
+                                <Input placeholder="input placeholder" />
                             </Form.Item>
                         </Col>
+
+                        
                     </Row>
                 </Form>
 
@@ -101,7 +112,4 @@ const Psychologist = () => {
     );
 };
 
-export default Psychologist;
-
-
-
+export default Nursing;

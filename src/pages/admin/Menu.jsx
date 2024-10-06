@@ -1,39 +1,32 @@
+import React, { useState, useContext } from 'react';
+import { MenuContext } from '../../utils/MenuContext';  // Importar el contexto
+import { Button, Input, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
-import { Button, Input } from "antd";
-import React, { useState } from "react";
+import axios from 'axios';
+import { ACCESS_TOKEN } from "../../constants";
+
 const { TextArea } = Input;
 
 const Menu = () => {
-  const [selectedType, setSelectedType] = useState("Almuerzo");
-
-  // fecha
-  const todayDate = new Date().toLocaleDateString();
-
-  // Estado para almacenar los valores de cada tipo de menú
-  const [menuData, setMenuData] = useState({
-    Almuerzo: {
-      mainDish: "",
-      drink: "",
-      dessert: "",
-      price: 0,
-    },
-    Refrigerio: {
-      appetizer: "",
-      drink: "",
-      dessert: "",
-      price: 0,
-    },
+  const navigate = useNavigate();
+  const { menuData, setMenuData } = useContext(MenuContext);  // Acceder a datos del contexto
+  const [selectedType, setSelectedType] = useState('Almuerzo');
+  const [isEditable, setIsEditable] = useState({
+    Almuerzo: false,
+    Refrigerio: false,
   });
 
-  const buttons = [
-    { type: "Almuerzo", label: "Almuerzo" },
-    { type: "Refrigerio", label: "Refrigerio" },
-  ];
+  // Estado temporal para manejar los datos durante la edición
+  const [tempMenuData, setTempMenuData] = useState(menuData);
 
-  // Maneja los cambios de los inputs y actualiza el estado correspondiente
+  // Fecha actual
+  const todayDate = new Date().toLocaleDateString();
+
+  // Maneja los cambios de los inputs en el estado temporal
   const handleInputChange = (field, value) => {
-    setMenuData((prevData) => ({
+    setTempMenuData((prevData) => ({
       ...prevData,
       [selectedType]: {
         ...prevData[selectedType],
@@ -42,12 +35,83 @@ const Menu = () => {
     }));
   };
 
-  // Determinar si es Almuerzo o Refrigerio para cambiar el label y el placeholder
+  const saveMenu = async () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    const menuTypeData = tempMenuData[selectedType]; // Usar datos temporales para guardar
+
+    if (!token) {
+      console.error("No se encontró el token de autenticación");
+      message.error("Por favor, inicie sesión nuevamente");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/menu",
+        {
+          note: menuTypeData.note,
+          mainDish:
+            selectedType === "Almuerzo"
+              ? menuTypeData.mainDish
+              : menuTypeData.appetizer,
+          drink: menuTypeData.drink,
+          dessert: menuTypeData.dessert,
+          price: menuTypeData.price,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Menu guardado:", response.data);
+      message.success("Menú guardado exitosamente");
+
+      // Actualizar los datos en el contexto solo después de guardar
+      setMenuData(tempMenuData);
+
+      // Deshabilitar la edición después de guardar
+      setIsEditable({ ...isEditable, [selectedType]: false });
+    } catch (error) {
+      console.error("Error al guardar el menú:", error);
+      if (error.response && error.response.status === 401) {
+        message.error("Sesión expirada. Por favor, inicie sesión nuevamente");
+        navigate("/login");
+      } else {
+        message.error("Error al guardar el menú. Por favor, intente de nuevo");
+      }
+    }
+  };
+
+  const handleEdit = () => {
+    setTempMenuData(menuData); // Copiar los datos actuales a tempMenuData
+    setIsEditable((prevEditable) => ({
+      ...prevEditable,
+      [selectedType]: true,
+    }));
+  };
+
+  const handleCancel = () => {
+    setIsEditable((prevEditable) => ({
+      ...prevEditable,
+      [selectedType]: false,
+    }));
+    setTempMenuData(menuData); // Revertir cambios, volviendo al estado original
+  };
+
   const isLunch = selectedType === "Almuerzo";
   const mainDishLabel = isLunch ? "Plato Principal" : "Aperitivo";
   const mainDishPlaceholder = isLunch
     ? "Describe el plato principal"
     : "Describe el aperitivo";
+
+  const buttons = [
+    { type: "Almuerzo", label: "Almuerzo" },
+    { type: "Refrigerio", label: "Refrigerio" },
+  ];
 
   return (
     <>
@@ -58,6 +122,33 @@ const Menu = () => {
           buttons={buttons}
           selectedType={selectedType}
         >
+          {/* TextArea para Nota */}
+          <div
+            style={{
+              width: "100%",
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <label
+              style={{
+                marginRight: "12px", // Espacio entre el label y el TextArea
+                textAlign: "left",
+                width: "50px", // Ancho del label para alinear con el TextArea
+              }}
+            >
+              Nota
+            </label>
+            <TextArea
+              placeholder="Añade una nota"
+              autoSize
+              style={{ width: "100%" }}
+              value={tempMenuData[selectedType].note}  // Mostrar valor temporal
+              onChange={(e) => handleInputChange("note", e.target.value)}
+              disabled={!isEditable[selectedType]} // Hacer el input no editable
+            />
+          </div>
           <p
             style={{
               textAlign: "center",
@@ -83,13 +174,14 @@ const Menu = () => {
               placeholder={mainDishPlaceholder}
               autoSize
               style={{ width: "100%" }}
-              value={menuData[selectedType][isLunch ? "mainDish" : "appetizer"]}
+              value={tempMenuData[selectedType][isLunch ? "mainDish" : "appetizer"]}  // Mostrar valor temporal
               onChange={(e) =>
                 handleInputChange(
                   isLunch ? "mainDish" : "appetizer",
                   e.target.value
                 )
               }
+              disabled={!isEditable[selectedType]}
             />
           </div>
 
@@ -108,30 +200,34 @@ const Menu = () => {
               placeholder="Describe la bebida"
               autoSize
               style={{ width: "100%" }}
-              value={menuData[selectedType].drink}
+              value={tempMenuData[selectedType].drink}  // Mostrar valor temporal
               onChange={(e) => handleInputChange("drink", e.target.value)}
+              disabled={!isEditable[selectedType]}
             />
           </div>
 
           {/* TextArea para Postre */}
-          <div style={{ width: "100%", marginBottom: "12px" }}>
-            <label
-              style={{
-                marginBottom: "6px",
-                textAlign: "left",
-                display: "block",
-              }}
-            >
-              Postre
-            </label>
-            <TextArea
-              placeholder="Describe el postre"
-              autoSize
-              style={{ width: "100%" }}
-              value={menuData[selectedType].dessert}
-              onChange={(e) => handleInputChange("dessert", e.target.value)}
-            />
-          </div>
+          {isLunch && (
+            <div style={{ width: "100%", marginBottom: "12px" }}>
+              <label
+                style={{
+                  marginBottom: "6px",
+                  textAlign: "left",
+                  display: "block",
+                }}
+              >
+                Postre
+              </label>
+              <TextArea
+                placeholder="Describe el postre"
+                autoSize
+                style={{ width: "100%" }}
+                value={tempMenuData[selectedType].dessert}  // Mostrar valor temporal
+                onChange={(e) => handleInputChange("dessert", e.target.value)}
+                disabled={!isEditable[selectedType]}
+              />
+            </div>
+          )}
 
           {/* Input para el precio */}
           <div style={{ width: "100%", marginBottom: "12px" }}>
@@ -148,9 +244,9 @@ const Menu = () => {
               type="text"
               placeholder="Ingresa el precio"
               value={
-                menuData[selectedType].price === 0
+                tempMenuData[selectedType].price === 0
                   ? ""
-                  : menuData[selectedType].price
+                  : tempMenuData[selectedType].price  // Mostrar valor temporal
               }
               onChange={(e) => {
                 const value = e.target.value;
@@ -163,9 +259,11 @@ const Menu = () => {
                 );
               }}
               style={{ width: "100%" }}
+              disabled={!isEditable[selectedType]}
             />
           </div>
 
+          {/* Botones Editar, Guardar y Cancelar */}
           <div style={{ margin: "24px 0" }}>
             <div
               style={{
@@ -175,24 +273,45 @@ const Menu = () => {
                 marginTop: "10px",
               }}
             >
-              <Button
-                type="default"
-                style={{
-                  backgroundColor: "#C20E1A",
-                  color: "#FFFFFF",
-                  border: "none",
-                  height: "30px",
-                  width: "149px",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#841F1C";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#C20E1A";
-                }}
-              >
-                Editar
-              </Button>
+              {!isEditable[selectedType] ? (
+                <Button
+                  type="default"
+                  style={{
+                    backgroundColor: "#C20E1A",
+                    color: "#FFFFFF",
+                    border: "none",
+                    height: "30px",
+                    width: "149px",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#841F1C";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#C20E1A";
+                  }}
+                  onClick={handleEdit} // Habilitar edición solo del menú seleccionado
+                >
+                  Editar
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="default"
+                    className="button-save"
+                    onClick={saveMenu} // Llamar a la función para guardar el menú
+                  >
+                    Guardar
+                  </Button>
+
+                  <Button
+                    type="default"
+                    className='button-cancel'
+                    onClick={handleCancel} // Cancelar edición solo del menú seleccionado
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </MenuBecas>

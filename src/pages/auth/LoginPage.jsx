@@ -13,6 +13,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const roleToRouteMap = {
+    "ROLE_ADMINISTRADOR": "/usuarios",
+    "ROLE_MONITOR": "/usuarios",
+    "ROLE_ESTUDIANTE": "/citas",
+    "ROLE_PSICOLOGO": "/beca",
+    "ROLE_ENFERMERO": "/usuarios",
+    "ROLE_ODONTOLOGO": "/usuarios",
+    "ROLE_EXTERNO": "/usuarios",
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -21,9 +31,23 @@ export default function LoginPage() {
       const response = await api.post('/auth/login', { username, password });
       
       if (response.data && response.data.token) {
-        localStorage.setItem(ACCESS_TOKEN, response.data.token);
+        const token = response.data.token;
+        localStorage.setItem(ACCESS_TOKEN, token);
+        localStorage.setItem('username', username); // Guardar el nombre de usuario
         message.success('Inicio de sesión exitoso');
-        navigate('/admin'); 
+
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decodedData = JSON.parse(window.atob(base64));
+
+        const userRole = decodedData.authorities;
+        const route = roleToRouteMap[userRole];
+
+        if (route) {
+          navigate(route);
+        } else {
+          message.error('No se encontró una ruta correspondiente al rol del usuario');
+        }
       } else {
         throw new Error('Token no recibido');
       }
@@ -34,6 +58,8 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  const isFormValid = username !== "" && password !== "";
 
   return (
     <Fragment>
@@ -85,11 +111,12 @@ export default function LoginPage() {
               type="primary"
               htmlType="submit"
               loading={loading}
+              disabled={!isFormValid}  // Deshabilitar el botón si el formulario no es válido
               style={{
                 width: "100%",
                 height: 33,
-                backgroundColor: "#C20E1A",
-                borderColor: "#C20E1A",
+                backgroundColor: isFormValid ? "#C20E1A" : "#D64545", // Cambiar color cuando esté habilitado
+                borderColor: isFormValid ? "#C20E1A" : "#D64545",
               }}
             >
               Iniciar sesión

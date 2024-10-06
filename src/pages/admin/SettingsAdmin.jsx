@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TopNavbar from '../../components/TopNavbar';
+import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { Card, Button, Form, Input, Flex } from 'antd';
 import { Space } from 'antd';
 
-const Settings = () => {
+const SettingsAdmin = () => {
 
     const navigate = useNavigate(); // Inicializa el hook useNavigate
 
     // Función para manejar el clic en "Cambiar contraseña"
     const handleChangePasswordClick = () => {
-        navigate('/cambiarContrasena'); // Redirigir a la ruta de cambio de contraseña
+        navigate('/contrasenaAdmin'); // Redirigir a la ruta de cambio de contraseña
     };
 
     return (
         <>
-            <TopNavbar />
+            <HeaderAdmin />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <Card
                     bordered={true}
@@ -61,4 +61,4 @@ const Settings = () => {
     );
 };
 
-export default Settings;
+export default SettingsAdmin;

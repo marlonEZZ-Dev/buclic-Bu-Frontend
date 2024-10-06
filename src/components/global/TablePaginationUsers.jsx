@@ -1,15 +1,16 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
-const TablePagination = ({ 
-    rows= [],
-    columns= [],
-    currentPage= 0, 
-    itemsPerPage= 0,
-    onPageChange= () => {}, 
-    onRowClick= () => {},
-    }) => {
-    let isRowNull = rows === null
+const TablePaginationUsers = ({ 
+    rows = [], 
+    columns = [], // Este será un array de objetos que define qué propiedades del objeto se deben mostrar en la tabla.
+    currentPage = 0, 
+    itemsPerPage = 0, 
+    onPageChange = () => {}, 
+    onCellClick = () => {}, 
+}) => {
+    const isRowNull = rows === null;
+
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
@@ -27,7 +28,7 @@ const TablePagination = ({
     // Calcular el índice de inicio y fin para la paginación
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = isRowNull ? [] : rows.slice(indexOfFirstItem, indexOfLastItem); // Obtener los elementos actuales
+    const currentItems = isRowNull ? [] : rows.slice(indexOfFirstItem, indexOfLastItem); 
 
     // Estilo para los botones
     const buttonStyle = {
@@ -35,8 +36,8 @@ const TablePagination = ({
         color: '#B3B3B3',
         border: 'none',
         height: '30px',
-        flex: 1, // Permitir que el botón crezca
-        margin: '0 5px', // Margen entre botones
+        flex: 1,
+        margin: '0 5px',
         borderRadius: '8px',
         transition: 'background-color 0.3s',
         cursor: 'pointer',
@@ -57,26 +58,26 @@ const TablePagination = ({
     };
 
     return (
-        <div 
-        style={{ textAlign: 'center', margin: '20px 0' }}>
+        <div style={{ textAlign: 'center', margin: '20px 0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
-                        {columns.map((column, index) => (
+                        {columns.map(({ label }, index) => (
                             <th key={index} style={headerStyle}>
-                                {column}
+                                {label}
                             </th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
                     {currentItems.map((row, rowIndex) => (
-                        <tr 
-                        key={rowIndex}
-                        onClick={() => onRowClick(row)}>
-                            {row.map((cell, cellIndex) => (
-                                <td key={cellIndex} style={cellStyle}>
-                                    {cell}
+                        <tr key={rowIndex}>
+                            {columns.map(({ key }, cellIndex) => (
+                                <td 
+                                key={cellIndex} 
+                                style={cellStyle} 
+                                onClick={() => key === "edit" ? onCellClick(row) : {}}>
+                                    {row[key]} {/* Mostrar el valor correspondiente a la clave de la columna */}
                                 </td>
                             ))}
                         </tr>
@@ -89,19 +90,19 @@ const TablePagination = ({
                 <button 
                     onClick={() => onPageChange(currentPage - 1)} 
                     disabled={currentPage === 1}
-                    style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si está en la primera página
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
+                    style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} 
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                <div style={pageIndicatorStyle}> {currentPage}</div>
+                <div style={pageIndicatorStyle}> {currentPage} </div>
                 <button 
                     onClick={() => onPageChange(currentPage + 1)} 
                     disabled={indexOfLastItem >= (isRowNull ? 0 : rows.length)}
-                    style={{ ...buttonStyle, ...(indexOfLastItem >= (isRowNull ? 0 : rows.length) ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si no hay más elementos
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
+                    style={{ ...buttonStyle, ...(indexOfLastItem >= (isRowNull ? 0 : rows.length) ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} 
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
                 >
                     Siguiente <RightOutlined />
                 </button>
@@ -110,13 +111,16 @@ const TablePagination = ({
     );
 };
 
-TablePagination.propTypes = {
-    rows : PropTypes.array,
-    columns : PropTypes.array,
+TablePaginationUsers.propTypes = {
+    rows : PropTypes.arrayOf(PropTypes.object), // Arreglo de objetos
+    columns : PropTypes.arrayOf(PropTypes.shape({
+        key: PropTypes.string.isRequired, // Clave que indica qué propiedad del objeto mostrar
+        label: PropTypes.string.isRequired // Etiqueta que se muestra en la cabecera
+    })).isRequired, 
     currentPage : PropTypes.number,
     itemsPerPage: PropTypes.number,
     onPageChange : PropTypes.func,
-    onRowClick : PropTypes.func
+    onCellClick : PropTypes.func, 
 }
 
-export default TablePagination;
+export default TablePaginationUsers;

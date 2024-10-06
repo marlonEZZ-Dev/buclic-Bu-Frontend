@@ -5,7 +5,7 @@ import '../../styles/TopNavbar.css';
 import LogoutButton from '../auth/LogoutButton';
 import React from 'react';
 
-export default function HeaderAdmin(props) {
+export default function HeaderPsych(props) {
   const session = props.session ? 'session' : 'header-admin';
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,40 +48,31 @@ export default function HeaderAdmin(props) {
         flexGrow: 1
       }}>
         <MenuButton 
-          text="Gestión de usuarios" 
-          isActive={location.pathname === "/usuarios"} 
-          onClick={() => handleButtonClick("/usuarios")} 
-        />
-        <MenuButton 
-          text="Informes" 
-          isActive={location.pathname === "/informes"} 
-          onClick={() => handleButtonClick("/informes")} 
-        />
-        <MenuButton 
-          text="Menú del día" 
-          isActive={location.pathname === "/menu"} 
-          onClick={() => handleButtonClick("/menu")} 
-        />
-        <MenuButton 
           text="Becas" 
-          isActive={location.pathname === "/becaAdm"} 
-          onClick={() => handleButtonClick("/becaAdm")} 
+          isActive={location.pathname === "/beca"} 
+          onClick={() => handleButtonClick("/beca")} 
         />
         <MenuButton 
           text="Citas" 
-          isActive={location.pathname === "/citasAdm"} 
-          onClick={() => handleButtonClick("/citasAdm")} 
+          isActive={location.pathname === "/cita"} 
+          onClick={() => handleButtonClick("/cita")} 
         />
         <MenuButton 
-          text="Reservas" 
-          isActive={location.pathname === "/reservas"} 
-          onClick={() => handleButtonClick("/reservas")} 
+          text="Horarios" 
+          isActive={location.pathname === "/horario"} 
+          onClick={() => handleButtonClick("/horario")} 
         />
         <MenuButton 
-          text="Perfil" 
-          isActive={location.pathname === "/perfilAdmin"} 
-          onClick={() => handleButtonClick("/perfilAdmin")} 
+          text="Agenda" 
+          isActive={location.pathname === "/agenda"} 
+          onClick={() => handleButtonClick("/agenda")} 
         />
+        <MenuButton 
+          text="Seguimiento" 
+          isActive={location.pathname === "/seguimiento"} 
+          onClick={() => handleButtonClick("/seguimiento")} 
+        />
+        
       </div>
       <LogoutButton />
     </header>

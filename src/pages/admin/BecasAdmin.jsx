@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { MenuContext } from '../../utils/MenuContext';  // Importar el contexto
-import TopNavbar from '../../components/TopNavbar';
+import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import Tables from '../../components/global/Tables';
 import MenuBecas from '../../components/global/MenuBecas';
 import { Button } from 'antd';
 
-const Becas = () => {
+const BecasAdmin = () => {
   const { menuData } = useContext(MenuContext);  // Acceder a datos del contexto
-  const [selectedType, setSelectedType] = useState('Almuerzo');  // Estado para el tipo de menú seleccionado (corregido)
+  const [selectedType, setSelectedType] = useState('almuerzo');  // Estado para el tipo de menú seleccionado
 
   // Definir las columnas para cada tipo de menú
   const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
@@ -35,13 +35,13 @@ const Becas = () => {
 
   // Botones para seleccionar el tipo de menú
   const buttons = [
-    { type: 'Almuerzo', label: 'Almuerzo' },  // Usar las mismas claves del contexto
-    { type: 'Refrigerio', label: 'Refrigerio' },
+    { type: 'almuerzo', label: 'Almuerzo' },
+    { type: 'refrigerio', label: 'Refrigerio' },
   ];
 
   return (
     <>
-      <TopNavbar />
+      <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
 
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
@@ -49,8 +49,8 @@ const Becas = () => {
 
         <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
           <Tables
-            rows={selectedType === 'Refrigerio' ? refrigerioRows : almuerzoRows}  // Corregir para que coincidan las claves
-            columns={selectedType === 'Refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
+            rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows}
+            columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
           />
 
           {/* Párrafo antes de los botones */}
@@ -84,4 +84,4 @@ const Becas = () => {
   );
 };
 
-export default Becas;
+export default BecasAdmin;

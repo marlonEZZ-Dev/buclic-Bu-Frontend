@@ -1,5 +1,5 @@
-import React from 'react';
-import TopNavbar from '../../components/TopNavbar';
+import { useNavigate } from 'react-router-dom';
+import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { Form, Input, Calendar, theme, ConfigProvider, Row, Col } from 'antd';
 import SchedulingTable from '../../components/global/SchedulingTable';
 import esES from 'antd/es/locale/es_ES';  // Importar el locale para español
@@ -15,7 +15,7 @@ const rows = [
     ['1:00p.m', '205 bloque', ''],
 ];
 
-const Psychologist = () => {
+const DentistAdmin = () => {
 
     const { token } = theme.useToken();
 
@@ -50,9 +50,9 @@ const Psychologist = () => {
 
     return (
         <>
-            <TopNavbar />
+            <HeaderAdmin />
             <main className="psicologia-section" style={{ marginTop: '100px' }}>
-                <h1 className="text-xl font-bold">Cita psicología</h1>
+                <h1 className="text-xl font-bold">Cita odontología</h1>
 
                 {/* Formulario en la parte superior con distribución horizontal */}
                 <Form layout="vertical" style={formWrapperStyle}>
@@ -63,19 +63,13 @@ const Psychologist = () => {
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={12} md={6}>
-                            <Form.Item label="Programa académico">
+                            <Form.Item label="Código">
                                 <Input placeholder="input placeholder" disabled />
                             </Form.Item>
                         </Col>
                         <Col xs={24} sm={12} md={6}>
-                            <Form.Item label="Teléfono">
-                                <Input type="number" placeholder="input placeholder" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col xs={24} sm={12} md={6}>
-                            <Form.Item label="Semestre">
-                                <Input type="number" placeholder="input placeholder" />
+                            <Form.Item label="Programa académico">
+                                <Input placeholder="input placeholder" disabled />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -101,7 +95,4 @@ const Psychologist = () => {
     );
 };
 
-export default Psychologist;
-
-
-
+export default DentistAdmin;

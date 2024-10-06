@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import TopNavbar from '../../components/TopNavbar';
+import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 
-const Appointments = () => {
+const AppointmentsAdmin = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
 
   // Función para manejar el clic
@@ -12,7 +12,7 @@ const Appointments = () => {
 
   return (
     <>
-      <TopNavbar />
+      <HeaderAdmin />
       
       {/* Contenido principal */}
       <main className="citas-section" style={{ marginTop: '100px', padding: '0 20px' }}> 
@@ -38,7 +38,7 @@ const Appointments = () => {
           {/* Opción 1: Psicología */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/psicologia')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/psicologiaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
@@ -56,7 +56,7 @@ const Appointments = () => {
           {/* Opción 2: Enfermería - Médico general */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/enfermeria')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/enfermeriaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
@@ -74,7 +74,7 @@ const Appointments = () => {
           {/* Opción 3: Odontología */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/odontologia')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/odontologiaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
@@ -95,4 +95,4 @@ const Appointments = () => {
   );
 };
 
-export default Appointments;
+export default AppointmentsAdmin;
