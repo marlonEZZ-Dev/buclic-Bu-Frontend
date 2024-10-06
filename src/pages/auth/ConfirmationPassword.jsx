@@ -1,10 +1,56 @@
 import React from "react";
+import{ useEffect, useState } from "react";
 import { Fragment } from "react";
 import { Card, Input, Button, Space } from "antd";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from '../../components/auth/Header'
+import api from '../../api';
 
 
 export default function ConfirmationPassword() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [isTokenValid, setIsTokenValid] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const token = searchParams.get("token");
+
+        if (token) {
+            
+            api.post('/auth/reset-token', null, { params: { token } })
+                .then(response => {
+                    if (response.data) {
+                        setIsTokenValid(true);
+                    } else {
+                        navigate('/login'); 
+                    }
+                })
+                .catch(() => {
+                    navigate('/login');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            navigate('/login'); 
+        }
+    }, [location, navigate]);
+
+    if (loading) {
+        return <div>Cargando...</div>;
+    }
+
+    if (!isTokenValid) {
+        return null; 
+    }
+
+    const handleCancelar = (e) => {
+        e.preventDefault();
+        navigate('/login');
+    }
+
     return (
         <Fragment>
             <Header />
@@ -52,12 +98,12 @@ export default function ConfirmationPassword() {
                         <Button type="primary" size="large" style={{ backgroundColor: '#C20E1A', borderColor: '#C20E1A' }}>
                             Aceptar
                         </Button>
-                        <Button size="large" href="reestablecerContrasena" >
+                        <Button size="large" onClick={handleCancelar} >
                             Cancelar
                         </Button>
                     </Space>
                 </Card>
             </div>
         </Fragment>
-    )
+    );
 }
