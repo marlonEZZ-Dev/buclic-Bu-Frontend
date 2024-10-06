@@ -3,14 +3,14 @@ import {MailOutlined} from "@ant-design/icons"
 
 import styles from "../../styles/global/footerProfessionals.module.css"
 
-export default function FooterProfessionals(){
+export default function FooterProfessionals({props}){
   const globalTextWhite = {
     color:"#ffffff"
   }
   
   return (
     <>
-      <footer className={styles.footer}>
+      <footer className={styles.footer} {...props}>
         <Flex 
         style={globalTextWhite}
         justify="flex-start"
