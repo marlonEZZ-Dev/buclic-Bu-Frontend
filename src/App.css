@@ -187,6 +187,7 @@ p {
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
+
 .button-save:hover {
   background-color: #841F1C !important;
   /* Fondo rojo oscuro al hacer hover */
@@ -198,7 +199,7 @@ p {
 .button-cancel {
   background-color: #FFFFFF !important;
   color: #C20E1A !important;
-  border: 2px solid #C20E1A !important;
+  border: 1px solid #C20E1A !important;
   height: 30px;
   width: 149px;
   font-size: 16px;
