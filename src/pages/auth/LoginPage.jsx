@@ -23,6 +23,11 @@ export default function LoginPage() {
     "ROLE_EXTERNO": "/usuarios",
   };
 
+  const manejarClick = (e) => {
+    e.preventDefault(); 
+    navigate('/reestablecercontrasena'); 
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -123,7 +128,7 @@ export default function LoginPage() {
             </Button>
 
             <div style={{ textAlign: "center", marginTop: 16 }}>
-              <a href="reestablecerContrasena" style={{ color: "#C20E1A" }}>
+              <a onClick={manejarClick} style={{ color: "#C20E1A" }}>
                 ¿Olvidó su nombre de usuario o contraseña?
               </a>
             </div>

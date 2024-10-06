@@ -1,9 +1,32 @@
-import React from "react";
-import { Fragment} from "react";
-import { Card, Input, Button, Space } from "antd";
-import Header from '../../components/auth/Header'
+import React, { Fragment, useState } from "react";
+import { Card, Input, Button, Space, message } from "antd";
+import { useNavigate } from 'react-router-dom';
+import Header from '../../components/auth/Header';
+import api from '../../api';
 
 export default function RecoverPassword() {
+    const [email, setEmail] = useState('');
+    const navigate = useNavigate();
+
+    const handleRecoverPassword = async () => {
+        try {
+            const response = await api.post('/auth/email-reset', { email });
+            message.success('Correo enviado correctamente.');
+            // Optionally redirect or handle the response
+        } catch (error) {
+        if(error.response.data.Error) {
+            message.error(error.response.data.Error);
+        }
+        if(error.response.data.message) {
+            message.error(error.response.data.message);
+        }
+    };}
+
+    const manejarClick = (e) => {
+        e.preventDefault(); 
+        navigate('/login'); 
+      };
+
     return (
         <Fragment>
             <Header />
@@ -37,18 +60,20 @@ export default function RecoverPassword() {
                     <Input
                         placeholder="Correo electrónico"
                         size="large"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         style={{ marginBottom: '16px' }}
                     />
                     <Space style={{ width: '100%', justifyContent: 'center' }}>
-                        <Button type="primary" href="confirmarcontrasena" size="large" style={{ backgroundColor: '#C20E1A', borderColor: '#c41d7f' }}>
+                        <Button type="primary" onClick={handleRecoverPassword} size="large" style={{ backgroundColor: '#C20E1A', borderColor: '#c41d7f' }}>
                             Aceptar
                         </Button>
-                        <Button size="large" href="login">
+                        <Button size="large" onClick={manejarClick}>
                             Cancelar
                         </Button>
                     </Space>
                 </Card>
             </div>
         </Fragment>
-    )
+    );
 }
