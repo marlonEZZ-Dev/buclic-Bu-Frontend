@@ -10,8 +10,8 @@ export default function ConfirmationPassword() {
     const navigate = useNavigate();
     const [isTokenValid, setIsTokenValid] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [password, setNewPassword] = useState("");
+    const [passwordConfirmation, setConfirmPassword] = useState("");
     const [token, setToken] = useState("");
 
     useEffect(() => {
@@ -27,7 +27,9 @@ export default function ConfirmationPassword() {
                         navigate('/login');
                     }
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.error("Error validating token:", error);
+                    message.error("Token inválido o expirado");
                     navigate('/login');
                 })
                 .finally(() => {
@@ -48,22 +50,33 @@ export default function ConfirmationPassword() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (newPassword !== confirmPassword) {
+        if (password !== passwordConfirmation) {
             message.error("Las contraseñas no coinciden");
             return;
         }
         try {
+            setLoading(true);
             const resetPasswordRequest = {
-                newPassword: "string",
-                confirmPassword: "string"
+                password: "string",
+                passwordConfirmation: "string"
             };
             await api.post('/auth/reset-password', resetPasswordRequest, {
-                params: { token: token }
+                params: { token: token },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             message.success("Contraseña actualizada con éxito");
             navigate('/login');
         } catch (error) {
-            message.error("Error al actualizar la contraseña");
+            console.error("Error resetting password:", error.response || error);
+            if (error.response && error.response.data && error.response.data.message) {
+                message.error(error.response.data.message);
+            } else {
+                message.error("Error al actualizar la contraseña. Por favor, inténtelo de nuevo.");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -114,7 +127,7 @@ export default function ConfirmationPassword() {
                                 placeholder="Nueva contraseña"
                                 size="large"
                                 style={{ marginTop: '8px' }}
-                                value={newPassword}
+                                value={password}
                                 onChange={handlePasswordChange}
                                 required
                             />
@@ -125,16 +138,16 @@ export default function ConfirmationPassword() {
                                 placeholder="Confirmar contraseña"
                                 size="large"
                                 style={{ marginTop: '8px' }}
-                                value={confirmPassword}
+                                value={passwordConfirmation}
                                 onChange={handleConfirmPasswordChange}
                                 required
                             />
                         </div>
                         <Space style={{ width: '100%', justifyContent: 'center' }}>
-                            <Button type="primary" size="large" style={{ backgroundColor: '#C20E1A', borderColor: '#C20E1A' }} htmlType="submit">
-                                Aceptar
+                            <Button type="primary" size="large" style={{ backgroundColor: '#C20E1A', borderColor: '#C20E1A' }} htmlType="submit" disabled={loading}>
+                                {loading ? 'Procesando...' : 'Aceptar'}
                             </Button>
-                            <Button size="large" onClick={handleCancelar}>
+                            <Button size="large" onClick={handleCancelar} disabled={loading}>
                                 Cancelar
                             </Button>
                         </Space>
