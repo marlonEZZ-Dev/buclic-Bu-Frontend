@@ -1,0 +1,45 @@
+.contentTitle{
+  margin-top: 100px;
+  & h1{
+    font-weight: bold;
+  }
+}
+
+.decorateText{
+  text-decoration: underline;
+}
+
+.cssTable {
+  border-radius: .5rem;
+  overflow: hidden;
+  border-color: white;
+}
+
+.cssTable thead {
+  background-color: var(--gray);
+  border-top-left-radius: .5rem;
+  border-top-right-radius: .5rem;
+}
+
+.cssTable th, .cssTable td {
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  background-color: white;
+}
+
+.cssTable th{
+  background-color: #D9D9D9;
+  border-color: #D9D9D9;
+}
+
+.cssTable th:first-child {
+  border-top-left-radius: .5rem;
+}
+
+.cssTable th:last-child {
+  border-top-right-radius: .5rem;
+}
+
+.cssTable tr{
+  border-left-color: #D9D9D9;
+}
+
