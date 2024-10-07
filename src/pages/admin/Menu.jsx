@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { MenuContext } from '../../utils/MenuContext';  // Importar el contexto
 import { Button, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -21,8 +21,10 @@ const Menu = () => {
   // Estado temporal para manejar los datos durante la edición
   const [tempMenuData, setTempMenuData] = useState(menuData);
 
-  // Fecha actual
-  const todayDate = new Date().toLocaleDateString();
+  useEffect(() => {
+    // Copia los datos actuales a tempMenuData al cargar el componente
+    setTempMenuData(menuData);
+  }, [menuData]);
 
   // Maneja los cambios de los inputs en el estado temporal
   const handleInputChange = (field, value) => {
@@ -38,59 +40,106 @@ const Menu = () => {
   const saveMenu = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     const menuTypeData = tempMenuData[selectedType]; // Usar datos temporales para guardar
-
+    
     if (!token) {
       console.error("No se encontró el token de autenticación");
       message.error("Por favor, inicie sesión nuevamente");
       navigate("/login");
       return;
     }
-
+    
     try {
-      const response = await axios.post(
-        "http://localhost:8080/menu",
-        {
-          note: menuTypeData.note,
-          mainDish:
-            selectedType === "Almuerzo"
-              ? menuTypeData.mainDish
-              : menuTypeData.appetizer,
-          drink: menuTypeData.drink,
-          dessert: menuTypeData.dessert,
-          price: menuTypeData.price,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+      let response;
+      
+      // Verifica si ya existe un id para determinar si es PUT (actualización) o POST (creación)
+      if (menuData[selectedType] && menuData[selectedType].id) {
+        // Actualización usando PUT
+        response = await axios.put(
+          "http://localhost:8080/menu", // Usar la URL sin el ID
+          {
+            id: menuData[selectedType].id,  // Incluye el ID en el cuerpo de la solicitud
+            note: menuTypeData.note,
+            mainDish: menuTypeData.mainDish,  // Enviar mainDish directamente
+            drink: menuTypeData.drink,
+            dessert: menuTypeData.dessert,
+            price: menuTypeData.price,
           },
-        }
-      );
-
-      console.log("Menu guardado:", response.data);
-      message.success("Menú guardado exitosamente");
-
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        message.success("Menú actualizado exitosamente");
+      } else {
+        // Si no hay menú previo (es decir, no hay ID), hacer una solicitud POST
+        response = await axios.post(
+          "http://localhost:8080/menu",  // POST para crear un nuevo menú
+          {
+            note: menuTypeData.note,
+            mainDish: menuTypeData.mainDish,  // Enviar mainDish directamente
+            drink: menuTypeData.drink,
+            dessert: menuTypeData.dessert,
+            price: menuTypeData.price,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        message.success("Menú creado exitosamente");
+      }
+  
       // Actualizar los datos en el contexto solo después de guardar
-      setMenuData(tempMenuData);
-
+      setMenuData((prevMenuData) => ({
+        ...prevMenuData,
+        [selectedType]: response.data, // Guardar la respuesta actualizada en el contexto
+      }));
+  
       // Deshabilitar la edición después de guardar
       setIsEditable({ ...isEditable, [selectedType]: false });
     } catch (error) {
-      console.error("Error al guardar el menú:", error);
-      if (error.response && error.response.status === 401) {
+      if (error.response && error.response.status === 409) {
+        message.error("Conflicto al guardar el menú: el recurso ya existe o hay un problema con los datos.");
+      } else if (error.response && error.response.status === 401) {
         message.error("Sesión expirada. Por favor, inicie sesión nuevamente");
         navigate("/login");
       } else {
         message.error("Error al guardar el menú. Por favor, intente de nuevo");
       }
+      console.error("Error al guardar el menú:", error);
     }
   };
-
+  
   const handleEdit = () => {
     setTempMenuData(menuData); // Copiar los datos actuales a tempMenuData
     setIsEditable((prevEditable) => ({
       ...prevEditable,
       [selectedType]: true,
+    }));
+  };
+
+  const handleCreateClick = () => {
+    // Inicia la edición para crear un nuevo menú
+    setIsEditable((prevEditable) => ({
+      ...prevEditable,
+      [selectedType]: true,
+    }));
+
+    // Inicializa los datos temporales para un nuevo menú vacío
+    setTempMenuData((prevData) => ({
+      ...prevData,
+      [selectedType]: {
+        note: '',
+        mainDish: '',
+        appetizer: '',
+        drink: '',
+        dessert: '',
+        price: 0,
+      },
     }));
   };
 
@@ -156,7 +205,7 @@ const Menu = () => {
               fontSize: "16px",
             }}
           >
-            Diligencia los datos para el {selectedType} - {todayDate}
+            Diligencia los datos para el {selectedType} - {new Date().toLocaleDateString()}
           </p>
 
           {/* TextArea para el plato principal o aperitivo */}
@@ -174,10 +223,10 @@ const Menu = () => {
               placeholder={mainDishPlaceholder}
               autoSize
               style={{ width: "100%" }}
-              value={tempMenuData[selectedType][isLunch ? "mainDish" : "appetizer"]}  // Mostrar valor temporal
+              value={tempMenuData[selectedType].mainDish}  // Siempre usaremos mainDish en el frontend, ya que es el mismo campo en backend
               onChange={(e) =>
                 handleInputChange(
-                  isLunch ? "mainDish" : "appetizer",
+                  "mainDish", // Siempre se actualiza como mainDish en el frontend
                   e.target.value
                 )
               }
@@ -263,7 +312,7 @@ const Menu = () => {
             />
           </div>
 
-          {/* Botones Editar, Guardar y Cancelar */}
+          {/* Botones Crear, Editar, Guardar y Cancelar */}
           <div style={{ margin: "24px 0" }}>
             <div
               style={{
@@ -274,25 +323,47 @@ const Menu = () => {
               }}
             >
               {!isEditable[selectedType] ? (
-                <Button
-                  type="default"
-                  style={{
-                    backgroundColor: "#C20E1A",
-                    color: "#FFFFFF",
-                    border: "none",
-                    height: "30px",
-                    width: "149px",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#841F1C";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#C20E1A";
-                  }}
-                  onClick={handleEdit} // Habilitar edición solo del menú seleccionado
-                >
-                  Editar
-                </Button>
+                !menuData[selectedType] || !menuData[selectedType].id ? (
+                  <Button
+                    type="default"
+                    style={{
+                      backgroundColor: "#C20E1A",
+                      color: "#FFFFFF",
+                      border: "none",
+                      height: "30px",
+                      width: "149px",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#841F1C";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "#C20E1A";
+                    }}
+                    onClick={handleCreateClick} // Habilitar creación del menú
+                  >
+                    Crear
+                  </Button>
+                ) : (
+                  <Button
+                    type="default"
+                    style={{
+                      backgroundColor: "#C20E1A",
+                      color: "#FFFFFF",
+                      border: "none",
+                      height: "30px",
+                      width: "149px",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#841F1C";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "#C20E1A";
+                    }}
+                    onClick={handleEdit} // Habilitar edición solo del menú seleccionado
+                  >
+                    Editar
+                  </Button>
+                )
               ) : (
                 <>
                   <Button
@@ -305,7 +376,7 @@ const Menu = () => {
 
                   <Button
                     type="default"
-                    className='button-cancel'
+                    className="button-cancel"
                     onClick={handleCancel} // Cancelar edición solo del menú seleccionado
                   >
                     Cancelar

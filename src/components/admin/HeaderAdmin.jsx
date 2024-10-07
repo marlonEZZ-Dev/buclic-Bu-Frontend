@@ -78,7 +78,7 @@ export default function HeaderAdmin(props) {
           onClick={() => handleButtonClick("/reservas")} 
         />
         <MenuButton 
-          text="Perfil" 
+          text="Ajustes" 
           isActive={location.pathname === "/perfilAdmin"} 
           onClick={() => handleButtonClick("/perfilAdmin")} 
         />
