@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { MenuContext } from '../../utils/MenuContext';  // Importar el contexto
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import Tables from '../../components/global/Tables';
@@ -9,6 +9,11 @@ const BecasAdmin = () => {
   const { menuData } = useContext(MenuContext);  // Acceder a datos del contexto
   const [selectedType, setSelectedType] = useState('almuerzo');  // Estado para el tipo de menú seleccionado
 
+  // Solo para verificar menuData una vez cuando el componente se monta o cambia menuData
+  useEffect(() => {
+    console.log('MenuData:', menuData);
+  }, [menuData]);  // El efecto solo se ejecutará cuando `menuData` cambie
+
   // Definir las columnas para cada tipo de menú
   const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
   const columnsRefrigerio = ['Aperitivo', 'Bebida', 'Precio', 'Nota'];
@@ -16,20 +21,20 @@ const BecasAdmin = () => {
   // Convertir los datos del menú en filas para la tabla
   const almuerzoRows = [
     [
-      menuData.Almuerzo.mainDish,
-      menuData.Almuerzo.drink,
-      menuData.Almuerzo.dessert,
-      menuData.Almuerzo.price,
-      menuData.Almuerzo.note,
+      menuData?.Almuerzo?.mainDish || '',  
+      menuData?.Almuerzo?.drink || '',
+      menuData?.Almuerzo?.dessert || '',
+      menuData?.Almuerzo?.price || 0,
+      menuData?.Almuerzo?.note || '',
     ],
   ];
 
   const refrigerioRows = [
     [
-      menuData.Refrigerio.appetizer,
-      menuData.Refrigerio.drink,
-      menuData.Refrigerio.price,
-      menuData.Refrigerio.note,
+      menuData?.Refrigerio?.mainDish || '',  
+      menuData?.Refrigerio?.drink || '',
+      menuData?.Refrigerio?.price || 0,
+      menuData?.Refrigerio?.note || '',
     ],
   ];
 

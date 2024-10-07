@@ -26,7 +26,7 @@ const Becas = () => {
 
   const refrigerioRows = [
     [
-      menuData.Refrigerio.appetizer,
+      menuData.Refrigerio.mainDish,
       menuData.Refrigerio.drink,
       menuData.Refrigerio.price,
       menuData.Refrigerio.note,
