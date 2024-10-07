@@ -28,10 +28,11 @@ const SettingsAdmin = () => {
     });
     const navigate = useNavigate();
 
-    // Eliminamos la llamada a fetchSetting desde useEffect
-    // useEffect(() => {
-    //     fetchSetting(); // Ya no se llama automáticamente al cargar el componente
-    // }, []);
+    useEffect(() => {
+        if (selectedType === 'ajustesBecas') {
+            fetchSetting(); // Solo llama a fetchSetting cuando se selecciona la pestaña de Becas
+        }
+    }, [selectedType]);
 
     const fetchSetting = async () => {
         try {
