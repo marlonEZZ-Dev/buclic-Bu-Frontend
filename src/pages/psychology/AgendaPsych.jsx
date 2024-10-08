@@ -1,4 +1,4 @@
-import Attendance from "../../components/global/Attendance.jsx"
+	import Attendance from "../../components/global/Attendance.jsx"
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx"
 import HeaderPsych from "../../components/psychology/HeaderPsych.jsx"
 import Modal from "../../components/global/Modal.jsx"
@@ -9,21 +9,21 @@ import Tables from "../../components/global/Tables.jsx"
 
 import { Card, Flex, Select } from "antd"
 import {ExclamationCircleOutlined} from "@ant-design/icons"
-import moment from "moment/moment.js"
-import 'moment/locale/es'
+import dayjs from "dayjs"
+import 'dayjs/locale/es'
 
 import styles from "../../styles/psychology/agendaPsych.module.css"
 import cssButtonsModal from "../../styles/admin/managementUsers.module.css"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 export default function AgendaPsych(){
-	moment.locale("es")
+	dayjs.locale("es")
 
 	const [enableConfirm, setEnableConfirm] = useState(false)
 	const [whoClicked, setWhoClicked] = useState("")
   
-	let date = moment()
+	let date = dayjs()
 	
 	const cbxPsych = [
 		{value:"psicologo1", label:"Psicólogo 1"},
@@ -64,10 +64,8 @@ export default function AgendaPsych(){
 	]
 
 	const rowsAppointmentDone = [
-		[moment("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez","2057165",<StateUser key={1} active={false}/>]
+		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez","2057165",<StateUser key={1} active={false}/>]
 	]
-
-	useEffect(() => console.dir(date), [])
 		return(	
 		<>
       <HeaderPsych/>
