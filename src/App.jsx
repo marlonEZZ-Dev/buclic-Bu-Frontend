@@ -31,45 +31,48 @@ import SchedulesPsych from "./pages/psychology/SchedulesPsych";
 import AgendaPsych from "./pages/psychology/AgendaPsych";
 import Tracking from "./pages/psychology/Tracking";
 import { MenuProvider } from './utils/MenuContext';  // Importar el MenuProvider
+import { SettingsProvider } from './utils/SettingsContext';
 
 function App() {
   return (
     <MenuProvider>  {/* proveedor del contexto */}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="reestablecercontrasena" element={<RecoverPassword />} />
-        <Route path="confirmarcontrasena" element={<ConfirmationPassword />} />
+      <SettingsProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="reestablecercontrasena" element={<RecoverPassword />} />
+          <Route path="confirmarcontrasena" element={<ConfirmationPassword />} />
 
-        {/* Rutas para admin */}
-        <Route path="/usuarios" element={<ManagementUsers />} />
-        <Route path="/informes" element={<Informs />} />
-        <Route path="/menu" element={<Menu />} /> {/* Este usará el contexto */}
-        <Route path="/becaAdm" element={<BecasAdmin />} />
-        <Route path="/citasAdm" element={<AppointmentsAdmin />} />
-        <Route path="/reservas" element={<Reservations />} />
-        <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
-        <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
-        <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
-        <Route path="/perfilAdmin" element={<SettingsAdmin />} />
-        <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
+          {/* Rutas para admin */}
+          <Route path="/usuarios" element={<ManagementUsers />} />
+          <Route path="/informes" element={<Informs />} />
+          <Route path="/menu" element={<Menu />} /> {/* Este usará el contexto */}
+          <Route path="/becaAdm" element={<BecasAdmin />} />
+          <Route path="/citasAdm" element={<AppointmentsAdmin />} />
+          <Route path="/reservas" element={<Reservations />} />
+          <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
+          <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
+          <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
+          <Route path="/perfilAdmin" element={<SettingsAdmin />} />
+          <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
 
-        {/* Rutas para Estudiante */}
-        <Route path="/becas" element={<Becas />} />  {/* Este usará el contexto */}
-        <Route path="/citas" element={<Appointments />} />
-        <Route path="/ajustes" element={<Settings />} />
-        <Route path="/cambiarContrasena" element={<ChangePassword />} />
-        <Route path="/psicologia" element={<Psychologist />} />
-        <Route path="/enfermeria" element={<Nursing />} />
-        <Route path="/odontologia" element={<Dentist />} />
+          {/* Rutas para Estudiante */}
+          <Route path="/becas" element={<Becas />} />  {/* Este usará el contexto */}
+          <Route path="/citas" element={<Appointments />} />
+          <Route path="/ajustes" element={<Settings />} />
+          <Route path="/cambiarContrasena" element={<ChangePassword />} />
+          <Route path="/psicologia" element={<Psychologist />} />
+          <Route path="/enfermeria" element={<Nursing />} />
+          <Route path="/odontologia" element={<Dentist />} />
 
-        {/* Rutas para Psicologo */}
-        <Route path="/beca" element={<BecasPsych />} />
-        <Route path="/cita" element={<AppointmentsPsych />} />
-        <Route path="/horario" element={<SchedulesPsych />} />
-        <Route path="/agenda" element={<AgendaPsych />} />
-        <Route path="/seguimiento" element={<Tracking />} />
-      </Routes>
+          {/* Rutas para Psicologo */}
+          <Route path="/beca" element={<BecasPsych />} />
+          <Route path="/cita" element={<AppointmentsPsych />} />
+          <Route path="/horario" element={<SchedulesPsych />} />
+          <Route path="/agenda" element={<AgendaPsych />} />
+          <Route path="/seguimiento" element={<Tracking />} />
+        </Routes>
+      </SettingsProvider>
     </MenuProvider>
   );
 }

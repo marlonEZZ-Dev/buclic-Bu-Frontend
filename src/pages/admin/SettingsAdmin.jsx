@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSettings } from '../../utils/SettingsContext';  // Importar el contexto
 import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import MenuBecas from '../../components/global/MenuBecas';
@@ -9,89 +10,30 @@ import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 
 const SettingsAdmin = () => {
-    const [selectedType, setSelectedType] = useState('perfil');
+    const { settingId, setSettingId, settingData, setSettingData } = useSettings();
     const [isEditing, setIsEditing] = useState(false);
-    const [settingData, setSettingData] = useState({
-        id: null,
-        startSemester: null,
-        endSemester: null,
-        numLunch: null,
-        numSnack: null,
-        starBeneficiaryLunch: null,
-        endBeneficiaryLunch: null,
-        starLunch: null,
-        endLunch: null,
-        starBeneficiarySnack: null,
-        endBeneficiarySnack: null,
-        starSnack: null,
-        endSnack: null
-    });
+    const [selectedType, setSelectedType] = useState('perfil');
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (selectedType === 'ajustesBecas') {
-            fetchSetting(); // Solo llama a fetchSetting cuando se selecciona la pestaña de Becas
-        }
-    }, [selectedType]);
-
-    const fetchSetting = async () => {
-        try {
-            const response = await axios.get('/setting/1');
-            const data = response.data.settingRequest;
-
-            setSettingData({
-                id: data.id,
-                startSemester: dayjs(data.startSemester),
-                endSemester: dayjs(data.endSemester),
-                numLunch: data.numLunch,
-                numSnack: data.numSnack,
-                starBeneficiaryLunch: dayjs(data.starBeneficiaryLunch, 'HH:mm:ss'),
-                endBeneficiaryLunch: dayjs(data.endBeneficiaryLunch, 'HH:mm:ss'),
-                starLunch: dayjs(data.starLunch, 'HH:mm:ss'),
-                endLunch: dayjs(data.endLunch, 'HH:mm:ss'),
-                starBeneficiarySnack: dayjs(data.starBeneficiarySnack, 'HH:mm:ss'),
-                endBeneficiarySnack: dayjs(data.endBeneficiarySnack, 'HH:mm:ss'),
-                starSnack: dayjs(data.starSnack, 'HH:mm:ss'),
-                endSnack: dayjs(data.endSnack, 'HH:mm:ss'),
-            });
-        } catch (error) {
-            if (error.response && error.response.status === 404) {
-                // Si el recurso no se encuentra (404), no se hace nada. El estado ya se resetea.
-                setSettingData({
-                    id: null,
-                    startSemester: null,
-                    endSemester: null,
-                    numLunch: null,
-                    numSnack: null,
-                    starBeneficiaryLunch: null,
-                    endBeneficiaryLunch: null,
-                    starLunch: null,
-                    endLunch: null,
-                    starBeneficiarySnack: null,
-                    endBeneficiarySnack: null,
-                    starSnack: null,
-                    endSnack: null,
-                });
-            } else {
-                // Si es otro tipo de error, lo mostramos en consola y al usuario.
-                console.error('Error al obtener la configuración:', error);
-                message.error('Error al obtener la configuración');
+        const fetchSetting = async () => {
+            if (settingId) {
+                try {
+                    const response = await axios.get(`/setting/${settingId}`);
+                    setSettingData(response.data.settingRequest);
+                } catch (error) {
+                    message.error('Error al cargar los ajustes.');
+                }
             }
-        }
-    };
-
-
-
-
-    const handleChangePasswordClick = () => {
-        navigate('/contrasenaAdmin');
-    };
+        };
+        fetchSetting();
+    }, [settingId, setSettingData]);
 
     const handleEditClick = () => {
         setIsEditing(true);
     };
 
-    const handleCreateClick = async () => {
+    const handleCreateClick = () => {
         setIsEditing(true);
         setSettingData({
             id: null,
@@ -112,45 +54,28 @@ const SettingsAdmin = () => {
 
     const handleSaveClick = async () => {
         try {
-            const payload = {
-                ...settingData,
-                startSemester: settingData.startSemester ? settingData.startSemester.format('YYYY-MM-DD') : null,
-                endSemester: settingData.endSemester ? settingData.endSemester.format('YYYY-MM-DD') : null,
-                starBeneficiaryLunch: settingData.starBeneficiaryLunch ? settingData.starBeneficiaryLunch.format('HH:mm:ss') : null,
-                endBeneficiaryLunch: settingData.endBeneficiaryLunch ? settingData.endBeneficiaryLunch.format('HH:mm:ss') : null,
-                starLunch: settingData.starLunch ? settingData.starLunch.format('HH:mm:ss') : null,
-                endLunch: settingData.endLunch ? settingData.endLunch.format('HH:mm:ss') : null,
-                starBeneficiarySnack: settingData.starBeneficiarySnack ? settingData.starBeneficiarySnack.format('HH:mm:ss') : null,
-                endBeneficiarySnack: settingData.endBeneficiarySnack ? settingData.endBeneficiarySnack.format('HH:mm:ss') : null,
-                starSnack: settingData.starSnack ? settingData.starSnack.format('HH:mm:ss') : null,
-                endSnack: settingData.endSnack ? settingData.endSnack.format('HH:mm:ss') : null,
-            };
-
-            let response;
-            if (settingData.id) {
-                // Si ya tiene ID, es una actualización
-                response = await axios.put('/setting', payload);
-                message.success('Configuración actualizada exitosamente');
+            if (settingId) {
+                await axios.put('/setting', { ...settingData, id: settingId });
+                message.success('Ajustes guardados exitosamente.');
             } else {
-                // Si no tiene ID, es una creación
-                response = await axios.post('/setting', payload);
-                message.success('Configuración creada exitosamente');
+                const response = await axios.post('/setting', settingData);
+                setSettingId(response.data.id);
+                setSettingData(response.data.settingRequest);
+                message.success('Ajustes creados exitosamente.');
             }
-
-            // Aquí llamamos a fetchSetting después de crear o actualizar
-            await fetchSetting();
-
-            setIsEditing(false); // Cambiar a modo no-edición
+            setIsEditing(false);
         } catch (error) {
-            message.error('Error al guardar la configuración');
-            console.error(error);
+            message.error('Error al guardar los ajustes.');
         }
     };
-
 
     const handleCancelClick = () => {
         setIsEditing(false);
     };
+    const handleChangePasswordClick = () => {
+        navigate('/contrasenaAdmin');
+    };
+
 
     const buttons = [
         { type: 'perfil', label: 'Perfil' },
@@ -191,17 +116,25 @@ const SettingsAdmin = () => {
                                     style={{ width: '100%' }}
                                     disabled={!isEditing}
                                     value={[
-                                        settingData.startSemester ? settingData.startSemester : null,
-                                        settingData.endSemester ? settingData.endSemester : null,
+                                        settingData?.startSemester ? dayjs(settingData.startSemester) : null,
+                                        settingData?.endSemester ? dayjs(settingData.endSemester) : null,
                                     ]}
                                     onChange={(dates) => {
-                                        setSettingData((prev) => ({
-                                            ...prev,
-                                            startSemester: dates ? dates[0] : null,
-                                            endSemester: dates ? dates[1] : null,
-                                        }));
+                                        if (dates) {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                startSemester: dates[0] ? dates[0].format('YYYY-MM-DD') : null,
+                                                endSemester: dates[1] ? dates[1].format('YYYY-MM-DD') : null,
+                                            }));
+                                        } else {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                startSemester: null,
+                                                endSemester: null,
+                                            }));
+                                        }
                                     }}
-                                    allowEmpty={[true, true]}  // Agrega allowEmpty para permitir campos vacíos
+                                    allowEmpty={[true, true]}
                                 />
                             </Space>
                             <div style={{ marginTop: '20px' }}>
@@ -212,7 +145,7 @@ const SettingsAdmin = () => {
                                             type="number"
                                             placeholder="Ingrese el número de becas para almuerzo"
                                             disabled={!isEditing}
-                                            value={settingData.numLunch}
+                                            value={settingData?.numLunch || ''}
                                             onChange={(e) => setSettingData((prev) => ({
                                                 ...prev,
                                                 numLunch: e.target.value,
@@ -225,7 +158,7 @@ const SettingsAdmin = () => {
                                             type="number"
                                             placeholder="Ingrese el número de becas para refrigerio"
                                             disabled={!isEditing}
-                                            value={settingData.numSnack}
+                                            value={settingData?.numSnack || ''}
                                             onChange={(e) => setSettingData((prev) => ({
                                                 ...prev,
                                                 numSnack: e.target.value,
@@ -242,10 +175,10 @@ const SettingsAdmin = () => {
                                         style={{ width: '58%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.starBeneficiaryLunch}
+                                        value={settingData?.starBeneficiaryLunch ? dayjs(settingData.starBeneficiaryLunch, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            starBeneficiaryLunch: time,
+                                            starBeneficiaryLunch: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                     <TimePicker
@@ -253,13 +186,14 @@ const SettingsAdmin = () => {
                                         style={{ width: '48%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.endBeneficiaryLunch}
+                                        value={settingData?.endBeneficiaryLunch ? dayjs(settingData.endBeneficiaryLunch, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            endBeneficiaryLunch: time,
+                                            endBeneficiaryLunch: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                 </Space>
+
                                 {/* Acceso para venta libre almuerzo */}
                                 <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para venta libre almuerzo</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
@@ -268,10 +202,10 @@ const SettingsAdmin = () => {
                                         style={{ width: '58%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.starLunch}
+                                        value={settingData?.starLunch ? dayjs(settingData.starLunch, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            starLunch: time,
+                                            starLunch: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                     <TimePicker
@@ -279,13 +213,14 @@ const SettingsAdmin = () => {
                                         style={{ width: '48%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.endLunch}
+                                        value={settingData?.endLunch ? dayjs(settingData.endLunch, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            endLunch: time,
+                                            endLunch: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                 </Space>
+
                                 {/* Acceso para beneficiarios refrigerio */}
                                 <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para beneficiarios refrigerio</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
@@ -294,10 +229,10 @@ const SettingsAdmin = () => {
                                         style={{ width: '58%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.starBeneficiarySnack}
+                                        value={settingData?.starBeneficiarySnack ? dayjs(settingData.starBeneficiarySnack, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            starBeneficiarySnack: time,
+                                            starBeneficiarySnack: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                     <TimePicker
@@ -305,13 +240,14 @@ const SettingsAdmin = () => {
                                         style={{ width: '48%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.endBeneficiarySnack}
+                                        value={settingData?.endBeneficiarySnack ? dayjs(settingData.endBeneficiarySnack, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            endBeneficiarySnack: time,
+                                            endBeneficiarySnack: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                 </Space>
+
                                 {/* Acceso para venta libre refrigerio */}
                                 <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para venta libre refrigerio</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
@@ -320,10 +256,10 @@ const SettingsAdmin = () => {
                                         style={{ width: '58%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.starSnack}
+                                        value={settingData?.starSnack ? dayjs(settingData.starSnack, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            starSnack: time,
+                                            starSnack: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                     <TimePicker
@@ -331,39 +267,43 @@ const SettingsAdmin = () => {
                                         style={{ width: '48%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
-                                        value={settingData.endSnack}
+                                        value={settingData?.endSnack ? dayjs(settingData.endSnack, 'HH:mm') : null}
                                         onChange={(time) => setSettingData((prev) => ({
                                             ...prev,
-                                            endSnack: time,
+                                            endSnack: time ? time.format('HH:mm') : null,
                                         }))}
                                     />
                                 </Space>
-                                {/* Botones para guardar/cancelar */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                                    {isEditing ? (
-                                        <>
-                                            <Button className="button-actionsGeneral" onClick={handleSaveClick}>
-                                                Guardar
+
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                                {isEditing ? (
+                                    <>
+                                        {/* Mostrar "Cancelar" cuando esté en modo de edición */}
+                                        <Button onClick={handleCancelClick}>
+                                            Cancelar
+                                        </Button>
+                                        {/* Mostrar "Guardar" cuando esté en modo de edición */}
+                                        <Button type="primary" onClick={handleSaveClick} disabled={!isEditing}>
+                                            Guardar
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Mostrar "Crear" si no hay un settingId y no se está editando */}
+                                        {!settingId && (
+                                            <Button onClick={handleCreateClick}>
+                                                Crear
                                             </Button>
-                                            <Button className="button-actionsGeneral" onClick={handleCancelClick}>
-                                                Cancelar
+                                        )}
+                                        {/* Mostrar "Editar" si ya hay un setting creado */}
+                                        {settingId && (
+                                            <Button type="primary" onClick={handleEditClick}>
+                                                Editar
                                             </Button>
-                                        </>
-                                    ) : (
-                                        // Si no hay datos en settingData, muestra "Crear"
-                                        <>
-                                            {!settingData.id ? (
-                                                <Button className="button-actionsGeneral" onClick={handleCreateClick}>
-                                                    Crear
-                                                </Button>
-                                            ) : (
-                                                <Button className="button-actionsGeneral" onClick={handleEditClick}>
-                                                    Editar
-                                                </Button>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}
