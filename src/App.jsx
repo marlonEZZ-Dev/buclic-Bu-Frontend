@@ -11,6 +11,7 @@ import Appointments from "./pages/student/Appointments";
 import MainStudentView from "./pages/student/MainStudentView";
 import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
+import ViewInforms from "./pages/admin/ViewInforms";
 import Menu from "./pages/admin/Menu";
 import Reservations from "./pages/admin/Reservations";
 import Settings from "./pages/student/Settings";
@@ -43,18 +44,19 @@ function App() {
           <Route path="reestablecercontrasena" element={<RecoverPassword />} />
           <Route path="confirmarcontrasena" element={<ConfirmationPassword />} />
 
-          {/* Rutas para admin */}
-          <Route path="/usuarios" element={<ManagementUsers />} />
-          <Route path="/informes" element={<Informs />} />
-          <Route path="/menu" element={<Menu />} /> {/* Este usará el contexto */}
-          <Route path="/becaAdm" element={<BecasAdmin />} />
-          <Route path="/citasAdm" element={<AppointmentsAdmin />} />
-          <Route path="/reservas" element={<Reservations />} />
-          <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
-          <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
-          <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
-          <Route path="/perfilAdmin" element={<SettingsAdmin />} />
-          <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
+        {/* Rutas para admin */}
+        <Route path="/usuarios" element={<ManagementUsers />} />
+        <Route path="/informes" element={<Informs />} />
+        <Route path="/VerInformes" element={<ViewInforms />} />
+        <Route path="/menu" element={<Menu />} /> {/* Este usará el contexto */}
+        <Route path="/becaAdm" element={<BecasAdmin />} />
+        <Route path="/citasAdm" element={<AppointmentsAdmin />} />
+        <Route path="/reservas" element={<Reservations />} />
+        <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
+        <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
+        <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
+        <Route path="/perfilAdmin" element={<SettingsAdmin />} />
+        <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
 
           {/* Rutas para Estudiante */}
           <Route path="/becas" element={<Becas />} />  {/* Este usará el contexto */}
