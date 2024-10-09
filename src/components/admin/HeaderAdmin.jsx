@@ -1,10 +1,10 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import LogoUnivalleLight from '../../assets/logo_univalle_light.svg';
-import '../../styles/TopNavbar.css';
-import LogoutButton from '../auth/LogoutButton';
-import React, { useState, useEffect } from 'react';
-import { Drawer, Button } from 'antd';
-import { MenuOutlined, CloseOutlined } from '@ant-design/icons'; // Importamos los íconos
+import { useNavigate, useLocation } from "react-router-dom";
+import LogoUnivalleLight from "../../assets/logo_univalle_light.svg";
+import "../../styles/TopNavbar.css";
+import LogoutButton from "../auth/LogoutButton";
+import React, { useState, useEffect } from "react";
+import { Drawer, Button } from "antd";
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons"; 
 
 export default function HeaderAdmin(props) {
   const navigate = useNavigate();
@@ -16,14 +16,14 @@ export default function HeaderAdmin(props) {
   // Detectar el tamaño de la pantalla
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768); // Consideramos móvil si la pantalla es menor o igual a 768px
+      setIsMobile(window.innerWidth <= 768); 
     };
 
     handleResize(); // Ejecutar al cargar
-    window.addEventListener('resize', handleResize); // Escuchar cambios de tamaño de pantalla
+    window.addEventListener("resize", handleResize); // Escuchar cambios de tamaño de pantalla
 
     return () => {
-      window.removeEventListener('resize', handleResize); // Limpiar evento al desmontar componente
+      window.removeEventListener("resize", handleResize); // Limpiar evento al desmontar componente
     };
   }, []);
 
@@ -40,40 +40,87 @@ export default function HeaderAdmin(props) {
   // Función para manejar clic en los botones y navegar
   const handleButtonClick = (path) => {
     navigate(path);
-    setMenuOpen(false); // Cierra el menú hamburguesa o drawer después de seleccionar una opción
+    setMenuOpen(false); 
     closeDrawer();
   };
 
   return (
-    <header id='univalle-logo-header'>
+    <header id="univalle-logo-header">
       <div className="logo-container">
-        <img src={LogoUnivalleLight} alt="Logo Universidad del Valle" className="logo" />
+        <img
+          src={LogoUnivalleLight}
+          alt="Logo Universidad del Valle"
+          className="logo"
+        />
       </div>
 
       {isMobile ? (
         <>
           {/* Ícono del menú hamburguesa solo en dispositivos móviles */}
-          <Button type="primary" onClick={drawerOpen ? closeDrawer : showDrawer} className="hamburger-menu-button">
-            {drawerOpen ? <CloseOutlined style={{ fontSize: '24px', color: 'white' }} /> : <MenuOutlined style={{ fontSize: '24px', color: 'white' }} />}
+          <Button
+            type="primary"
+            onClick={drawerOpen ? closeDrawer : showDrawer}
+            className="hamburger-menu-button"
+          >
+            {drawerOpen ? (
+              <CloseOutlined style={{ fontSize: "24px", color: "white" }} />
+            ) : (
+              <MenuOutlined style={{ fontSize: "24px", color: "white" }} />
+            )}
           </Button>
 
           <Drawer
             title="Menú"
             placement="left" // Drawer desde la izquierda
             onClose={closeDrawer}
-            open={drawerOpen} // Cambiado de "visible" a "open"
-            styles={{ body: { paddingBottom: 80 } }} // Cambiado de "bodyStyle" a "styles.body"
+            open={drawerOpen} 
+            styles={{ body: { paddingBottom: 80 } }} 
           >
             <ul className="drawer-menu">
-              <li onClick={() => handleButtonClick("/usuarios")} className={location.pathname === "/usuarios" ? "active" : ""}>Gestión de usuarios</li>
-              <li onClick={() => handleButtonClick("/informes")} className={location.pathname === "/informes" ? "active" : ""}>Informes</li>
-              <li onClick={() => handleButtonClick("/menu")} className={location.pathname === "/menu" ? "active" : ""}>Menú del día</li>
-              <li onClick={() => handleButtonClick("/becaAdm")} className={location.pathname === "/becaAdm" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/citasAdm")} className={location.pathname === "/citasAdm" ? "active" : ""}>Citas</li>
-              <li onClick={() => handleButtonClick("/reservas")} className={location.pathname === "/reservas" ? "active" : ""}>Reservas</li>
-              <li onClick={() => handleButtonClick("/perfilAdmin")} className={location.pathname === "/perfilAdmin" ? "active" : ""}>Ajustes</li>
+              <li
+                onClick={() => handleButtonClick("/usuarios")}
+                className={location.pathname === "/usuarios" ? "active" : ""}
+              >
+                Gestión de usuarios
+              </li>
+              <li
+                onClick={() => handleButtonClick("/informes")}
+                className={location.pathname === "/informes" ? "active" : ""}
+              >
+                Informes
+              </li>
+              <li
+                onClick={() => handleButtonClick("/menu")}
+                className={location.pathname === "/menu" ? "active" : ""}
+              >
+                Menú del día
+              </li>
+              <li
+                onClick={() => handleButtonClick("/becaAdm")}
+                className={location.pathname === "/becaAdm" ? "active" : ""}
+              >
+                Becas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/citasAdm")}
+                className={location.pathname === "/citasAdm" ? "active" : ""}
+              >
+                Citas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/reservas")}
+                className={location.pathname === "/reservas" ? "active" : ""}
+              >
+                Reservas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/perfilAdmin")}
+                className={location.pathname === "/perfilAdmin" ? "active" : ""}
+              >
+                Ajustes
+              </li>
             </ul>
-            
+
             {/* Botón de cerrar sesión en la parte inferior del Drawer */}
             <div className="drawer-footer">
               <LogoutButton />
@@ -83,23 +130,58 @@ export default function HeaderAdmin(props) {
       ) : (
         <>
           {/* Menú normal para pantallas grandes */}
-          <nav className={`menu ${menuOpen ? 'open' : ''}`}>
+          <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
-              <li onClick={() => handleButtonClick("/usuarios")} className={location.pathname === "/usuarios" ? "active" : ""}>Usuarios</li>
-              <li onClick={() => handleButtonClick("/informes")} className={location.pathname === "/informes" ? "active" : ""}>Informes</li>
-              <li onClick={() => handleButtonClick("/menu")} className={location.pathname === "/menu" ? "active" : ""}>Menú</li>
-              <li onClick={() => handleButtonClick("/becaAdm")} className={location.pathname === "/becaAdm" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/citasAdm")} className={location.pathname === "/citasAdm" ? "active" : ""}>Citas</li>
-              <li onClick={() => handleButtonClick("/reservas")} className={location.pathname === "/reservas" ? "active" : ""}>Reservas</li>
-              <li onClick={() => handleButtonClick("/perfilAdmin")} className={location.pathname === "/perfilAdmin" ? "active" : ""}>Ajustes</li>
+              <li
+                onClick={() => handleButtonClick("/usuarios")}
+                className={location.pathname === "/usuarios" ? "active" : ""}
+              >
+                Usuarios
+              </li>
+              <li
+                onClick={() => handleButtonClick("/informes")}
+                className={location.pathname === "/informes" ? "active" : ""}
+              >
+                Informes
+              </li>
+              <li
+                onClick={() => handleButtonClick("/menu")}
+                className={location.pathname === "/menu" ? "active" : ""}
+              >
+                Menú
+              </li>
+              <li
+                onClick={() => handleButtonClick("/becaAdm")}
+                className={location.pathname === "/becaAdm" ? "active" : ""}
+              >
+                Becas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/citasAdm")}
+                className={location.pathname === "/citasAdm" ? "active" : ""}
+              >
+                Citas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/reservas")}
+                className={location.pathname === "/reservas" ? "active" : ""}
+              >
+                Reservas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/perfilAdmin")}
+                className={location.pathname === "/perfilAdmin" ? "active" : ""}
+              >
+                Ajustes
+              </li>
             </ul>
           </nav>
 
-          {/* Botón de Cerrar Sesión siempre visible en pantallas grandes */}
+          
           <div className="logout-container">
-            <button className="logout-button">
+            <div className="logout-button">
               <LogoutButton />
-            </button>
+            </div>
           </div>
         </>
       )}
