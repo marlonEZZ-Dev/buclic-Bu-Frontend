@@ -22,11 +22,14 @@ export default function ManagementUsers(){
   //useStates
   const [changesDescription, setChangesDescription] = useState(1)
   const [objectSelected, setObjectSelected] = useState(null)
-  const [isModalImport, setIsModalImport] = useState(false)
-  const [isModalEdit, setIsModalEdit] = useState(false)
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
+  //States de modals
+  const [isModalImport, setIsModalImport] = useState(false)
+  const [isModalEdit, setIsModalEdit] = useState(false)
+  const [isModalDelete, setIsModalDelete] = useState(false)
   //Predicados
+  let isBeneficiary = changesDescription === 0
   let isStudent = changesDescription === 1
   let isFuncionary = changesDescription === 2
   let enableResponsive = deviceType === "mobile" || deviceType === "tablet"
@@ -62,7 +65,9 @@ export default function ManagementUsers(){
     {value:"enfermero", label:"Enfermero (a)"},
     {value:"monitor", label:"Monitor (a)"},
     {value:"odontologo", label:"Odontólogo (a)"},
-    {value:"psicologo", label:"Psicólogo (a)"}
+    {value:"psicologo", label:"Psicólogo (a)"},
+    {value:"funcionario", label:"Funcionario (a)"},
+    {value:"externo", label:"Externo (a)"},
   ]
 
   const cbxStatus = [
@@ -80,7 +85,7 @@ export default function ManagementUsers(){
     {key: "name", label: "Nombre"},
     {key: enableResponsive ? "":"email", label: enableResponsive ? "":"Correo"},
     {key: "status", label: "Estado"},
-    {key: "edit", label: "Editar"}
+    {key: isBeneficiary ? "actions":"edit", label: isBeneficiary ? "Acciones":"Editar"}
   ]
 
   //functions  
@@ -158,6 +163,7 @@ export default function ManagementUsers(){
     console.dir(rows)
   }
 
+  //Manejadores de estado de modals
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
   
@@ -168,7 +174,10 @@ export default function ManagementUsers(){
   }
 
   const handlerCloseModalEdit = () => setIsModalEdit(false)
-  
+
+  const handlerOpenModalDelete = () => setIsModalDelete(true)
+  const handlerCloseModalDelete = () => setIsModalDelete(false)
+  //---------------------------------------------------------
   const handleResize = () => {
     const width = window.innerWidth;
 
@@ -288,6 +297,27 @@ export default function ManagementUsers(){
           <button className={styles.buttonCancel}>Cancelar</button>
         </Flex>
       </Modal>) : ""}
+      {isModalDelete ? (
+        <Modal
+        open={isModalDelete}
+        onClose={handlerCloseModalDelete}>
+          <Flex vertical>
+            <span>Eliminar beneficiarios</span>
+            <p>
+              ¿Desea eliminar todo los beneficiarios
+              <br />
+              actuales de la plataforma?
+            </p>
+          </Flex>
+          <Flex
+            align='center'
+            gap='small'
+            justify='space-evenly'>
+              <button className={styles.buttonCancel} onClick={handlerCloseModalDelete}>Cancelar</button>
+              <button className={styles.buttonSave}>Guardar</button>
+          </Flex>
+        </Modal>
+      ) : ""}
         <MenuBecas 
           buttons={buttons}
           onSelect={type => handlerClick(type)}>
@@ -338,14 +368,18 @@ export default function ManagementUsers(){
             <SmallInput 
               title='Correo electrónico'
               placeholder='Correo del estudiante'/>
-            <label className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" : ""}`}>
+          {!isStudent || !enableResponsive ? 
+            <label 
+            className={`${otherStyles.labels} ${
+            (isStudent && !enableResponsive) ? "visibility-hidden" : 
+            (!isStudent || !enableResponsive) ? styles.displayNone :""}`}>
             {isFuncionary ? "Rol" : 
             <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
             <Select
               placeholder="Selecciona"
               className={styles.comboboxes}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}/>
-            </label>
+            </label>: ""}
           </Flex>
         </Flex>
 
@@ -357,11 +391,19 @@ export default function ManagementUsers(){
           <button className={styles.buttonCancel}>Cancelar</button>
         </Flex>
         <Divider/>
-        <Flex
+        <Flex wrap
         justify='center'
         gap={11}>
           <SearchInput
             placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'}/>
+          {isBeneficiary ? 
+          <button 
+          className={styles.buttonDeleteBen}
+          onClick={handlerOpenModalDelete}>
+            Borrar los
+            <br />
+            beneficiarios
+          </button> : ""}
         </Flex>
         <Flex vertical>
           <p className={styles.marginTable}>

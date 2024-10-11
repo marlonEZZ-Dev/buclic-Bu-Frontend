@@ -28,6 +28,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 .menuGrant{
   margin-top: 6rem;
   position: relative;
@@ -35,12 +36,13 @@
 
 .comboboxes{
   display: block;
-}
-
-.comboboxes{
   width: 14.3125rem;
   height: 2.75rem;
   font-size: .9375rem;
+}
+
+.displayNone{
+  display: none;
 }
 
 .contentTitles{
@@ -56,6 +58,7 @@
     font-size: 15px;
   }
 }
+
 .marginTable{
   margin-top: 1.625rem;
   text-align: left;
@@ -91,7 +94,8 @@
 
 .buttonSave,
 .buttonImport,
-.buttonSearch{
+.buttonSearch,
+.buttonDeleteBen{
   background-color: var(--red);
   color: var(--white);
   border: none;
@@ -129,11 +133,11 @@
 .buttonSave,
 .buttonCancel,
 .buttonImport,
-.buttonSearch{
+.buttonSearch,
+.buttonDeleteBen{
   border-radius: .5rem;
 }
 
-/* Son pseudoClases */
 .buttonCancel:hover{
   color: var(--white);
 }
@@ -141,7 +145,8 @@
 .buttonSave:hover, 
 .buttonCancel:hover, 
 .buttonImport:hover,
-.buttonSearch:hover{
+.buttonSearch:hover,
+.buttonDeleteBen:hover{
   cursor: pointer;
   background-color: var(--red-dark);
 }
@@ -150,4 +155,9 @@
   cursor: pointer;
   box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.5),
   inset -1px -1px 3px rgba(0, 0, 0, 0.1);
+}
+/* Manterlo al final para sobre escritura de especificidad */
+.buttonDeleteBen{
+  width: min-content;
+  align-self: flex-end;
 }
