@@ -4,7 +4,7 @@ import { Button, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
-import axios from 'axios';
+import api from '../../api.js';
 import { ACCESS_TOKEN } from "../../constants";
 
 const { TextArea } = Input;
@@ -19,12 +19,52 @@ const Menu = () => {
   });
 
   // Estado temporal para manejar los datos durante la edición
-  const [tempMenuData, setTempMenuData] = useState(menuData);
+  const [tempMenuData, setTempMenuData] = useState({
+    Almuerzo: {},
+    Refrigerio: {}
+  });
 
   useEffect(() => {
-    // Copia los datos actuales a tempMenuData al cargar el componente
-    setTempMenuData(menuData);
-  }, [menuData]);
+    // Realiza la solicitud GET para obtener los datos del menú desde el backend
+    const fetchMenuData = async () => {
+      try {
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (!token) {
+          message.error('Por favor, inicie sesión nuevamente');
+          navigate('/login');
+          return;
+        }
+
+        const response = await api.get('/menu', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const menus = response.data;
+
+        const almuerzoMenu = menus.find(menu => menu.id === 1) || {};
+        const refrigerioMenu = menus.find(menu => menu.id === 2) || {};
+
+        setMenuData({
+          Almuerzo: almuerzoMenu,
+          Refrigerio: refrigerioMenu
+        });
+
+        setTempMenuData({
+          Almuerzo: almuerzoMenu,
+          Refrigerio: refrigerioMenu
+        });
+
+      } catch (error) {
+        message.error('Error al obtener los datos del menú');
+        console.error(error);
+      }
+    };
+
+    fetchMenuData(); // Llama a la función para obtener los datos al cargar el componente
+
+  }, [navigate, setMenuData]);
 
   // Maneja los cambios de los inputs en el estado temporal
   const handleInputChange = (field, value) => {
@@ -54,8 +94,8 @@ const Menu = () => {
       // Verifica si ya existe un id para determinar si es PUT (actualización) o POST (creación)
       if (menuData[selectedType] && menuData[selectedType].id) {
         // Actualización usando PUT
-        response = await axios.put(
-          "http://localhost:8080/menu", // Usar la URL sin el ID
+        response = await api.put(
+          "/menu", 
           {
             id: menuData[selectedType].id,  // Incluye el ID en el cuerpo de la solicitud
             note: menuTypeData.note,
@@ -74,8 +114,8 @@ const Menu = () => {
         message.success("Menú actualizado exitosamente");
       } else {
         // Si no hay menú previo (es decir, no hay ID), hacer una solicitud POST
-        response = await axios.post(
-          "http://localhost:8080/menu",  // POST para crear un nuevo menú
+        response = await api.post(
+          "/menu",  // POST para crear un nuevo menú
           {
             note: menuTypeData.note,
             mainDish: menuTypeData.mainDish,  // Enviar mainDish directamente
@@ -113,33 +153,12 @@ const Menu = () => {
       console.error("Error al guardar el menú:", error);
     }
   };
-  
+
   const handleEdit = () => {
     setTempMenuData(menuData); // Copiar los datos actuales a tempMenuData
     setIsEditable((prevEditable) => ({
       ...prevEditable,
       [selectedType]: true,
-    }));
-  };
-
-  const handleCreateClick = () => {
-    // Inicia la edición para crear un nuevo menú
-    setIsEditable((prevEditable) => ({
-      ...prevEditable,
-      [selectedType]: true,
-    }));
-
-    // Inicializa los datos temporales para un nuevo menú vacío
-    setTempMenuData((prevData) => ({
-      ...prevData,
-      [selectedType]: {
-        note: '',
-        mainDish: '',
-        appetizer: '',
-        drink: '',
-        dessert: '',
-        price: 0,
-      },
     }));
   };
 
