@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 
 const TablePaginationUsers = ({ 
     rows = [], 
-    columns = [], // Este será un array de objetos que define qué propiedades del objeto se deben mostrar en la tabla.
-    currentPage = 0, 
-    itemsPerPage = 0, 
+    columns = [],
+    currentPage = 1, 
+    itemsPerPage = 10, 
     onPageChange = () => {}, 
     onCellClick = () => {}, 
 }) => {
-    const isRowNull = rows === null;
+    const isRowNull = !Array.isArray(rows) || rows === null;
+    const safeRows = isRowNull ? [] : rows;
 
     const headerStyle = {
         backgroundColor: '#CFCFCF',
@@ -25,12 +26,6 @@ const TablePaginationUsers = ({
         textAlign: 'center',
     };
 
-    // Calcular el índice de inicio y fin para la paginación
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = isRowNull ? [] : rows.slice(indexOfFirstItem, indexOfLastItem); 
-
-    // Estilo para los botones
     const buttonStyle = {
         backgroundColor: '#FFFFFF',
         color: '#B3B3B3',
@@ -39,16 +34,12 @@ const TablePaginationUsers = ({
         flex: 1,
         margin: '0 5px',
         borderRadius: '8px',
-        transition: 'background-color 0.3s',
         cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     };
 
-    // Estilo para el hover
-    const buttonHoverStyle = {
-        backgroundColor: '#E3DEDE',
-    };
-
-    // Estilo para la página actual
     const pageIndicatorStyle = {
         backgroundColor: '#C20E1A',
         color: '#FFFFFF',
@@ -57,52 +48,68 @@ const TablePaginationUsers = ({
         display: 'inline-block',
     };
 
+    // Pagination logic
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = safeRows.slice(startIndex, endIndex);
+
     return (
         <div style={{ textAlign: 'center', margin: '20px 0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
-                        {columns.map(({ label }, index) => (
-                            <th key={index} style={headerStyle}>
-                                {label}
+                        {columns.map((column, index) => (
+                            <th 
+                                key={`header-${column.key || index}`}
+                                style={headerStyle}
+                            >
+                                {column.label}
                             </th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
                     {currentItems.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {columns.map(({ key }, cellIndex) => (
-                                <td 
-                                key={cellIndex} 
-                                style={cellStyle} 
-                                onClick={() => key === "edit" ? onCellClick(row) : {}}>
-                                    {row[key]} {/* Mostrar el valor correspondiente a la clave de la columna */}
-                                </td>
-                            ))}
+                        <tr key={`row-${rowIndex}`}>
+                            {columns.map((column, colIndex) => {
+                                const cellContent = row[column.key];
+                                const isEditCell = column.key === 'edit';
+                                
+                                return (
+                                    <td 
+                                        key={`cell-${rowIndex}-${colIndex}`}
+                                        style={cellStyle}
+                                        onClick={isEditCell ? () => onCellClick(row) : undefined}
+                                        role={isEditCell ? 'button' : undefined}
+                                    >
+                                        {cellContent}
+                                    </td>
+                                );
+                            })}
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            {/* Paginación */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <button 
                     onClick={() => onPageChange(currentPage - 1)} 
-                    disabled={currentPage === 1}
-                    style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} 
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
+                    disabled={currentPage <= 1}
+                    style={{ 
+                        ...buttonStyle, 
+                        ...(currentPage <= 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) 
+                    }}
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                <div style={pageIndicatorStyle}> {currentPage} </div>
+                <div style={pageIndicatorStyle}>{currentPage}</div>
                 <button 
                     onClick={() => onPageChange(currentPage + 1)} 
-                    disabled={indexOfLastItem >= (isRowNull ? 0 : rows.length)}
-                    style={{ ...buttonStyle, ...(indexOfLastItem >= (isRowNull ? 0 : rows.length) ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} 
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
+                    disabled={endIndex >= safeRows.length}
+                    style={{ 
+                        ...buttonStyle, 
+                        ...(endIndex >= safeRows.length ? { pointerEvents: 'none', opacity: 0.5 } : {}) 
+                    }}
                 >
                     Siguiente <RightOutlined />
                 </button>
