@@ -28,11 +28,7 @@ const Tracking = () => {
             <h1 className="text-xl font-bold">Seguimientos</h1>
             <p>Aquí puedes buscar a los pacientes con las citas que han solicitado</p>
                 <Card bordered={true} style={styles.card}>
-                    {/* <Space style={styles.titleSpace}>
-                        <h1 className="titleCard">Seguimientos</h1>
-                    </Space>
-
-                    <p>Aquí puedes buscar a los pacientes con las citas que han solicitado.</p> */}
+                    
 
                     <div style={styles.searchContainer}>
                         <SearchInput />

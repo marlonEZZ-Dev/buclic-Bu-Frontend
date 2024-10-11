@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Typography, Space } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
-import Modal from '../global/Modal'; 
+import Modal from '../global/Modal';
 
 const { Text } = Typography;
 
@@ -15,6 +15,17 @@ export default function LogoutButton() {
         setIsModalOpen(true);
     };
 
+    const handleLogout = () => {
+        // Limpia el localStorage y redirige al usuario
+        localStorage.clear();
+        setLoading(true);
+        // Redirige después de un breve retardo para permitir que se limpie el storage
+        setTimeout(() => {
+            setLoading(false);
+            window.location.href = '/login';
+        }, 1000);
+    };
+
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
@@ -24,21 +35,21 @@ export default function LogoutButton() {
         color: (isHovered || isActive) ? '#C20E1A' : 'white',
         borderRadius: '8px',
         border: 'none',
-        padding: '10px 20px',  // Igual que en MenuButton
+        padding: '10px 20px',
         cursor: 'pointer',
         transition: 'background-color 0.3s, color 0.3s',
-        margin: '5px',         // Igual que en MenuButton
-        fontFamily: 'Open Sans, sans-serif', // Aplicar Open Sans aquí
+        margin: '5px',
+        fontFamily: 'Open Sans, sans-serif',
     };
 
     return (
         <>
             <button
                 onClick={handleOpenModal}
-                onMouseEnter={() => setIsHovered(true)} // Cambia el estado de hover al pasar el mouse
-                onMouseLeave={() => setIsHovered(false)} // Cambia el estado de hover al quitar el mouse
-                onMouseDown={() => setIsActive(true)} // Cambia el estado de active al hacer clic
-                onMouseUp={() => setIsActive(false)} // Cambia el estado de active al soltar el clic
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onMouseDown={() => setIsActive(true)}
+                onMouseUp={() => setIsActive(false)}
                 style={buttonStyle}
             >
                 <LogoutOutlined style={{ marginRight: '8px' }} />
@@ -50,13 +61,13 @@ export default function LogoutButton() {
                 onClose={handleCloseModal}
                 modalTitle="Cerrar sesión"
             >
-                <Text 
-                    type="secondary" 
-                    style={{ 
-                        fontFamily: 'Open Sans, sans-serif', 
-                        minWidth: '500px', 
-                        display: 'block', 
-                        marginBottom: '16px' 
+                <Text
+                    type="secondary"
+                    style={{
+                        fontFamily: 'Open Sans, sans-serif',
+                        minWidth: '500px',
+                        display: 'block',
+                        marginBottom: '16px',
                     }}
                 >
                     ¿Está seguro que desea cerrar sesión?
@@ -71,9 +82,8 @@ export default function LogoutButton() {
                     <Button
                         type="primary"
                         danger
-                        href='/login'
                         loading={loading}
-                        onClick={() => { handleOpenModal(); setLoading(true); }}
+                        onClick={handleLogout}
                         style={{ fontFamily: 'Open Sans, sans-serif' }}
                     >
                         Salir

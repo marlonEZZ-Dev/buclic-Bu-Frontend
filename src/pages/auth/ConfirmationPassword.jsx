@@ -57,8 +57,8 @@ export default function ConfirmationPassword() {
         try {
             setLoading(true);
             const resetPasswordRequest = {
-                password: "string",
-                passwordConfirmation: "string"
+                password: password,
+                passwordConfirmation: passwordConfirmation
             };
             await api.post('/auth/reset-password', resetPasswordRequest, {
                 params: { token: token },
@@ -79,6 +79,7 @@ export default function ConfirmationPassword() {
             setLoading(false);
         }
     };
+    
 
     const handleCancelar = (e) => {
         e.preventDefault();
