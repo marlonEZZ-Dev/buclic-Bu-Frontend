@@ -93,7 +93,10 @@ export default function ManagementUsers(){
         lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
         email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
         status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
-        edit: <ButtonEdit id={styles.edit} onClick={onClickBtnEdit} />
+        edit: number => <ButtonEdit id={styles.edit} key={`edit${number}`} onClick={onClickBtnEdit} />,
+        toString(){
+          return "user"
+        }
     };
     
     switch (whoIs) {
@@ -107,7 +110,7 @@ export default function ManagementUsers(){
                 lastName: o.lastName(index),
                 email: o.email(index),
                 status: o.status(index % 2 === 0),
-                edit: o.edit,
+                edit: o.edit(index),
                 typeUser: o.typeUser,
                 code: o.code(index),
                 plan: o.plan,
@@ -122,7 +125,7 @@ export default function ManagementUsers(){
                 lastName: o.lastName(index),
                 email: o.email(index),
                 status: o.status(index % 2 === 0),
-                edit: o.edit,
+                edit: o.edit(index),
                 typeUser: o.typeUser,
                 code: o.code,
                 plan: o.plan
@@ -137,7 +140,7 @@ export default function ManagementUsers(){
                 lastName: o.lastName(index),
                 email: o.email(index),
                 status: o.status(index % 2 === 0),
-                edit: o.edit,
+                edit: o.edit(index),
                 typeUser: o.typeUser,
                 uniqueDoc: o.uniqueDoc,
                 area: o.area,
