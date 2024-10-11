@@ -14,6 +14,7 @@ const SettingsAdmin = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [selectedType, setSelectedType] = useState('Perfil');
     const navigate = useNavigate();
+    const [profileData, setProfileData] = useState(null);  // Nuevo estado para el perfil
 
     useEffect(() => {
         const fetchSetting = async () => {
@@ -60,14 +61,24 @@ const SettingsAdmin = () => {
             }
         };
 
+        const fetchProfileData = async () => {
+            try {
+                // Supongamos que el username está almacenado en localStorage
+                const username = localStorage.getItem('username');
+                if (username) {
+                    const response = await axios.get(`/users/${username}`); // Llamada al backend
+                    setProfileData(response.data);  // Guardar los datos del perfil
+                }
+            } catch (error) {
+                message.error('Error al cargar el perfil del usuario.');
+            }
+        };
+
         // Hacemos la llamada al servidor siempre que entremos en la ventana de Becas
         console.log('Fetching settings...');
         fetchSetting();
+        fetchProfileData();  // Llamada para obtener el perfil
     }, [setSettingData, setSettingId]);
-
-
-
-
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -127,19 +138,19 @@ const SettingsAdmin = () => {
             <HeaderAdmin />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
-                    {selectedType === 'Perfil' ? (
+                    {selectedType === 'Perfil' && profileData ? (
                         <Form layout="vertical" style={{ marginTop: '8px' }}>
                             <Form.Item label="Nombres">
-                                <Input placeholder="input placeholder" disabled />
+                                <Input value={profileData.name} disabled /> {/* Muestra el nombre */}
                             </Form.Item>
                             <Form.Item label="Apellidos">
-                                <Input placeholder="input placeholder" disabled />
+                                <Input value={profileData.lastName} disabled /> {/* Muestra el apellido */}
                             </Form.Item>
                             <Form.Item label="Correo">
-                                <Input placeholder="input placeholder" disabled />
+                                <Input value={profileData.email} disabled /> {/* Muestra el correo */}
                             </Form.Item>
                             <Form.Item label="Tipo de beneficio">
-                                <Input placeholder="input placeholder" disabled />
+                                <Input value={profileData.benefitType} disabled /> {/* Muestra el tipo de beneficio */}
                             </Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
                                 <Button className="button-actionsGeneral" type="primary" onClick={handleChangePasswordClick}>
