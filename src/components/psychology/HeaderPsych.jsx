@@ -1,24 +1,50 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import MenuButton from '../global/MenuButton';
 import LogoUnivalleLight from '../../assets/logo_univalle_light.svg';
 import '../../styles/TopNavbar.css';
 import LogoutButton from '../auth/LogoutButton';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Drawer, Button } from 'antd';
+import { MenuOutlined, CloseOutlined } from '@ant-design/icons'; 
 
 export default function HeaderPsych(props) {
-  const session = props.session ? 'session' : 'header-admin';
   const navigate = useNavigate();
   const location = useLocation();
+  const [drawerOpen, setDrawerOpen] = useState(false); // Controla si el drawer está visible
+  const [isMobile, setIsMobile] = useState(false); // Controla si es un dispositivo móvil
+
+  // Detectar el tamaño de la pantalla para saber si es móvil
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768); 
+    };
+
+    handleResize(); // Ejecutar al cargar
+    window.addEventListener('resize', handleResize); // Escuchar cambios de tamaño de pantalla
+
+    return () => {
+      window.removeEventListener('resize', handleResize); // Limpiar evento al desmontar componente
+    };
+  }, []);
+
+  // Función para abrir el drawer en móviles
+  const showDrawer = () => {
+    setDrawerOpen(true);
+  };
+
+  // Función para cerrar el drawer en móviles
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+  };
 
   // Función para manejar el clic en los botones y navegar
   const handleButtonClick = (path) => {
     navigate(path);
+    closeDrawer(); // Cierra el drawer después de seleccionar una opción
   };
 
   return (
     <header
       id='univalle-logo-header'
-      className={session}
       style={{
         backgroundColor: '#C20E1A',
         width: '100vw',
@@ -40,41 +66,51 @@ export default function HeaderPsych(props) {
         />
       </div>
 
-      {/* Contenedor para los botones */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        flexGrow: 1
-      }}>
-        <MenuButton 
-          text="Becas" 
-          isActive={location.pathname === "/beca"} 
-          onClick={() => handleButtonClick("/beca")} 
-        />
-        <MenuButton 
-          text="Citas" 
-          isActive={location.pathname === "/cita"} 
-          onClick={() => handleButtonClick("/cita")} 
-        />
-        <MenuButton 
-          text="Horarios" 
-          isActive={location.pathname === "/horario"} 
-          onClick={() => handleButtonClick("/horario")} 
-        />
-        <MenuButton 
-          text="Agenda" 
-          isActive={location.pathname === "/agenda"} 
-          onClick={() => handleButtonClick("/agenda")} 
-        />
-        <MenuButton 
-          text="Seguimiento" 
-          isActive={location.pathname === "/seguimiento"} 
-          onClick={() => handleButtonClick("/seguimiento")} 
-        />
-        
-      </div>
-      <LogoutButton />
+      {isMobile ? (
+        <>
+          {/* Ícono del menú hamburguesa solo en dispositivos móviles */}
+          <Button type="primary" onClick={drawerOpen ? closeDrawer : showDrawer} className="hamburger-menu-button">
+            {drawerOpen ? <CloseOutlined style={{ fontSize: '24px', color: 'white' }} /> : <MenuOutlined style={{ fontSize: '24px', color: 'white' }} />}
+          </Button>
+
+          <Drawer
+            title="Menú"
+            placement="left" // Drawer desde la izquierda
+            onClose={closeDrawer}
+            open={drawerOpen} // Cambiado de "visible" a "open"
+            styles={{ body: { paddingBottom: 80 } }} // Cambiado de "bodyStyle" a "styles.body"
+          >
+            <ul className="drawer-menu">
+              <li onClick={() => handleButtonClick("/beca")} className={location.pathname === "/beca" ? "active" : ""}>Becas</li>
+              <li onClick={() => handleButtonClick("/cita")} className={location.pathname === "/cita" ? "active" : ""}>Citas</li>
+              <li onClick={() => handleButtonClick("/horario")} className={location.pathname === "/horario" ? "active" : ""}>Horarios</li>
+              <li onClick={() => handleButtonClick("/agenda")} className={location.pathname === "/agenda" ? "active" : ""}>Agenda</li>
+              <li onClick={() => handleButtonClick("/seguimiento")} className={location.pathname === "/seguimiento" ? "active" : ""}>Seguimiento</li>
+            </ul>
+            
+            {/* Botón de cerrar sesión en la parte inferior del Drawer */}
+            <div className="drawer-footer">
+              <LogoutButton />
+            </div>
+          </Drawer>
+        </>
+      ) : (
+        <>
+          {/* Menú normal para pantallas grandes */}
+          <nav className={`menu`}>
+            <ul>
+              <li onClick={() => handleButtonClick("/beca")} className={location.pathname === "/beca" ? "active" : ""}>Becas</li>
+              <li onClick={() => handleButtonClick("/cita")} className={location.pathname === "/cita" ? "active" : ""}>Citas</li>
+              <li onClick={() => handleButtonClick("/horario")} className={location.pathname === "/horario" ? "active" : ""}>Horarios</li>
+              <li onClick={() => handleButtonClick("/agenda")} className={location.pathname === "/agenda" ? "active" : ""}>Agenda</li>
+              <li onClick={() => handleButtonClick("/seguimiento")} className={location.pathname === "/seguimiento" ? "active" : ""}>Seguimiento</li>
+            </ul>
+          </nav>
+
+          {/* Botón de Cerrar Sesión siempre visible en pantallas grandes */}
+          <LogoutButton />
+        </>
+      )}
     </header>
   );
 }

@@ -14,13 +14,13 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const roleToRouteMap = {
-    "ROLE_ADMINISTRADOR": "/usuarios",
-    "ROLE_MONITOR": "/usuarios",
-    "ROLE_ESTUDIANTE": "/citas",
-    "ROLE_PSICOLOGO": "/beca",
-    "ROLE_ENFERMERO": "/usuarios",
-    "ROLE_ODONTOLOGO": "/usuarios",
-    "ROLE_EXTERNO": "/usuarios",
+    "ADMINISTRADOR": "/usuarios",
+    "MONITOR": "/usuarios",
+    "ESTUDIANTE": "/citas",
+    "PSICOLOGO": "/beca",
+    "ENFERMERO": "/usuarios",
+    "ODONTOLOGO": "/usuarios",
+    "EXTERNO": "/usuarios",
   };
 
   const manejarClick = (e) => {
@@ -37,15 +37,17 @@ export default function LoginPage() {
       
       if (response.data && response.data.token) {
         const token = response.data.token;
+        const userResponse = response.data.userResponse;
+        const roles = userResponse.roles.map(role => role.name);  // Extraer el array del rol
+
+        // Guardar token y username en localStorage
         localStorage.setItem(ACCESS_TOKEN, token);
-        localStorage.setItem('username', username); // Guardar el nombre de usuario
-        message.success('Inicio de sesión exitoso');
+        localStorage.setItem('username', username);
 
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const decodedData = JSON.parse(window.atob(base64));
+        // message.success('Inicio de sesión exitoso');
 
-        const userRole = decodedData.authorities;
+        // Redireccionar basado en el rol
+        const userRole = roles[0];  //toma el primer rol
         const route = roleToRouteMap[userRole];
 
         if (route) {
