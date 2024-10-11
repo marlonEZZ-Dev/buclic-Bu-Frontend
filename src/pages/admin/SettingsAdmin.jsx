@@ -12,22 +12,47 @@ const { RangePicker } = DatePicker;
 const SettingsAdmin = () => {
     const { settingId, setSettingId, settingData, setSettingData } = useSettings();
     const [isEditing, setIsEditing] = useState(false);
-    const [selectedType, setSelectedType] = useState('perfil');
+    const [selectedType, setSelectedType] = useState('Perfil');
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchSetting = async () => {
-            if (settingId) {
-                try {
-                    const response = await axios.get(`/setting/${settingId}`);
-                    setSettingData(response.data.settingRequest);
-                } catch (error) {
-                    message.error('Error al cargar los ajustes.');
+            try {
+                const response = await axios.get('/setting');
+                const settingsList = response.data; // La lista de ajustes
+
+                if (settingsList.length === 0) {
+                    // No hay ajustes, por lo que se debe crear uno nuevo
+                    setSettingId(null);
+                    setSettingData({
+                        id: null,
+                        startSemester: null,
+                        endSemester: null,
+                        numLunch: null,
+                        numSnack: null,
+                        starBeneficiaryLunch: null,
+                        endBeneficiaryLunch: null,
+                        starLunch: null,
+                        endLunch: null,
+                        starBeneficiarySnack: null,
+                        endBeneficiarySnack: null,
+                        starSnack: null,
+                        endSnack: null,
+                    });
+                } else if (settingsList.length === 1) {
+                    // Hay un ajuste, se debe editar
+                    const setting = settingsList[0];
+                    setSettingId(setting.id);
+                    setSettingData(setting);
                 }
+            } catch (error) {
+                message.error('Error al cargar los ajustes.');
             }
         };
+
         fetchSetting();
-    }, [settingId, setSettingData]);
+    }, [setSettingData, setSettingId]);
+
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -78,8 +103,8 @@ const SettingsAdmin = () => {
 
 
     const buttons = [
-        { type: 'perfil', label: 'Perfil' },
-        { type: 'ajustesBecas', label: 'Becas' },
+        { type: 'Perfil', label: 'Perfil' },
+        { type: 'Ajustes Becas', label: 'Becas' },
     ];
 
     return (
@@ -87,7 +112,7 @@ const SettingsAdmin = () => {
             <HeaderAdmin />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
-                    {selectedType === 'perfil' ? (
+                    {selectedType === 'Perfil' ? (
                         <Form layout="vertical" style={{ marginTop: '8px' }}>
                             <Form.Item label="Nombres">
                                 <Input placeholder="input placeholder" disabled />
@@ -138,12 +163,12 @@ const SettingsAdmin = () => {
                                 />
                             </Space>
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                    <div style={{ width: '48%' }}>
+                                <div style={{ display: 'flex', marginBottom: '12px' }}>
+                                    <div style={{ width: '38%', marginRight: '20px' }}>
                                         <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas almuerzo</label>
                                         <Input
                                             type="number"
-                                            placeholder="Ingrese el número de becas para almuerzo"
+                                            placeholder="Número de almuerzos"
                                             disabled={!isEditing}
                                             value={settingData?.numLunch || ''}
                                             onChange={(e) => setSettingData((prev) => ({
@@ -152,11 +177,11 @@ const SettingsAdmin = () => {
                                             }))}
                                         />
                                     </div>
-                                    <div style={{ width: '48%' }}>
-                                        <label style={{ display: 'block' }}>No. Becas refrigerio</label>
+                                    <div style={{ width: '38%' }}>
+                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas refrigerio</label>
                                         <Input
                                             type="number"
-                                            placeholder="Ingrese el número de becas para refrigerio"
+                                            placeholder="Número de refrigerios"
                                             disabled={!isEditing}
                                             value={settingData?.numSnack || ''}
                                             onChange={(e) => setSettingData((prev) => ({
@@ -168,11 +193,11 @@ const SettingsAdmin = () => {
                                 </div>
                                 {/* Accesos y horarios */}
                                 {/* Acceso para beneficiarios almuerzo */}
-                                <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para beneficiarios almuerzo</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios almuerzo</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '58%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starBeneficiaryLunch ? dayjs(settingData.starBeneficiaryLunch, 'HH:mm') : null}
@@ -183,7 +208,7 @@ const SettingsAdmin = () => {
                                     />
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '48%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endBeneficiaryLunch ? dayjs(settingData.endBeneficiaryLunch, 'HH:mm') : null}
@@ -195,11 +220,11 @@ const SettingsAdmin = () => {
                                 </Space>
 
                                 {/* Acceso para venta libre almuerzo */}
-                                <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para venta libre almuerzo</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre almuerzo</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '58%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starLunch ? dayjs(settingData.starLunch, 'HH:mm') : null}
@@ -210,7 +235,7 @@ const SettingsAdmin = () => {
                                     />
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '48%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endLunch ? dayjs(settingData.endLunch, 'HH:mm') : null}
@@ -222,11 +247,11 @@ const SettingsAdmin = () => {
                                 </Space>
 
                                 {/* Acceso para beneficiarios refrigerio */}
-                                <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para beneficiarios refrigerio</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios refrigerio</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '58%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starBeneficiarySnack ? dayjs(settingData.starBeneficiarySnack, 'HH:mm') : null}
@@ -237,7 +262,7 @@ const SettingsAdmin = () => {
                                     />
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '48%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endBeneficiarySnack ? dayjs(settingData.endBeneficiarySnack, 'HH:mm') : null}
@@ -249,11 +274,11 @@ const SettingsAdmin = () => {
                                 </Space>
 
                                 {/* Acceso para venta libre refrigerio */}
-                                <p style={{ marginTop: '20px', textAlign: 'left' }}>Acceso para venta libre refrigerio</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre refrigerio</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '58%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starSnack ? dayjs(settingData.starSnack, 'HH:mm') : null}
@@ -264,7 +289,7 @@ const SettingsAdmin = () => {
                                     />
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '48%' }}
+                                        style={{ width: '78%' }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endSnack ? dayjs(settingData.endSnack, 'HH:mm') : null}
@@ -276,29 +301,31 @@ const SettingsAdmin = () => {
                                 </Space>
 
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' }}>
                                 {isEditing ? (
                                     <>
-                                        {/* Mostrar "Cancelar" cuando esté en modo de edición */}
-                                        <Button onClick={handleCancelClick}>
-                                            Cancelar
-                                        </Button>
+
                                         {/* Mostrar "Guardar" cuando esté en modo de edición */}
-                                        <Button type="primary" onClick={handleSaveClick} disabled={!isEditing}>
+                                        <Button className="button-save" type="primary" onClick={handleSaveClick} disabled={!isEditing}>
                                             Guardar
+                                        </Button>
+
+                                        {/* Mostrar "Cancelar" cuando esté en modo de edición */}
+                                        <Button className="button-cancel" onClick={handleCancelClick}>
+                                            Cancelar
                                         </Button>
                                     </>
                                 ) : (
                                     <>
                                         {/* Mostrar "Crear" si no hay un settingId y no se está editando */}
                                         {!settingId && (
-                                            <Button onClick={handleCreateClick}>
+                                            <Button className="button-save" onClick={handleCreateClick}>
                                                 Crear
                                             </Button>
                                         )}
                                         {/* Mostrar "Editar" si ya hay un setting creado */}
                                         {settingId && (
-                                            <Button type="primary" onClick={handleEditClick}>
+                                            <Button className="button-save" type="primary" onClick={handleEditClick}>
                                                 Editar
                                             </Button>
                                         )}
