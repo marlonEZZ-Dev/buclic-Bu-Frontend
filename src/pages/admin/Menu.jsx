@@ -162,6 +162,27 @@ const Menu = () => {
     }));
   };
 
+  const handleCreateClick = () => {
+    // Inicia la edición para crear un nuevo menú
+    setIsEditable((prevEditable) => ({
+      ...prevEditable,
+      [selectedType]: true,
+    }));
+
+    // Inicializa los datos temporales para un nuevo menú vacío
+    setTempMenuData((prevData) => ({
+      ...prevData,
+      [selectedType]: {
+        note: '',
+        mainDish: '',
+        appetizer: '',
+        drink: '',
+        dessert: '',
+        price: 0,
+      },
+    }));
+  };
+
   const handleCancel = () => {
     setIsEditable((prevEditable) => ({
       ...prevEditable,
