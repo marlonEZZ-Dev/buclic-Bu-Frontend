@@ -21,7 +21,10 @@ const SettingsAdmin = () => {
                 const response = await axios.get('/setting');
                 const settingsList = response.data; // La lista de ajustes
 
+                console.log('Response from /setting:', settingsList);
+
                 if (settingsList.length === 0) {
+                    console.log('No settings found, setting initial data...');
                     // No hay ajustes, por lo que se debe crear uno nuevo
                     setSettingId(null);
                     setSettingData({
@@ -42,16 +45,28 @@ const SettingsAdmin = () => {
                 } else if (settingsList.length === 1) {
                     // Hay un ajuste, se debe editar
                     const setting = settingsList[0];
+                    console.log('Setting found:', setting);
+
                     setSettingId(setting.id);
-                    setSettingData(setting);
+
+                    // Asignar los datos de settingRequest al estado
+                    setSettingData(setting.settingRequest);  // Extraemos los datos de settingRequest
+                } else {
+                    console.log('Unexpected number of settings:', settingsList.length);
                 }
             } catch (error) {
+                console.error('Error fetching settings:', error);
                 message.error('Error al cargar los ajustes.');
             }
         };
 
+        // Hacemos la llamada al servidor siempre que entremos en la ventana de Becas
+        console.log('Fetching settings...');
         fetchSetting();
     }, [setSettingData, setSettingId]);
+
+
+
 
 
     const handleEditClick = () => {

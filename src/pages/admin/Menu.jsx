@@ -25,46 +25,55 @@ const Menu = () => {
   });
 
   useEffect(() => {
-    // Realiza la solicitud GET para obtener los datos del menú desde el backend
-    const fetchMenuData = async () => {
+    const fetchSetting = async () => {
       try {
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        if (!token) {
-          message.error('Por favor, inicie sesión nuevamente');
-          navigate('/login');
-          return;
+        const response = await axios.get('/setting');
+        const settingsList = response.data; // La lista de ajustes
+
+        console.log('Response from /setting:', settingsList);
+
+        if (settingsList.length === 0) {
+          console.log('No settings found, setting initial data...');
+          // No hay ajustes, por lo que se debe crear uno nuevo
+          setSettingId(null);
+          setSettingData({
+            id: null,
+            startSemester: null,
+            endSemester: null,
+            numLunch: null,
+            numSnack: null,
+            starBeneficiaryLunch: null,
+            endBeneficiaryLunch: null,
+            starLunch: null,
+            endLunch: null,
+            starBeneficiarySnack: null,
+            endBeneficiarySnack: null,
+            starSnack: null,
+            endSnack: null,
+          });
+        } else if (settingsList.length === 1) {
+          // Hay un ajuste, se debe editar
+          const setting = settingsList[0];
+          console.log('Setting found:', setting);
+
+          setSettingId(setting.id);
+
+          // Asignar los datos de settingRequest al estado
+          setSettingData(setting.settingRequest);  // Extraemos los datos de settingRequest
+        } else {
+          console.log('Unexpected number of settings:', settingsList.length);
         }
-
-        const response = await api.get('/menu', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        const menus = response.data;
-
-        const almuerzoMenu = menus.find(menu => menu.id === 1) || {};
-        const refrigerioMenu = menus.find(menu => menu.id === 2) || {};
-
-        setMenuData({
-          Almuerzo: almuerzoMenu,
-          Refrigerio: refrigerioMenu
-        });
-
-        setTempMenuData({
-          Almuerzo: almuerzoMenu,
-          Refrigerio: refrigerioMenu
-        });
-
       } catch (error) {
-        message.error('Error al obtener los datos del menú');
-        console.error(error);
+        console.error('Error fetching settings:', error);
+        message.error('Error al cargar los ajustes.');
       }
     };
 
-    fetchMenuData(); // Llama a la función para obtener los datos al cargar el componente
+    // Hacemos la llamada al servidor siempre que entremos en la ventana de Becas
+    console.log('Fetching settings...');
+    fetchSetting();
+  }, [setSettingData, setSettingId]);
 
-  }, [navigate, setMenuData]);
 
   // Maneja los cambios de los inputs en el estado temporal
   const handleInputChange = (field, value) => {
@@ -80,22 +89,22 @@ const Menu = () => {
   const saveMenu = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     const menuTypeData = tempMenuData[selectedType]; // Usar datos temporales para guardar
-    
+
     if (!token) {
       console.error("No se encontró el token de autenticación");
       message.error("Por favor, inicie sesión nuevamente");
       navigate("/login");
       return;
     }
-    
+
     try {
       let response;
-      
+
       // Verifica si ya existe un id para determinar si es PUT (actualización) o POST (creación)
       if (menuData[selectedType] && menuData[selectedType].id) {
         // Actualización usando PUT
         response = await api.put(
-          "/menu", 
+          "/menu",
           {
             id: menuData[selectedType].id,  // Incluye el ID en el cuerpo de la solicitud
             note: menuTypeData.note,
@@ -132,13 +141,13 @@ const Menu = () => {
         );
         message.success("Menú creado exitosamente");
       }
-  
+
       // Actualizar los datos en el contexto solo después de guardar
       setMenuData((prevMenuData) => ({
         ...prevMenuData,
         [selectedType]: response.data, // Guardar la respuesta actualizada en el contexto
       }));
-  
+
       // Deshabilitar la edición después de guardar
       setIsEditable({ ...isEditable, [selectedType]: false });
     } catch (error) {
