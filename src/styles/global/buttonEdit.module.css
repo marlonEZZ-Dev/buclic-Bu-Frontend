@@ -4,7 +4,9 @@
   border: none;
   border-radius: .5rem;
   padding: .3125rem .625rem;
-  font-size: 2rem;
+  font-size: 1.1rem;
+  margin-left: .5rem;
+  margin-right: .5rem;
 }
 
 .buttonEdit:hover{

@@ -6,7 +6,6 @@ import {
 import { UploadOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 
-import ButtonEdit from "../../components/global/ButtonEdit.jsx"
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
 import Modal from '../../components/global/Modal.jsx'
@@ -27,12 +26,14 @@ export default function ManagementUsers(){
   //States de modals
   const [isModalImport, setIsModalImport] = useState(false)
   const [isModalEdit, setIsModalEdit] = useState(false)
+  const [isModalAllDelete, setIsModalAllDelete] = useState(false)
   const [isModalDelete, setIsModalDelete] = useState(false)
   //Predicados
   let isBeneficiary = changesDescription === 0
   let isStudent = changesDescription === 1
   let isFuncionary = changesDescription === 2
   let enableResponsive = deviceType === "mobile" || deviceType === "tablet"
+  let isMobile = deviceType === "mobile"
   //Definicion de variables
   const buttons = [
     {type:"Beneficiarios",label:"Beneficiarios"},
@@ -84,21 +85,19 @@ export default function ManagementUsers(){
     {key: isFuncionary  ? "uniqueDoc" : "code", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
     {key: enableResponsive ? "":"email", label: enableResponsive ? "":"Correo"},
-    {key: "status", label: "Estado"},
-    {key: isBeneficiary ? "actions":"edit", label: isBeneficiary ? "Acciones":"Editar"}
+    {key: "status", label: "Activo"}
   ]
 
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
   
   
-  const createRows = (onClickBtnEdit, whoIs) => {
+  const createRows = whoIs => {
     const o = {
         name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
         lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
         email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
         status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
-        edit: number => <ButtonEdit id={styles.edit} key={`edit${number}`} onClick={onClickBtnEdit} />,
         toString(){
           return "user"
         }
@@ -108,14 +107,19 @@ export default function ManagementUsers(){
         case 0:
             o.typeUser = 0;
             o.code = number => <span id={styles.code}>{202059431 + number}</span>;
+            // o.actions = number => (
+            // <Flex align='center' justify='space-between'>
+            //   <ButtonDelete key={`delete${number}`} onClick={handlerBtnDelete} />
+            //   <ButtonEdit key={`edit${number}`} onClick={handlerBtnEdit} />
+            // </Flex>);
             o.plan = 2711;
             o.grant = "almuerzo";
-            return Array.from({ length: 10 }, (_, index) => ({
+            return Array.from({ length: 11 }, (_, index) => ({
                 name: o.name(index),
                 lastName: o.lastName(index),
                 email: o.email(index),
                 status: o.status(index % 2 === 0),
-                edit: o.edit(index),
+                // actions: o.actions(index),
                 typeUser: o.typeUser,
                 code: o.code(index),
                 plan: o.plan,
@@ -123,16 +127,17 @@ export default function ManagementUsers(){
             }));
         case 1:
             o.typeUser = 1;
-            o.code = 202059431;
+            o.code = number => <span id={styles.code}>{202059431 + number}</span>;
             o.plan = 2711;
+            // o.edit = number => <ButtonEdit id={styles.edit} key={`edit${number}`} onClick={handlerBtnEdit} />;
             return Array.from({ length: 10 }, (_, index) => ({
                 name: o.name(index),
                 lastName: o.lastName(index),
                 email: o.email(index),
                 status: o.status(index % 2 === 0),
-                edit: o.edit(index),
+                // edit: o.edit(index),
                 typeUser: o.typeUser,
-                code: o.code,
+                code: o.code(index),
                 plan: o.plan
             }));
         case 2:
@@ -140,12 +145,13 @@ export default function ManagementUsers(){
             o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
             o.area = "Adminstrativa";
             o.rol = "monitor";
+            // o.edit = number => <ButtonEdit id={styles.edit} key={`edit${number}`} onClick={handlerBtnEdit} />;
             return Array.from({ length: 10 }, (_, index) => ({
                 name: o.name(index),
                 lastName: o.lastName(index),
                 email: o.email(index),
                 status: o.status(index % 2 === 0),
-                edit: o.edit(index),
+                // edit: o.edit(index),
                 typeUser: o.typeUser,
                 uniqueDoc: o.uniqueDoc,
                 area: o.area,
@@ -175,8 +181,15 @@ export default function ManagementUsers(){
 
   const handlerCloseModalEdit = () => setIsModalEdit(false)
 
-  const handlerOpenModalDelete = () => setIsModalDelete(true)
+  const handlerOpenModalDelete = row => {
+    setIsModalDelete(true)
+    setObjectSelected(row)
+    console.dir(objectSelected)
+  }
   const handlerCloseModalDelete = () => setIsModalDelete(false)
+
+  const handlerOpenModalAllDelete = () => setIsModalAllDelete(true)
+  const handlerCloseModalAllDelete = () => setIsModalAllDelete(false)
   //---------------------------------------------------------
   const handleResize = () => {
     const width = window.innerWidth;
@@ -203,7 +216,7 @@ export default function ManagementUsers(){
   },[])
   
   useEffect(() => {
-    setRows(createRows(handlerOpenModalEdit, changesDescription))
+    setRows(createRows(changesDescription))
   }, [changesDescription])
 
   return (
@@ -238,6 +251,7 @@ export default function ManagementUsers(){
       <Modal
       open={isModalEdit}
       onClose={handlerCloseModalEdit}>
+        <Flex vertical justify='space-between' align='center' gap="large">
         <h4>Editar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</h4>
         <Flex gap={29}>
           <SmallInput
@@ -252,7 +266,7 @@ export default function ManagementUsers(){
         <Flex gap={29}>
           <SmallInput
             title={isFuncionary ? "Cédula" : "Código estudiantil"}
-            value={isFuncionary ? objectSelected.uniqueDoc.props.children : objectSelected.code}/>
+            value={isFuncionary ? objectSelected.uniqueDoc.props.children : objectSelected.code.props.children}/>
           <SmallInput
             isRenderAsteric={isFuncionary ? false:true}
             title={isFuncionary ? "Área dependiente":"Plan"}
@@ -278,8 +292,7 @@ export default function ManagementUsers(){
           </label>
         </Flex>
 
-        {isStudent ? "" 
-        : <Flex align='center' justify='flex-start'>
+        {isFuncionary ? <Flex align='center' justify='flex-start'>
         <label className={`${otherStyles.labels}`}>
             Estado
           <Select
@@ -288,25 +301,48 @@ export default function ManagementUsers(){
             className={styles.comboboxes}
             options={cbxStatus}/>
         </label>
-        </Flex>}
+        </Flex>
+        : ""}
+        </Flex>
         <Flex
         align='center'
         gap='small'
         justify='space-evenly'>
           <button className={styles.buttonSave}>Guardar</button>
-          <button className={styles.buttonCancel}>Cancelar</button>
+          <button className={styles.buttonCancel} onClick={handlerCloseModalEdit}>Cancelar</button>
         </Flex>
       </Modal>) : ""}
+      {isModalAllDelete ? (
+        <Modal
+        open={isModalAllDelete}
+        onClose={handlerCloseModalAllDelete}>
+          <Flex vertical>
+            <span>Eliminar beneficiarios</span>
+            <p>
+              ¿Desea eliminar todos los beneficiarios
+              <br />
+              actuales de la plataforma?
+            </p>
+          </Flex>
+          <Flex
+            align='center'
+            gap='small'
+            justify='space-evenly'>
+              <button className={styles.buttonCancel} onClick={handlerCloseModalAllDelete}>Cancelar</button>
+              <button className={styles.buttonSave}>Guardar</button>
+          </Flex>
+        </Modal>
+      ) : ""}
       {isModalDelete ? (
         <Modal
         open={isModalDelete}
         onClose={handlerCloseModalDelete}>
           <Flex vertical>
-            <span>Eliminar beneficiarios</span>
+            <span>Eliminar beneficiario</span>
             <p>
-              ¿Desea eliminar todo los beneficiarios
+              ¿Desea eliminar el beneficiario de la
               <br />
-              actuales de la plataforma?
+              plataforma?
             </p>
           </Flex>
           <Flex
@@ -370,9 +406,7 @@ export default function ManagementUsers(){
               placeholder='Correo del estudiante'/>
           {!isStudent || !enableResponsive ? 
             <label 
-            className={`${otherStyles.labels} ${
-            (isStudent && !enableResponsive) ? "visibility-hidden" : 
-            (!isStudent || !enableResponsive) ? styles.displayNone :""}`}>
+            className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" :""}`}>
             {isFuncionary ? "Rol" : 
             <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
             <Select
@@ -399,7 +433,7 @@ export default function ManagementUsers(){
           {isBeneficiary ? 
           <button 
           className={styles.buttonDeleteBen}
-          onClick={handlerOpenModalDelete}>
+          onClick={handlerOpenModalAllDelete}>
             Borrar los
             <br />
             beneficiarios
@@ -416,9 +450,13 @@ export default function ManagementUsers(){
             <TablePaginationUsers
               columns={headerTb}
               rows={rows}
-              onCellClick={handlerOpenModalEdit}
+              enableDelete={isBeneficiary ? true:false}
+              enableEdit
+              nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={1}
-              itemsPerPage={10}/>
+              itemsPerPage={isMobile ? 5 : 10}
+              onEdit={handlerOpenModalEdit}
+              />
           </Flex>
         </Flex>        
         </MenuBecas>

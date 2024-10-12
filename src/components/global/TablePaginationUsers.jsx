@@ -1,13 +1,23 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Flex } from "antd"
+
+import ButtonEdit from './ButtonEdit.jsx';
+import ButtonDelete from './ButtonDelete.jsx';
+
 import PropTypes from 'prop-types';
 
 const TablePaginationUsers = ({ 
     rows = [], 
     columns = [],
     currentPage = 1, 
-    itemsPerPage = 10, 
+    itemsPerPage = 10,
+    enableDelete = false,
+    enableEdit = false,
+    nameActionsButtons = "Acciones",
     onPageChange = () => {}, 
-    onCellClick = () => {}, 
+    onCellClick = () => {},
+    onDelete = () => {},
+    onEdit = () => {}
 }) => {
     const isRowNull = !Array.isArray(rows) || rows === null;
     const safeRows = isRowNull ? [] : rows;
@@ -53,6 +63,10 @@ const TablePaginationUsers = ({
     const endIndex = startIndex + itemsPerPage;
     const currentItems = safeRows.slice(startIndex, endIndex);
 
+    const handlerGetRowEdit = row => onEdit(row)
+
+    const handlerGetRowDelete = row => onDelete(row)
+
     return (
         <div style={{ textAlign: 'center', margin: '20px 0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -66,29 +80,31 @@ const TablePaginationUsers = ({
                                 {column.label}
                             </th>
                         ))}
+                        <th style={headerStyle}>{nameActionsButtons}</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {currentItems.map((row, rowIndex) => (
-                        <tr key={`row-${rowIndex}`}>
-                            {columns.map((column, colIndex) => {
-                                const cellContent = row[column.key];
-                                const isEditCell = column.key === 'edit';
-                                
-                                return (
-                                    <td 
-                                        key={`cell-${rowIndex}-${colIndex}`}
-                                        style={cellStyle}
-                                        onClick={isEditCell ? () => onCellClick(row) : undefined}
-                                        role={isEditCell ? 'button' : undefined}
-                                    >
-                                        {cellContent}
-                                    </td>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
+                    <tbody>
+                        {currentItems.map((row, rowIndex) => (
+                            <tr key={`row-${rowIndex}`}>
+                                {columns.map((column, colIndex) => {
+                                    return (
+                                        <td 
+                                            key={`cell-${rowIndex}-${colIndex}`}
+                                            style={cellStyle}
+                                            >
+                                            {row[column.key]}
+                                        </td>
+                                    );
+                                })}
+                                <td>
+                                    <Flex>
+                                        {enableDelete ? <ButtonDelete key={`delete${rowIndex}`} onClick={() => handlerGetRowDelete(row)} />: ""}
+                                        {enableEdit ? <ButtonEdit key={`edit${rowIndex}`} onClick={() => handlerGetRowEdit(row)} />: ""}
+                                    </Flex>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
             </table>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
@@ -124,10 +140,16 @@ TablePaginationUsers.propTypes = {
         key: PropTypes.string.isRequired, // Clave que indica qué propiedad del objeto mostrar
         label: PropTypes.string.isRequired // Etiqueta que se muestra en la cabecera
     })).isRequired, 
+    keyEditButton: PropTypes.string, 
+    nameActionsButtons: PropTypes.string, 
     currentPage : PropTypes.number,
     itemsPerPage: PropTypes.number,
+    enableDelete: PropTypes.bool,
+    enableEdit: PropTypes.bool,
     onPageChange : PropTypes.func,
-    onCellClick : PropTypes.func, 
+    onCellClick : PropTypes.func,
+    onDelete : PropTypes.func,
+    onEdit : PropTypes.func
 }
 
 export default TablePaginationUsers;
