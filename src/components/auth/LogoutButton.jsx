@@ -15,6 +15,17 @@ export default function LogoutButton() {
         setIsModalOpen(true);
     };
 
+    const handleLogout = () => {
+        // Limpia el localStorage y redirige al usuario
+        localStorage.clear();
+        setLoading(true);
+        // Redirige después de un breve retardo para permitir que se limpie el storage
+        setTimeout(() => {
+            setLoading(false);
+            window.location.href = '/login';
+        }, 1000);
+    };
+
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
@@ -71,9 +82,8 @@ export default function LogoutButton() {
                     <Button
                         type="primary"
                         danger
-                        href='/login'
                         loading={loading}
-                        onClick={() => { handleOpenModal(); setLoading(true); }}
+                        onClick={handleLogout}
                         style={{ fontFamily: 'Open Sans, sans-serif' }}
                     >
                         Salir

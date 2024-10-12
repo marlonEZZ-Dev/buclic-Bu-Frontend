@@ -31,7 +31,7 @@ import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
 import SchedulesPsych from "./pages/psychology/SchedulesPsych";
 import AgendaPsych from "./pages/psychology/AgendaPsych";
 import Tracking from "./pages/psychology/Tracking";
-import { MenuProvider } from './utils/MenuContext';  // Importar el MenuProvider
+import { MenuProvider } from './utils/MenuContext';  // Importar el MenuProvider>
 import { SettingsProvider } from './utils/SettingsContext';
 
 function App() {
