@@ -95,72 +95,83 @@ export default function ManagementUsers(){
   para filtrar las columnas que se debe mostrar
   */
   const headerTb = [
-    {key: isFuncionary  ? "uniqueDoc" : "code", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
     {key: enableResponsive ? "":"email", label: enableResponsive ? "":"Correo"},
-    {key: "status", label: "Activo"}
+    {key: "isActive", label: "Activo"}
   ]
 
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
-  const createRows = whoIs => {
-    const o = {
-        name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
-        lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
-        email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
-        status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
-        toString(){
-          return "user"
-        }
-    };
+  // const createRows = whoIs => {
+  //   const o = {
+  //       name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
+  //       lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
+  //       email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
+  //       status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
+  //       toString(){
+  //         return "user"
+  //       }
+  //   };
     
-    switch (whoIs) {
-        case 0:
-            o.typeUser = 0;
-            o.code = number => <span id={styles.code}>{202059431 + number}</span>;
-            o.plan = 2711;
-            o.grant = "almuerzo";
-            return Array.from({ length: 11 }, (_, index) => ({
-                name: o.name(index),
-                lastName: o.lastName(index),
-                email: o.email(index),
-                status: o.status(index % 2 === 0),
-                typeUser: o.typeUser,
-                code: o.code(index),
-                plan: o.plan,
-                grant: o.grant
-            }));
-        case 1:
-            o.typeUser = 1;
-            o.code = number => <span id={styles.code}>{202059431 + number}</span>;
-            o.plan = 2711;
-            return Array.from({ length: 10 }, (_, index) => ({
-                name: o.name(index),
-                lastName: o.lastName(index),
-                email: o.email(index),
-                status: o.status(index % 2 === 0),
-                typeUser: o.typeUser,
-                code: o.code(index),
-                plan: o.plan
-            }));
-        case 2:
-            o.typeUser = 2;
-            o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
-            o.area = "Adminstrativa";
-            o.rol = "monitor";
-            return Array.from({ length: 10 }, (_, index) => ({
-                name: o.name(index),
-                lastName: o.lastName(index),
-                email: o.email(index),
-                status: o.status(index % 2 === 0),
-                typeUser: o.typeUser,
-                uniqueDoc: o.uniqueDoc,
-                area: o.area,
-                rol: o.rol
-            }));
-        default:
-            return [];
+  //   switch (whoIs) {
+  //       case 0:
+  //           o.typeUser = 0;
+  //           o.code = number => <span id={styles.code}>{202059431 + number}</span>;
+  //           o.plan = 2711;
+  //           o.grant = "almuerzo";
+  //           return Array.from({ length: 11 }, (_, index) => ({
+  //               name: o.name(index),
+  //               lastName: o.lastName(index),
+  //               email: o.email(index),
+  //               status: o.status(index % 2 === 0),
+  //               typeUser: o.typeUser,
+  //               code: o.code(index),
+  //               plan: o.plan,
+  //               grant: o.grant
+  //           }));
+  //       case 1:
+  //           o.typeUser = 1;
+  //           o.code = number => <span id={styles.code}>{202059431 + number}</span>;
+  //           o.plan = 2711;
+  //           return Array.from({ length: 10 }, (_, index) => ({
+  //               name: o.name(index),
+  //               lastName: o.lastName(index),
+  //               email: o.email(index),
+  //               status: o.status(index % 2 === 0),
+  //               typeUser: o.typeUser,
+  //               code: o.code(index),
+  //               plan: o.plan
+  //           }));
+  //       case 2:
+  //           o.typeUser = 2;
+  //           o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
+  //           o.area = "Adminstrativa";
+  //           o.rol = "monitor";
+  //           return Array.from({ length: 10 }, (_, index) => ({
+  //               name: o.name(index),
+  //               lastName: o.lastName(index),
+  //               email: o.email(index),
+  //               status: o.status(index % 2 === 0),
+  //               typeUser: o.typeUser,
+  //               uniqueDoc: o.uniqueDoc,
+  //               area: o.area,
+  //               rol: o.rol
+  //           }));
+  //       default:
+  //           return [];
+  //   }
+  // };
+
+  const loadUsers = async () => {
+    if (buttons[changesDescription]) {
+        try {
+            const result = await listUsers(buttons[changesDescription].type.toLowerCase());
+            setRows(result.content);
+        } catch (error) {
+            console.error("Error al listar usuarios:", error);
+        }
     }
 };
 
@@ -273,6 +284,7 @@ export default function ManagementUsers(){
     let creationResult = null
     try {
       creationResult = await createUser(user);
+      loadUsers()
       console.dir(creationResult)
     } catch (error) {
       setIsModalVerify(true)
@@ -293,11 +305,7 @@ export default function ManagementUsers(){
   },[])
   
   useEffect(() => {
-    // listUsers(users.get(changesDescription).toLowerCase())
-    // .then(result => {
-
-    // })
-    setRows(createRows(changesDescription))
+    loadUsers()
     setUser(initialUser)
   }, [changesDescription])
 
