@@ -1,6 +1,7 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Flex } from "antd"
 
+import { useState, useMemo } from 'react';
 import ButtonEdit from './ButtonEdit.jsx';
 import ButtonDelete from './ButtonDelete.jsx';
 
@@ -13,12 +14,17 @@ const TablePaginationUsers = ({
     itemsPerPage = 10,
     enableDelete = false,
     enableEdit = false,
-    nameActionsButtons = "Acciones",
-    onPageChange = () => {}, 
-    onCellClick = () => {},
+    nameActionsButtons = "Acciones", 
     onDelete = () => {},
     onEdit = () => {}
 }) => {
+
+    const [currentPageState, setCurrentStatePage] = useState(currentPage)
+    const { startIndex, endIndex } = useMemo(() => ({
+        startIndex: (currentPageState - 1) * itemsPerPage,
+        endIndex: ((currentPageState - 1) * itemsPerPage) + itemsPerPage
+    }), [currentPageState, itemsPerPage]);
+
     const isRowNull = !Array.isArray(rows) || rows === null;
     const safeRows = isRowNull ? [] : rows;
 
@@ -59,8 +65,6 @@ const TablePaginationUsers = ({
     };
 
     // Pagination logic
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
     const currentItems = safeRows.slice(startIndex, endIndex);
 
     const handlerGetRowEdit = row => onEdit(row)
@@ -98,8 +102,8 @@ const TablePaginationUsers = ({
                                 })}
                                 <td>
                                     <Flex>
-                                        {enableDelete ? <ButtonDelete key={`delete${rowIndex}`} onClick={() => handlerGetRowDelete(row)} />: ""}
-                                        {enableEdit ? <ButtonEdit key={`edit${rowIndex}`} onClick={() => handlerGetRowEdit(row)} />: ""}
+                                        {enableDelete && <ButtonDelete key={`delete${rowIndex}`} onClick={() => handlerGetRowDelete(row)} />}
+                                        {enableEdit && <ButtonEdit key={`edit${rowIndex}`} onClick={() => handlerGetRowEdit(row)} />}
                                     </Flex>
                                 </td>
                             </tr>
@@ -109,18 +113,18 @@ const TablePaginationUsers = ({
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <button 
-                    onClick={() => onPageChange(currentPage - 1)} 
-                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentStatePage(prev => prev - 1)} 
+                    disabled={currentPageState <= 1}
                     style={{ 
                         ...buttonStyle, 
-                        ...(currentPage <= 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) 
+                        ...(currentPageState <= 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) 
                     }}
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                <div style={pageIndicatorStyle}>{currentPage}</div>
+                <div style={pageIndicatorStyle}>{currentPageState}</div>
                 <button 
-                    onClick={() => onPageChange(currentPage + 1)} 
+                    onClick={() => setCurrentStatePage(prev => prev + 1)} 
                     disabled={endIndex >= safeRows.length}
                     style={{ 
                         ...buttonStyle, 
