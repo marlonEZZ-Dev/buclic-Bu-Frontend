@@ -1,14 +1,30 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Flex } from "antd"
+
+import { useState, useMemo } from 'react';
+import ButtonEdit from './ButtonEdit.jsx';
+import ButtonDelete from './ButtonDelete.jsx';
+
 import PropTypes from 'prop-types';
 
 const TablePaginationUsers = ({ 
     rows = [], 
     columns = [],
     currentPage = 1, 
-    itemsPerPage = 10, 
-    onPageChange = () => {}, 
-    onCellClick = () => {}, 
+    itemsPerPage = 10,
+    enableDelete = false,
+    enableEdit = false,
+    nameActionsButtons = "Acciones", 
+    onDelete = () => {},
+    onEdit = () => {}
 }) => {
+
+    const [currentPageState, setCurrentStatePage] = useState(currentPage)
+    const { startIndex, endIndex } = useMemo(() => ({
+        startIndex: (currentPageState - 1) * itemsPerPage,
+        endIndex: ((currentPageState - 1) * itemsPerPage) + itemsPerPage
+    }), [currentPageState, itemsPerPage]);
+
     const isRowNull = !Array.isArray(rows) || rows === null;
     const safeRows = isRowNull ? [] : rows;
 
@@ -49,9 +65,11 @@ const TablePaginationUsers = ({
     };
 
     // Pagination logic
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
     const currentItems = safeRows.slice(startIndex, endIndex);
+
+    const handlerGetRowEdit = row => onEdit(row)
+
+    const handlerGetRowDelete = row => onDelete(row)
 
     return (
         <div style={{ textAlign: 'center', margin: '20px 0' }}>
@@ -66,45 +84,47 @@ const TablePaginationUsers = ({
                                 {column.label}
                             </th>
                         ))}
+                        <th style={headerStyle}>{nameActionsButtons}</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {currentItems.map((row, rowIndex) => (
-                        <tr key={`row-${rowIndex}`}>
-                            {columns.map((column, colIndex) => {
-                                const cellContent = row[column.key];
-                                const isEditCell = column.key === 'edit';
-                                
-                                return (
-                                    <td 
-                                        key={`cell-${rowIndex}-${colIndex}`}
-                                        style={cellStyle}
-                                        onClick={isEditCell ? () => onCellClick(row) : undefined}
-                                        role={isEditCell ? 'button' : undefined}
-                                    >
-                                        {cellContent}
-                                    </td>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
+                    <tbody>
+                        {currentItems.map((row, rowIndex) => (
+                            <tr key={`row-${rowIndex}`}>
+                                {columns.map((column, colIndex) => {
+                                    return (
+                                        <td 
+                                            key={`cell-${rowIndex}-${colIndex}`}
+                                            style={cellStyle}
+                                            >
+                                            {row[column.key]}
+                                        </td>
+                                    );
+                                })}
+                                <td>
+                                    <Flex>
+                                        {enableDelete && <ButtonDelete key={`delete${rowIndex}`} onClick={() => handlerGetRowDelete(row)} />}
+                                        {enableEdit && <ButtonEdit key={`edit${rowIndex}`} onClick={() => handlerGetRowEdit(row)} />}
+                                    </Flex>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
             </table>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <button 
-                    onClick={() => onPageChange(currentPage - 1)} 
-                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentStatePage(prev => prev - 1)} 
+                    disabled={currentPageState <= 1}
                     style={{ 
                         ...buttonStyle, 
-                        ...(currentPage <= 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) 
+                        ...(currentPageState <= 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) 
                     }}
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                <div style={pageIndicatorStyle}>{currentPage}</div>
+                <div style={pageIndicatorStyle}>{currentPageState}</div>
                 <button 
-                    onClick={() => onPageChange(currentPage + 1)} 
+                    onClick={() => setCurrentStatePage(prev => prev + 1)} 
                     disabled={endIndex >= safeRows.length}
                     style={{ 
                         ...buttonStyle, 
@@ -124,10 +144,16 @@ TablePaginationUsers.propTypes = {
         key: PropTypes.string.isRequired, // Clave que indica qué propiedad del objeto mostrar
         label: PropTypes.string.isRequired // Etiqueta que se muestra en la cabecera
     })).isRequired, 
+    keyEditButton: PropTypes.string, 
+    nameActionsButtons: PropTypes.string, 
     currentPage : PropTypes.number,
     itemsPerPage: PropTypes.number,
+    enableDelete: PropTypes.bool,
+    enableEdit: PropTypes.bool,
     onPageChange : PropTypes.func,
-    onCellClick : PropTypes.func, 
+    onCellClick : PropTypes.func,
+    onDelete : PropTypes.func,
+    onEdit : PropTypes.func
 }
 
 export default TablePaginationUsers;
