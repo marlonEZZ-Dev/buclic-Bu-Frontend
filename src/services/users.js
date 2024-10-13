@@ -10,7 +10,6 @@ const getError = error => {
 }
 
 export const createUser = async (obj) => {
-  const message = new Map()
   try{
     const response = await axios.post("/users", {
     username: obj.username, //codigo
@@ -22,11 +21,7 @@ export const createUser = async (obj) => {
     beca: obj.grant,
     roles: obj.rols //tipo de usuario
     });
-    message.set(201, "Usuario creado exitosamente")
-    message.set(404, "Rol no encontrado")
-    message.set(409, "Usuario ya esta registrado")
-
-    return message.get(response.status) 
+    if(response.status === 201) return "Usuario creado exitosamente" 
     
   }catch(error){
     return getError(error)
