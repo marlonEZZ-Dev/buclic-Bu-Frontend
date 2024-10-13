@@ -19,7 +19,7 @@ export const createUser = async (obj) => {
     password: "",
     plan: obj.plan,
     beca: obj.grant,
-    roles: obj.rols //tipo de usuario
+    roles: obj.roles //tipo de usuario
     });
     if(response.status === 201) return "Usuario creado exitosamente" 
     

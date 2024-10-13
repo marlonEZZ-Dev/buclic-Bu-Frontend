@@ -31,15 +31,16 @@ export default function ManagementUsers(){
   const [isModalVerify, setIsModalVerify] = useState(false);
   const [modalContent, setModalContent] = useState("")
   //Datos
-  const [user, setUser] = useState({
+  const initialUser = {
     username:"",
     name:"",
     lastName:"",
     email: "",
     plan:"",
-    rols: [],
+    roles: [],
     grant: ""
-  })
+  }
+  const [user, setUser] = useState(initialUser)
   //Predicados
   let isBeneficiary = changesDescription === 0
   let isStudent = changesDescription === 1
@@ -208,10 +209,17 @@ export default function ManagementUsers(){
     }))
   }
 
+  const handlerSetSelect = value => {
+    setUser(prevUser => ({
+      ...prevUser,
+      grant: value
+    }));
+  }
+
   const handlerAddRoleUser = value => {
     setUser(prevUser => ({
       ...prevUser,
-      rols:[...prevUser.rols, value]
+      roles:[...prevUser.roles, value]
     }))
   }
 
@@ -246,9 +254,9 @@ export default function ManagementUsers(){
       setIsModalVerify(true)
       return
     }
-    const rols = validRol(user.rols)
-    if(typeof rols === "string"){
-      setModalContent(rols)
+    const roles = validRol(user.roles)
+    if(typeof roles === "string"){
+      setModalContent(roles)
       setIsModalVerify(true)
       return
     }
@@ -285,7 +293,12 @@ export default function ManagementUsers(){
   },[])
   
   useEffect(() => {
+    // listUsers(users.get(changesDescription).toLowerCase())
+    // .then(result => {
+
+    // })
     setRows(createRows(changesDescription))
+    setUser(initialUser)
   }, [changesDescription])
 
   return (
@@ -442,8 +455,7 @@ export default function ManagementUsers(){
       ) }
       {isModalVerify && (
         <Modal 
-        open={isModalVerify} 
-        title="Valores válidos"
+        open={isModalVerify}
         footer={null}
         onClose={() => setIsModalVerify(false)}>
           <Flex vertical align='center' justify='center'>
@@ -534,7 +546,7 @@ export default function ManagementUsers(){
               name="email"
               onChange={e => {
                 handlerCreateUser(e)
-                const rolAdded  = user.rols.includes("ESTUDIANTE")
+                const rolAdded  = user.roles.includes("ESTUDIANTE")
                 if(((isStudent || isBeneficiary) && !rolAdded)){
                   handlerAddRoleUser("ESTUDIANTE")
                 }
@@ -549,16 +561,19 @@ export default function ManagementUsers(){
             <Select
               placeholder="Selecciona"
               className={styles.comboboxes}
-              name={isBeneficiary && "grant"}
-              onChange={e => {
+              key={`SelectImportant${changesDescription}`}
+              name={isBeneficiary ? "grant" : ""}
+              autoFocus={isFuncionary}
+              defaultActiveFirstOption={isFuncionary}
+              onChange={value => {
                 
                 if(isBeneficiary) {
-                  handlerCreateUser(e)
+                  handlerSetSelect(value)
                   return
                 } 
 
                 if(isFuncionary) {
-                  handlerAddRoleUser(e.target.value)
+                  handlerAddRoleUser(value)
                   return
                 }
               }}

@@ -10,3 +10,8 @@ export const validCode = (code, isCode) => {
 export const validText = text => text.length === 0
 
 export const validRol = rol => rol.length !== 0 ? true : "Debe declarar un valor para el array"
+
+export const validSelects = (arrString, valueValid, title) => {
+  const newArr = arrString.filter( item => item.value === valueValid)
+  return newArr.length === 0 ? "Debe establecer una opción en " + title : true
+}
