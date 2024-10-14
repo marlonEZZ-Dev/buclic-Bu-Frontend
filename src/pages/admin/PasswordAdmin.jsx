@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../../api';
+import api from '../../api';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import Modal from '../../components/global/Modal';
@@ -18,7 +18,7 @@ const PasswordAdmin = () => {
     try {
       setConfirmLoading(true);
 
-      const response = await axios.post('/users/changePassword', {
+      const response = await api.post('/users/changePassword', {
         username: username, // Incluir el nombre de usuario
         password: values.currentPassword,
         newPassword: values.newPassword,

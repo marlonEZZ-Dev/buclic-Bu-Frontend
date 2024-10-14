@@ -1,11 +1,10 @@
 #code{
-  width: 6.3125rem;
+  width: min-content;
 }
 
 #name{
-  width: 7rem;
+  width: min-content;
 }
-
 
 #active{
   width: 3rem;
@@ -14,7 +13,7 @@
 }
 
 #edit{
-  width: 4.5625rem;
+  width: min-content;
 }
 
 #email{
