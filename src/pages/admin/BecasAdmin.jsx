@@ -8,12 +8,17 @@ import api from '../../api';  // Asegúrate de tener configurada la API
 const BecasAdmin = () => {
   const [menuData, setMenuData] = useState({ Almuerzo: {}, Refrigerio: {} });  // Estado para almacenar el menú
   const [selectedType, setSelectedType] = useState('almuerzo');  // Estado para el tipo de menú seleccionado
-  const [almuerzoReservation, setAlmuerzoReservation] = useState({ hasReservation: false, reservationId: null });  // Estado para la reserva de almuerzo
-  const [refrigerioReservation, setRefrigerioReservation] = useState({ hasReservation: false, reservationId: null });  // Estado para la reserva de refrigerio
+  const [almuerzoReservation, setAlmuerzoReservation] = useState({ hasReservation: false, reservationId: null, date: null, time: null });
+  const [refrigerioReservation, setRefrigerioReservation] = useState({ hasReservation: false, reservationId: null, date: null, time: null });
   const [loading, setLoading] = useState(false);  // Manejar el estado de carga
-  const username = localStorage.getItem('username');
+  const [settings, setSettings] = useState(null);  // Estado para almacenar las configuraciones de becas
+  const [benefitType, setBenefitType] = useState(''); // Estado para el tipo de beneficio
 
-  // 1. Solicitar el menú desde el backend cuando el componente se monta
+  const username = localStorage.getItem('username');
+  const [availability, setAvailability] = useState({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 });
+
+
+  // Solicitar el menú desde el backend cuando el componente se monta
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -34,20 +39,31 @@ const BecasAdmin = () => {
     fetchMenu();
   }, []);
 
-  // 2. Verificar si el usuario ya tiene una reserva para hoy (almuerzo y refrigerio por separado)
+  // Verificar si el usuario ya tiene una reserva para hoy (almuerzo y refrigerio por separado)
   useEffect(() => {
     const checkReservation = async () => {
       try {
         const response = await api.get(`/reservations/per-day/${username}`);
-        const reservation = response.data[0];  // Si hay alguna reserva
-        if (reservation) {
+        const reservations = response.data;
+
+        reservations.forEach(reservation => {
           if (reservation.lunch) {
-            setAlmuerzoReservation({ hasReservation: true, reservationId: reservation.reservationId });
+            setAlmuerzoReservation({
+              hasReservation: true,
+              reservationId: reservation.reservationId,
+              date: reservation.date,
+              time: reservation.time
+            });
           }
           if (reservation.snack) {
-            setRefrigerioReservation({ hasReservation: true, reservationId: reservation.reservationId });
+            setRefrigerioReservation({
+              hasReservation: true,
+              reservationId: reservation.reservationId,
+              date: reservation.date,
+              time: reservation.time
+            });
           }
-        }
+        });
       } catch (error) {
         console.error('Error al verificar la reserva', error);
       }
@@ -56,11 +72,57 @@ const BecasAdmin = () => {
     checkReservation();
   }, [username]);
 
+
+
+  // Obtener el tipo de beneficio del usuario
+  useEffect(() => {
+    const fetchUserBenefits = async () => {
+      try {
+        const response = await api.get(`/users/${username}`); // Ajusta la ruta según tu backend
+        const userBenefits = response.data; // Asegúrate de que esto contenga el tipo de beneficio
+
+        // Asignar el tipo de beneficio, cambiando 'Sin beneficios' a 'venta libre'
+        setBenefitType(userBenefits.benefitType === 'Sin beneficios' ? 'venta libre' : userBenefits.benefitType);
+      } catch (error) {
+        console.error('Error al obtener beneficios del usuario:', error);
+      }
+    };
+
+    fetchUserBenefits();
+  }, [username]);
+
+
+  // Obtiene las configuraciones para reservar
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await api.get('/setting');
+        setSettings(response.data[0]?.settingRequest);  // Almacena solo el objeto de configuración
+      } catch (error) {
+        console.error('Error al obtener las configuraciones', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+
   // Función para manejar la reserva (almuerzo o refrigerio)
   const handleReserve = async () => {
     try {
       if (!username) {
         throw new Error("Username no encontrado en localStorage");
+      }
+
+      // Verificar disponibilidad de reservas
+      if (selectedType === 'almuerzo' && availability.remainingSlotsLunch === 0) {
+        message.error('No hay reservas disponibles para almuerzo');
+        return; // Salir de la función si no hay disponibilidad
+      }
+
+      if (selectedType === 'refrigerio' && availability.remainingSlotsSnack === 0) {
+        message.error('No hay reservas disponibles para refrigerio');
+        return; // Salir de la función si no hay disponibilidad
       }
 
       const reservationData = {
@@ -80,9 +142,38 @@ const BecasAdmin = () => {
       message.success('Reserva creada con éxito');
     } catch (error) {
       console.error('Error al crear la reserva:', error);
-      message.error('Error al crear la reserva');
+      message.error('Aun no es tu hora de reserva');
     }
   };
+
+
+  // Obtener la disponibilidad de reservas con polling cada 3 segundos
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await api.get('/reservations/availability');
+
+        setAvailability({
+          remainingSlotsLunch: response.data.remainingSlotsLunch || 0,
+          remainingSlotsSnack: response.data.remainingSlotsSnack || 0,
+        });
+      } catch (error) {
+        console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
+
+        setAvailability({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 }); // Establecer 0 si hay un error
+      }
+    };
+
+    // Llamada inicial
+    fetchAvailability();
+
+    // Configurar polling cada 3 segundos
+    const intervalId = setInterval(fetchAvailability, 3000);
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(intervalId);
+  }, []);
+
 
   // Función para manejar la cancelación de la reserva (almuerzo o refrigerio)
   const handleCancelReservation = async () => {
@@ -110,6 +201,21 @@ const BecasAdmin = () => {
       message.error('Error al cancelar la reserva');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Mostrar el mensaje de la reserva dependiendo del tipo de menú
+  const getReservationMessage = (type) => {
+    if (type === 'almuerzo' && almuerzoReservation.hasReservation) {
+      return (
+        <p>Tu reserva de almuerzo ha sido realizada con éxito el {almuerzoReservation.date} a las {almuerzoReservation.time}.</p>
+      );
+    } else if (type === 'refrigerio' && refrigerioReservation.hasReservation) {
+      return (
+        <p>Tu reserva de refrigerio ha sido realizada con éxito el {refrigerioReservation.date} a las {refrigerioReservation.time}.</p>
+      );
+    } else {
+      return <p>No has reservado {type === 'almuerzo' ? 'almuerzo' : 'refrigerio'} el día de hoy.</p>;
     }
   };
 
@@ -148,17 +254,47 @@ const BecasAdmin = () => {
       <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
-        <p>Nota: La beca de alimentación finaliza el 09 de diciembre.</p>
 
         <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
+          {/* Mensaje de reserva dentro de la tarjeta del menú seleccionado */}
+          <div style={{ marginBottom: '16px' }}>
+            {getReservationMessage(selectedType)}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+            <p>Reservas disponibles: {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
+            <p>Costo: {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
+          </div>
+
+          {settings && (
+            <p>
+              {selectedType === 'almuerzo' // Si está en la sección de almuerzo
+                ? (benefitType === 'venta libre' // Si el usuario tiene 'venta libre'
+                  ? `Puede reservar almuerzo entre ${settings.starLunch} y ${settings.endLunch}`
+                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
+                    ? `Puede reservar almuerzo entre ${settings.starBeneficiaryLunch} y ${settings.endLunch}`
+                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
+                      ? `Puede reservar almuerzo entre ${settings.starLunch} y ${settings.endLunch}`
+                      : 'Tipo de beneficio no reconocido')
+                : (benefitType === 'venta libre' // Si está en la sección de refrigerio
+                  ? `Puede reservar refrigerio entre ${settings.starSnack} y ${settings.endSnack}`
+                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
+                    ? `Puede reservar refrigerio entre ${settings.starSnack} y ${settings.endSnack}`
+                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
+                      ? `Puede reservar refrigerio entre ${settings.starBeneficiarySnack} y ${settings.endSnack}`
+                      : 'Tipo de beneficio no reconocido')}
+            </p>
+          )}
           <Tables
             rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows}
             columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
           />
 
           <p style={{ textAlign: 'left', marginTop: '8px' }}>
-            Eres beneficiario/a de la beca tipo {selectedType}
+            Eres beneficiario/a de la beca tipo {benefitType}
           </p>
+
+
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
             <Button

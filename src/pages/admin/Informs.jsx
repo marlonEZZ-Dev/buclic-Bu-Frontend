@@ -1,50 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Input } from 'antd';
-import { EyeOutlined, DownloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Input, message } from 'antd';
+import { EyeOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
 import SearchInput from '../../components/global/SearchInput.jsx';
 import TablePagination from '../../components/global/TablePagination.jsx';
-import Modal from '../../components/global/Modal.jsx'; // Asumiendo que este es el path correcto para su componente Modal personalizado
+import Modal from '../../components/global/Modal.jsx';
+import api from '../../api';
+
 
 const CombinedReports = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [rows, setRows] = useState([]);
-  const itemsPerPage = 10;
+  const [rows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
   const [selectedType, setSelectedType] = useState("Diarios");
-  const [selectedFilter, setSelectedFilter] = useState("Todos");
+  const [selectedBeca, setSelectedBeca] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [reportToDelete, setReportToDelete] = useState(null);
+  const [semesterInput, setSemesterInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
+  const itemsPerPage = 10;
   const buttons = [
     { type: "Diarios", label: "Diarios" },
     { type: "Semestrales", label: "Semestrales" },
   ];
-
   const columnsDaily = ['Fecha generado', 'Beca', 'Acciones'];
   const columnsSemestral = ['Beca', 'Semestre', 'Acciones'];
 
   useEffect(() => {
-    // Generate sample data based on the selected type
-    const scholarshipTypes = ['Almuerzo', 'Refrigerio'];
-    const semesterTypes = ['2023-2', '2024-1'];
-    const generatedRows = Array.from({ length: 100 }, (_, index) => {
-      if (selectedType === "Diarios") {
-        return [
-          new Date(Date.now() + index * 86400000).toLocaleDateString(),
-          scholarshipTypes[index % scholarshipTypes.length],
-          renderActions(index)
-        ];
-      } else {
-        return [
-          scholarshipTypes[index % scholarshipTypes.length],
-          semesterTypes[index % semesterTypes.length],
-          renderActions(index)
-        ];
-      }
-    });
-    setRows(generatedRows);
+    setSelectedBeca(null);
+    setSemesterInput('');
+    setSearchTerm('');
   }, [selectedType]);
+
+  useEffect(() => {
+    const filtered = rows.filter(row =>
+      row.some(cell => cell.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredRows(filtered);
+  }, [searchTerm, rows]);
+
+  const generateReport = useCallback(async (beca) => {
+    if (selectedType === "Semestrales" && !semesterInput) {
+      message.warning('Por favor, ingrese un semestre antes de generar el informe.');
+      return;
+    }
+
+    setSelectedBeca(beca);
+
+    try {
+      const reportRequest = {
+        semester: selectedType === "Semestrales" ? semesterInput : null,
+        beca: beca,
+        users: []
+      };
+
+      console.log('Datos del informe a enviar:', reportRequest);
+
+      const response = await api.post('/report', reportRequest);
+      console.log('Respuesta del servidor:', response.data);
+
+      message.success('Informe generado exitosamente');
+      // Aquí podrías actualizar el estado de tu componente con el nuevo informe si es necesario
+    } catch (error) {
+      console.error('Error al generar informe:', error.response ? error.response.data : error.message);
+      if (error.response && error.response.status === 404) {
+        message.error('No se encontró la ruta para generar el informe. Verifica la URL de la API.');
+      } else if (error.response && error.response.status === 401) {
+        message.error('No estás autorizado. Por favor, inicia sesión nuevamente.');
+      } else {
+        message.error(`No se pudo generar el informe: ${error.response ? error.response.data.message : error.message}`);
+      }
+    }
+  }, [selectedType, semesterInput]);
 
   const showDeleteConfirm = (index) => {
     setReportToDelete(index);
@@ -52,10 +82,10 @@ const CombinedReports = () => {
   };
 
   const handleDeleteConfirm = () => {
-    // Aquí iría la lógica para eliminar el informe
     console.log(`Eliminando informe ${reportToDelete}`);
     setIsDeleteModalVisible(false);
     setReportToDelete(null);
+    message.success('Informe eliminado exitosamente');
   };
 
   const handleDeleteCancel = () => {
@@ -75,9 +105,8 @@ const CombinedReports = () => {
     setCurrentPage(page);
   };
 
-  const handleFilterChange = (filter) => {
-    setSelectedFilter(filter);
-    // Aquí iría la lógica para filtrar los datos según el tipo de beca seleccionado
+  const handleSearch = (value) => {
+    setSearchTerm(value);
   };
 
   return (
@@ -102,21 +131,21 @@ const CombinedReports = () => {
                 <Button
                   style={{
                     marginRight: '10px',
-                    backgroundColor: selectedFilter === 'Almuerzo' ? '#C20E1A' : 'white',
-                    color: selectedFilter === 'Almuerzo' ? 'white' : '#C20E1A',
+                    backgroundColor: selectedBeca === 'Almuerzo' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Almuerzo' ? 'white' : '#C20E1A',
                     border: '1px solid #C20E1A'
                   }}
-                  onClick={() => handleFilterChange('Almuerzo')}
+                  onClick={() => generateReport('almuerzo')}
                 >
                   Almuerzo
                 </Button>
                 <Button
                   style={{
-                    backgroundColor: selectedFilter === 'Refrigerio' ? '#C20E1A' : 'white',
-                    color: selectedFilter === 'Refrigerio' ? 'white' : '#C20E1A',
+                    backgroundColor: selectedBeca === 'Refrigerio' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Refrigerio' ? 'white' : '#C20E1A',
                     border: '1px solid #C20E1A'
                   }}
-                  onClick={() => handleFilterChange('Refrigerio')}
+                  onClick={() => generateReport('refrigerio')}
                 >
                   Refrigerio
                 </Button>
@@ -125,7 +154,7 @@ const CombinedReports = () => {
                 Aquí puedes buscar los informes diarios generados a través de la fecha
               </p>
               <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '20px' }}>
-                <SearchInput />
+                <SearchInput onSearch={handleSearch} />
               </div>
             </>
           ) : (
@@ -134,25 +163,30 @@ const CombinedReports = () => {
                 Para generar los informes semestrales debes ingresar el semestre y seleccionar la beca
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <Input placeholder="Semestre informe ej: 2024-2" style={{ width: 200, marginRight: '10px' }} />
+                <Input
+                  placeholder="Semestre informe ej: 2024-2"
+                  style={{ width: 200, marginRight: '10px' }}
+                  value={semesterInput}
+                  onChange={(e) => setSemesterInput(e.target.value)}
+                />
                 <Button
                   style={{
                     marginRight: '10px',
-                    backgroundColor: selectedFilter === 'Almuerzo' ? '#C20E1A' : 'white',
-                    color: selectedFilter === 'Almuerzo' ? 'white' : '#C20E1A',
+                    backgroundColor: selectedBeca === 'Almuerzo' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Almuerzo' ? 'white' : '#C20E1A',
                     border: '1px solid #C20E1A'
                   }}
-                  onClick={() => handleFilterChange('Almuerzo')}
+                  onClick={() => generateReport('Almuerzo')}
                 >
                   Almuerzo
                 </Button>
                 <Button
                   style={{
-                    backgroundColor: selectedFilter === 'Refrigerio' ? '#C20E1A' : 'white',
-                    color: selectedFilter === 'Refrigerio' ? 'white' : '#C20E1A',
+                    backgroundColor: selectedBeca === 'Refrigerio' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Refrigerio' ? 'white' : '#C20E1A',
                     border: '1px solid #C20E1A'
                   }}
-                  onClick={() => handleFilterChange('Refrigerio')}
+                  onClick={() => generateReport('Refrigerio')}
                 >
                   Refrigerio
                 </Button>
@@ -161,14 +195,13 @@ const CombinedReports = () => {
                 Aquí puedes buscar los informes semestrales generados a través del semestre
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <Input placeholder="Semestre informe" style={{ width: 200, marginRight: '10px' }} />
-                <Button icon={<SearchOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white' }} />
+                <SearchInput onSearch={handleSearch} />
               </div>
             </>
           )}
 
           <TablePagination
-            rows={rows}
+            rows={filteredRows}
             columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
@@ -180,7 +213,7 @@ const CombinedReports = () => {
             onClose={handleDeleteCancel}
             modalTitle="Confirmar eliminación"
           >
-            <p>¿Desea eliminar el informe diario Almuerzo #{reportToDelete}?</p>
+            <p>¿Desea eliminar el informe {selectedType === "Diarios" ? "diario" : "semestral"} {selectedBeca} #{reportToDelete}?</p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
               <Button onClick={handleDeleteCancel} style={{ marginRight: '10px' }}>
                 Cancelar
