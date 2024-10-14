@@ -5,14 +5,14 @@ import { useCallback, useEffect, useState, useRef } from 'react'
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
 import Modal from '../../components/global/Modal.jsx'
-import SearchInput from '../../components/global/SearchInput.jsx'
+import Search  from '../../components/admin/SearchInput.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
 
 import styles from "../../styles/admin/managementUsers.module.css"
 import otherStyles from "../../styles/global/inputSmall.module.css"
 
-import { createUser, importUsers, listUsers } from "../../services/admin/management_user.js"
+import { createUser, importUsers, listUsers, searchUser } from "../../services/admin/management_user.js"
 import { validCode, validRol, validText } from '../../services/validations.js'
 
 export default function ManagementUsers(){
@@ -34,7 +34,7 @@ export default function ManagementUsers(){
   const [isModalVerify, setIsModalVerify] = useState(false);
   const [modalContent, setModalContent] = useState("")
   //Datos
-  const [codeUser, setCodeUser] = useState(undefined)
+  const [codeUser, setCodeUser] = useState("")
   const initialUser = {
     username:"",
     name:"",
@@ -297,9 +297,7 @@ export default function ManagementUsers(){
     }
   }, [user, changesDescription, users]);
 
-  const handlerHiddenClickInput = () => {
-    hiddenFileInput.current.click()
-  }
+  const handlerHiddenClickInput = () => hiddenFileInput.current.click()
   
   const handlerLoadFile = async (event) => {
     const file = event.target.files[0]
@@ -319,7 +317,20 @@ export default function ManagementUsers(){
       // setIsModalVerify(true);
       // setModalContent(error.message);  // Si tienes un modal para mostrar el error
     }      
+  }
+
+  const handlerSearchUser = async () => {
+    console.dir(codeUser);
+    try{
+      const userFound = await searchUser(codeUser)
+      const arrayUserFound = []
+      arrayUserFound.push(userFound)
+      setRows(arrayUserFound)
+    }catch(error){
+      setModalContent(error.message)
+      setIsModalVerify(true)
     }
+  }
   
   //---------------------------------------------------------
 
@@ -335,6 +346,14 @@ export default function ManagementUsers(){
     };
   },[])
   
+  // useEffect(() => {
+  //     if(codeUser.length !== 0){
+  //       handlerSearchUser()
+  //     }else{
+  //       loadUsers()
+  //     }
+  // }, [codeUser])
+
   useEffect(() => {
     loadUsers()
     setUser(initialUser)
@@ -651,9 +670,10 @@ export default function ManagementUsers(){
         justify='center'
         gap={11}
         >
-          <SearchInput
+          <Search
             placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'}
-            onChange={value => setCodeUser(value)}
+            onChange={e => setCodeUser(e.target.value)}
+            onClick ={handlerSearchUser}
             />
           {isBeneficiary ? 
           <button 
@@ -679,7 +699,7 @@ export default function ManagementUsers(){
               enableEdit
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={1}
-              itemsPerPage={isMobile ? 5 : 10}
+              itemsPerPage={10}
               onEdit={handlerOpenModalEdit}
               onDelete={isBeneficiary ? handlerOpenModalDelete:undefined}
               />
