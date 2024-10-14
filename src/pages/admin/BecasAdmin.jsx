@@ -11,9 +11,14 @@ const BecasAdmin = () => {
   const [almuerzoReservation, setAlmuerzoReservation] = useState({ hasReservation: false, reservationId: null });  // Estado para la reserva de almuerzo
   const [refrigerioReservation, setRefrigerioReservation] = useState({ hasReservation: false, reservationId: null });  // Estado para la reserva de refrigerio
   const [loading, setLoading] = useState(false);  // Manejar el estado de carga
-  const username = localStorage.getItem('username');
+  const [settings, setSettings] = useState(null);  // Estado para almacenar las configuraciones de becas
+  const [benefitType, setBenefitType] = useState(''); // Estado para el tipo de beneficio
 
-  // 1. Solicitar el menú desde el backend cuando el componente se monta
+  const username = localStorage.getItem('username');
+  const [availability, setAvailability] = useState({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 });
+
+
+  // Solicitar el menú desde el backend cuando el componente se monta
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -34,12 +39,14 @@ const BecasAdmin = () => {
     fetchMenu();
   }, []);
 
-  // 2. Verificar si el usuario ya tiene una reserva para hoy (almuerzo y refrigerio por separado)
+  // Verificar si el usuario ya tiene una reserva para hoy (almuerzo y refrigerio por separado)
   useEffect(() => {
     const checkReservation = async () => {
       try {
         const response = await api.get(`/reservations/per-day/${username}`);
         const reservation = response.data[0];  // Si hay alguna reserva
+        console.log('Reserva obtenida:', reservation);  // <-- Añadir este log para depurar
+
         if (reservation) {
           if (reservation.lunch) {
             setAlmuerzoReservation({ hasReservation: true, reservationId: reservation.reservationId });
@@ -55,6 +62,39 @@ const BecasAdmin = () => {
 
     checkReservation();
   }, [username]);
+
+  // Obtener el tipo de beneficio del usuario
+  useEffect(() => {
+    const fetchUserBenefits = async () => {
+      try {
+        const response = await api.get(`/users/${username}`); // Ajusta la ruta según tu backend
+        const userBenefits = response.data; // Asegúrate de que esto contenga el tipo de beneficio
+
+        // Asignar el tipo de beneficio, cambiando 'Sin beneficios' a 'venta libre'
+        setBenefitType(userBenefits.benefitType === 'Sin beneficios' ? 'venta libre' : userBenefits.benefitType);
+      } catch (error) {
+        console.error('Error al obtener beneficios del usuario:', error);
+      }
+    };
+
+    fetchUserBenefits();
+  }, [username]);
+
+
+  // Obtiene las configuraciones para reservar
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await api.get('/setting');
+        setSettings(response.data[0]?.settingRequest);  // Almacena solo el objeto de configuración
+      } catch (error) {
+        console.error('Error al obtener las configuraciones', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
 
   // Función para manejar la reserva (almuerzo o refrigerio)
   const handleReserve = async () => {
@@ -80,9 +120,37 @@ const BecasAdmin = () => {
       message.success('Reserva creada con éxito');
     } catch (error) {
       console.error('Error al crear la reserva:', error);
-      message.error('Error al crear la reserva');
+      message.error('Aun no es tu hora de reserva');
     }
   };
+
+  // Obtener la disponibilidad de reservas con polling cada 3 segundos
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await api.get('/reservations/availability');
+
+        setAvailability({
+          remainingSlotsLunch: response.data.remainingSlotsLunch || 0,
+          remainingSlotsSnack: response.data.remainingSlotsSnack || 0,
+        });
+      } catch (error) {
+        console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
+
+        setAvailability({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 }); // Establecer 0 si hay un error
+      }
+    };
+
+    // Llamada inicial
+    fetchAvailability();
+
+    // Configurar polling cada 3 segundos
+    const intervalId = setInterval(fetchAvailability, 3000);
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(intervalId);
+  }, []);
+
 
   // Función para manejar la cancelación de la reserva (almuerzo o refrigerio)
   const handleCancelReservation = async () => {
@@ -151,14 +219,40 @@ const BecasAdmin = () => {
         <p>Nota: La beca de alimentación finaliza el 09 de diciembre.</p>
 
         <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+            <p>Reservas disponibles: {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
+            <p>Costo: {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
+          </div>
+
+          {settings && (
+            <p>
+              {selectedType === 'almuerzo' // Si está en la sección de almuerzo
+                ? (benefitType === 'venta libre' // Si el usuario tiene 'venta libre'
+                  ? `Puede reservar almuerzo entre ${settings.starLunch} y ${settings.endLunch}`
+                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
+                    ? `Puede reservar almuerzo entre ${settings.starBeneficiaryLunch} y ${settings.endBeneficiaryLunch}`
+                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
+                      ? `Puede reservar almuerzo entre ${settings.starLunch} y ${settings.endLunch}`
+                      : 'Tipo de beneficio no reconocido')
+                : (benefitType === 'venta libre' // Si está en la sección de refrigerio
+                  ? `Puede reservar refrigerio entre ${settings.starSnack} y ${settings.endSnack}`
+                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
+                    ? `Puede reservar refrigerio entre ${settings.starSnack} y ${settings.endSnack}`
+                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
+                      ? `Puede reservar refrigerio entre ${settings.starBeneficiarySnack} y ${settings.endBeneficiarySnack}`
+                      : 'Tipo de beneficio no reconocido')}
+            </p>
+          )}
           <Tables
             rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows}
             columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
           />
 
           <p style={{ textAlign: 'left', marginTop: '8px' }}>
-            Eres beneficiario/a de la beca tipo {selectedType}
+            Eres beneficiario/a de la beca tipo {benefitType}
           </p>
+
+
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
             <Button
