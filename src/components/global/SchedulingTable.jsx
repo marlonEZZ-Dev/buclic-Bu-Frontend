@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'antd';
+import moment from 'moment';
 
-const SchedulingTable = ({ headers, rows }) => {
+const SchedulingTable = ({ headers, appointments, onReserve }) => {
     const tableStyle = {
         width: '100%',
         borderCollapse: 'collapse',
@@ -23,8 +24,11 @@ const SchedulingTable = ({ headers, rows }) => {
     };
 
     // Manejo del click del botón
-    const handleSchedule = (row) => {
-        console.log(`Agendar cita para: ${row[0]}`); // Puedes implementar tu lógica aquí
+    const handleSchedule = (appointment) => {
+        console.log(`Agendar cita para: ${moment(appointment.dateTime).format('HH:mm')}`);
+        if (onReserve) {
+            onReserve(appointment.id);
+        }
     };
 
     return (
@@ -39,19 +43,20 @@ const SchedulingTable = ({ headers, rows }) => {
                 </tr>
             </thead>
             <tbody>
-                {rows.map((row, rowIndex) => (
+                {appointments.map((appointment, rowIndex) => (
                     <tr key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                            <td key={cellIndex} style={cellStyle}>
-                                {cellIndex === 2 ? ( // Verifica si es la columna 'Agendar'
-                                    <Button className="button-save" type="primary" onClick={() => handleSchedule(row)}>
-                                        Agendar
-                                    </Button>
-                                ) : (
-                                    cell
-                                )}
-                            </td>
-                        ))}
+                        <td style={cellStyle}>{moment(appointment.dateTime).format('HH:mm')}</td>
+                        <td style={cellStyle}>{appointment.professionalName}</td>
+                        <td style={cellStyle}>
+                            <Button 
+                                className="button-save" 
+                                type="primary" 
+                                onClick={() => handleSchedule(appointment)}
+                                disabled={!appointment.available}
+                            >
+                                {appointment.available ? 'Agendar' : 'No disponible'}
+                            </Button>
+                        </td>
                     </tr>
                 ))}
             </tbody>
@@ -62,7 +67,13 @@ const SchedulingTable = ({ headers, rows }) => {
 // Validación de las props
 SchedulingTable.propTypes = {
     headers: PropTypes.arrayOf(PropTypes.string).isRequired,
-    rows: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+    appointments: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        dateTime: PropTypes.string.isRequired,
+        professionalName: PropTypes.string.isRequired,
+        available: PropTypes.bool.isRequired,
+    })).isRequired,
+    onReserve: PropTypes.func.isRequired,
 };
 
 export default SchedulingTable;

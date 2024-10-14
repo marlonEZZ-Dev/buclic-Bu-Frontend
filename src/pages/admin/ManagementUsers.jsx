@@ -1,19 +1,18 @@
 import { Divider, Flex, Select } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
 import Modal from '../../components/global/Modal.jsx'
 import SearchInput from '../../components/global/SearchInput.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
-import StateUser from '../../components/global/StateUser.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
 
 import styles from "../../styles/admin/managementUsers.module.css"
 import otherStyles from "../../styles/global/inputSmall.module.css"
 
-import { createUser, listUsers } from "../../services/users.js"
+import { createUser, importUsers, listUsers } from "../../services/admin/management_user.js"
 import { validCode, validRol, validText } from '../../services/validations.js'
 
 export default function ManagementUsers(){
@@ -22,15 +21,20 @@ export default function ManagementUsers(){
   const [objectSelected, setObjectSelected] = useState(null)
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
-  //States de modals
+  const [savePressed, SetSavePressed] = useState(false)
+  //Cargar archivo
+  const hiddenFileInput = useRef(null)
+  //
+  const [uploadStatus, setUploadStatus] = useState("")
+  //modals
   const [isModalImport, setIsModalImport] = useState(false)
   const [isModalEdit, setIsModalEdit] = useState(false)
   const [isModalAllDelete, setIsModalAllDelete] = useState(false)
   const [isModalDelete, setIsModalDelete] = useState(false)
-  const [savePressed, SetSavePressed] = useState(false)
   const [isModalVerify, setIsModalVerify] = useState(false);
   const [modalContent, setModalContent] = useState("")
   //Datos
+  const [codeUser, setCodeUser] = useState(undefined)
   const initialUser = {
     username:"",
     name:"",
@@ -41,6 +45,7 @@ export default function ManagementUsers(){
     grant: ""
   }
   const [user, setUser] = useState(initialUser)
+  
   //Predicados
   let isBeneficiary = changesDescription === 0
   let isStudent = changesDescription === 1
@@ -95,72 +100,83 @@ export default function ManagementUsers(){
   para filtrar las columnas que se debe mostrar
   */
   const headerTb = [
-    {key: isFuncionary  ? "uniqueDoc" : "code", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
     {key: enableResponsive ? "":"email", label: enableResponsive ? "":"Correo"},
-    {key: "status", label: "Activo"}
+    {key: "isActive", label: "Activo"}
   ]
 
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
-  const createRows = whoIs => {
-    const o = {
-        name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
-        lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
-        email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
-        status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
-        toString(){
-          return "user"
-        }
-    };
+  // const createRows = whoIs => {
+  //   const o = {
+  //       name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
+  //       lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
+  //       email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
+  //       status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
+  //       toString(){
+  //         return "user"
+  //       }
+  //   };
     
-    switch (whoIs) {
-        case 0:
-            o.typeUser = 0;
-            o.code = number => <span id={styles.code}>{202059431 + number}</span>;
-            o.plan = 2711;
-            o.grant = "almuerzo";
-            return Array.from({ length: 11 }, (_, index) => ({
-                name: o.name(index),
-                lastName: o.lastName(index),
-                email: o.email(index),
-                status: o.status(index % 2 === 0),
-                typeUser: o.typeUser,
-                code: o.code(index),
-                plan: o.plan,
-                grant: o.grant
-            }));
-        case 1:
-            o.typeUser = 1;
-            o.code = number => <span id={styles.code}>{202059431 + number}</span>;
-            o.plan = 2711;
-            return Array.from({ length: 10 }, (_, index) => ({
-                name: o.name(index),
-                lastName: o.lastName(index),
-                email: o.email(index),
-                status: o.status(index % 2 === 0),
-                typeUser: o.typeUser,
-                code: o.code(index),
-                plan: o.plan
-            }));
-        case 2:
-            o.typeUser = 2;
-            o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
-            o.area = "Adminstrativa";
-            o.rol = "monitor";
-            return Array.from({ length: 10 }, (_, index) => ({
-                name: o.name(index),
-                lastName: o.lastName(index),
-                email: o.email(index),
-                status: o.status(index % 2 === 0),
-                typeUser: o.typeUser,
-                uniqueDoc: o.uniqueDoc,
-                area: o.area,
-                rol: o.rol
-            }));
-        default:
-            return [];
+  //   switch (whoIs) {
+  //       case 0:
+  //           o.typeUser = 0;
+  //           o.code = number => <span id={styles.code}>{202059431 + number}</span>;
+  //           o.plan = 2711;
+  //           o.grant = "almuerzo";
+  //           return Array.from({ length: 11 }, (_, index) => ({
+  //               name: o.name(index),
+  //               lastName: o.lastName(index),
+  //               email: o.email(index),
+  //               status: o.status(index % 2 === 0),
+  //               typeUser: o.typeUser,
+  //               code: o.code(index),
+  //               plan: o.plan,
+  //               grant: o.grant
+  //           }));
+  //       case 1:
+  //           o.typeUser = 1;
+  //           o.code = number => <span id={styles.code}>{202059431 + number}</span>;
+  //           o.plan = 2711;
+  //           return Array.from({ length: 10 }, (_, index) => ({
+  //               name: o.name(index),
+  //               lastName: o.lastName(index),
+  //               email: o.email(index),
+  //               status: o.status(index % 2 === 0),
+  //               typeUser: o.typeUser,
+  //               code: o.code(index),
+  //               plan: o.plan
+  //           }));
+  //       case 2:
+  //           o.typeUser = 2;
+  //           o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
+  //           o.area = "Adminstrativa";
+  //           o.rol = "monitor";
+  //           return Array.from({ length: 10 }, (_, index) => ({
+  //               name: o.name(index),
+  //               lastName: o.lastName(index),
+  //               email: o.email(index),
+  //               status: o.status(index % 2 === 0),
+  //               typeUser: o.typeUser,
+  //               uniqueDoc: o.uniqueDoc,
+  //               area: o.area,
+  //               rol: o.rol
+  //           }));
+  //       default:
+  //           return [];
+  //   }
+  // };
+
+  const loadUsers = async () => {
+    if (buttons[changesDescription]) {
+        try {
+            const result = await listUsers(buttons[changesDescription].type.toLowerCase());
+            setRows(result.content);
+        } catch (error) {
+            console.error("Error al listar usuarios:", error);
+        }
     }
 };
 
@@ -188,7 +204,7 @@ export default function ManagementUsers(){
 
   const handlerOpenModalAllDelete = () => setIsModalAllDelete(true)
   const handlerCloseModalAllDelete = () => setIsModalAllDelete(false)
-  //---------------------------------------------------------
+
   const handleResize = () => {
     const width = window.innerWidth;
 
@@ -273,12 +289,39 @@ export default function ManagementUsers(){
     let creationResult = null
     try {
       creationResult = await createUser(user);
+      loadUsers()
       console.dir(creationResult)
     } catch (error) {
       setIsModalVerify(true)
       setModalContent(error.message)
     }
   }, [user, changesDescription, users]);
+
+  const handlerHiddenClickInput = () => {
+    hiddenFileInput.current.click()
+  }
+  
+  const handlerLoadFile = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+    
+    try{
+      const response = await importUsers((isBeneficiary || isStudent) ? "ESTUDIANTE" : "FUNCIONARIO" , file)
+      // loadUsers()
+      if (response.success) {
+        console.log(response.message);  // Archivo subido con éxito
+        // loadUsers(); // Si tienes una función para refrescar la lista de usuarios
+      } else {
+        console.log(response.message);  // Muestra el mensaje de error devuelto por `importUsers`
+      }
+    } catch (error) {
+      console.error("Error al procesar la carga del archivo:", error);
+      // setIsModalVerify(true);
+      // setModalContent(error.message);  // Si tienes un modal para mostrar el error
+    }      
+    }
+  
+  //---------------------------------------------------------
 
   useEffect(() => {
     handleResize();
@@ -293,11 +336,7 @@ export default function ManagementUsers(){
   },[])
   
   useEffect(() => {
-    // listUsers(users.get(changesDescription).toLowerCase())
-    // .then(result => {
-
-    // })
-    setRows(createRows(changesDescription))
+    loadUsers()
     setUser(initialUser)
   }, [changesDescription])
 
@@ -314,9 +353,17 @@ export default function ManagementUsers(){
           <h4>Importar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</h4>
           <p>Descarga la plantilla <a href="#">aquí</a> y selecciona el archivo modificado</p>
         <Flex justify='flex-start'>
-          <button className={styles.buttonLoad}>
-            <UploadOutlined /> Selecciona archivo
-          </button>              
+          <button 
+          className={styles.buttonLoad}
+          onClick={handlerHiddenClickInput}>
+            <UploadOutlined/> Selecciona archivo
+          </button>
+          <input 
+          type="file" 
+          className={styles.displayNone}
+          ref={hiddenFileInput} 
+          onChange={handlerLoadFile}
+          />
         </Flex>
         <Flex align='center' justify='center' gap={25}>
           <button 
@@ -606,6 +653,7 @@ export default function ManagementUsers(){
         >
           <SearchInput
             placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'}
+            onChange={value => setCodeUser(value)}
             />
           {isBeneficiary ? 
           <button 
