@@ -34,8 +34,10 @@ export const listUsers = async (filter, page = 0, size = 10) => {
 }
 
 export const searchUser = async (username) => {
+  const url = `/users/search?username=${username}`
+  console.log(url);
   try {
-    const response = await axios.get(`/users/search?username=${username}`)
+    const response = await axios.get(url)
     return response.data
   } catch (error) {
     return getError(error)
@@ -63,7 +65,8 @@ export const createUser = async (obj) => {
 }
 
 export const importUsers = async (role, fileCSV) => {
-  console.log(fileCSV)
+  console.dir(fileCSV)
+  console.log(fileCSV instanceof File);
   try {
     // const base64File = await convertToBase64(fileCSV)
     // const payload = {
@@ -72,9 +75,12 @@ export const importUsers = async (role, fileCSV) => {
     const formData = new FormData()
     formData.append("file",fileCSV)
     // formData.append("role",role)
-
-
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]); // Imprime el nombre del campo y su valor
+    }
     const response = await axios.post(`/users/import?role=${role}`, formData)
+    console.dir(formData);
+    console.dir(response)
     if (response.status === 200) {
       return { success: true, message: "Archivo subido con éxito" };
     } else {
