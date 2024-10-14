@@ -1,19 +1,18 @@
 import { Divider, Flex, Select } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
 import Modal from '../../components/global/Modal.jsx'
 import SearchInput from '../../components/global/SearchInput.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
-import StateUser from '../../components/global/StateUser.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
 
 import styles from "../../styles/admin/managementUsers.module.css"
 import otherStyles from "../../styles/global/inputSmall.module.css"
 
-import { createUser, listUsers } from "../../services/users.js"
+import { createUser, importUsers, listUsers } from "../../services/admin/management_user.js"
 import { validCode, validRol, validText } from '../../services/validations.js'
 
 export default function ManagementUsers(){
@@ -22,15 +21,20 @@ export default function ManagementUsers(){
   const [objectSelected, setObjectSelected] = useState(null)
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
-  //States de modals
+  const [savePressed, SetSavePressed] = useState(false)
+  //Cargar archivo
+  const hiddenFileInput = useRef(null)
+  //
+  const [uploadStatus, setUploadStatus] = useState("")
+  //modals
   const [isModalImport, setIsModalImport] = useState(false)
   const [isModalEdit, setIsModalEdit] = useState(false)
   const [isModalAllDelete, setIsModalAllDelete] = useState(false)
   const [isModalDelete, setIsModalDelete] = useState(false)
-  const [savePressed, SetSavePressed] = useState(false)
   const [isModalVerify, setIsModalVerify] = useState(false);
   const [modalContent, setModalContent] = useState("")
   //Datos
+  const [codeUser, setCodeUser] = useState(undefined)
   const initialUser = {
     username:"",
     name:"",
@@ -41,6 +45,7 @@ export default function ManagementUsers(){
     grant: ""
   }
   const [user, setUser] = useState(initialUser)
+  
   //Predicados
   let isBeneficiary = changesDescription === 0
   let isStudent = changesDescription === 1
@@ -199,7 +204,7 @@ export default function ManagementUsers(){
 
   const handlerOpenModalAllDelete = () => setIsModalAllDelete(true)
   const handlerCloseModalAllDelete = () => setIsModalAllDelete(false)
-  //---------------------------------------------------------
+
   const handleResize = () => {
     const width = window.innerWidth;
 
@@ -292,6 +297,32 @@ export default function ManagementUsers(){
     }
   }, [user, changesDescription, users]);
 
+  const handlerHiddenClickInput = () => {
+    hiddenFileInput.current.click()
+  }
+  
+  const handlerLoadFile = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+    
+    try{
+      const response = await importUsers((isBeneficiary || isStudent) ? "ESTUDIANTE" : "FUNCIONARIO" , file)
+      // loadUsers()
+      if (response.success) {
+        console.log(response.message);  // Archivo subido con éxito
+        // loadUsers(); // Si tienes una función para refrescar la lista de usuarios
+      } else {
+        console.log(response.message);  // Muestra el mensaje de error devuelto por `importUsers`
+      }
+    } catch (error) {
+      console.error("Error al procesar la carga del archivo:", error);
+      // setIsModalVerify(true);
+      // setModalContent(error.message);  // Si tienes un modal para mostrar el error
+    }      
+    }
+  
+  //---------------------------------------------------------
+
   useEffect(() => {
     handleResize();
 
@@ -322,9 +353,17 @@ export default function ManagementUsers(){
           <h4>Importar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</h4>
           <p>Descarga la plantilla <a href="#">aquí</a> y selecciona el archivo modificado</p>
         <Flex justify='flex-start'>
-          <button className={styles.buttonLoad}>
-            <UploadOutlined /> Selecciona archivo
-          </button>              
+          <button 
+          className={styles.buttonLoad}
+          onClick={handlerHiddenClickInput}>
+            <UploadOutlined/> Selecciona archivo
+          </button>
+          <input 
+          type="file" 
+          className={styles.displayNone}
+          ref={hiddenFileInput} 
+          onChange={handlerLoadFile}
+          />
         </Flex>
         <Flex align='center' justify='center' gap={25}>
           <button 
@@ -614,6 +653,7 @@ export default function ManagementUsers(){
         >
           <SearchInput
             placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'}
+            onChange={value => setCodeUser(value)}
             />
           {isBeneficiary ? 
           <button 
