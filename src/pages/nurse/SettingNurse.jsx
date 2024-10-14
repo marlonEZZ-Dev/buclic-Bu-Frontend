@@ -1,7 +1,8 @@
 import HeaderNurse from "../../components/nurse/HeaderNurse";
 
-export default function BecasNurse(){
+export default function SettingNurse(){
     return(
         <HeaderNurse/>
+        
     );
 }

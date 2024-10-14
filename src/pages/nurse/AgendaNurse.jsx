@@ -1,5 +1,7 @@
+import HeaderNurse from "../../components/nurse/HeaderNurse";
+
 export default function AgendaNurse(){
     return(
-        <h1>Hola</h1>
+        <HeaderNurse/>
     );
 }

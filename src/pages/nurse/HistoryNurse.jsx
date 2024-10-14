@@ -1,5 +1,7 @@
+import HeaderNurse from "../../components/nurse/HeaderNurse";
+
 export default function HistoryNurse(){
     return(
-        <h1>Hola</h1>
+        <HeaderNurse/>
     );
 }
