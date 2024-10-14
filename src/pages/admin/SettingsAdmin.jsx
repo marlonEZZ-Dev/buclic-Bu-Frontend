@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import MenuBecas from '../../components/global/MenuBecas';
 import { Button, Form, Input, Space, DatePicker, TimePicker, message } from 'antd';
-import axios from '../../api';
+import api from '../../api';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
@@ -19,7 +19,7 @@ const SettingsAdmin = () => {
     useEffect(() => {
         const fetchSetting = async () => {
             try {
-                const response = await axios.get('/setting');
+                const response = await api.get('/setting');
                 const settingsList = response.data; // La lista de ajustes
 
                 console.log('Response from /setting:', settingsList);
@@ -66,7 +66,7 @@ const SettingsAdmin = () => {
                 // Supongamos que el username está almacenado en localStorage
                 const username = localStorage.getItem('username');
                 if (username) {
-                    const response = await axios.get(`/users/${username}`); // Llamada al backend
+                    const response = await api.get(`/users/${username}`); // Llamada al backend
                     setProfileData(response.data);  // Guardar los datos del perfil
                 }
             } catch (error) {
@@ -106,10 +106,10 @@ const SettingsAdmin = () => {
     const handleSaveClick = async () => {
         try {
             if (settingId) {
-                await axios.put('/setting', { ...settingData, id: settingId });
+                await api.put('/setting', { ...settingData, id: settingId });
                 message.success('Ajustes guardados exitosamente.');
             } else {
-                const response = await axios.post('/setting', settingData);
+                const response = await api.post('/setting', settingData);
                 setSettingId(response.data.id);
                 setSettingData(response.data.settingRequest);
                 message.success('Ajustes creados exitosamente.');
