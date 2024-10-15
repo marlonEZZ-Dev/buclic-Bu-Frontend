@@ -33,7 +33,7 @@ export default function ManagementUsers(){
   const [isModalAllDelete, setIsModalAllDelete] = useState(false)
   const [isModalDelete, setIsModalDelete] = useState(false)
   const [isModalVerify, setIsModalVerify] = useState(false);
-  const [modalContent, setModalContent] = useState("")
+  const [modalStruct, setModalStruct] = useState({title:"",content:""})
   //Datos
   const [codeUser, setCodeUser] = useState("")
   const initialUser = {
@@ -275,43 +275,46 @@ export default function ManagementUsers(){
   const handlerVerifyUser = () => {
     const username = validCode(user.username, !isFuncionary)
     if(typeof username === "string"){
-      setModalContent(username)
+      setModalStruct({
+        title:"Alerta",
+        content:username
+      })
       setIsModalVerify(true)
       return
     }
     const name = validText(user.name)
     if(typeof name === "string"){
-      setModalContent(name)
+      setModalStruct(name)
       setIsModalVerify(true)
       return
     }
     const lastname = validText(user.lastName)
     if(typeof lastname === "string"){
-      setModalContent(lastname)
+      setModalStruct(lastname)
       setIsModalVerify(true)
       return
     }
     const email = validText(user.email)
     if(typeof email === "string"){
-      setModalContent(email)
+      setModalStruct(email)
       setIsModalVerify(true)
       return
     }
     const plan = validText(user.plan)
     if(typeof plan === "string"){
-      setModalContent(plan)
+      setModalStruct(plan)
       setIsModalVerify(true)
       return
     }
     const roles = validRol(user.roles)
     if(typeof roles === "string"){
-      setModalContent(roles)
+      setModalStruct(roles)
       setIsModalVerify(true)
       return
     }
     const grant = validText(user.grant)
     if((typeof grant === "string") && (isBeneficiary)){
-      setModalContent(grant)
+      setModalStruct(grant)
       setIsModalVerify(true)
       return
     }
@@ -326,7 +329,7 @@ export default function ManagementUsers(){
       console.dir(creationResult)
     } catch (error) {
       setIsModalVerify(true)
-      setModalContent(error.message)
+      setModalStruct(error.message)
     }
   }, [user, changesDescription, users]);
 
@@ -368,7 +371,7 @@ export default function ManagementUsers(){
       arrayUserFound.push(userFound)
       setRows(arrayUserFound)
     }catch(error){
-      setModalContent(error.message)
+      setModalStruct(error.message)
       setIsModalVerify(true)
     }
   }
@@ -644,8 +647,8 @@ export default function ManagementUsers(){
         footer={null}
         onClose={() => setIsModalVerify(false)}>
           <Flex vertical align='center' justify='center'>
-            <h3>Alerta</h3>
-            <p>{modalContent}</p>
+            <span style={fontSizeTitleModal}>modalStruct.title</span>
+            <p>{modalStruct.content}</p>
           </Flex>          
         </Modal>
       )}
