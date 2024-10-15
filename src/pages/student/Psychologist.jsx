@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import TopNavbar from '../../components/TopNavbar';
 import { Form, Input, Calendar, theme, ConfigProvider, Row, Col, message } from 'antd';
@@ -9,21 +8,24 @@ import api from '../../api.js';
 
 const Psychologist = () => {
     const { token } = theme.useToken();
-    const [userInfo, setUserInfo] = useState({});
     const [selectedDate, setSelectedDate] = useState(moment());  // Fecha actual por defecto
     const [availableDates, setAvailableDates] = useState([]);
     const [filteredDates, setFilteredDates] = useState([]);
     const [phone, setPhone] = useState('');
     const [eps, setEps] = useState('');
 
-    // Recupera la información del usuario desde localStorage
+    // Recupera la información individual del usuario desde localStorage
+    const username = localStorage.getItem('username');
+    const userEmail = localStorage.getItem('userEmail');
+    const userName = localStorage.getItem('userName');
+    const userId = localStorage.getItem('userId');  // Este será el pacientId en la solicitud POST
+    const userPlan = localStorage.getItem('userPlan');  // Para el programa académico
+
     useEffect(() => {
-        const storedUserInfo = localStorage.getItem('userInfo');
-        if (storedUserInfo) {
-            setUserInfo(JSON.parse(storedUserInfo));
-            console.log('User info cargado desde localStorage:', JSON.parse(storedUserInfo));
+        if (!userId || !userName || !userEmail || !userPlan) {
+            console.error('No se encontró información del usuario en localStorage');
         } else {
-            console.error('No se encontró userInfo en localStorage');
+            console.log('Datos del usuario encontrados:', { userId, userName, userEmail, userPlan });
         }
     }, []);
 
@@ -49,19 +51,17 @@ const Psychologist = () => {
 
     // Función para reservar una cita
     const handleReserveAppointment = (availableDateId) => {
-        const pacientId = userInfo.id;
-
-        if (!pacientId || !availableDateId) {
+        if (!userId || !availableDateId) {
             message.error('Error: Información de usuario incompleta. Por favor, inicie sesión nuevamente.');
             return;
         }
 
-        console.log('Datos de la reserva:', { pacientId, availableDateId });
+        console.log('Datos de la reserva:', { userId, availableDateId });
 
         const storedToken = localStorage.getItem('ACCESS_TOKEN');
 
         api.post('/appointment-reservation', {
-            pacientId: pacientId,
+            pacientId: userId,  // Usamos el ID del paciente desde localStorage
             availableDateId: availableDateId,
         }, {
             headers: {
@@ -158,27 +158,28 @@ const Psychologist = () => {
             <main className="psicologia-section" style={{ marginTop: '100px' }}>
                 <h1 className="text-xl font-bold">Cita psicología</h1>
 
-                {userInfo.name && (
+                {/* Mostramos los datos del usuario */}
+                {userName && (
                     <Form layout="vertical" style={formWrapperStyle}>
                         <Row gutter={16}>
                             <Col xs={24} sm={12} md={6}>
                                 <Form.Item label="Nombre">
-                                    <Input value={userInfo.name || ''} disabled />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} sm={12} md={6}>
-                                <Form.Item label="Programa académico">
-                                    <Input value={userInfo.plan || ''} disabled />
+                                    <Input value={userName || ''} disabled />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} sm={12} md={6}>
                                 <Form.Item label="Correo">
-                                    <Input value={userInfo.email || ''} disabled />
+                                    <Input value={userEmail || ''} disabled />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} sm={12} md={6}>
                                 <Form.Item label="Código">
-                                    <Input value={userInfo.username || ''} disabled />
+                                    <Input value={username || ''} disabled />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} sm={12} md={6}>
+                                <Form.Item label="Programa académico"> {/* Campo del plan académico */}
+                                    <Input value={userPlan || ''} disabled />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} sm={12} md={6}>
