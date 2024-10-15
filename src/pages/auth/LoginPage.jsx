@@ -1,10 +1,14 @@
 import React, { Fragment, useState } from "react";
 import { Card, Input, Button, message } from "antd";
-import { UserOutlined, EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import { useNavigate } from 'react-router-dom';
+import {
+  UserOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import "../../styles/background.css";
-import Header from '../../components/auth/Header';
-import api from '../../api';
+import Header from "../../components/auth/Header";
+import api from "../../api";
 import { ACCESS_TOKEN } from "../../constants";
 
 export default function LoginPage() {
@@ -14,18 +18,19 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const roleToRouteMap = {
-    "ADMINISTRADOR": "/usuarios",
-    "MONITOR": "/usuarios",
-    "ESTUDIANTE": "/citas",
-    "PSICOLOGO": "/beca",
-    "ENFERMERO": "/usuarios",
-    "ODONTOLOGO": "/usuarios",
-    "EXTERNO": "/usuarios",
+    ADMINISTRADOR: "/usuarios",
+    MONITOR: "/usuarios",
+    ESTUDIANTE: "/citas",
+    PSICOLOGO: "/beca",
+    ENFERMERO: "/becasEnf",
+    ODONTOLOGO: "/usuarios",
+    EXTERNO: "/usuarios",
+    FUNCIONARIO: "/citas",
   };
 
   const manejarClick = (e) => {
-    e.preventDefault(); 
-    navigate('/reestablecercontrasena'); 
+    e.preventDefault();
+    navigate("/reestablecercontrasena");
   };
 
   const handleLogin = async (e) => {
@@ -33,34 +38,43 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { username, password });
-      
+      const response = await api.post("/auth/login", { username, password });
+
       if (response.data && response.data.token) {
         const token = response.data.token;
         const userResponse = response.data.userResponse;
-        const roles = userResponse.roles.map(role => role.name);  // Extraer el array del rol
+        const roles = userResponse.roles.map((role) => role.name); // Extraer el array del rol
 
         // Guardar token y username en localStorage
         localStorage.setItem(ACCESS_TOKEN, token);
-        localStorage.setItem('username', username);
+        localStorage.setItem("username", username);
 
+        localStorage.setItem("userId", userResponse.id); // ID del usuario
+        localStorage.setItem("userName", userResponse.name); // Nombre del usuario
+        localStorage.setItem("userEmail", userResponse.email); // Email del usuario
+        localStorage.setItem("userPlan", userResponse.plan);
+        
         // message.success('Inicio de sesión exitoso');
 
         // Redireccionar basado en el rol
-        const userRole = roles[0];  //toma el primer rol
+        const userRole = roles[0]; //toma el primer rol
         const route = roleToRouteMap[userRole];
 
         if (route) {
           navigate(route);
         } else {
-          message.error('No se encontró una ruta correspondiente al rol del usuario');
+          message.error(
+            "No se encontró una ruta correspondiente al rol del usuario"
+          );
         }
       } else {
-        throw new Error('Token no recibido');
+        throw new Error("Token no recibido");
       }
     } catch (error) {
-      console.error('Error durante el inicio de sesión:', error);
-      message.error('Error en el inicio de sesión. Por favor, intente de nuevo.');
+      console.error("Error durante el inicio de sesión:", error);
+      message.error(
+        "Error en el inicio de sesión. Por favor, intente de nuevo."
+      );
     } finally {
       setLoading(false);
     }
@@ -71,22 +85,26 @@ export default function LoginPage() {
   return (
     <Fragment>
       <Header />
-      
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#F5F5F5",
-      }}>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "#F5F5F5",
+        }}
+      >
         <Card
           hoverable
           title={
-            <div style={{ 
-              textAlign: "center", 
-              fontSize: "24px",
-              color: "#C20E1A",
-            }}>
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "24px",
+                color: "#C20E1A",
+              }}
+            >
               Bienestar Universitario
             </div>
           }
@@ -108,7 +126,9 @@ export default function LoginPage() {
 
             <Input.Password
               placeholder="Contraseña"
-              iconRender={(visible) => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
               style={{ height: 33, width: "100%", marginBottom: 20 }}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -118,7 +138,7 @@ export default function LoginPage() {
               type="primary"
               htmlType="submit"
               loading={loading}
-              disabled={!isFormValid}  // Deshabilitar el botón si el formulario no es válido
+              disabled={!isFormValid} // Deshabilitar el botón si el formulario no es válido
               style={{
                 width: "100%",
                 height: 33,

@@ -31,12 +31,22 @@ import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
 import SchedulesPsych from "./pages/psychology/SchedulesPsych";
 import AgendaPsych from "./pages/psychology/AgendaPsych";
 import Tracking from "./pages/psychology/Tracking";
-import { MenuProvider } from './utils/MenuContext';  // Importar el MenuProvider>
-import { SettingsProvider } from './utils/SettingsContext';
+import { MenuProvider } from "./utils/MenuContext"; // Importar el MenuProvider>
+import { SettingsProvider } from "./utils/SettingsContext";
+import AgendaNurse from "./pages/nurse/AgendaNurse";
+import SettingNurse from "./pages/nurse/SettingNurse";
+import AppointmentsNurse from "./pages/nurse/AppointmentsNurse";
+import BecasNurse from "./pages/nurse/VisitsNurse";
+import HistoryNurse from "./pages/nurse/HistoryNurse";
+import InformNurse from "./pages/nurse/InformNurse";
+import SchedulesNurse from "./pages/nurse/SchedulesNurse";
+import VisitsNurse from "./pages/nurse/VisitsNurse";
 
 function App() {
   return (
-    <MenuProvider>  {/* proveedor del contexto */}
+    <MenuProvider>
+      {" "}
+      {/* proveedor del contexto */}
       <SettingsProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -44,22 +54,24 @@ function App() {
           <Route path="reestablecercontrasena" element={<RecoverPassword />} />
           <Route path="confirmarcontrasena" element={<ConfirmationPassword />} />
 
-        {/* Rutas para admin */}
-        <Route path="/usuarios" element={<ManagementUsers />} />
-        <Route path="/informes" element={<Informs />} />
-        <Route path="/VerInformes" element={<ViewInforms />} />
-        <Route path="/menu" element={<Menu />} /> {/* Este usará el contexto */}
-        <Route path="/becaAdm" element={<BecasAdmin />} />
-        <Route path="/citasAdm" element={<AppointmentsAdmin />} />
-        <Route path="/reservas" element={<Reservations />} />
-        <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
-        <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
-        <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
-        <Route path="/perfilAdmin" element={<SettingsAdmin />} />
-        <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
+          {/* Rutas para admin */}
+          <Route path="/usuarios" element={<ManagementUsers />} />
+          <Route path="/informes" element={<Informs />} />
+          <Route path="/VerInformes" element={<ViewInforms />} />
+          <Route path="/menu" element={<Menu />} />{" "}
+          {/* Este usará el contexto */}
+          <Route path="/becaAdm" element={<BecasAdmin />} />
+          <Route path="/citasAdm" element={<AppointmentsAdmin />} />
+          <Route path="/reservas" element={<Reservations />} />
+          <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
+          <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
+          <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
+          <Route path="/perfilAdmin" element={<SettingsAdmin />} />
+          <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
 
           {/* Rutas para Estudiante */}
-          <Route path="/becas" element={<Becas />} />  {/* Este usará el contexto */}
+          <Route path="/becas" element={<Becas />} />{" "}
+          {/* Este usará el contexto */}
           <Route path="/citas" element={<Appointments />} />
           <Route path="/ajustes" element={<Settings />} />
           <Route path="/cambiarContrasena" element={<ChangePassword />} />
@@ -73,6 +85,17 @@ function App() {
           <Route path="/horario" element={<SchedulesPsych />} />
           <Route path="/agenda" element={<AgendaPsych />} />
           <Route path="/seguimiento" element={<Tracking />} />
+
+          {/* Rutas para enfermeria */}
+          <Route path="/becasEnf" element={<BecasNurse />} />
+          <Route path="/citasEnf" element={<AppointmentsNurse />} />
+          <Route path="/horarios" element={<SchedulesNurse />} />
+          <Route path="/agendas" element={<AgendaNurse />} />
+          <Route path="/actividades" element={<VisitsNurse />} />
+          <Route path="/historial" element={<HistoryNurse />} />
+          <Route path="/informe" element={<InformNurse />} />
+          <Route path="/ajuste" element={<SettingNurse />} />
+
         </Routes>
       </SettingsProvider>
     </MenuProvider>

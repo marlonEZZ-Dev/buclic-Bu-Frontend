@@ -3,27 +3,45 @@ import { Button, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons'
 import PropTypes from "prop-types"
 
-const SearchInput = ({placeholder="Buscar",...props}) => {
+const SearchInput = ({ placeholder = "Buscar", onSearch, ...props }) => {
   const [hover, setHover] = useState(false);
+  const [value, setValue] = useState('');
+
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch(value);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setValue(e.target.value);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   return (
     <div style={styles.container}>
-      {/* Campo de entrada */}
       <Input
         placeholder={placeholder}
         style={styles.input}
+        value={value}
+        onChange={handleInputChange}
+        onKeyPress={handleKeyPress}
         {...props}
       />
 
-      {/* Botón de buscar con lupa */}
       <Button
         type="primary"
         icon={<SearchOutlined style={{ color: 'white' }} />}
         style={{ ...styles.button, backgroundColor: hover ? '#841F1C' : '#C20E1A', borderColor: hover ? '#841F1C' : '#C20E1A' }}
-        onMouseEnter={() => setHover(true)}  // Cuando el mouse está sobre el botón
-        onMouseLeave={() => setHover(false)} // Cuando el mouse sale del botón
-      >
-      </Button>
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={handleSearch}
+      />
     </div>
   );
 };
@@ -33,13 +51,13 @@ const styles = {
   container: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center', // Centrar horizontalmente
-    flexWrap: 'wrap', // Permitir que los elementos se ajusten en diferentes líneas si es necesario
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   input: {
-    flex: 1, // Permite que el input ocupe el espacio disponible
-    maxWidth: '300px', // Ancho máximo para pantallas grandes
-    marginRight: '10px', // Espacio entre el input y el botón
+    flex: 1,
+    maxWidth: '300px',
+    marginRight: '10px',
   },
   button: {
     color: 'white',
@@ -47,7 +65,8 @@ const styles = {
 };
 
 SearchInput.propTypes = {
-  placeholder : PropTypes.string
+  placeholder: PropTypes.string,
+  onSearch: PropTypes.func,
 }
 
 export default SearchInput;
