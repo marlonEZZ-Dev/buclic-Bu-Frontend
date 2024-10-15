@@ -1,132 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInput from '../../components/global/SearchInput.jsx';
 import TablePagination from '../../components/global/TablePagination.jsx';
 import { Card, Space, Button, Descriptions } from 'antd';
+import api from '../../api';
 
 const Reservations = () => {
+    const [reservations, setReservations] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10; // Máximo de elementos por página
+    const [totalItems, setTotalItems] = useState(0);
+    const itemsPerPage = 10;
 
-    const person = {
-        name: 'John Doe',
-        code: 2255675,
-        dateTime: new Date().toLocaleString(),
-        plan: '2724',
+    const formatDateTime = (fullDateTime) => {
+        const [date, timeWithMs] = fullDateTime.split("T");
+        const time = timeWithMs.split(".")[0];
+        return { date, time };
     };
 
-    // Datos para la tabla
-    const columns = ['Código', 'Nombre', 'Plan', 'Hora de Reserva'];
-    const rows = Array.from({ length: 25 }, (_, index) => [person.code + index, person.name + ' ' + index, person.plan, person.dateTime]); // Simulación de más datos
+    // Obtener reservas del backend
+    const fetchReservations = async (page) => {
+        try {
+            const response = await api.get(`reservations/all?page=${page - 1}&size=${itemsPerPage}`);
+            const { content, totalElements } = response.data;
+            setReservations(content);
+            setTotalItems(totalElements);
+        } catch (error) {
+            console.error("Error fetching reservations:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchReservations(currentPage);
+    }, [currentPage]);
 
     return (
         <>
             <HeaderAdmin />
-            <main style={styles.main}>
-                <Card bordered={true} style={styles.card}>
-                    <Space style={styles.titleSpace}>
+            <main
+                style={{
+                    marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center'
+                }}
+            >
+                <Card
+                    bordered={true}
+                    style={{
+                        width: '100%', maxWidth: '700px', marginTop: '100px', margin: '3px auto', justifyContent: 'center'
+                    }}
+                >
+                    <Space style={{ marginTop: '5px', alignItems: 'center' }}>
                         <h1 className="titleCard">Reservas realizadas</h1>
                     </Space>
 
                     <p>Aquí puedes buscar las personas que han reservado la beca de alimentación.</p>
 
-                    <div style={styles.searchContainer}>
+                    <div
+                        style={{
+                            width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px'
+                        }}
+                    >
                         <SearchInput />
                     </div>
 
-                    {/* Información de la persona con Descriptions */}
-                    <Descriptions
-                        title="Información de la persona"
-                        className="descriptions-title"
-                        bordered
-                        column={1} // Cambiado a 2 para mejor visualización
-                        style={styles.descriptions}
-                    >
-                        <Descriptions.Item label={<span style={styles.boldLabel}>Nombre</span>} className="descriptions-item">
-                            {person.name}
-                        </Descriptions.Item>
-
-                        <Descriptions.Item label={<span style={styles.boldLabel}>Código</span>} className="descriptions-item">
-                            {person.code}
-                        </Descriptions.Item>
-
-                        <Descriptions.Item label={<span style={styles.boldLabel}>Fecha y hora de la reserva</span>} className="descriptions-item">
-                            {person.dateTime}
-                        </Descriptions.Item>
-
-                        <Descriptions.Item label={<span style={styles.boldLabel}>Tipo beca</span>} className="descriptions-item">
-                            {person.plan}
-                        </Descriptions.Item>
-                    </Descriptions>
-
-                    {/* Botones */}
-                    <div style={styles.buttonContainer}>
-                        <Button type="primary" style={styles.payButton}>
-                            Pagó
-                        </Button>
-                        <Button type="default" htmlType="reset" className="button-cancel">
-                            Cancelar reserva
-                        </Button>
-                    </div>
+                    {/* Información de la persona con Descriptions (esto es opcional) */}
 
                     {/* Componente de Tabla con Paginación */}
                     <TablePagination
-                        rows={rows}
-                        columns={columns}
+                        rows={reservations.map(reservation => {
+                            const { date, time } = formatDateTime(reservation.data); // Extraer fecha y hora
+
+                            return [
+                                reservation.id,
+                                reservation.username,
+                                reservation.lunch ? 'Almuerzo' : 'Refrigerio',
+                                `${date} ${time}` // Mostrar fecha y hora en una sola celda, o separarlas si prefieres
+                            ];
+                        })}
+                        columns={['Código', 'Nombre', 'Tipo de Beca', 'Hora de Reserva']}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
                         onPageChange={setCurrentPage}
                     />
+
                 </Card>
             </main>
         </>
     );
-};
-
-const styles = {
-    main: {
-        marginTop: '100px',
-        padding: '0 20px',
-        display: 'flex',
-        justifyContent: 'center',
-    },
-    card: {
-        width: '100%',
-        maxWidth: '700px',
-        marginTop: '100px',
-        margin: '3px auto',
-        justifyContent: 'center',
-    },
-    titleSpace: {
-        marginTop: '5px',
-        alignItems: 'center',
-    },
-    descriptions: {
-        marginTop: '15px',
-        width: '100%', // Cambiado a 100% para ocupar el ancho completo
-        margin: 'auto',
-    },
-    boldLabel: {
-        fontWeight: 'bold', // Asegura que el texto en las etiquetas sea negrita
-    },
-    searchContainer: {
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: '20px',
-    },
-    buttonContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '10px',
-        marginTop: '20px',
-        marginBottom: '20px',
-    },
-    payButton: {
-        backgroundColor: '#52C41A',
-        borderColor: '#52C41A',
-        color: 'white',
-    },
 };
 
 export default Reservations;
