@@ -14,15 +14,6 @@ const getError = error => {
   }
 }
 
-const convertToBase64 = file => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = error => reject(error)
-  })
-}
-
 //PETICIONES GET
 export const listUsers = async (filter, page = 0, size = 10) => {
   try {
@@ -34,7 +25,7 @@ export const listUsers = async (filter, page = 0, size = 10) => {
 }
 
 export const searchUser = async (username) => {
-  const url = `/users/search?username=${username}`
+  const url = `/users/search/${username}`
   console.log(url);
   try {
     const response = await axios.get(url)
@@ -45,17 +36,17 @@ export const searchUser = async (username) => {
 }
 
 //PETICIONES POST
-export const createUser = async (obj) => {
+export const createUser = async (user) => {
   try{
     const response = await axios.post("/users", {
-      username: obj.username, //codigo
-      name: obj.name,
-      lastName: obj.lastName,
-      email: obj.email,
+      username: user.username, //codigo
+      name: user.name,
+      lastName: user.lastName,
+      email: user.email,
       password: "",
-      plan: obj.plan,
-      beca: obj.grant,
-      roles: obj.roles //tipo de usuario
+      plan: user.plan,
+      beca: user.grant,
+      roles: user.roles //tipo de usuario
     });
     if(response.status === 201) return "Usuario creado exitosamente" 
     
@@ -65,23 +56,11 @@ export const createUser = async (obj) => {
 }
 
 export const importUsers = async (role, fileCSV) => {
-  console.dir(fileCSV)
-  console.log(fileCSV instanceof File);
   try {
-    // const base64File = await convertToBase64(fileCSV)
-    // const payload = {
-    //   file: base64File
-    // }
     const formData = new FormData()
     formData.append("file",fileCSV)
-    // formData.append("role",role)
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]); // Imprime el nombre del campo y su valor
-    }
     const response = await axios.post(`/users/import?role=${role}`, formData)
-    console.dir(formData);
-    console.dir(response)
-    if (response.status === 200) {
+    if (response.status === 201) {
       return { success: true, message: "Archivo subido con éxito" };
     } else {
       return { success: false, message: "Error al subir archivo" };
@@ -92,6 +71,60 @@ export const importUsers = async (role, fileCSV) => {
 } 
 
 //PETICIONES PUT
-export const editUsers = () => {}
-export const deleteBeneficiaries = () => {}
-export const deleteBeneficiary = () => {}
+export const editUser = async (user) => {
+  const isLunch = () => user.lunchBeneficiary === "Beneficiaro almuerzo"
+  try {
+    const response = await axios.put("/users/edit",{
+      id:user.id,
+      username:user.username,
+      name: user.name,
+      lastName: user.lastName,
+      email: user.email,
+      plan: user.plan,
+      isActive: user.isActive,
+      lunchBeneficiary: isLunch(),
+      snackBeneficiary: !isLunch(),
+      roles: user.roles
+    })
+
+    if(response.status === 200 || response.status === 201){
+      return {success:true, message: "Usuario actulizado con éxito"}
+    }else{
+      return {success:false, message: "Error al enviar el usuario"}
+    }
+  } catch (error) {
+    return {success:false, message: getError(error).message}
+  }
+}
+
+export const deleteBeneficiary = async (username) => {
+  try {
+    const response = axios.put(`/users/delete/${username}`)
+
+    if(response.status === 200){
+      return {
+        success:true,
+        message:`usuario con código ${username} fue eliminado exitosamente`
+      }
+    }
+  } catch (error) {
+    return {success:false, message: getError(error).message}
+  }
+}
+
+export const deleteBeneficiaries = async () => {
+  try {
+    const response = axios.put("/users/delete")
+    if(response.status){
+      return {
+        success: true, 
+        message: "Todos los usuarios eliminados"
+      }
+    }
+  } catch (error) {
+    return {
+      success:false,
+      message: getError(error).message
+    }
+  }
+}
