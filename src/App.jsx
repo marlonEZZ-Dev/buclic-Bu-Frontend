@@ -41,6 +41,13 @@ import HistoryNurse from "./pages/nurse/HistoryNurse";
 import InformNurse from "./pages/nurse/InformNurse";
 import SchedulesNurse from "./pages/nurse/SchedulesNurse";
 import VisitsNurse from "./pages/nurse/VisitsNurse";
+import BecasDentist from "./pages/dentist/BecasDentist";
+import AppointmentDentist from "./pages/dentist/AppointmentDentist";
+import SchedulesDentist from "./pages/dentist/SchedulesDentist";
+import AgendaDentist from "./pages/dentist/AgendaDentist";
+import VisitsDentist from "./pages/dentist/VisitsDentist";
+import HistoryDentist from "./pages/dentist/HistoryDentist";
+import SettingDentist from "./pages/dentist/SetttingDentist";
 
 function App() {
   return (
@@ -96,6 +103,21 @@ function App() {
           <Route path="/informe" element={<InformNurse />} />
           <Route path="/ajuste" element={<SettingNurse />} />
 
+          {/* Rutas de odontología */}
+          <Route path="/becasDent" element={<BecasDentist/>} />
+          <Route path="/citasDent" element={<AppointmentDentist/>} />
+          <Route path="/horariosDent" element={<SchedulesDentist/>} />
+          <Route path="/agendaDent" element={<AgendaDentist/>} />
+          <Route path="/visitas" element={<VisitsDentist/>} />
+          <Route path="/historialDent" element={<HistoryDentist/>} />
+          <Route path="/ajustesDent" element={<SettingDentist/>} />
+
+          {/* Rutas de monitor */}
+
+
+          {/* Rutas de funcionario */}
+
+          {/* Rutas de externo */}
         </Routes>
       </SettingsProvider>
     </MenuProvider>

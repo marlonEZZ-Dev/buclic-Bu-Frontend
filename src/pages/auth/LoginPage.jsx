@@ -23,7 +23,7 @@ export default function LoginPage() {
     ESTUDIANTE: "/citas",
     PSICOLOGO: "/beca",
     ENFERMERO: "/becasEnf",
-    ODONTOLOGO: "/usuarios",
+    ODONTOLOGO: "/becasDent",
     EXTERNO: "/usuarios",
     FUNCIONARIO: "/citas",
   };
