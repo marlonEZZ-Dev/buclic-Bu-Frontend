@@ -53,6 +53,16 @@ import AppointmentMonitor from "./pages/monitor/AppointmentMonitor";
 import Reservation from "./pages/monitor/Reservation";
 import MenuMonitor from "./pages/monitor/MenuMonitor";
 import SettingMonitor from "./pages/monitor/SettingMonitor";
+import ChangePasswordWorker from "./pages/worker/ChangePasswordWorker";
+import AppointmentsWorker from "./pages/worker/AppointmentsWorker"
+import BecasWorker from "./pages/worker/BecasWorker"
+import DentistWorker from "./pages/worker/DentistWorker"
+import NursingWorker from "./pages/worker/NursingWorker"
+import PsychologistWorker from "./pages/worker/PsychologistWorker"
+import SettingWorker from "./pages/worker/SettingWorker"
+import BecasExternal from "./pages/external/BecasExternal";
+import SettingExternal from "./pages/external/SettingExternal";
+import ChangePasswordExt from "./pages/external/ChangePasswordExt";
 
 function App() {
   return (
@@ -125,9 +135,19 @@ function App() {
           <Route path="/ajustesMon" element={<SettingMonitor/>} />
 
           {/* Rutas de funcionario */}
-
+          <Route path="/becasFuncionario" element={<BecasWorker />} />{" "}
+          <Route path="/citasFuncionario" element={<AppointmentsWorker />} />
+          <Route path="/ajustesFuncionario" element={<SettingWorker />} />
+          <Route path="/cambiarContrasenia" element={<ChangePasswordWorker />} />
+          <Route path="/psicologiaFuncionario" element={<PsychologistWorker />} />
+          <Route path="/enfermeriaFuncionario" element={<NursingWorker />} />
+          <Route path="/odontologiaFuncionario" element={<DentistWorker />} />
+         
           {/* Rutas de externo */}
-          
+          <Route path="/becasExt" element={<BecasExternal />} />{" "}
+          <Route path="/ajustesExt" element={<SettingExternal />} />
+          <Route path="/cambiarContrasenaExt" element={<ChangePasswordExt />} />
+
         </Routes>
       </SettingsProvider>
     </MenuProvider>

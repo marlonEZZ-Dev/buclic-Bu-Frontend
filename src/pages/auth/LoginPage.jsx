@@ -24,8 +24,8 @@ export default function LoginPage() {
     PSICOLOGO: "/beca",
     ENFERMERO: "/becasEnf",
     ODONTOLOGO: "/becasDent",
-    EXTERNO: "/usuarios",
-    FUNCIONARIO: "/citas",
+    EXTERNO: "/becasExt",
+    FUNCIONARIO: "/becasFuncionario",
   };
 
   const manejarClick = (e) => {
