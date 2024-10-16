@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import PropTypes from "prop-types";
 
-const SearchInput = ({ placeholder = "Buscar", onClick = () => { }, onChange = () => { }, ...props }) => {
+const SearchInputR = ({ placeholder = "Buscar", onSearch, ...props }) => {
   const [hover, setHover] = useState(false);
+  const [value, setValue] = useState('');
+
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch(value);
+    }
+  };
 
   const handleInputChange = (e) => {
-    onChange(e);
+    setValue(e.target.value);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   return (
@@ -15,27 +28,23 @@ const SearchInput = ({ placeholder = "Buscar", onClick = () => { }, onChange = (
       <Input
         placeholder={placeholder}
         style={styles.input}
+        value={value}
         onChange={handleInputChange}
+        onKeyPress={handleKeyPress}
         {...props}
       />
       <Button
         type="primary"
         icon={<SearchOutlined style={{ color: 'white' }} />}
-        style={{
-          ...styles.button,
-          backgroundColor: hover ? '#841F1C' : '#C20E1A',
-          borderColor: hover ? '#841F1C' : '#C20E1A'
-        }}
+        style={{ ...styles.button, backgroundColor: hover ? '#841F1C' : '#C20E1A', borderColor: hover ? '#841F1C' : '#C20E1A' }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        onClick={onClick}
-      >
-      </Button>
+        onClick={handleSearch}
+      />
     </div>
   );
 };
 
-// Estilos en línea originales
 const styles = {
   container: {
     display: 'flex',
@@ -53,10 +62,9 @@ const styles = {
   },
 };
 
-SearchInput.propTypes = {
+SearchInputR.propTypes = {
   placeholder: PropTypes.string,
-  onClick: PropTypes.func,
-  onChange: PropTypes.func
+  onSearch: PropTypes.func,
 };
 
-export default SearchInput;
+export default SearchInputR;

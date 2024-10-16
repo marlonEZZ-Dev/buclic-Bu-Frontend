@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../api';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
-import SearchInput from '../../components/global/SearchInput.jsx';
+import SearchInputR from '../../components/global/SearchInputR.jsx';
 import TablePagination from '../../components/global/TablePagination.jsx';
 import { Card, Space, Descriptions, Button, message } from 'antd';
 
@@ -139,7 +139,7 @@ const Reservations = () => {
                             marginTop: '20px'
                         }}
                     >
-                        <SearchInput onSearch={handleSearch} />
+                        <SearchInputR onSearch={handleSearch} />
                     </div>
 
                     {/* Información de la persona con Descriptions */}
