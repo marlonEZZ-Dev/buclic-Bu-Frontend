@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { Drawer, Button } from "antd";
 import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 
-export default function HeaderDentist(props) {
+export default function HeaderMonitor(props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false); // Controla si el menú hamburguesa está abierto
@@ -78,48 +78,34 @@ export default function HeaderDentist(props) {
           >
             <ul className="drawer-menu">
               <li
-                onClick={() => handleButtonClick("/odontologia/becas")}
-                className={location.pathname === "/odontologia/becas" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/becas")}
+                className={location.pathname === "/monitor/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/citas")}
-                className={location.pathname === "/odontologia/citas" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/citas")}
+                className={location.pathname === "/monitor/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/horarios")}
+                onClick={() => handleButtonClick("/monitor/reservas")}
                 className={
-                  location.pathname === "/odontologia/horarios" ? "active" : ""
+                  location.pathname === "/monitor/reservas" ? "active" : ""
                 }
               >
-                Horarios
+                Reservas
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/agenda")}
-                className={location.pathname === "/odontologia/agenda" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/menu")}
+                className={location.pathname === "/monitor/menu" ? "active" : ""}
               >
-                Agenda
+                Menú  del día
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/visitas")}
-                className={location.pathname === "/odontologia/visitas" ? "active" : ""}
-              >
-                Visitas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/odontologia/historial")}
-                className={
-                  location.pathname === "/odontologia/historial" ? "active" : ""
-                }
-              >
-                Historial
-              </li>
-              <li
-                onClick={() => handleButtonClick("/odontologia/ajustes")}
-                className={location.pathname === "/odontologia/ajustes" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/ajustes")}
+                className={location.pathname === "/monitor/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -136,49 +122,35 @@ export default function HeaderDentist(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
-              <li
-                onClick={() => handleButtonClick("/odontologia/becas")}
-                className={location.pathname === "/odontologia/becas" ? "active" : ""}
+            <li
+                onClick={() => handleButtonClick("/monitor/becas")}
+                className={location.pathname === "/monitor/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/citas")}
-                className={location.pathname === "/odontologia/citas" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/citas")}
+                className={location.pathname === "/monitor/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/horarios")}
+                onClick={() => handleButtonClick("/monitor/reservas")}
                 className={
-                  location.pathname === "/odontologia/horarios" ? "active" : ""
+                  location.pathname === "/monitor/reservas" ? "active" : ""
                 }
               >
-                Horarios
+                Reservas
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/agenda")}
-                className={location.pathname === "/odontologia/agenda" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/menu")}
+                className={location.pathname === "/monitor/menu" ? "active" : ""}
               >
-                Agenda
+                Menú  del día
               </li>
               <li
-                onClick={() => handleButtonClick("/odontologia/visitas")}
-                className={location.pathname === "/odontologia/visitas" ? "active" : ""}
-              >
-                Visitas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/odontologia/historial")}
-                className={
-                  location.pathname === "/odontologia/historial" ? "active" : ""
-                }
-              >
-                Historial
-              </li>
-              <li
-                onClick={() => handleButtonClick("/odontologia/ajustes")}
-                className={location.pathname === "/odontologia/ajustes" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/ajustes")}
+                className={location.pathname === "/monitor/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>

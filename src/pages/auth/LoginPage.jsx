@@ -18,14 +18,14 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const roleToRouteMap = {
-    ADMINISTRADOR: "/usuarios",
-    MONITOR: "/usuarios",
-    ESTUDIANTE: "/citas",
-    PSICOLOGO: "/beca",
-    ENFERMERO: "/becasEnf",
-    ODONTOLOGO: "/becasDent",
-    EXTERNO: "/usuarios",
-    FUNCIONARIO: "/citas",
+    ADMINISTRADOR: "/admin/usuarios",
+    MONITOR: "/monitor/becas",
+    ESTUDIANTE: "/estudiante/citas",
+    PSICOLOGO: "/psicologo/beca",
+    ENFERMERO: "/enfermeria/becas",
+    ODONTOLOGO: "/odontologia/becas",
+    EXTERNO: "/externo/becas",
+    FUNCIONARIO: "/funcionario/becas",
   };
 
   const manejarClick = (e) => {
@@ -36,50 +36,47 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const response = await api.post("/auth/login", { username, password });
-
+  
       if (response.data && response.data.token) {
         const token = response.data.token;
         const userResponse = response.data.userResponse;
-        const roles = userResponse.roles.map((role) => role.name); // Extraer el array del rol
-
-        // Guardar token y username en localStorage
+        const roles = userResponse.roles.map((role) => role.name); // Verifica que el rol se extrae correctamente
+  
+        console.log("Roles del usuario:", roles);
+  
+        // Guardar token y datos en localStorage
         localStorage.setItem(ACCESS_TOKEN, token);
         localStorage.setItem("username", username);
-
-        localStorage.setItem("userId", userResponse.id); // ID del usuario
-        localStorage.setItem("userName", userResponse.name); // Nombre del usuario
-        localStorage.setItem("userEmail", userResponse.email); // Email del usuario
+        localStorage.setItem("userId", userResponse.id);
+        localStorage.setItem("userName", userResponse.name);
+        localStorage.setItem("userEmail", userResponse.email);
         localStorage.setItem("userPlan", userResponse.plan);
-        
-        // message.success('Inicio de sesión exitoso');
-
+  
         // Redireccionar basado en el rol
-        const userRole = roles[0]; //toma el primer rol
+        const userRole = roles[0]; // Se toma el primer rol
+        localStorage.setItem("userRole", userRole); // Guardar el rol del usuario en localStorage
         const route = roleToRouteMap[userRole];
-
+  
         if (route) {
           navigate(route);
         } else {
-          message.error(
-            "No se encontró una ruta correspondiente al rol del usuario"
-          );
+          message.error("No se encontró una ruta correspondiente al rol del usuario");
         }
       } else {
         throw new Error("Token no recibido");
       }
     } catch (error) {
       console.error("Error durante el inicio de sesión:", error);
-      message.error(
-        "Error en el inicio de sesión. Por favor, intente de nuevo."
-      );
+      message.error("Error en el inicio de sesión. Por favor, intente de nuevo.");
     } finally {
       setLoading(false);
     }
   };
-
+  
+  
   const isFormValid = username !== "" && password !== "";
 
   return (

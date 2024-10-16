@@ -79,50 +79,50 @@ export default function HeaderNurse(props) {
             <ul className="drawer-menu">
             
               <li
-                onClick={() => handleButtonClick("/becasEnf")}
-                className={location.pathname === "/becasEnf" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/becas")}
+                className={location.pathname === "/enfermeria/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasEnf")}
-                className={location.pathname === "/citasEnf" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/citas")}
+                className={location.pathname === "/enfermeria/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/horarios")}
-                className={location.pathname === "/horarios" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/horarios")}
+                className={location.pathname === "/enfermeria/horarios" ? "active" : ""}
               >
                 Horarios
               </li>
               <li
-                onClick={() => handleButtonClick("/agendas")}
-                className={location.pathname === "/agendas" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/agendas")}
+                className={location.pathname === "/enfermeria/agendas" ? "active" : ""}
               >
                 Agenda
               </li>
               <li
-                onClick={() => handleButtonClick("/actividades")}
-                className={location.pathname === "/actividades" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/actividades")}
+                className={location.pathname === "/enfermeria/actividades" ? "active" : ""}
               >
                 Actividades
               </li>
               <li
-                onClick={() => handleButtonClick("/historial")}
-                className={location.pathname === "/historial" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/historial")}
+                className={location.pathname === "/enfermeria/historial" ? "active" : ""}
               >
                 Historial
               </li>
               <li
-                onClick={() => handleButtonClick("/informe")}
+                onClick={() => handleButtonClick("/enfermeria/informe")}
                 className={location.pathname === "/informe" ? "active" : ""}
               >
                 Informes
               </li>
               <li
-                onClick={() => handleButtonClick("/ajuste")}
-                className={location.pathname === "/ajuste" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/ajuste")}
+                className={location.pathname === "/enfermeria/ajuste" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -140,50 +140,50 @@ export default function HeaderNurse(props) {
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
               <li
-                onClick={() => handleButtonClick("/becasEnf")}
-                className={location.pathname === "/becasEnf" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/becas")}
+                className={location.pathname === "/enfermeria/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasEnf")}
-                className={location.pathname === "/citasEnf" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/citas")}
+                className={location.pathname === "/enfermeria/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/horarios")}
-                className={location.pathname === "/horarios" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/horarios")}
+                className={location.pathname === "/enfermeria/horarios" ? "active" : ""}
               >
                 Horarios
               </li>
               <li
-                onClick={() => handleButtonClick("/agendas")}
-                className={location.pathname === "/agendas" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/agendas")}
+                className={location.pathname === "/enfermeria/agendas" ? "active" : ""}
               >
                 Agenda
               </li>
               <li
-                onClick={() => handleButtonClick("/actividades")}
-                className={location.pathname === "/actividades" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/actividades")}
+                className={location.pathname === "/enfermeria/actividades" ? "active" : ""}
               >
                 Actividades
               </li>
               <li
-                onClick={() => handleButtonClick("/historial")}
-                className={location.pathname === "/historial" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/historial")}
+                className={location.pathname === "/enfermeria/historial" ? "active" : ""}
               >
                 Historial
               </li>
               <li
-                onClick={() => handleButtonClick("/informe")}
-                className={location.pathname === "/informe" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/informe")}
+                className={location.pathname === "/enfermeria/informe" ? "active" : ""}
               >
                 Informes
               </li>
               <li
-                onClick={() => handleButtonClick("/ajuste")}
-                className={location.pathname === "/ajuste" ? "active" : ""}
+                onClick={() => handleButtonClick("/enfermeria/ajuste")}
+                className={location.pathname === "/enfermeria/ajuste" ? "active" : ""}
               >
                 Ajustes
               </li>

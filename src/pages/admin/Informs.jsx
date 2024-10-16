@@ -66,7 +66,7 @@ const CombinedReports = () => {
 
       const response = await api.post('/report', reportRequest);
       message.success('Informe generado exitosamente');
-      fetchReports(); // Recargar los informes después de generar uno nuevo
+      fetchReports();
     } catch (error) {
       console.error('Error al generar informe:', error);
       message.error(`No se pudo generar el informe: ${error.response?.data?.message || error.message}`);
@@ -83,23 +83,63 @@ const CombinedReports = () => {
     setReportToDelete(null);
   };
 
+  const handleDeleteConfirm = async () => {
+    try {
+      await api.delete(`/report/delete/${reportToDelete}`);
+      message.success('Informe eliminado correctamente');
+      setIsDeleteModalVisible(false);
+      setReportToDelete(null);
+      fetchReports();
+    } catch (error) {
+      console.error('Error al eliminar informe:', error);
+      message.error(`No se pudo eliminar el informe: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  const handleDownload = async (reportId) => {
+    try {
+      const response = await api.get(`/report/download/${reportId}`, {
+        responseType: 'blob',
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_${reportId}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      message.success('Informe descargado exitosamente');
+    } catch (error) {
+      console.error('Error al descargar informe:', error);
+      message.error(`No se pudo descargar el informe: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   const renderActions = (reportId) => (
     <span>
       <Button icon={<EyeOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} />
-      <Button icon={<DownloadOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} />
+      <Button 
+        icon={<DownloadOutlined />} 
+        style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} 
+        onClick={() => handleDownload(reportId)}
+      />
       <Button icon={<DeleteOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }} onClick={() => showDeleteConfirm(reportId)} />
     </span>
   );
 
   const handlePageChange = (page) => {
     console.log('Página actual:', page);
-    setCurrentPage(page - 1); // Restamos 1 porque la API usa base 0 para las páginas
+    setCurrentPage(page - 1);
   };
 
   const handleSearch = (value) => {
     setSearchTerm(value);
-    setCurrentPage(0); // Reiniciar a la primera página al buscar
-    fetchReports(); // Llamar a fetchReports después de actualizar searchTerm y currentPage
+    setCurrentPage(0);
+    fetchReports();
   };
 
   const formatReportData = (report) => {
@@ -202,7 +242,7 @@ const CombinedReports = () => {
           <TablePagination
             rows={reports.map(formatReportData)}
             columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
-            currentPage={currentPage + 1} // Sumamos 1 porque TablePagination usa base 1
+            currentPage={currentPage + 1}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />
@@ -217,7 +257,7 @@ const CombinedReports = () => {
               <Button onClick={handleDeleteCancel} style={{ marginRight: '10px' }}>
                 Cancelar
               </Button>
-              <Button type="primary" danger>
+              <Button type="primary" danger onClick={handleDeleteConfirm}>
                 Aceptar
               </Button>
             </div>
