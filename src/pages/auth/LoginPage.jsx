@@ -19,13 +19,13 @@ export default function LoginPage() {
 
   const roleToRouteMap = {
     ADMINISTRADOR: "/usuarios",
-    MONITOR: "/usuarios",
+    MONITOR: "/becasMon",
     ESTUDIANTE: "/citas",
     PSICOLOGO: "/beca",
     ENFERMERO: "/becasEnf",
     ODONTOLOGO: "/becasDent",
-    EXTERNO: "/usuarios",
-    FUNCIONARIO: "/citas",
+    EXTERNO: "/becasExt",
+    FUNCIONARIO: "/becasFuncionario",
   };
 
   const manejarClick = (e) => {
