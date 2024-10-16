@@ -48,6 +48,11 @@ import AgendaDentist from "./pages/dentist/AgendaDentist";
 import VisitsDentist from "./pages/dentist/VisitsDentist";
 import HistoryDentist from "./pages/dentist/HistoryDentist";
 import SettingDentist from "./pages/dentist/SetttingDentist";
+import BecasMonitor from "./pages/monitor/BecasMonitor";
+import AppointmentMonitor from "./pages/monitor/AppointmentMonitor";
+import Reservation from "./pages/monitor/Reservation";
+import MenuMonitor from "./pages/monitor/MenuMonitor";
+import SettingMonitor from "./pages/monitor/SettingMonitor";
 
 function App() {
   return (
@@ -113,11 +118,16 @@ function App() {
           <Route path="/ajustesDent" element={<SettingDentist/>} />
 
           {/* Rutas de monitor */}
-
+          <Route path="/becasMon" element={<BecasMonitor/>} />
+          <Route path="/citasMon" element={<AppointmentMonitor/>} />
+          <Route path="/reserva" element={<Reservation/>} />
+          <Route path="/menus" element={<MenuMonitor/>} />
+          <Route path="/ajustesMon" element={<SettingMonitor/>} />
 
           {/* Rutas de funcionario */}
 
           {/* Rutas de externo */}
+          
         </Routes>
       </SettingsProvider>
     </MenuProvider>
