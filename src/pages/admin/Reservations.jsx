@@ -1,50 +1,128 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import api from '../../api';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInput from '../../components/global/SearchInput.jsx';
 import TablePagination from '../../components/global/TablePagination.jsx';
-import { Card, Space, Button, Descriptions } from 'antd';
-import api from '../../api';
+import { Card, Space, Descriptions, Button, message } from 'antd';
 
 const Reservations = () => {
-    const [reservations, setReservations] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalItems, setTotalItems] = useState(0);
-    const itemsPerPage = 10;
+    const [reservationData, setReservationData] = useState(null);
 
-    const formatDateTime = (fullDateTime) => {
-        const [date, timeWithMs] = fullDateTime.split("T");
-        const time = timeWithMs.split(".")[0];
-        return { date, time };
-    };
-
-    // Obtener reservas del backend
-    const fetchReservations = async (page) => {
+    const handleSearch = async (username) => {
         try {
-            const response = await api.get(`reservations/all?page=${page - 1}&size=${itemsPerPage}`);
-            const { content, totalElements } = response.data;
-            setReservations(content);
-            setTotalItems(totalElements);
+            const response = await api.get(`/reservations/by-username/${username}`);
+            setReservationData(response.data[0]); // Aquí traes la respuesta
         } catch (error) {
-            console.error("Error fetching reservations:", error);
+            message.error('No se pudo encontrar la reserva para el usuario.');
+            setReservationData(null); // Limpiar si no hay resultados
         }
     };
 
-    useEffect(() => {
-        fetchReservations(currentPage);
-    }, [currentPage]);
+    // Función para registrar el pago
+    const handlePayment = async () => {
+        if (!reservationData) {
+            console.log("No hay datos de reserva disponibles.");
+            return;
+        }
+
+        try {
+            // Verifica el ID de la reserva y el username
+            console.log("Datos de reserva:", reservationData);
+            console.log("Intentando registrar pago para el usuario:", reservationData.userName);
+
+            const paymentRequest = {
+                username: reservationData.userName, // Enviar el nombre de usuario
+                paid: true, // Indicar que se ha pagado
+            };
+
+            const response = await api.put('/reservations/register-payment', paymentRequest);
+
+            // Verifica la respuesta del backend
+            console.log("Respuesta del servidor:", response.data);
+
+            // Mostrar mensaje de éxito
+            message.success(response.data.message);
+
+            // Limpiar los datos de la reserva después de registrar el pago
+            setReservationData(null);
+        } catch (error) {
+            // Muestra el error si algo sale mal
+            console.error("Error al intentar registrar el pago:", error);
+            message.error('No se pudo registrar el pago.');
+        }
+    };
+
+    const handleCancel = async () => {
+        if (!reservationData) {
+            console.log("No hay datos de reserva disponibles para cancelar.");
+            return;
+        }
+
+        try {
+            // Verifica el ID de la reserva
+            console.log("Intentando cancelar la reserva con ID:", reservationData.reservationId);
+
+            const response = await api.delete(`/reservations/cancel/${reservationData.reservationId}`);
+
+            // Verifica la respuesta del backend
+            console.log("Respuesta del servidor:", response.data);
+
+            // Mostrar mensaje de éxito
+            message.success(response.data.message);
+
+            // Limpiar los datos de la reserva después de cancelar
+            setReservationData(null);
+        } catch (error) {
+            // Muestra el error si algo sale mal
+            console.error("Error al intentar cancelar la reserva:", error);
+            message.error('No se pudo cancelar la reserva.');
+        }
+    };
+
+
+
+    // Función para formatear la fecha
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD (ISO)
+    };
+
+    // Función para formatear la hora
+    const formatTime = (timeString) => {
+        return timeString.substring(0, 8); // Solo los primeros 8 caracteres "hh:mm:ss"
+    };
+
+    // Estilos personalizados para los botones
+    const styles = {
+        buttonContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: '20px',
+        },
+        payButton: {
+            marginRight: '10px',
+        },
+    };
 
     return (
         <>
             <HeaderAdmin />
             <main
                 style={{
-                    marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center'
+                    marginTop: '100px',
+                    padding: '0 20px',
+                    display: 'flex',
+                    justifyContent: 'center'
                 }}
             >
                 <Card
                     bordered={true}
                     style={{
-                        width: '100%', maxWidth: '700px', marginTop: '100px', margin: '3px auto', justifyContent: 'center'
+                        width: '100%',
+                        maxWidth: '700px',
+                        marginTop: '100px',
+                        margin: '3px auto',
+                        justifyContent: 'center'
                     }}
                 >
                     <Space style={{ marginTop: '5px', alignItems: 'center' }}>
@@ -55,32 +133,73 @@ const Reservations = () => {
 
                     <div
                         style={{
-                            width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px'
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            marginTop: '20px'
                         }}
                     >
-                        <SearchInput />
+                        <SearchInput onSearch={handleSearch} />
                     </div>
 
-                    {/* Información de la persona con Descriptions (esto es opcional) */}
+                    {/* Información de la persona con Descriptions */}
+                    {reservationData && (
+                        <>
+                            <Descriptions
+                                title="Información de la persona"
+                                className="descriptions-title"
+                                bordered
+                                column={1}
+                                style={{
+                                    marginTop: '15px',
+                                    width: '100%',
+                                    margin: 'auto'
+                                }}
+                            >
+                                <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Nombre</span>} className="descriptions-item">
+                                    {`${reservationData.name} ${reservationData.lastname}`}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Código</span>} className="descriptions-item">
+                                    {reservationData.userName}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Fecha y hora de la reserva</span>} className="descriptions-item">
+                                    {`${formatDate(reservationData.date)} ${formatTime(reservationData.time)}`}
+                                </Descriptions.Item>
+
+                                <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Tipo beca</span>} className="descriptions-item">
+                                    {reservationData.lunch && reservationData.snack
+                                        ? "Almuerzo y Refrigerio"
+                                        : reservationData.lunch
+                                            ? "Almuerzo"
+                                            : reservationData.snack
+                                                ? "Refrigerio"
+                                                : "Sin beneficio"}
+                                </Descriptions.Item>
+                            </Descriptions>
+
+                            {/* Botones */}
+                            <div style={styles.buttonContainer}>
+                                <Button type="primary" style={styles.payButton} onClick={handlePayment}>
+                                    Pagó
+                                </Button>
+                                <Button type="default" htmlType="reset" className="button-cancel" onClick={handleCancel}>
+                                    Cancelar reserva
+                                </Button>
+
+                            </div>
+                        </>
+                    )}
 
                     {/* Componente de Tabla con Paginación */}
                     <TablePagination
-                        rows={reservations.map(reservation => {
-                            const { date, time } = formatDateTime(reservation.data); // Extraer fecha y hora
-
-                            return [
-                                reservation.id,
-                                reservation.username,
-                                reservation.lunch ? 'Almuerzo' : 'Refrigerio',
-                                `${date} ${time}` // Mostrar fecha y hora en una sola celda, o separarlas si prefieres
-                            ];
-                        })}
-                        columns={['Código', 'Nombre', 'Tipo de Beca', 'Hora de Reserva']}
-                        currentPage={currentPage}
-                        itemsPerPage={itemsPerPage}
-                        onPageChange={setCurrentPage}
+                        rows={[]}  // Eliminar datos de ejemplo
+                        columns={['Código', 'Nombre', 'Plan', 'Hora de Reserva']} // Columnas de ejemplo
+                        currentPage={1}  // Página inicial
+                        itemsPerPage={10}  // Elementos por página
+                        onPageChange={() => { }}  // Eliminamos lógica de paginación
                     />
-
                 </Card>
             </main>
         </>

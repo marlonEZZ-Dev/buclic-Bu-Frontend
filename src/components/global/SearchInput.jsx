@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons'
-import PropTypes from "prop-types"
+import { SearchOutlined } from '@ant-design/icons';
+import PropTypes from "prop-types";
 
 const SearchInput = ({ placeholder = "Buscar", onSearch, ...props }) => {
   const [hover, setHover] = useState(false);
@@ -33,7 +33,6 @@ const SearchInput = ({ placeholder = "Buscar", onSearch, ...props }) => {
         onKeyPress={handleKeyPress}
         {...props}
       />
-
       <Button
         type="primary"
         icon={<SearchOutlined style={{ color: 'white' }} />}
@@ -46,7 +45,6 @@ const SearchInput = ({ placeholder = "Buscar", onSearch, ...props }) => {
   );
 };
 
-// Estilos en línea
 const styles = {
   container: {
     display: 'flex',
@@ -67,6 +65,6 @@ const styles = {
 SearchInput.propTypes = {
   placeholder: PropTypes.string,
   onSearch: PropTypes.func,
-}
+};
 
 export default SearchInput;
