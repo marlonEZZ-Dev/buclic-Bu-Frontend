@@ -81,11 +81,11 @@ export default function HeaderPsych(props) {
             styles={{ body: { paddingBottom: 80 } }} // Cambiado de "bodyStyle" a "styles.body"
           >
             <ul className="drawer-menu">
-              <li onClick={() => handleButtonClick("/beca")} className={location.pathname === "/beca" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/cita")} className={location.pathname === "/cita" ? "active" : ""}>Citas</li>
-              <li onClick={() => handleButtonClick("/horario")} className={location.pathname === "/horario" ? "active" : ""}>Horarios</li>
-              <li onClick={() => handleButtonClick("/agenda")} className={location.pathname === "/agenda" ? "active" : ""}>Agenda</li>
-              <li onClick={() => handleButtonClick("/seguimiento")} className={location.pathname === "/seguimiento" ? "active" : ""}>Seguimiento</li>
+              <li onClick={() => handleButtonClick("/psicologo/beca")} className={location.pathname === "/psicologo/beca" ? "active" : ""}>Becas</li>
+              <li onClick={() => handleButtonClick("/psicologo/cita")} className={location.pathname === "/psicologo/cita" ? "active" : ""}>Citas</li>
+              <li onClick={() => handleButtonClick("/psicologo/horario")} className={location.pathname === "/psicologo/horario" ? "active" : ""}>Horarios</li>
+              <li onClick={() => handleButtonClick("/psicologo/agenda")} className={location.pathname === "/psicologo/agenda" ? "active" : ""}>Agenda</li>
+              <li onClick={() => handleButtonClick("/psicologo/seguimiento")} className={location.pathname === "/psicologo/seguimiento" ? "active" : ""}>Seguimiento</li>
             </ul>
             
             {/* Botón de cerrar sesión en la parte inferior del Drawer */}
@@ -99,11 +99,11 @@ export default function HeaderPsych(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu`}>
             <ul>
-              <li onClick={() => handleButtonClick("/beca")} className={location.pathname === "/beca" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/cita")} className={location.pathname === "/cita" ? "active" : ""}>Citas</li>
-              <li onClick={() => handleButtonClick("/horario")} className={location.pathname === "/horario" ? "active" : ""}>Horarios</li>
-              <li onClick={() => handleButtonClick("/agenda")} className={location.pathname === "/agenda" ? "active" : ""}>Agenda</li>
-              <li onClick={() => handleButtonClick("/seguimiento")} className={location.pathname === "/seguimiento" ? "active" : ""}>Seguimiento</li>
+              <li onClick={() => handleButtonClick("/psicologo/beca")} className={location.pathname === "/psicologo/beca" ? "active" : ""}>Becas</li>
+              <li onClick={() => handleButtonClick("/psicologo/cita")} className={location.pathname === "/psicologo/cita" ? "active" : ""}>Citas</li>
+              <li onClick={() => handleButtonClick("/psicologo/horario")} className={location.pathname === "/psicologo/horario" ? "active" : ""}>Horarios</li>
+              <li onClick={() => handleButtonClick("/psicologo/agenda")} className={location.pathname === "/psicologo/agenda" ? "active" : ""}>Agenda</li>
+              <li onClick={() => handleButtonClick("/psicologo/seguimiento")} className={location.pathname === "/psicologo/seguimiento" ? "active" : ""}>Seguimiento</li>
             </ul>
           </nav>
 

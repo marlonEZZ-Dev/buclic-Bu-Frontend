@@ -38,7 +38,7 @@ const AppointmentsAdmin = () => {
           {/* Opción 1: Psicología */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/psicologiaAdmin')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/admin/psicologiaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
@@ -56,7 +56,7 @@ const AppointmentsAdmin = () => {
           {/* Opción 2: Enfermería - Médico general */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/enfermeriaAdmin')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/admin/enfermeriaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
@@ -74,7 +74,7 @@ const AppointmentsAdmin = () => {
           {/* Opción 3: Odontología */}
           <article 
             style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
-            onClick={() => handleNavigation('/odontologiaAdmin')} // Manejo de clic para redirigir
+            onClick={() => handleNavigation('/admin/odontologiaAdmin')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
               image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
