@@ -9,11 +9,9 @@ import TablePagination from '../../components/global/TablePagination.jsx';
 import Modal from '../../components/global/Modal.jsx';
 import api from '../../api';
 
-
 const CombinedReports = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [reports, setReports] = useState([]);
   const [selectedType, setSelectedType] = useState("Diarios");
   const [selectedBeca, setSelectedBeca] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -29,18 +27,27 @@ const CombinedReports = () => {
   const columnsDaily = ['Fecha generado', 'Beca', 'Acciones'];
   const columnsSemestral = ['Beca', 'Semestre', 'Acciones'];
 
+  const fetchReports = useCallback(async () => {
+    try {
+      const filter = selectedType === "Diarios" ? "diario" : "semester";
+      const response = await api.get(`/report/list?filter=${filter}&page=${currentPage}&size=${itemsPerPage}&search=${searchTerm}`);
+      setReports(response.data.content);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      message.error('No se pudieron cargar los informes');
+    }
+  }, [selectedType, currentPage, searchTerm]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
+
   useEffect(() => {
     setSelectedBeca(null);
     setSemesterInput('');
     setSearchTerm('');
+    setCurrentPage(0);
   }, [selectedType]);
-
-  useEffect(() => {
-    const filtered = rows.filter(row =>
-      row.some(cell => cell.toString().toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilteredRows(filtered);
-  }, [searchTerm, rows]);
 
   const generateReport = useCallback(async (beca) => {
     if (selectedType === "Semestrales" && !semesterInput) {
@@ -57,35 +64,18 @@ const CombinedReports = () => {
         users: []
       };
 
-      console.log('Datos del informe a enviar:', reportRequest);
-
       const response = await api.post('/report', reportRequest);
-      console.log('Respuesta del servidor:', response.data);
-
       message.success('Informe generado exitosamente');
-      // Aquí podrías actualizar el estado de tu componente con el nuevo informe si es necesario
+      fetchReports(); // Recargar los informes después de generar uno nuevo
     } catch (error) {
-      console.error('Error al generar informe:', error.response ? error.response.data : error.message);
-      if (error.response && error.response.status === 404) {
-        message.error('No se encontró la ruta para generar el informe. Verifica la URL de la API.');
-      } else if (error.response && error.response.status === 401) {
-        message.error('No estás autorizado. Por favor, inicia sesión nuevamente.');
-      } else {
-        message.error(`No se pudo generar el informe: ${error.response ? error.response.data.message : error.message}`);
-      }
+      console.error('Error al generar informe:', error);
+      message.error(`No se pudo generar el informe: ${error.response?.data?.message || error.message}`);
     }
-  }, [selectedType, semesterInput]);
+  }, [selectedType, semesterInput, fetchReports]);
 
-  const showDeleteConfirm = (index) => {
-    setReportToDelete(index);
+  const showDeleteConfirm = (reportId) => {
+    setReportToDelete(reportId);
     setIsDeleteModalVisible(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    console.log(`Eliminando informe ${reportToDelete}`);
-    setIsDeleteModalVisible(false);
-    setReportToDelete(null);
-    message.success('Informe eliminado exitosamente');
   };
 
   const handleDeleteCancel = () => {
@@ -93,20 +83,31 @@ const CombinedReports = () => {
     setReportToDelete(null);
   };
 
-  const renderActions = (index) => (
-    <span key={index}>
+  const renderActions = (reportId) => (
+    <span>
       <Button icon={<EyeOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} />
       <Button icon={<DownloadOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} />
-      <Button icon={<DeleteOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }} onClick={() => showDeleteConfirm(index)} />
+      <Button icon={<DeleteOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }} onClick={() => showDeleteConfirm(reportId)} />
     </span>
   );
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    console.log('Página actual:', page);
+    setCurrentPage(page - 1); // Restamos 1 porque la API usa base 0 para las páginas
   };
 
   const handleSearch = (value) => {
     setSearchTerm(value);
+    setCurrentPage(0); // Reiniciar a la primera página al buscar
+    fetchReports(); // Llamar a fetchReports después de actualizar searchTerm y currentPage
+  };
+
+  const formatReportData = (report) => {
+    if (selectedType === "Diarios") {
+      return [report.date, report.beca, renderActions(report.id)];
+    } else {
+      return [report.beca, report.semester, renderActions(report.id)];
+    }
   };
 
   return (
@@ -153,9 +154,6 @@ const CombinedReports = () => {
               <p style={{ textAlign: 'center' }}>
                 Aquí puedes buscar los informes diarios generados a través de la fecha
               </p>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '20px' }}>
-                <SearchInput onSearch={handleSearch} />
-              </div>
             </>
           ) : (
             <>
@@ -194,18 +192,19 @@ const CombinedReports = () => {
               <p style={{ textAlign: 'center' }}>
                 Aquí puedes buscar los informes semestrales generados a través del semestre
               </p>
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <SearchInput onSearch={handleSearch} />
-              </div>
             </>
           )}
 
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '20px' }}>
+            <SearchInput onSearch={handleSearch} />
+          </div>
+
           <TablePagination
-            rows={filteredRows}
+            rows={reports.map(formatReportData)}
             columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
-            currentPage={currentPage}
+            currentPage={currentPage + 1} // Sumamos 1 porque TablePagination usa base 1
             itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
+            onPageChange={setCurrentPage}
           />
 
           <Modal
@@ -213,12 +212,12 @@ const CombinedReports = () => {
             onClose={handleDeleteCancel}
             modalTitle="Confirmar eliminación"
           >
-            <p>¿Desea eliminar el informe {selectedType === "Diarios" ? "diario" : "semestral"} {selectedBeca} #{reportToDelete}?</p>
+            <p>¿Desea eliminar el informe {selectedType === "Diarios" ? "diario" : "semestral"} seleccionado?</p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
               <Button onClick={handleDeleteCancel} style={{ marginRight: '10px' }}>
                 Cancelar
               </Button>
-              <Button onClick={handleDeleteConfirm} type="primary" danger>
+              <Button type="primary" danger>
                 Aceptar
               </Button>
             </div>
