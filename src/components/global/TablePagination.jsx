@@ -1,14 +1,14 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 
-const TablePagination = ({ 
-    rows= [],
-    columns= [],
-    currentPage= 0, 
-    itemsPerPage= 0,
-    onPageChange= () => {}, 
-    onRowClick= () => {},
-    }) => {
+const TablePagination = ({
+    rows = [],
+    columns = [],
+    currentPage = 0,
+    itemsPerPage = 0,
+    onPageChange = () => { },
+    onRowClick = () => { },
+}) => {
     let isRowNull = rows === null
     const headerStyle = {
         backgroundColor: '#CFCFCF',
@@ -57,8 +57,8 @@ const TablePagination = ({
     };
 
     return (
-        <div 
-        style={{ textAlign: 'center', margin: '20px 0' }}>
+        <div
+            style={{ textAlign: 'center', margin: '20px 0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
@@ -71,9 +71,9 @@ const TablePagination = ({
                 </thead>
                 <tbody>
                     {currentItems.map((row, rowIndex) => (
-                        <tr 
-                        key={rowIndex}
-                        onClick={() => onRowClick(row)}>
+                        <tr
+                            key={rowIndex}
+                            onClick={() => onRowClick(row)}>
                             {row.map((cell, cellIndex) => (
                                 <td key={cellIndex} style={cellStyle}>
                                     {cell}
@@ -86,8 +86,8 @@ const TablePagination = ({
 
             {/* Paginación */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                <button 
-                    onClick={() => onPageChange(currentPage - 1)} 
+                <button
+                    onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si está en la primera página
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
@@ -96,8 +96,8 @@ const TablePagination = ({
                     <LeftOutlined /> Anterior
                 </button>
                 <div style={pageIndicatorStyle}> {currentPage}</div>
-                <button 
-                    onClick={() => onPageChange(currentPage + 1)} 
+                <button
+                    onClick={() => onPageChange(currentPage + 1)}
                     disabled={indexOfLastItem >= (isRowNull ? 0 : rows.length)}
                     style={{ ...buttonStyle, ...(indexOfLastItem >= (isRowNull ? 0 : rows.length) ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si no hay más elementos
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
@@ -111,12 +111,12 @@ const TablePagination = ({
 };
 
 TablePagination.propTypes = {
-    rows : PropTypes.array,
-    columns : PropTypes.array,
-    currentPage : PropTypes.number,
+    rows: PropTypes.array,
+    columns: PropTypes.array,
+    currentPage: PropTypes.number,
     itemsPerPage: PropTypes.number,
-    onPageChange : PropTypes.func,
-    onRowClick : PropTypes.func
+    onPageChange: PropTypes.func,
+    onRowClick: PropTypes.func
 }
 
 export default TablePagination;

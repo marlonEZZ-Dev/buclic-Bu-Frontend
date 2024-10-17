@@ -78,34 +78,34 @@ export default function HeaderMonitor(props) {
           >
             <ul className="drawer-menu">
               <li
-                onClick={() => handleButtonClick("/becasMon")}
-                className={location.pathname === "/becasMon" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/becas")}
+                className={location.pathname === "/monitor/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasMon")}
-                className={location.pathname === "/citasMon" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/citas")}
+                className={location.pathname === "/monitor/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/reserva")}
+                onClick={() => handleButtonClick("/monitor/reservas")}
                 className={
-                  location.pathname === "/reserva" ? "active" : ""
+                  location.pathname === "/monitor/reservas" ? "active" : ""
                 }
               >
                 Reservas
               </li>
               <li
-                onClick={() => handleButtonClick("/menus")}
-                className={location.pathname === "/menus" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/menu")}
+                className={location.pathname === "/monitor/menu" ? "active" : ""}
               >
                 Menú  del día
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesMon")}
-                className={location.pathname === "/ajustesMon" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/ajustes")}
+                className={location.pathname === "/monitor/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -123,34 +123,34 @@ export default function HeaderMonitor(props) {
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
             <li
-                onClick={() => handleButtonClick("/becasMon")}
-                className={location.pathname === "/becasMon" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/becas")}
+                className={location.pathname === "/monitor/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasMon")}
-                className={location.pathname === "/citasMon" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/citas")}
+                className={location.pathname === "/monitor/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/reserva")}
+                onClick={() => handleButtonClick("/monitor/reservas")}
                 className={
-                  location.pathname === "/reserva" ? "active" : ""
+                  location.pathname === "/monitor/reservas" ? "active" : ""
                 }
               >
                 Reservas
               </li>
               <li
-                onClick={() => handleButtonClick("/menus")}
-                className={location.pathname === "/menus" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/menu")}
+                className={location.pathname === "/monitor/menu" ? "active" : ""}
               >
-                Menú del día
+                Menú  del día
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesMon")}
-                className={location.pathname === "/ajustesMon" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/ajustes")}
+                className={location.pathname === "/monitor/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>

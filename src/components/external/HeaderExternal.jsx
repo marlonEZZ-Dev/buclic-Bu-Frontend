@@ -79,14 +79,14 @@ export default function HeaderExternal(props) {
             <ul className="drawer-menu">
             
               <li
-                onClick={() => handleButtonClick("/becasExt")}
-                className={location.pathname === "/becasExt" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/becas")}
+                className={location.pathname === "/externo/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesExt")}
-                className={location.pathname === "/ajustesExt" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/ajustes")}
+                className={location.pathname === "/externo/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -104,14 +104,14 @@ export default function HeaderExternal(props) {
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
             <li
-                onClick={() => handleButtonClick("/becasExt")}
-                className={location.pathname === "/becasExt" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/becas")}
+                className={location.pathname === "/externo/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesExt")}
-                className={location.pathname === "/ajustesExt" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/ajustes")}
+                className={location.pathname === "/externo/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>

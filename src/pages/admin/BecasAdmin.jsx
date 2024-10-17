@@ -3,7 +3,7 @@ import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import Tables from '../../components/global/Tables';
 import MenuBecas from '../../components/global/MenuBecas';
 import { Button, message } from 'antd';
-import api from '../../api';  // Asegúrate de tener configurada la API
+import api from '../../api';
 
 const BecasAdmin = () => {
   const [menuData, setMenuData] = useState({ Almuerzo: {}, Refrigerio: {} });  // Estado para almacenar el menú

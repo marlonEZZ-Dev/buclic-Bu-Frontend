@@ -79,20 +79,20 @@ export default function HeaderWorker(props) {
             <ul className="drawer-menu">
             
               <li
-                onClick={() => handleButtonClick("/becasFuncionario")}
-                className={location.pathname === "/becasFuncionario" ? "active" : ""}
+                onClick={() => handleButtonClick("/funcionario/becas")}
+                className={location.pathname === "/funcionario/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasFuncionario")}
-                className={location.pathname === "/citasFuncionario" ? "active" : ""}
+                onClick={() => handleButtonClick("/funcionario/citas")}
+                className={location.pathname === "/funcionario/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesFuncionario")}
-                className={location.pathname === "/ajustesFuncionario" ? "active" : ""}
+                onClick={() => handleButtonClick("funcionario/ajustes")}
+                className={location.pathname === "/funcionario/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -111,20 +111,20 @@ export default function HeaderWorker(props) {
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
             <li
-                onClick={() => handleButtonClick("/becasFuncionario")}
-                className={location.pathname === "/becasFuncionario" ? "active" : ""}
+                onClick={() => handleButtonClick("/funcionario/becas")}
+                className={location.pathname === "/funcionario/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasFuncionario")}
-                className={location.pathname === "/citasFuncionario" ? "active" : ""}
+                onClick={() => handleButtonClick("/funcionario/citas")}
+                className={location.pathname === "/funcionario/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesFuncionario")}
-                className={location.pathname === "/ajustesFuncionario" ? "active" : ""}
+                onClick={() => handleButtonClick("/funcionario/ajustes")}
+                className={location.pathname === "/funcionario/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>

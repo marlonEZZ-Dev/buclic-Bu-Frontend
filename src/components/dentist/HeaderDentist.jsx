@@ -78,48 +78,48 @@ export default function HeaderDentist(props) {
           >
             <ul className="drawer-menu">
               <li
-                onClick={() => handleButtonClick("/becasDent")}
-                className={location.pathname === "/becasDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/becas")}
+                className={location.pathname === "/odontologia/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasDent")}
-                className={location.pathname === "/citasDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/citas")}
+                className={location.pathname === "/odontologia/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/horariosDent")}
+                onClick={() => handleButtonClick("/odontologia/horarios")}
                 className={
-                  location.pathname === "/horariosDent" ? "active" : ""
+                  location.pathname === "/odontologia/horarios" ? "active" : ""
                 }
               >
                 Horarios
               </li>
               <li
-                onClick={() => handleButtonClick("/agendaDent")}
-                className={location.pathname === "/agendaDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/agenda")}
+                className={location.pathname === "/odontologia/agenda" ? "active" : ""}
               >
                 Agenda
               </li>
               <li
-                onClick={() => handleButtonClick("/visitas")}
-                className={location.pathname === "/visitas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/visitas")}
+                className={location.pathname === "/odontologia/visitas" ? "active" : ""}
               >
                 Visitas
               </li>
               <li
-                onClick={() => handleButtonClick("/historialDent")}
+                onClick={() => handleButtonClick("/odontologia/historial")}
                 className={
-                  location.pathname === "/historialDent" ? "active" : ""
+                  location.pathname === "/odontologia/historial" ? "active" : ""
                 }
               >
                 Historial
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesDent")}
-                className={location.pathname === "/ajustesDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/ajustes")}
+                className={location.pathname === "/odontologia/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -137,48 +137,48 @@ export default function HeaderDentist(props) {
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
               <li
-                onClick={() => handleButtonClick("/becasDent")}
-                className={location.pathname === "/becasDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/becas")}
+                className={location.pathname === "/odontologia/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/citasDent")}
-                className={location.pathname === "/citasDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/citas")}
+                className={location.pathname === "/odontologia/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/horariosDent")}
+                onClick={() => handleButtonClick("/odontologia/horarios")}
                 className={
-                  location.pathname === "/horariosDent" ? "active" : ""
+                  location.pathname === "/odontologia/horarios" ? "active" : ""
                 }
               >
                 Horarios
               </li>
               <li
-                onClick={() => handleButtonClick("/agendaDent")}
-                className={location.pathname === "/agendaDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/agenda")}
+                className={location.pathname === "/odontologia/agenda" ? "active" : ""}
               >
                 Agenda
               </li>
               <li
-                onClick={() => handleButtonClick("/visitas")}
-                className={location.pathname === "/visitas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/visitas")}
+                className={location.pathname === "/odontologia/visitas" ? "active" : ""}
               >
                 Visitas
               </li>
               <li
-                onClick={() => handleButtonClick("/historialDent")}
+                onClick={() => handleButtonClick("/odontologia/historial")}
                 className={
-                  location.pathname === "/historialDent" ? "active" : ""
+                  location.pathname === "/odontologia/historial" ? "active" : ""
                 }
               >
                 Historial
               </li>
               <li
-                onClick={() => handleButtonClick("/ajustesDent")}
-                className={location.pathname === "/ajustesDent" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/ajustes")}
+                className={location.pathname === "/odontologia/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>

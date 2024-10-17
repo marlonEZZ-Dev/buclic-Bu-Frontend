@@ -63,6 +63,9 @@ import SettingWorker from "./pages/worker/SettingWorker"
 import BecasExternal from "./pages/external/BecasExternal";
 import SettingExternal from "./pages/external/SettingExternal";
 import ChangePasswordExt from "./pages/external/ChangePasswordExt";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { Outlet } from "react-router-dom";
+
 
 function App() {
   return (
@@ -71,82 +74,102 @@ function App() {
       {/* proveedor del contexto */}
       <SettingsProvider>
         <Routes>
+
           <Route path="/" element={<HomePage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="reestablecercontrasena" element={<RecoverPassword />} />
           <Route path="confirmarcontrasena" element={<ConfirmationPassword />} />
 
-          {/* Rutas para admin */}
-          <Route path="/usuarios" element={<ManagementUsers />} />
-          <Route path="/informes" element={<Informs />} />
-          <Route path="/VerInformes" element={<ViewInforms />} />
-          <Route path="/menu" element={<Menu />} />{" "}
-          {/* Este usará el contexto */}
-          <Route path="/becaAdm" element={<BecasAdmin />} />
-          <Route path="/citasAdm" element={<AppointmentsAdmin />} />
-          <Route path="/reservas" element={<Reservations />} />
-          <Route path="/enfermeriaAdmin" element={<NursingAdmin />} />
-          <Route path="/psicologiaAdmin" element={<PsychologistAdmin />} />
-          <Route path="/odontologiaAdmin" element={<DentistAdmin />} />
-          <Route path="/perfilAdmin" element={<SettingsAdmin />} />
-          <Route path="/contrasenaAdmin" element={<PasswordAdmin />} />
+          
+        <Route path="/admin" element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de administrador */}
+        <Route path="usuarios" element={<ManagementUsers />} />
+        <Route path="informes" element={<Informs />} />
+        <Route path="VerInformes" element={<ViewInforms />} />
+        <Route path="menu" element={<Menu />} />
+        <Route path="becaAdm" element={<BecasAdmin />} />
+        <Route path="citasAdm" element={<AppointmentsAdmin />} />
+        <Route path="reservas" element={<Reservations />} />
+        <Route path="enfermeriaAdmin" element={<NursingAdmin />} />
+        <Route path="psicologiaAdmin" element={<PsychologistAdmin />} />
+        <Route path="odontologiaAdmin" element={<DentistAdmin />} />
+        <Route path="perfilAdmin" element={<SettingsAdmin />} />
+        <Route path="contrasenaAdmin" element={<PasswordAdmin />} />
 
-          {/* Rutas para Estudiante */}
-          <Route path="/becas" element={<Becas />} />{" "}
-          {/* Este usará el contexto */}
-          <Route path="/citas" element={<Appointments />} />
-          <Route path="/ajustes" element={<Settings />} />
-          <Route path="/cambiarContrasena" element={<ChangePassword />} />
-          <Route path="/psicologia" element={<Psychologist />} />
-          <Route path="/enfermeria" element={<Nursing />} />
-          <Route path="/odontologia" element={<Dentist />} />
+        </Route>
 
-          {/* Rutas para Psicologo */}
-          <Route path="/beca" element={<BecasPsych />} />
-          <Route path="/cita" element={<AppointmentsPsych />} />
-          <Route path="/horario" element={<SchedulesPsych />} />
-          <Route path="/agenda" element={<AgendaPsych />} />
-          <Route path="/seguimiento" element={<Tracking />} />
+        <Route path="/estudiante" element={<ProtectedRoute allowedRoles={["ESTUDIANTE"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de estudiante */}
+        <Route path="becas" element={<Becas />} />
+        <Route path="citas" element={<Appointments />} />
+        <Route path="ajustes" element={<Settings />} />
+        <Route path="cambiarContrasena" element={<ChangePassword />} />
+        <Route path="psicologia" element={<Psychologist />} />
+        <Route path="enfermeria" element={<Nursing />} />
+        <Route path="odontologia" element={<Dentist />} />
 
-          {/* Rutas para enfermeria */}
-          <Route path="/becasEnf" element={<BecasNurse />} />
-          <Route path="/citasEnf" element={<AppointmentsNurse />} />
-          <Route path="/horarios" element={<SchedulesNurse />} />
-          <Route path="/agendas" element={<AgendaNurse />} />
-          <Route path="/actividades" element={<VisitsNurse />} />
-          <Route path="/historial" element={<HistoryNurse />} />
-          <Route path="/informe" element={<InformNurse />} />
-          <Route path="/ajuste" element={<SettingNurse />} />
+        </Route>
 
-          {/* Rutas de odontología */}
-          <Route path="/becasDent" element={<BecasDentist/>} />
-          <Route path="/citasDent" element={<AppointmentDentist/>} />
-          <Route path="/horariosDent" element={<SchedulesDentist/>} />
-          <Route path="/agendaDent" element={<AgendaDentist/>} />
-          <Route path="/visitas" element={<VisitsDentist/>} />
-          <Route path="/historialDent" element={<HistoryDentist/>} />
-          <Route path="/ajustesDent" element={<SettingDentist/>} />
+        <Route path="/psicologo" element={<ProtectedRoute allowedRoles={["PSICOLOGO"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de psicólogo */}
+        <Route path="beca" element={<BecasPsych />} />
+        <Route path="cita" element={<AppointmentsPsych />} />
+        <Route path="horario" element={<SchedulesPsych />} />
+        <Route path="agenda" element={<AgendaPsych />} />
+        <Route path="seguimiento" element={<Tracking />} />
 
-          {/* Rutas de monitor */}
-          <Route path="/becasMon" element={<BecasMonitor/>} />
-          <Route path="/citasMon" element={<AppointmentMonitor/>} />
-          <Route path="/reserva" element={<Reservation/>} />
-          <Route path="/menus" element={<MenuMonitor/>} />
-          <Route path="/ajustesMon" element={<SettingMonitor/>} />
+        </Route>
 
-          {/* Rutas de funcionario */}
-          <Route path="/becasFuncionario" element={<BecasWorker />} />{" "}
-          <Route path="/citasFuncionario" element={<AppointmentsWorker />} />
-          <Route path="/ajustesFuncionario" element={<SettingWorker />} />
-          <Route path="/cambiarContrasenia" element={<ChangePasswordWorker />} />
-          <Route path="/psicologiaFuncionario" element={<PsychologistWorker />} />
-          <Route path="/enfermeriaFuncionario" element={<NursingWorker />} />
-          <Route path="/odontologiaFuncionario" element={<DentistWorker />} />
-         
-          {/* Rutas de externo */}
-          <Route path="/becasExt" element={<BecasExternal />} />{" "}
-          <Route path="/ajustesExt" element={<SettingExternal />} />
-          <Route path="/cambiarContrasenaExt" element={<ChangePasswordExt />} />
+        <Route path="/enfermeria" element={<ProtectedRoute allowedRoles={["ENFERMERO"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de enfermería */}
+        <Route path="becas" element={<BecasNurse />} />
+        <Route path="citas" element={<AppointmentsNurse />} />
+        <Route path="horarios" element={<SchedulesNurse />} />
+        <Route path="agendas" element={<AgendaNurse />} />
+        <Route path="actividades" element={<VisitsNurse />} />
+        <Route path="historial" element={<HistoryNurse />} />
+        <Route path="informe" element={<InformNurse />} />
+        <Route path="ajuste" element={<SettingNurse />} />
+
+        </Route>
+
+        <Route path="/odontologia" element={<ProtectedRoute allowedRoles={["ODONTOLOGO"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de odontología */}
+        <Route path="becas" element={<BecasDentist />} />
+        <Route path="citas" element={<AppointmentDentist />} />
+        <Route path="horarios" element={<SchedulesDentist />} />
+        <Route path="agenda" element={<AgendaDentist />} />
+        <Route path="visitas" element={<VisitsDentist />} />
+        <Route path="historial" element={<HistoryDentist />} />
+        <Route path="ajustes" element={<SettingDentist />} />
+        </Route>
+
+        <Route path="/monitor" element={<ProtectedRoute allowedRoles={["MONITOR"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de monitor */}
+        <Route path="becas" element={<BecasMonitor />} />
+        <Route path="citas" element={<AppointmentMonitor />} />
+        <Route path="reservas" element={<Reservation />} />
+        <Route path="menu" element={<MenuMonitor />} />
+        <Route path="ajustes" element={<SettingMonitor />} />
+        </Route>
+
+        <Route path="/funcionario" element={<ProtectedRoute allowedRoles={["FUNCIONARIO"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de funcionario */}
+        <Route path="becas" element={<BecasWorker />} />
+        <Route path="citas" element={<AppointmentsWorker />} />
+        <Route path="ajustes" element={<SettingWorker />} />
+        <Route path="cambiarContrasena" element={<ChangePasswordWorker />} />
+        <Route path="psicologia" element={<PsychologistWorker />} />
+        <Route path="enfermeria" element={<NursingWorker />} />
+        <Route path="odontologia" element={<DentistWorker />} />
+        </Route>
+
+        <Route path="/externo" element={<ProtectedRoute allowedRoles={["EXTERNO"]}><Outlet /></ProtectedRoute>}>
+        {/* Rutas hijas de externo */}
+        <Route path="becas" element={<BecasExternal />} />
+        <Route path="ajustes" element={<SettingExternal />} />
+        <Route path="cambiarContrasena" element={<ChangePasswordExt />} />
+        </Route>
 
         </Routes>
       </SettingsProvider>
