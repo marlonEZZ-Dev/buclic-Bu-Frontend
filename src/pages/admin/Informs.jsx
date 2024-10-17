@@ -5,6 +5,7 @@ import axios from 'axios';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
 import SearchInput from '../../components/global/SearchInput.jsx';
+import { useNavigate } from 'react-router-dom';
 import TablePagination from '../../components/global/TablePagination.jsx';
 import Modal from '../../components/global/Modal.jsx';
 import api from '../../api';
@@ -12,6 +13,7 @@ import api from '../../api';
 const CombinedReports = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [reports, setReports] = useState([]);
+  const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState("Diarios");
   const [selectedBeca, setSelectedBeca] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -101,7 +103,7 @@ const CombinedReports = () => {
       const response = await api.get(`/report/download/${reportId}`, {
         responseType: 'blob',
       });
-      
+
       const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -121,15 +123,24 @@ const CombinedReports = () => {
 
   const renderActions = (reportId) => (
     <span>
-      <Button icon={<EyeOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} />
-      <Button 
-        icon={<DownloadOutlined />} 
-        style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }} 
+      <Button icon={<EyeOutlined />}
+        style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
+        onClick={handleViewInform}
+      />
+      <Button
+        icon={<DownloadOutlined />}
+        style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
         onClick={() => handleDownload(reportId)}
       />
-      <Button icon={<DeleteOutlined />} style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }} onClick={() => showDeleteConfirm(reportId)} />
+      <Button icon={<DeleteOutlined />}
+        style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
+        onClick={() => showDeleteConfirm(reportId)} />
     </span>
   );
+
+  const handleViewInform = () => {
+    navigate('/VerInformes');
+  };
 
   const handlePageChange = (page) => {
     console.log('Página actual:', page);
