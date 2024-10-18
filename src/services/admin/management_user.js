@@ -59,7 +59,11 @@ export const importUsers = async (role, fileCSV) => {
   try {
     const formData = new FormData()
     formData.append("file",fileCSV)
-    const response = await axios.post(`/users/import?role=${role}`, formData)
+    const response = await axios.post(`/users/import?role=${role}`, formData,
+      {headers:{
+        'Content-Type': 'multipart/form-data'
+      }}
+    )
     if (response.status === 201) {
       return { success: true, message: "Archivo subido con éxito" };
     } else {
