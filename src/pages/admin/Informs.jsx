@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Input, message } from 'antd';
-import { EyeOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { Button, Input, message, DatePicker } from 'antd';
+import { EyeOutlined, DownloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
-import SearchInput from '../../components/global/SearchInput.jsx';
-import { useNavigate } from 'react-router-dom';
 import TablePagination from '../../components/global/TablePagination.jsx';
 import Modal from '../../components/global/Modal.jsx';
 import api from '../../api';
+import { useNavigate } from 'react-router-dom';
 
 const CombinedReports = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -20,6 +18,7 @@ const CombinedReports = () => {
   const [reportToDelete, setReportToDelete] = useState(null);
   const [semesterInput, setSemesterInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateSearch, setDateSearch] = useState(null);
 
   const itemsPerPage = 10;
   const buttons = [
@@ -127,7 +126,7 @@ const CombinedReports = () => {
 
   const renderActions = (reportId) => (
     <span>
-      <Button 
+      <Button
         icon={<EyeOutlined />}
         style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
         onClick={() => handleViewReport(reportId)}
@@ -137,10 +136,10 @@ const CombinedReports = () => {
         style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
         onClick={() => handleDownload(reportId)}
       />
-      <Button 
+      <Button
         icon={<DeleteOutlined />}
         style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
-        onClick={() => showDeleteConfirm(reportId)} 
+        onClick={() => showDeleteConfirm(reportId)}
       />
     </span>
   );
@@ -150,10 +149,34 @@ const CombinedReports = () => {
     setCurrentPage(page - 1);
   };
 
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-    setCurrentPage(0);
-    fetchReports();
+  const handleCustomSearch = async () => {
+    try {
+      let endpoint;
+      let searchValue;
+
+      if (selectedType === "Diarios") {
+        if (!dateSearch) {
+          message.warning('Por favor, seleccione una fecha para buscar.');
+          return;
+        }
+        searchValue = dateSearch.format('YYYY-MM-DD');
+        endpoint = `/report/date/${searchValue}`;
+      } else {
+        if (!semesterInput) {
+          message.warning('Por favor, ingrese un semestre para buscar.');
+          return;
+        }
+        searchValue = semesterInput;
+        endpoint = `/report/semester/${searchValue}`;
+      }
+
+      const response = await api.get(endpoint);
+      setReports(response.data);
+      message.success('Búsqueda realizada con éxito');
+    } catch (error) {
+      console.error('Error en la búsqueda:', error);
+      message.error(`No se pudo realizar la búsqueda: ${error.response?.data?.message || error.message}`);
+    }
   };
 
   const formatReportData = (report) => {
@@ -208,6 +231,24 @@ const CombinedReports = () => {
               <p style={{ textAlign: 'center' }}>
                 Aquí puedes buscar los informes diarios generados a través de la fecha
               </p>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <DatePicker 
+                  style={{ marginRight: '10px' }}
+                  onChange={(date) => setDateSearch(date)}
+                />
+                <Button
+                  icon={<SearchOutlined />}
+                  style={{
+                    backgroundColor: '#C20E1A',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                  onClick={handleCustomSearch}
+                >
+                  Buscar por Fecha
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -246,12 +287,28 @@ const CombinedReports = () => {
               <p style={{ textAlign: 'center' }}>
                 Aquí puedes buscar los informes semestrales generados a través del semestre
               </p>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <Input
+                  placeholder="Semestre informe ej: 2024-2"
+                  style={{ width: 200, marginRight: '10px' }}
+                  value={semesterInput}
+                  onChange={(e) => setSemesterInput(e.target.value)}
+                />
+                <Button
+                  icon={<SearchOutlined />}
+                  style={{
+                    backgroundColor: '#C20E1A',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                  onClick={handleCustomSearch}
+                >
+                  Buscar por Semestre
+                </Button>
+              </div>
             </>
           )}
-
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '20px' }}>
-            <SearchInput onSearch={handleSearch} />
-          </div>
 
           <TablePagination
             rows={reports.map(formatReportData)}
