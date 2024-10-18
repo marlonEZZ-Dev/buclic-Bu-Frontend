@@ -7,7 +7,7 @@ import StateUser from "../../components/global/StateUser.jsx"
 import TablePagination from "../../components/global/TablePagination.jsx"
 import Tables from "../../components/global/Tables.jsx"
 
-import { Card, Flex, Select } from "antd"
+import { Card, Flex } from "antd"
 import {ExclamationCircleOutlined} from "@ant-design/icons"
 import dayjs from "dayjs"
 import 'dayjs/locale/es'
@@ -24,15 +24,10 @@ export default function AgendaPsych(){
 	const [whoClicked, setWhoClicked] = useState("")
   
 	let date = dayjs()
-	
-	const cbxPsych = [
-		{value:"psicologo1", label:"Psicólogo 1"},
-		{value:"psicologo2", label:"Psicólogo 2"}
-	]
 
-	const appointmentPendingColums = ["Hora","Paciente", "Psicólogo (a)", "Asistencia"]
+	const appointmentPendingColums = ["Hora","Paciente", "Télefono", "Asistencia"]
 	
-	const appointmentDoneColums = ["Horario cita","Paciente", "Código/Cédula", "Asistencia"]
+	const appointmentDoneColums = ["Horario cita","Paciente", "Télefono", "Asistencia"]
 	
 	const handlerAttendanceClick = (event) => {
 		setEnableConfirm(true)
@@ -42,7 +37,7 @@ export default function AgendaPsych(){
 
 	const rowsAppoinmentPending = [
 		[
-			"2 PM","Carolina Perez",<Select key={1}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={1} justify="space-around" align="center">
+			"2 PM","Carolina Perez",123456789, <Flex key={1} justify="space-around" align="center">
 				<button 
 				name="btnAttendance" 
 				onClick={handlerAttendanceClick} 
@@ -57,14 +52,14 @@ export default function AgendaPsych(){
 				</button>
 				</Flex>],
 		[
-			"3 PM","José Casanova",<Select key={2}	placeholder="Selecciona" options={cbxPsych}/>, <Flex key={2} justify="space-around" align="center">
+			"3 PM","José Casanova",123456789, <Flex key={2} justify="space-around" align="center">
 				<button name="btnAttendance" onClick={handlerAttendanceClick} className={styles.assistance}><Attendance non={false}/></button>
 				<button name="btnNonAttendance" onClick={handlerAttendanceClick} className={styles.assistance}><Attendance/></button>
 				</Flex>]
 	]
 
 	const rowsAppointmentDone = [
-		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez","2057165",<StateUser key={1} active={false}/>]
+		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez",123456789,<StateUser key={1} active={false}/>]
 	]
 		return(	
 		<>
