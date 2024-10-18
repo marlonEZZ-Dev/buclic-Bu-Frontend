@@ -14,7 +14,7 @@ import styles from "../../styles/admin/managementUsers.module.css"
 import otherStyles from "../../styles/global/inputSmall.module.css"
 
 import { createUser, deleteBeneficiaries, editUser, importUsers, listUsers, searchUser, deleteBeneficiary } from "../../services/admin/management_user.js"
-import { validCode, validRol, validText } from '../../services/validations.js'
+import { validCode, validEmail, validGrant, validLastname, validName, validPlan, validRol} from '../../services/validations.js'
 
 export default function ManagementUsers(){
   //useStates
@@ -112,66 +112,6 @@ export default function ManagementUsers(){
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
-  // const createRows = whoIs => {
-  //   const o = {
-  //       name: text => <span id={styles.name}>{ `Marlon Esteban${text}`}</span>,
-  //       lastName: text => <span id={styles.name}>{ `Zambrano Zambrano${text}`}</span>,
-  //       email: text => <span id={styles.email}>{ `marlon.zambrano@correounivalle.edu.co${text}`}</span>,
-  //       status: thisStatus => <StateUser id={styles.active} active={thisStatus} />,
-  //       toString(){
-  //         return "user"
-  //       }
-  //   };
-    
-  //   switch (whoIs) {
-  //       case 0:
-  //           o.typeUser = 0;
-  //           o.code = number => <span id={styles.code}>{202059431 + number}</span>;
-  //           o.plan = 2711;
-  //           o.grant = "almuerzo";
-  //           return Array.from({ length: 11 }, (_, index) => ({
-  //               name: o.name(index),
-  //               lastName: o.lastName(index),
-  //               email: o.email(index),
-  //               status: o.status(index % 2 === 0),
-  //               typeUser: o.typeUser,
-  //               code: o.code(index),
-  //               plan: o.plan,
-  //               grant: o.grant
-  //           }));
-  //       case 1:
-  //           o.typeUser = 1;
-  //           o.code = number => <span id={styles.code}>{202059431 + number}</span>;
-  //           o.plan = 2711;
-  //           return Array.from({ length: 10 }, (_, index) => ({
-  //               name: o.name(index),
-  //               lastName: o.lastName(index),
-  //               email: o.email(index),
-  //               status: o.status(index % 2 === 0),
-  //               typeUser: o.typeUser,
-  //               code: o.code(index),
-  //               plan: o.plan
-  //           }));
-  //       case 2:
-  //           o.typeUser = 2;
-  //           o.uniqueDoc = <span id={styles.code}>{999999999}</span>;
-  //           o.area = "Adminstrativa";
-  //           o.rol = "monitor";
-  //           return Array.from({ length: 10 }, (_, index) => ({
-  //               name: o.name(index),
-  //               lastName: o.lastName(index),
-  //               email: o.email(index),
-  //               status: o.status(index % 2 === 0),
-  //               typeUser: o.typeUser,
-  //               uniqueDoc: o.uniqueDoc,
-  //               area: o.area,
-  //               rol: o.rol
-  //           }));
-  //       default:
-  //           return [];
-  //   }
-  // };
-
   const loadUsers = async () => {
     if (buttons[changesDescription]) {
         try {
@@ -236,13 +176,6 @@ export default function ManagementUsers(){
     }))
   }
 
-  // const handlerSetSelectEditUser = value => {
-  //   setObjectSelected( o => ({
-  //     ...o,
-  //     lunchBeneficiary : value
-  //   }))
-  // }
-
   const handlerSetSelectCreateUser = value => {
     setUser(prevUser => ({
       ...prevUser,
@@ -272,65 +205,73 @@ export default function ManagementUsers(){
 
   }
 
-  const handlerVerifyUser = () => {
+  const handlerVUsername = () => {
     const username = validCode(user.username, !isFuncionary)
     if(typeof username === "string"){
-      setModalStruct({
-        title:"Alerta",
-        content:username
-      })
+      setModalStruct({title:"Advertencia",content:username})
       setIsModalVerify(true)
-      return
     }
-    const name = validText(user.name)
+  }
+
+  const handlerVName = () => {
+    const name = validName(user.name)
     if(typeof name === "string"){
-      setModalStruct(name)
+      setModalStruct({title:"Advertencia", content: name})
       setIsModalVerify(true)
-      return
     }
-    const lastname = validText(user.lastName)
+  }
+
+  const handlerVLastname = () => {
+    const lastname = validLastname(user.lastName)
     if(typeof lastname === "string"){
-      setModalStruct(lastname)
+      setModalStruct({title:"Advertencia", content: lastname})
       setIsModalVerify(true)
-      return
     }
-    const email = validText(user.email)
+  }
+
+  const handlerVEmail = () => {
+    const email = validEmail(user.email, isFuncionary)
     if(typeof email === "string"){
-      setModalStruct(email)
+      setModalStruct({title:"Advertencia",content: email})
       setIsModalVerify(true)
-      return
     }
-    const plan = validText(user.plan)
+  }
+  
+  const handlerVPlan = () => {
+    const plan = validPlan(user.plan, !isFuncionary)
     if(typeof plan === "string"){
-      setModalStruct(plan)
+      setModalStruct({title:"Advertencia", content: plan})
       setIsModalVerify(true)
-      return
     }
+  }
+
+  const handlerVRoles = () => {
     const roles = validRol(user.roles)
     if(typeof roles === "string"){
-      setModalStruct(roles)
+      setModalStruct({title:"Advertencia",content: roles})
       setIsModalVerify(true)
-      return
     }
-    const grant = validText(user.grant)
+  }
+  
+  const handlerVGrant = () => {
+    const grant = validGrant(user.grant)
     if((typeof grant === "string") && (isBeneficiary)){
-      setModalStruct(grant)
+      setModalStruct({title:"Advertencia", content: grant})
       setIsModalVerify(true)
-      return
     }
-    handlerSave()
   }
 
   const handlerSave = useCallback(async () => {
-    let creationResult = null
+    let message = ""
     try {
-      creationResult = await createUser(user);
-      loadUsers()
-      console.dir(creationResult)
+      message = await createUser(user);
+      await loadUsers()
     } catch (error) {
       setIsModalVerify(true)
-      setModalStruct(error.message)
+      setModalStruct({title:"Error", content: error.message})
     }
+    setModalStruct({title:"Confirmación", content: message})
+    setIsModalVerify(true)
   }, [user, changesDescription, users]);
 
   const handlerHiddenClickInput = () => hiddenFileInput.current.click()
@@ -390,18 +331,18 @@ export default function ManagementUsers(){
     if(!isBeneficiary) return
     try {
       await deleteBeneficiary(objectSelected.username)
-      loadUsers()
+      await loadUsers()
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   }
   const handlerDeleteUsers = async () => {
     if(!isBeneficiary) return
     try {
       await deleteBeneficiaries()
-      loadUsers()
+      await loadUsers()
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   }
 
@@ -601,7 +542,9 @@ export default function ManagementUsers(){
               className={styles.buttonSave}
               onClick={() => {
                 handlerDeleteUsers()
-                handlerCloseModalAllDelete()
+                .then(() => handlerCloseModalAllDelete)
+                .catch( error => console.log(error))
+                
               }}>
                 Si
               </button>
@@ -634,7 +577,8 @@ export default function ManagementUsers(){
               className={styles.buttonSave}
               onClick={() => {
                 handlerDeleteUser()
-                handlerCloseModalDelete()
+                .then(handlerCloseModalDelete())
+                .catch()
               }}>
                 Si
               </button>
@@ -647,7 +591,7 @@ export default function ManagementUsers(){
         footer={null}
         onClose={() => setIsModalVerify(false)}>
           <Flex vertical align='center' justify='center'>
-            <span style={fontSizeTitleModal}>modalStruct.title</span>
+            <span style={fontSizeTitleModal}>{modalStruct.title}</span>
             <p>{modalStruct.content}</p>
           </Flex>          
         </Modal>
@@ -683,6 +627,7 @@ export default function ManagementUsers(){
                 minLength={3}
                 name="name"
                 onChange={e => handlerCreateUser(e)}
+                onBlur={handlerVName}
                 required
                 />
               <SmallInput
@@ -693,6 +638,7 @@ export default function ManagementUsers(){
                 minLength={3}
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
+                onBlur={handlerVLastname}
                 required
                 />
             </Flex>
@@ -710,6 +656,7 @@ export default function ManagementUsers(){
               max={9999999999}
               name="username"
               onChange={e => handlerCreateUser(e)}
+              onBlur={handlerVUsername}
               required
               />
             <SmallInput
@@ -721,6 +668,7 @@ export default function ManagementUsers(){
               minLength={3}
               name="plan"
               onChange={e => handlerCreateUser(e)}
+              onBlur={handlerVPlan}
               required
               />
           </Flex>
@@ -744,6 +692,7 @@ export default function ManagementUsers(){
                   handlerAddRoleUserCreate("ESTUDIANTE")
                 }
               }}
+              onBlur={handlerVEmail}
               required
             />
           {(!isStudent || !enableResponsive) && 
@@ -756,7 +705,6 @@ export default function ManagementUsers(){
               className={styles.comboboxes}
               key={`SelectImportant${changesDescription}`}
               name={isBeneficiary ? "grant" : ""}
-              autoFocus={isFuncionary}
               defaultActiveFirstOption={isFuncionary}
               onChange={value => {
                 
@@ -770,7 +718,12 @@ export default function ManagementUsers(){
                   return
                 }
               }}
-              options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}/>
+              options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
+              onBlur={() => {
+                if(isBeneficiary) handlerVGrant()
+                if(isFuncionary) handlerVRoles()
+              }}
+              />
             </label>}
           </Flex>
         </Flex>
@@ -783,7 +736,7 @@ export default function ManagementUsers(){
           <button className={styles.buttonSave} 
           onClick={() => {
             SetSavePressed(!savePressed)
-            handlerVerifyUser()
+            handlerSave()
             console.dir(user)
             console.dir(changesDescription)
           }}>Guardar</button>
