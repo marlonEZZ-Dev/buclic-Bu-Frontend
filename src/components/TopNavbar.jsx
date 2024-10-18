@@ -83,9 +83,9 @@ export default function TopNavbar(props) {
             styles={{ body: { paddingBottom: 80 } }} // Cambiado de "bodyStyle" a "styles.body"
           >
             <ul className="drawer-menu">
-              <li onClick={() => handleButtonClick("/citas")} className={location.pathname === "/citas" ? "active" : ""}>Citas</li>
-              <li onClick={() => handleButtonClick("/becas")} className={location.pathname === "/becas" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/ajustes")} className={location.pathname === "/ajustes" ? "active" : ""}>Perfil</li>
+              <li onClick={() => handleButtonClick("/estudiante/citas")} className={location.pathname === "/estudiante/citas" ? "active" : ""}>Citas</li>
+              <li onClick={() => handleButtonClick("/estudiante/becas")} className={location.pathname === "/estudiante/becas" ? "active" : ""}>Becas</li>
+              <li onClick={() => handleButtonClick("/estudiante/ajustes")} className={location.pathname === "/estudiante/ajustes" ? "active" : ""}>Perfil</li>
             </ul>
             
             {/* Botón de cerrar sesión en la parte inferior del Drawer */}
@@ -99,9 +99,9 @@ export default function TopNavbar(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu`}>
             <ul>
-              <li onClick={() => handleButtonClick("/citas")} className={location.pathname === "/citas" ? "active" : ""}>Citas</li>
-              <li onClick={() => handleButtonClick("/becas")} className={location.pathname === "/becas" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/ajustes")} className={location.pathname === "/ajustes" ? "active" : ""}>Perfil</li>
+              <li onClick={() => handleButtonClick("/estudiante/citas")} className={location.pathname === "/estudiante/citas" ? "active" : ""}>Citas</li>
+              <li onClick={() => handleButtonClick("/estudiante/becas")} className={location.pathname === "/estudiante/becas" ? "active" : ""}>Becas</li>
+              <li onClick={() => handleButtonClick("/estudiante/ajustes")} className={location.pathname === "/estudiante/ajustes" ? "active" : ""}>Perfil</li>
             </ul>
           </nav>
 

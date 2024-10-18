@@ -4,9 +4,9 @@ import "../../styles/TopNavbar.css";
 import LogoutButton from "../auth/LogoutButton";
 import React, { useState, useEffect } from "react";
 import { Drawer, Button } from "antd";
-import { MenuOutlined, CloseOutlined } from "@ant-design/icons"; 
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 
-export default function HeaderNurse(props) {
+export default function HeaderDentist(props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false); // Controla si el menú hamburguesa está abierto
@@ -16,7 +16,7 @@ export default function HeaderNurse(props) {
   // Detectar el tamaño de la pantalla
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768); 
+      setIsMobile(window.innerWidth <= 768);
     };
 
     handleResize(); // Ejecutar al cargar
@@ -40,7 +40,7 @@ export default function HeaderNurse(props) {
   // Función para manejar clic en los botones y navegar
   const handleButtonClick = (path) => {
     navigate(path);
-    setMenuOpen(false); 
+    setMenuOpen(false);
     closeDrawer();
   };
 
@@ -73,56 +73,53 @@ export default function HeaderNurse(props) {
             title="Menú"
             placement="left" // Drawer desde la izquierda
             onClose={closeDrawer}
-            open={drawerOpen} 
-            styles={{ body: { paddingBottom: 80 } }} 
+            open={drawerOpen}
+            styles={{ body: { paddingBottom: 80 } }}
           >
             <ul className="drawer-menu">
-            
               <li
-                onClick={() => handleButtonClick("/enfermeria/becas")}
-                className={location.pathname === "/enfermeria/becas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/becas")}
+                className={location.pathname === "/odontologia/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/citas")}
-                className={location.pathname === "/enfermeria/citas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/citas")}
+                className={location.pathname === "/odontologia/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/horarios")}
-                className={location.pathname === "/enfermeria/horarios" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/horarios")}
+                className={
+                  location.pathname === "/odontologia/horarios" ? "active" : ""
+                }
               >
                 Horarios
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/agendas")}
-                className={location.pathname === "/enfermeria/agendas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/agenda")}
+                className={location.pathname === "/odontologia/agenda" ? "active" : ""}
               >
                 Agenda
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/actividades")}
-                className={location.pathname === "/enfermeria/actividades" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/visitas")}
+                className={location.pathname === "/odontologia/visitas" ? "active" : ""}
               >
-                Actividades
+                Visitas
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/historial")}
-                className={location.pathname === "/enfermeria/historial" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/historial")}
+                className={
+                  location.pathname === "/odontologia/historial" ? "active" : ""
+                }
               >
                 Historial
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/informe")}
-                className={location.pathname === "/informe" ? "active" : ""}
-              >
-                Informes
-              </li>
-              <li
-                onClick={() => handleButtonClick("/enfermeria/ajuste")}
-                className={location.pathname === "/enfermeria/ajuste" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/ajustes")}
+                className={location.pathname === "/odontologia/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -140,57 +137,54 @@ export default function HeaderNurse(props) {
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
               <li
-                onClick={() => handleButtonClick("/enfermeria/becas")}
-                className={location.pathname === "/enfermeria/becas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/becas")}
+                className={location.pathname === "/odontologia/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/citas")}
-                className={location.pathname === "/enfermeria/citas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/citas")}
+                className={location.pathname === "/odontologia/citas" ? "active" : ""}
               >
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/horarios")}
-                className={location.pathname === "/enfermeria/horarios" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/horarios")}
+                className={
+                  location.pathname === "/odontologia/horarios" ? "active" : ""
+                }
               >
                 Horarios
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/agendas")}
-                className={location.pathname === "/enfermeria/agendas" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/agenda")}
+                className={location.pathname === "/odontologia/agenda" ? "active" : ""}
               >
                 Agenda
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/actividades")}
-                className={location.pathname === "/enfermeria/actividades" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/visitas")}
+                className={location.pathname === "/odontologia/visitas" ? "active" : ""}
               >
-                Actividades
+                Visitas
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/historial")}
-                className={location.pathname === "/enfermeria/historial" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/historial")}
+                className={
+                  location.pathname === "/odontologia/historial" ? "active" : ""
+                }
               >
                 Historial
               </li>
               <li
-                onClick={() => handleButtonClick("/enfermeria/informe")}
-                className={location.pathname === "/enfermeria/informe" ? "active" : ""}
-              >
-                Informes
-              </li>
-              <li
-                onClick={() => handleButtonClick("/enfermeria/ajuste")}
-                className={location.pathname === "/enfermeria/ajuste" ? "active" : ""}
+                onClick={() => handleButtonClick("/odontologia/ajustes")}
+                className={location.pathname === "/odontologia/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
             </ul>
           </nav>
 
-          
           <div className="logout-container">
             <div className="logout-button">
               <LogoutButton />

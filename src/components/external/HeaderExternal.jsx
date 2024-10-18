@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { Drawer, Button } from "antd";
 import { MenuOutlined, CloseOutlined } from "@ant-design/icons"; 
 
-export default function HeaderAdmin(props) {
+export default function HeaderExternal(props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false); // Controla si el menú hamburguesa está abierto
@@ -77,45 +77,16 @@ export default function HeaderAdmin(props) {
             styles={{ body: { paddingBottom: 80 } }} 
           >
             <ul className="drawer-menu">
+            
               <li
-                onClick={() => handleButtonClick("/admin/usuarios")}
-                className={location.pathname === "/admin/usuarios" ? "active" : ""}
-              >
-                Gestión de usuarios
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/informes")}
-                className={location.pathname === "/admin/informes" ? "active" : ""}
-              >
-                Informes
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/menu")}
-                className={location.pathname === "/admin/menu" ? "active" : ""}
-              >
-                Menú del día
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/becaAdm")}
-                className={location.pathname === "/admin/becaAdm" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/becas")}
+                className={location.pathname === "/externo/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/admin/citasAdm")}
-                className={location.pathname === "/admin/citasAdm" ? "active" : ""}
-              >
-                Citas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/reservas")}
-                className={location.pathname === "/admin/reservas" ? "active" : ""}
-              >
-                Reservas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/perfilAdmin")}
-                className={location.pathname === "/admin/perfilAdmin" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/ajustes")}
+                className={location.pathname === "/externo/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
@@ -132,48 +103,19 @@ export default function HeaderAdmin(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
-              <li
-                onClick={() => handleButtonClick("/admin/usuarios")}
-                className={location.pathname === "/admin/usuarios" ? "active" : ""}
-              >
-                Usuarios
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/informes")}
-                className={location.pathname === "/admin/informes" ? "active" : ""}
-              >
-                Informes
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/menu")}
-                className={location.pathname === "/admin/menu" ? "active" : ""}
-              >
-                Menú
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/becaAdm")}
-                className={location.pathname === "/admin/becaAdm" ? "active" : ""}
+            <li
+                onClick={() => handleButtonClick("/externo/becas")}
+                className={location.pathname === "/externo/becas" ? "active" : ""}
               >
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/admin/citasAdm")}
-                className={location.pathname === "/admin/citasAdm" ? "active" : ""}
-              >
-                Citas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/reservas")}
-                className={location.pathname === "/admin/reservas" ? "active" : ""}
-              >
-                Reservas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/perfilAdmin")}
-                className={location.pathname === "/admin/perfilAdmin" ? "active" : ""}
+                onClick={() => handleButtonClick("/externo/ajustes")}
+                className={location.pathname === "/externo/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
+              
             </ul>
           </nav>
 

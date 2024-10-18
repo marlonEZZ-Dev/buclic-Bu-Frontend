@@ -1,86 +1,170 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button, message, Spin, Card, Table } from 'antd';
+import { LeftOutlined, DownloadOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
-import { Button, Table } from 'antd';
-import { ArrowLeftOutlined} from '@ant-design/icons';
+import api from '../../api';
 
-const ViewInforms = ({ onClose }) => {
-  const beneficiariesColumns = [
-    { title: '#', dataIndex: 'index', key: 'index' },
-    { title: 'Código', dataIndex: 'code', key: 'code' },
-    { title: 'Nombre', dataIndex: 'name', key: 'name' },
-    { title: 'Plan', dataIndex: 'plan', key: 'plan' },
-    { title: 'Correo', dataIndex: 'email', key: 'email' },
-  ];
+const VerInforme = () => {
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const freeSaleColumns = [
-    { title: '#', dataIndex: 'index', key: 'index' },
-    { title: 'Código/Cédula', dataIndex: 'code', key: 'code' },
-    { title: 'Nombre', dataIndex: 'name', key: 'name' },
-    { title: 'Plan/Área', dataIndex: 'plan', key: 'plan' },
-    { title: 'Correo', dataIndex: 'email', key: 'email' },
-  ];
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/report/viewReport/${id}`);
+        setReport(response.data);
+      } catch (error) {
+        console.error('Error fetching report:', error);
+        message.error('No se pudo cargar el informe');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReport();
+  }, [id]);
 
-  const beneficiariesData = [
-    { key: '1', index: 1, code: '202358920', name: 'Mariana Gomez', plan: '4256', email: 'mariana.gomez@correounivalle.edu.co' },
-    { key: '2', index: 2, code: '202175899', name: 'Amber Rojas', plan: '8232', email: 'amber.rojas@correounivalle.edu.co' },
-  ];
+  const handleBack = () => {
+    navigate('/admin/Informes');
+  };
 
-  const freeSaleData = [
-    { key: '1', index: 1, code: '88563124', name: 'Carlos Vallejo', plan: 'Psicología', email: 'carlos.vallejo@correounivalle.edu.co' },
-    { key: '2', index: 2, code: '202175899', name: 'Lucia Bernal', plan: '1005', email: 'lucia.bernal@correounivalle.edu.co' },
-  ];
+  const handleDownload = async (reportId) => {
+    try {
+      const response = await api.get(`/report/download/${reportId}`, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_${reportId}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      message.success('Informe descargado exitosamente');
+    } catch (error) {
+      console.error('Error al descargar informe:', error);
+      message.error(`No se pudo descargar el informe: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  if (loading) {
+    return <Spin size="large" />;
+  }
+
+  if (!report) {
+    return <div>No se pudo cargar el informe. Por favor, intente de nuevo más tarde.</div>;
+  }
+
+  const isDailyReport = !report.semester;
+
+  const beneficiariesColumns = isDailyReport
+    ? [
+        { title: '#', dataIndex: 'index', key: 'index' },
+        { title: 'Código', dataIndex: 'code', key: 'code' },
+        { title: 'Nombre', dataIndex: 'name', key: 'name' },
+        { title: 'Plan', dataIndex: 'plan', key: 'plan' },
+        { title: 'Correo', dataIndex: 'email', key: 'email' },
+      ]
+    : [
+        { title: 'Código', dataIndex: 'code', key: 'code' },
+        { title: 'Nombre', dataIndex: 'name', key: 'name' },
+        { title: 'Plan', dataIndex: 'plan', key: 'plan' },
+        { title: 'Correo', dataIndex: 'email', key: 'email' },
+        { title: 'Cant.', dataIndex: 'quantity', key: 'quantity' },
+      ];
+
+  const freeSellingColumns = isDailyReport
+    ? [
+        { title: '#', dataIndex: 'index', key: 'index' },
+        { title: 'Código/Cédula', dataIndex: 'code', key: 'code' },
+        { title: 'Nombre', dataIndex: 'name', key: 'name' },
+        { title: 'Plan/Área', dataIndex: 'plan', key: 'plan' },
+        { title: 'Correo', dataIndex: 'email', key: 'email' },
+      ]
+    : [
+        { title: 'Código/Cédula', dataIndex: 'code', key: 'code' },
+        { title: 'Nombre', dataIndex: 'name', key: 'name' },
+        { title: 'Plan/Área', dataIndex: 'plan', key: 'plan' },
+        { title: 'Correo', dataIndex: 'email', key: 'email' },
+        { title: 'Cant.', dataIndex: 'quantity', key: 'quantity' },
+      ];
+
+  const beneficiariesData = report.users
+    .filter(user => user.lunchBeneficiary || user.snackBeneficiary)
+    .map((user, index) => ({
+      key: index,
+      index: index + 1,
+      code: user.username,
+      name: user.name,
+      plan: user.plan,
+      email: user.email,
+      quantity: user.quantity,
+    }));
+
+  const freeSellingData = report.users
+    .filter(user => !user.lunchBeneficiary && !user.snackBeneficiary)
+    .map((user, index) => ({
+      key: index,
+      index: index + 1,
+      code: user.username,
+      name: user.name,
+      plan: user.plan,
+      email: user.email,
+      quantity: user.quantity,
+    }));
 
   return (
-    <div style={{ 
-      paddingTop: '90px', // To account for the fixed header height
-      minHeight: '100vh',
-      backgroundColor: '#f0f2f5'
-    }}>
+    <div>
       <HeaderAdmin />
-      <div style={{ 
-        padding: '20px',
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
-        <div style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '8px', 
-          boxShadow: '0 0 10px rgba(0,0,0,0.1)', 
-          padding: '20px',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <Button icon={<ArrowLeftOutlined />} onClick={onClose} style={{ backgroundColor:'#C20E1A', color:'#fff', border: 'none', boxShadow: 'none' }} />
-            <h2 style={{ margin: 0, color: '#C20E1A' }}>Informe diario</h2>
-            <Button type="primary"  style={{ backgroundColor: '#C20E1A', borderColor: '#C20E1A' }}>
-              Descargar
-            </Button>
+      <div style={{ padding: '20px', marginTop: '60px'}}>
+        <Card
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button icon={<LeftOutlined />} onClick={handleBack} style={{ border: 'none', boxShadow: 'none' }}>
+                Volver
+              </Button>
+              <span style={{color:'#C20E1A'}}>{isDailyReport ? 'Informe diario' : 'Informe semestral'}</span>
+              <Button 
+                icon={<DownloadOutlined/>} 
+                onClick={() =>handleDownload(report.id)}
+                style={{ backgroundColor: '#C20E1A', borderColor: '#C20E1A', color: 'white' }}
+              >
+                Descargar
+              </Button>
+            </div>
+          }
+          style={{ marginBottom: '20px' }}
+        >
+          <div style={{display:'flex', justifyContent: 'center', columnGap:'2rem'}}>
+            <p><strong>{isDailyReport ? 'Fecha' : 'Semestre'}:</strong> {isDailyReport ? report.date : report.semester}</p>
+            <p><strong>Beca:</strong> {report.beca}</p>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <p><strong>Fecha:</strong> 08/09/2024</p>
-            <p><strong>Beca:</strong> Almuerzo</p>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ color: '#C20E1A' }}>Beneficiarios</h3>
-            <Table
-              dataSource={beneficiariesData}
-              columns={beneficiariesColumns}
-              pagination={false}
-              size="small"
-            />
-          </div>
-          <div>
-            <h3 style={{ color: '#C20E1A' }}>Venta libre</h3>
-            <Table
-              dataSource={freeSaleData}
-              columns={freeSaleColumns}
-              pagination={false}
-              size="small"
-            />
-          </div>
-        </div>
+          <h3 style={{color:'#C20E1A'}}>Beneficiarios</h3>
+          <Table 
+            columns={beneficiariesColumns} 
+            dataSource={beneficiariesData} 
+            pagination={false}
+            size="small"
+          />
+          
+          <h3 style={{ color:'#C20E1A', marginTop: '20px' }}>Venta libre</h3>
+          <Table 
+            columns={freeSellingColumns} 
+            dataSource={freeSellingData} 
+            pagination={false}
+            size="small"
+          />
+        </Card>
       </div>
     </div>
   );
 };
 
-export default ViewInforms;
+export default VerInforme;
