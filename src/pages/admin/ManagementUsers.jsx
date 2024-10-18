@@ -267,8 +267,8 @@ export default function ManagementUsers(){
       message = await createUser(user);
       await loadUsers()
     } catch (error) {
-      setIsModalVerify(true)
       setModalStruct({title:"Error", content: error.message})
+      setIsModalVerify(true)
     }
     setModalStruct({title:"Confirmación", content: message})
     setIsModalVerify(true)
