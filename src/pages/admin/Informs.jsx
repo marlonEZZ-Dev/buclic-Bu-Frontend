@@ -3,14 +3,15 @@ import { Button, Input, message, DatePicker } from 'antd';
 import { EyeOutlined, DownloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
-import TablePagination from '../../components/global/TablePagination.jsx';
+import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import Modal from '../../components/global/Modal.jsx';
 import api from '../../api';
 import { useNavigate } from 'react-router-dom';
 
 const CombinedReports = () => {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [reports, setReports] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState("Diarios");
   const [selectedBeca, setSelectedBeca] = useState(null);
@@ -31,8 +32,9 @@ const CombinedReports = () => {
   const fetchReports = useCallback(async () => {
     try {
       const filter = selectedType === "Diarios" ? "diario" : "semester";
-      const response = await api.get(`/report/list?filter=${filter}&page=${currentPage}&size=${itemsPerPage}&search=${searchTerm}`);
+      const response = await api.get(`/report/list?filter=${filter}&page=${currentPage - 1}&size=${itemsPerPage}&search=${searchTerm}`);
       setReports(response.data.content);
+      setTotalItems(response.data.totalElements);
     } catch (error) {
       console.error('Error fetching reports:', error);
       message.error('No se pudieron cargar los informes');
@@ -47,7 +49,7 @@ const CombinedReports = () => {
     setSelectedBeca(null);
     setSemesterInput('');
     setSearchTerm('');
-    setCurrentPage(0);
+    setCurrentPage(1);
   }, [selectedType]);
 
   const generateReport = useCallback(async (beca) => {
@@ -144,11 +146,6 @@ const CombinedReports = () => {
     </span>
   );
 
-  const handlePageChange = (page) => {
-    console.log('Página actual:', page);
-    setCurrentPage(page - 1);
-  };
-
   const handleCustomSearch = async () => {
     try {
       let endpoint;
@@ -177,6 +174,10 @@ const CombinedReports = () => {
       console.error('Error en la búsqueda:', error);
       message.error(`No se pudo realizar la búsqueda: ${error.response?.data?.message || error.message}`);
     }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const formatReportData = (report) => {
@@ -233,7 +234,7 @@ const CombinedReports = () => {
               </p>
 
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <DatePicker 
+                <DatePicker
                   style={{ marginRight: '10px' }}
                   onChange={(date) => setDateSearch(date)}
                 />
@@ -310,12 +311,13 @@ const CombinedReports = () => {
             </>
           )}
 
-          <TablePagination
+          <TablePaginationR
             rows={reports.map(formatReportData)}
             columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
-            currentPage={currentPage + 1}
+            currentPage={currentPage}
             itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
+            totalItems={totalItems}
+            onPageChange={handlePageChange}
           />
 
           <Modal
