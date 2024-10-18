@@ -121,26 +121,29 @@ const CombinedReports = () => {
     }
   };
 
+  const handleViewReport = (reportId) => {
+    navigate(`/admin/VerInforme/${reportId}`);
+  };
+
   const renderActions = (reportId) => (
     <span>
-      <Button icon={<EyeOutlined />}
+      <Button 
+        icon={<EyeOutlined />}
         style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
-        onClick={handleViewInform}
+        onClick={() => handleViewReport(reportId)}
       />
       <Button
         icon={<DownloadOutlined />}
         style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
         onClick={() => handleDownload(reportId)}
       />
-      <Button icon={<DeleteOutlined />}
+      <Button 
+        icon={<DeleteOutlined />}
         style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
-        onClick={() => showDeleteConfirm(reportId)} />
+        onClick={() => showDeleteConfirm(reportId)} 
+      />
     </span>
   );
-
-  const handleViewInform = () => {
-    navigate('/VerInformes');
-  };
 
   const handlePageChange = (page) => {
     console.log('Página actual:', page);
