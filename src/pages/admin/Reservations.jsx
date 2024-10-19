@@ -100,29 +100,29 @@ const Reservations = () => {
 
 
     // Agrega esta función para obtener las reservas
-    const fetchReservations = async () => {
-        try {
-            const response = await api.get(`/reservations/all?page=${currentPage - 1}&size=${itemsPerPage}`);
-            setTableData(response.data.content);
-            setTotalItems(response.data.page.totalElements); // Total de reservas
-            setCurrentPage(response.data.page.number + 1); // Página actual (ajusta para que sea 1-indexed)
-        } catch (error) {
-            console.error("Error al obtener las reservas:", error);
-            message.error('No se pudieron cargar las reservas.');
-        }
-    };
+    //const fetchReservations = async () => {
+    //    try {
+    //        const response = await api.get(`/reservations/all?page=${currentPage - 1}&size=${itemsPerPage}`);
+    //        setTableData(response.data.content);
+    //        setTotalItems(response.data.page.totalElements); // Total de reservas
+    //        setCurrentPage(response.data.page.number + 1); // Página actual (ajusta para que sea 1-indexed)
+    //    } catch (error) {
+    //        console.error("Error al obtener las reservas:", error);
+    //        message.error('No se pudieron cargar las reservas.');
+    //    }
+    //};
 
     // Usa un efecto para cargar las reservas de manera constante
-    useEffect(() => {
-        // Llama a la función de carga de reservas inmediatamente
-        fetchReservations();
+    //useEffect(() => {
+    //    // Llama a la función de carga de reservas inmediatamente
+    //    fetchReservations();
 
         // Establece un intervalo para actualizar las reservas
-        const intervalId = setInterval(fetchReservations, 5000); // Actualiza cada 5 segundos
+    //    const intervalId = setInterval(fetchReservations, 5000); // Actualiza cada 5 segundos
 
         // Limpia el intervalo al desmontar el componente
-        return () => clearInterval(intervalId);
-    }, [currentPage]);
+    //    return () => clearInterval(intervalId);
+    //}, [currentPage]);
 
 
     // Manejador para cambiar de página
