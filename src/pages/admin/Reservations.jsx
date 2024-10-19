@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
-import TablePagination from '../../components/global/TablePagination.jsx';
+import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import { Card, Space, Descriptions, Button, message } from 'antd';
 
 const Reservations = () => {
     const [reservationData, setReservationData] = useState(null);
+    const [tableData, setTableData] = useState([]); // Para guardar los datos de la tabla
+    const [currentPage, setCurrentPage] = useState(1); // Página actual
+    const [totalItems, setTotalItems] = useState(0); // Total de items (para paginación)
+    const itemsPerPage = 10; // Elementos por página
 
     const handleSearch = async (username) => {
         try {
@@ -90,6 +94,34 @@ const Reservations = () => {
     // Función para formatear la hora
     const formatTime = (timeString) => {
         return timeString.substring(0, 8); // Solo los primeros 8 caracteres "hh:mm:ss"
+    };
+
+
+    // Función para obtener las reservas paginadas
+    const fetchReservations = async (page) => {
+        try {
+            const response = await api.get(`/reservations/all?page=${page - 1}&size=${itemsPerPage}`);
+
+            // Accede a los datos de la respuesta
+            setTableData(response.data.content);
+            setTotalItems(response.data.page.totalElements); // Total de reservas
+            setCurrentPage(response.data.page.number + 1); // Página actual (ajusta para que sea 1-indexed)
+        } catch (error) {
+            console.error("Error al obtener las reservas:", error);
+            message.error('No se pudieron cargar las reservas.');
+        }
+    };
+
+
+    // Efecto para cargar las reservas cuando se carga la página o cambia la página actual
+    useEffect(() => {
+        fetchReservations(currentPage);
+    }, [currentPage]);
+
+    // Manejador para cambiar de página
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        fetchReservations(page); // Llama a fetchReservations con la nueva página
     };
 
     // Estilos personalizados para los botones
@@ -193,12 +225,17 @@ const Reservations = () => {
                     )}
 
                     {/* Componente de Tabla con Paginación */}
-                    <TablePagination
-                        rows={[]}  // Eliminar datos de ejemplo
-                        columns={['Código', 'Nombre', 'Plan', 'Hora de Reserva']} // Columnas de ejemplo
-                        currentPage={1}  // Página inicial
-                        itemsPerPage={10}  // Elementos por página
-                        onPageChange={() => { }}  // Eliminamos lógica de paginación
+                    <TablePaginationR
+                        rows={tableData.map(reservation => [
+                            reservation.username,
+                            `${reservation.name} ${reservation.lastname}`,
+                            `${formatDate(reservation.data)} ${reservation.time}`
+                        ])}
+                        columns={['Código', 'Nombre', 'Fecha y Hora de Reserva']}
+                        currentPage={currentPage}
+                        itemsPerPage={itemsPerPage}
+                        totalItems={totalItems}
+                        onPageChange={handlePageChange}
                     />
                 </Card>
             </main>
