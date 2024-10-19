@@ -11,6 +11,8 @@ const Reservations = () => {
     const [currentPage, setCurrentPage] = useState(1); // Página actual
     const [totalItems, setTotalItems] = useState(0); // Total de items (para paginación)
     const itemsPerPage = 10; // Elementos por página
+    const [availability, setAvailability] = useState({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 });
+
 
     const handleSearch = async (username) => {
         try {
@@ -97,12 +99,10 @@ const Reservations = () => {
     };
 
 
-    // Función para obtener las reservas paginadas
-    const fetchReservations = async (page) => {
+    // Agrega esta función para obtener las reservas
+    const fetchReservations = async () => {
         try {
-            const response = await api.get(`/reservations/all?page=${page - 1}&size=${itemsPerPage}`);
-
-            // Accede a los datos de la respuesta
+            const response = await api.get(`/reservations/all?page=${currentPage - 1}&size=${itemsPerPage}`);
             setTableData(response.data.content);
             setTotalItems(response.data.page.totalElements); // Total de reservas
             setCurrentPage(response.data.page.number + 1); // Página actual (ajusta para que sea 1-indexed)
@@ -112,17 +112,43 @@ const Reservations = () => {
         }
     };
 
-
-    // Efecto para cargar las reservas cuando se carga la página o cambia la página actual
+    // Usa un efecto para cargar las reservas de manera constante
     useEffect(() => {
-        fetchReservations(currentPage);
+        // Llama a la función de carga de reservas inmediatamente
+        fetchReservations();
+
+        // Establece un intervalo para actualizar las reservas
+        const intervalId = setInterval(fetchReservations, 5000); // Actualiza cada 5 segundos
+
+        // Limpia el intervalo al desmontar el componente
+        return () => clearInterval(intervalId);
     }, [currentPage]);
+
 
     // Manejador para cambiar de página
     const handlePageChange = (page) => {
         setCurrentPage(page);
         fetchReservations(page); // Llama a fetchReservations con la nueva página
     };
+
+    const fetchAvailability = async () => {
+        try {
+            const response = await api.get('/reservations/availability');
+            setAvailability({
+                remainingSlotsLunch: response.data.remainingSlotsLunch || 0,
+                remainingSlotsSnack: response.data.remainingSlotsSnack || 0,
+            });
+        } catch (error) {
+            console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
+            setAvailability({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 });
+        }
+    };
+
+    useEffect(() => {
+        fetchAvailability();
+        const intervalId = setInterval(fetchAvailability, 1000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     // Estilos personalizados para los botones
     const styles = {
@@ -174,6 +200,16 @@ const Reservations = () => {
                         <SearchInputR onSearch={handleSearch} />
                     </div>
 
+                    <Space style={{ marginTop: '20px', alignItems: 'center' }}>
+                        <p style={{ fontWeight: 'bold' }}>
+                            Reservas disponibles de almuerzo: {availability.remainingSlotsLunch}
+                        </p>
+                        <p style={{ fontWeight: 'bold' }}>
+                            Reservas disponibles de refrigerio: {availability.remainingSlotsSnack}
+                        </p>
+                    </Space>
+
+
                     {/* Información de la persona con Descriptions */}
                     {reservationData && (
                         <>
@@ -213,7 +249,7 @@ const Reservations = () => {
 
                             {/* Botones */}
                             <div style={styles.buttonContainer}>
-                                <Button type="primary" style={styles.payButton} onClick={handlePayment}>
+                                <Button type="primary" style={styles.payButton} onClick={handlePayment} >
                                     Pagó
                                 </Button>
                                 <Button type="default" htmlType="reset" className="button-cancel" onClick={handleCancel}>
