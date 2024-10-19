@@ -33,8 +33,17 @@ const CombinedReports = () => {
     try {
       const filter = selectedType === "Diarios" ? "diario" : "semester";
       const response = await api.get(`/report/list?filter=${filter}&page=${currentPage - 1}&size=${itemsPerPage}&search=${searchTerm}`);
-      setReports(response.data.content);
-      setTotalItems(response.data.totalElements);
+
+      console.log('API Response:', response.data); // Log the entire response for debugging
+
+      if (response.data && Array.isArray(response.data.content)) {
+        setReports(response.data.content);
+        setTotalItems(response.data.totalElements || 0);
+        console.log("Total items:", response.data.totalElements);
+      } else {
+        console.error('Unexpected API response structure:', response.data);
+        message.error('Error en la estructura de datos recibida');
+      }
     } catch (error) {
       console.error('Error fetching reports:', error);
       message.error('No se pudieron cargar los informes');
@@ -146,6 +155,11 @@ const CombinedReports = () => {
     </span>
   );
 
+  const handlePageChange = (page) => {
+    console.log('Changing to page:', page);
+    setCurrentPage(page);
+  };
+
   const handleCustomSearch = async () => {
     try {
       let endpoint;
@@ -169,15 +183,12 @@ const CombinedReports = () => {
 
       const response = await api.get(endpoint);
       setReports(response.data);
+      setTotalItems(response.data.length); // Actualizar el total de items
       message.success('Búsqueda realizada con éxito');
     } catch (error) {
       console.error('Error en la búsqueda:', error);
       message.error(`No se pudo realizar la búsqueda: ${error.response?.data?.message || error.message}`);
     }
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
   };
 
   const formatReportData = (report) => {
