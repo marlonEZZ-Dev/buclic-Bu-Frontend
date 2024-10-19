@@ -1,5 +1,6 @@
+
 .contentTitle{
-  margin-top: 100px;
+  margin-top: 6.25rem;
   & h1{
     font-weight: bold;
   }
@@ -11,8 +12,8 @@
 
 .cssTable {
   border-radius: .5rem;
-  overflow: hidden;
   border-color: white;
+  overflow-x: auto;
 }
 
 .cssTable thead {
@@ -22,7 +23,7 @@
 }
 
 .cssTable th, .cssTable td {
-  padding: 0.5rem 1rem 0.5rem 1rem;
+  padding: 0.5rem 1rem ;
   background-color: white;
 }
 
@@ -50,3 +51,25 @@
 .marginTopEdit{
   margin: 1.5rem;
 }
+
+.modalFontSizeContent{
+  font-size: 1.5rem;
+}
+
+.modalFontSizeTitle{
+  font-size: 2rem;
+}
+
+/*************************** Controlan el responsive *********************************/
+@media (max-width: 768px) { /*Celuares pequeños y muy pequeños*/
+  html{
+    font-size: clamp(1rem, 3.5vw, 7vw);
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 768px) { /*Tablets*/
+  html{
+    font-size: clamp(1rem, 2vw, 4vw);
+  }
+}
+/***********************************************************************************************/
