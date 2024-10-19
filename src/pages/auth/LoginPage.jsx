@@ -54,6 +54,9 @@ export default function LoginPage() {
         localStorage.setItem("userName", userResponse.name);
         localStorage.setItem("userEmail", userResponse.email);
         localStorage.setItem("userPlan", userResponse.plan);
+        localStorage.setItem("userEPS", userResponse.eps); // Guardar EPS
+        localStorage.setItem("userPhone", userResponse.phone); // Guardar Teléfono
+        localStorage.setItem("userSemester", userResponse.semester); // Guardar Semestre
   
         // Redireccionar basado en el rol
         const userRole = roles[0]; // Se toma el primer rol
@@ -75,7 +78,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-  
   
   const isFormValid = username !== "" && password !== "";
 
