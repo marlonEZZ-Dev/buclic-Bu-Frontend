@@ -7,6 +7,7 @@ import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
 import MenuBecas from "../../components/global/MenuBecas.jsx"
 import Modal from '../../components/global/Modal.jsx'
 import Search  from '../../components/admin/SearchInput.jsx'
+import StateUser from '../../components/global/StateUser.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
 
@@ -112,11 +113,17 @@ export default function ManagementUsers(){
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
+  const tranformToStateUser = atribbute => <StateUser active={atribbute} />
+  
   const loadUsers = async () => {
     if (buttons[changesDescription]) {
         try {
-            const result = await listUsers(buttons[changesDescription].type.toLowerCase());
-            setRows(result.content);
+            const result = await listUsers(buttons[changesDescription].type.toLowerCase())
+            const data = result.content
+            setRows(data.map(user => ({
+              ...user,
+              isActive: tranformToStateUser(user.isActive)
+            })))
         } catch (error) {
             console.error("Error al listar usuarios:", error);
         }
@@ -309,6 +316,7 @@ export default function ManagementUsers(){
     try{
       const userFound = await searchUser(codeUser)
       const arrayUserFound = []
+      userFound.isActive = tranformToStateUser(userFound.isActive)
       arrayUserFound.push(userFound)
       setRows(arrayUserFound)
     }catch(error){
@@ -319,12 +327,17 @@ export default function ManagementUsers(){
   //---------------------------------------------------------
 
   const handlerSendUserEdited = async () => {
+    let info = {}
     try {
-      await editUser(objectSelected)
-      loadUsers()
+      info = await editUser(objectSelected)
+      await loadUsers()
     } catch (error) {
-      console.log(error);
+      setModalStruct({title:"Error", content:error.message})
+      setIsModalVerify(true)
     }
+    setModalStruct({title:"Confirmación", content:info.message})
+    setIsModalVerify(info.success)
+    
   }
 
   const handlerDeleteUser = async () => {
@@ -451,8 +464,7 @@ export default function ManagementUsers(){
             title={isFuncionary ? "Área dependiente":"Plan"}
             name="plan"
             value={objectSelected.plan}
-            maxLength={60}
-            minLength={3}
+            minLength={4}
             onChange={e => handlerEditUser(e)}
             />
         </Flex>
@@ -472,7 +484,7 @@ export default function ManagementUsers(){
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
           <Select
-            value={isStudent ? objectSelected.isActive : 
+            value={isStudent ? objectSelected.isActive.props.active : 
               isFuncionary ? objectSelected.roles[0].name : 
               objectSelected.lunchBeneficiary ? "Beneficiario almuerzo":"Beneficiario refrigerio"}
             className={styles.comboboxes}
@@ -492,7 +504,7 @@ export default function ManagementUsers(){
             Estado
           <Select
             placeholder="Selecciona"
-            value={objectSelected.isActive}
+            value={objectSelected.isActive.props.active}
             className={styles.comboboxes}
             options={cbxStatus}
             onChange={ value => handlerEditUser({target:{name:"isActive", value}})}

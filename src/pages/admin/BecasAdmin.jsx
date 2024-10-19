@@ -133,10 +133,21 @@ const BecasAdmin = () => {
 
       const response = await api.post('/reservations/create', reservationData);
 
+      // Actualizar la reserva inmediatamente con los datos del backend
       if (selectedType === 'almuerzo') {
-        setAlmuerzoReservation({ hasReservation: true, reservationId: response.data.reservationId });
+        setAlmuerzoReservation({
+          hasReservation: true,
+          reservationId: response.data.reservationId,
+          date: response.data.date,  // Asigna la fecha de la respuesta
+          time: response.data.time,  // Asigna la hora de la respuesta
+        });
       } else {
-        setRefrigerioReservation({ hasReservation: true, reservationId: response.data.reservationId });
+        setRefrigerioReservation({
+          hasReservation: true,
+          reservationId: response.data.reservationId,
+          date: response.data.date,  // Asigna la fecha de la respuesta
+          time: response.data.time,  // Asigna la hora de la respuesta
+        });
       }
 
       message.success('Reserva creada con éxito');
@@ -147,7 +158,7 @@ const BecasAdmin = () => {
   };
 
 
-  // Obtener la disponibilidad de reservas con polling cada 3 segundos
+  // Obtener la disponibilidad de reservas con polling cada 1 segundos
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
@@ -167,8 +178,8 @@ const BecasAdmin = () => {
     // Llamada inicial
     fetchAvailability();
 
-    // Configurar polling cada 3 segundos
-    const intervalId = setInterval(fetchAvailability, 3000);
+    // Configurar polling cada 1 segundos
+    const intervalId = setInterval(fetchAvailability, 1000);
 
     // Limpiar el intervalo cuando el componente se desmonte
     return () => clearInterval(intervalId);
@@ -207,17 +218,37 @@ const BecasAdmin = () => {
   // Mostrar el mensaje de la reserva dependiendo del tipo de menú
   const getReservationMessage = (type) => {
     if (type === 'almuerzo' && almuerzoReservation.hasReservation) {
+      const reservationDateTime = almuerzoReservation.date;
+
+      const [datePart, timePart] = reservationDateTime.split('T');
+      const timeWithoutMilliseconds = timePart.split('.')[0];
+
       return (
-        <p>Tu reserva de almuerzo ha sido realizada con éxito el {almuerzoReservation.date} a las {almuerzoReservation.time}.</p>
+        <p style={{ color: '#3E9215', fontWeight: 'bold' }}>
+          Tu reserva de <strong>almuerzo</strong> ha sido realizada con éxito el <strong>{datePart}</strong> a las <strong>{timeWithoutMilliseconds}</strong>.
+        </p>
       );
     } else if (type === 'refrigerio' && refrigerioReservation.hasReservation) {
+      const reservationDateTime = refrigerioReservation.date;
+
+      const [datePart, timePart] = reservationDateTime.split('T');
+      const timeWithoutMilliseconds = timePart.split('.')[0];
+
       return (
-        <p>Tu reserva de refrigerio ha sido realizada con éxito el {refrigerioReservation.date} a las {refrigerioReservation.time}.</p>
+        <p style={{ color: '#3E9215', fontWeight: 'bold' }}>
+          Tu reserva de <strong>refrigerio</strong> ha sido realizada con éxito el <strong>{datePart}</strong> a las <strong>{timeWithoutMilliseconds}</strong>.
+        </p>
       );
     } else {
-      return <p>No has reservado {type === 'almuerzo' ? 'almuerzo' : 'refrigerio'} el día de hoy.</p>;
+      return (
+        <p style={{ fontWeight: 'bold' }}>
+          No has reservado {type === 'almuerzo' ? <strong>almuerzo</strong> : <strong>refrigerio</strong>} el día de hoy.
+        </p>
+      );
     }
   };
+
+
 
   // Definir las columnas para cada tipo de menú
   const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
@@ -256,6 +287,50 @@ const BecasAdmin = () => {
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
 
         <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
+          {settings && (
+            <p style={{ fontWeight: 'bold' }}>
+              {selectedType === 'almuerzo' // Si está en la sección de almuerzo
+                ? (benefitType === 'venta libre' // Si el usuario tiene 'venta libre'
+                  ? (
+                    <>
+                      Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starLunch}</strong> y <strong>{settings.endLunch}</strong>
+                    </>
+                  )
+                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
+                    ? (
+                      <>
+                        Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starBeneficiaryLunch}</strong> y <strong>{settings.endLunch}</strong>
+                      </>
+                    )
+                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
+                      ? (
+                        <>
+                          Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starLunch}</strong> y <strong>{settings.endLunch}</strong>
+                        </>
+                      )
+                      : 'Tipo de beneficio no reconocido')
+                : (benefitType === 'venta libre' // Si está en la sección de refrigerio
+                  ? (
+                    <>
+                      Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starSnack}</strong> y <strong>{settings.endSnack}</strong>
+                    </>
+                  )
+                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
+                    ? (
+                      <>
+                        Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starSnack}</strong> y <strong>{settings.endSnack}</strong>
+                      </>
+                    )
+                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
+                      ? (
+                        <>
+                          Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starBeneficiarySnack}</strong> y <strong>{settings.endSnack}</strong>
+                        </>
+                      )
+                      : 'Tipo de beneficio no reconocido')}
+            </p>
+          )}
+
           {/* Mensaje de reserva dentro de la tarjeta del menú seleccionado */}
           <div style={{ marginBottom: '16px' }}>
             {getReservationMessage(selectedType)}
@@ -266,25 +341,9 @@ const BecasAdmin = () => {
             <p>Costo: {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
           </div>
 
-          {settings && (
-            <p>
-              {selectedType === 'almuerzo' // Si está en la sección de almuerzo
-                ? (benefitType === 'venta libre' // Si el usuario tiene 'venta libre'
-                  ? `Puede reservar almuerzo entre ${settings.starLunch} y ${settings.endLunch}`
-                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
-                    ? `Puede reservar almuerzo entre ${settings.starBeneficiaryLunch} y ${settings.endLunch}`
-                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
-                      ? `Puede reservar almuerzo entre ${settings.starLunch} y ${settings.endLunch}`
-                      : 'Tipo de beneficio no reconocido')
-                : (benefitType === 'venta libre' // Si está en la sección de refrigerio
-                  ? `Puede reservar refrigerio entre ${settings.starSnack} y ${settings.endSnack}`
-                  : benefitType === 'Almuerzo' // Beneficiario de almuerzo
-                    ? `Puede reservar refrigerio entre ${settings.starSnack} y ${settings.endSnack}`
-                    : benefitType === 'Refrigerio' // Beneficiario de refrigerio
-                      ? `Puede reservar refrigerio entre ${settings.starBeneficiarySnack} y ${settings.endSnack}`
-                      : 'Tipo de beneficio no reconocido')}
-            </p>
-          )}
+
+
+
           <Tables
             rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows}
             columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
