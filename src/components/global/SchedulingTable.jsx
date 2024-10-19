@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from 'antd';
 import moment from 'moment';
 
-const SchedulingTable = ({ headers, appointments, onReserve }) => {
+const SchedulingTable = ({ headers, appointments, onReserve, disableReserveButton }) => { // Agregamos la prop disableReserveButton
     const tableStyle = {
         width: '100%',
         borderCollapse: 'collapse',
@@ -25,8 +25,7 @@ const SchedulingTable = ({ headers, appointments, onReserve }) => {
 
     // Manejo del click del botón
     const handleSchedule = (appointment) => {
-        console.log(`Agendar cita para: ${moment(appointment.dateTime).format('HH:mm')}`);
-        if (onReserve) {
+        if (!disableReserveButton && onReserve) {
             onReserve(appointment.id);
         }
     };
@@ -36,9 +35,7 @@ const SchedulingTable = ({ headers, appointments, onReserve }) => {
             <thead>
                 <tr>
                     {headers.map((header, index) => (
-                        <th key={index} style={headerStyle}>
-                            {header}
-                        </th>
+                        <th key={index} style={headerStyle}>{header}</th>
                     ))}
                 </tr>
             </thead>
@@ -46,13 +43,13 @@ const SchedulingTable = ({ headers, appointments, onReserve }) => {
                 {appointments.map((appointment, rowIndex) => (
                     <tr key={rowIndex}>
                         <td style={cellStyle}>{moment(appointment.dateTime).format('HH:mm')}</td>
-                        <td style={cellStyle}>{appointment.professionalName}</td>
+                        <td style={cellStyle}>{"Salón 312 bloque A"}</td>
                         <td style={cellStyle}>
                             <Button 
                                 className="button-save" 
                                 type="primary" 
                                 onClick={() => handleSchedule(appointment)}
-                                disabled={!appointment.available}
+                                disabled={!appointment.available || disableReserveButton} // Deshabilitar si ya hay una cita pendiente
                             >
                                 {appointment.available ? 'Agendar' : 'No disponible'}
                             </Button>
@@ -70,10 +67,10 @@ SchedulingTable.propTypes = {
     appointments: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         dateTime: PropTypes.string.isRequired,
-        professionalName: PropTypes.string.isRequired,
         available: PropTypes.bool.isRequired,
     })).isRequired,
     onReserve: PropTypes.func.isRequired,
+    disableReserveButton: PropTypes.bool.isRequired, // Nueva prop para deshabilitar el botón
 };
 
 export default SchedulingTable;
