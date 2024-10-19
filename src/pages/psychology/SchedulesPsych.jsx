@@ -24,21 +24,21 @@ function DateComponent({ value, onChange }) {
 
 function TimeComponent({ value, onChange }) {
   return (
-    <TimePicker
-      value={value}
-      onChange={onChange}
-      use12Hours
-      format="h:mm a"
-    />
+    <ConfigProvider locale={locale}>
+      <TimePicker
+        value={value}
+        onChange={onChange}
+        use12Hours
+        format="h:mm a"
+      />
+    </ConfigProvider>
   );
 }
 
-export default function SchedulesPsych() {
-  // Estado para manejar las fechas y las horas
+function TableEditable(){
   const [scheduleData, setScheduleData] = useState([
     { date: "", times: [""] }, // Siempre hay un campo Time por defecto
   ]);
-
   // Función para manejar la creación de nuevas fechas
   const handlerCreateDate = () => {
     setScheduleData([...scheduleData, { date: "", times: [""] }]); // Cada nueva fecha empieza con un Time vacío
@@ -64,14 +64,9 @@ export default function SchedulesPsych() {
     newSchedule[dateIndex].times[timeIndex] = time;
     setScheduleData(newSchedule);
   };
-
+  
   return (
     <>
-      <HeaderPsych />
-      <div className={`${styles.contentTitle} text-red`}>
-        <h1>Definir Horarios</h1>
-        <p>Aquí se puede definir el horario para citas disponibles</p>
-      </div>
       <Flex align="center" justify="center" wrap>
         <table className={styles.cssTable} border="1">
           <thead>
@@ -142,7 +137,49 @@ export default function SchedulesPsych() {
               </td>
             </tr>
           </tbody>
+        </table>        
+        </Flex>
+        </>
+  )
+}
+
+export default function SchedulesPsych() {
+
+  const [onPressEdit, setOnPressEdit] = useState(false)
+
+  const handlerEdit = () => setOnPressEdit(true)
+  const handlerDontEdit = () => setOnPressEdit(false)
+  // Estado para manejar las fechas y las horas
+
+  return (
+    <>
+      <HeaderPsych />
+      <div className={`${styles.contentTitle} text-red`}>
+        <h1>Definir Horarios</h1>
+        <p>Aquí se puede definir el horario para citas disponibles</p>
+      </div>
+        {onPressEdit ? <TableEditable/>:<>
+        <table className={styles.cssTable} border="1">
+          <thead>
+            <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><DateComponent value="Fecha"/></td>
+              <td><TimeComponent value="Hora"/></td>
+            </tr>
+          </tbody>
         </table>
+        </>}
+        <Flex justify="center" align="center">
+          <button className="button-cancel" onClick={handlerEdit}>Editar</button>
+          {onPressEdit && <>
+          <button className="button-save">Guardar</button>
+          <button className="button-cancel" onClick={handlerDontEdit}>Cancelar</button>
+          </>}
         </Flex>
     </>
   );

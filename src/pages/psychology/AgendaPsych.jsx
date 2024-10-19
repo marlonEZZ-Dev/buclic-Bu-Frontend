@@ -1,4 +1,4 @@
-	import Attendance from "../../components/global/Attendance.jsx"
+import Attendance from "../../components/global/Attendance.jsx"
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx"
 import HeaderPsych from "../../components/psychology/HeaderPsych.jsx"
 import Modal from "../../components/global/Modal.jsx"
