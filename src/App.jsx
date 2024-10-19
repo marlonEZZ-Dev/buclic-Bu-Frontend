@@ -85,7 +85,7 @@ function App() {
         {/* Rutas hijas de administrador */}
         <Route path="usuarios" element={<ManagementUsers />} />
         <Route path="informes" element={<Informs />} />
-        <Route path="VerInformes" element={<ViewInforms />} />
+        <Route path="VerInforme/:id" element={<ViewInforms />} />
         <Route path="menu" element={<Menu />} />
         <Route path="becaAdm" element={<BecasAdmin />} />
         <Route path="citasAdm" element={<AppointmentsAdmin />} />
