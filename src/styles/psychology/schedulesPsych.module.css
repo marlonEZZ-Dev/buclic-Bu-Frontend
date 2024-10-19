@@ -43,3 +43,10 @@
   border-left-color: #D9D9D9;
 }
 
+.rowInputsTableInit{
+  height: 4.9375rem;
+}
+
+.marginTopEdit{
+  margin: 1.5rem;
+}

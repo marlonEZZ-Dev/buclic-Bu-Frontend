@@ -5,11 +5,12 @@ import dayjs from "dayjs";
 import {Flex} from "antd"
 import buddhistEra from "dayjs/plugin/buddhistEra";
 dayjs.extend(buddhistEra);
+import PropTypes from "prop-types"
 import { ConfigProvider, DatePicker, TimePicker, Button } from "antd";
 import { useState } from "react";
 
 // Componentes para DatePicker y TimePicker
-function DateComponent({ value, onChange }) {
+function DateComponent({ value = "", onChange = () => {}, ...props}) {
   return (
     <ConfigProvider locale={locale}>
       <DatePicker
@@ -17,12 +18,18 @@ function DateComponent({ value, onChange }) {
         onChange={onChange}
         format="YYYY-MM-DD"
         defaultOpenValue={dayjs().format("YYYY-MM-DD")}
+        {...props}
       />
     </ConfigProvider>
   );
 }
 
-function TimeComponent({ value, onChange }) {
+DateComponent.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func
+}
+
+function TimeComponent({ value = "", onChange = () => {}, ...props}) {
   return (
     <ConfigProvider locale={locale}>
       <TimePicker
@@ -30,9 +37,15 @@ function TimeComponent({ value, onChange }) {
         onChange={onChange}
         use12Hours
         format="h:mm a"
+        {...props}
       />
     </ConfigProvider>
   );
+}
+
+TimeComponent.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func
 }
 
 function TableEditable(){
@@ -67,8 +80,7 @@ function TableEditable(){
   
   return (
     <>
-      <Flex align="center" justify="center" wrap>
-        <table className={styles.cssTable} border="1">
+    <table className={styles.cssTable} border="1">
           <thead>
             <tr>
               <th>Fecha</th>
@@ -137,8 +149,7 @@ function TableEditable(){
               </td>
             </tr>
           </tbody>
-        </table>        
-        </Flex>
+        </table>
         </>
   )
 }
@@ -149,7 +160,6 @@ export default function SchedulesPsych() {
 
   const handlerEdit = () => setOnPressEdit(true)
   const handlerDontEdit = () => setOnPressEdit(false)
-  // Estado para manejar las fechas y las horas
 
   return (
     <>
@@ -158,6 +168,7 @@ export default function SchedulesPsych() {
         <h1>Definir Horarios</h1>
         <p>Aquí se puede definir el horario para citas disponibles</p>
       </div>
+      <Flex justify="center" align="center">
         {onPressEdit ? <TableEditable/>:<>
         <table className={styles.cssTable} border="1">
           <thead>
@@ -167,15 +178,16 @@ export default function SchedulesPsych() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td><DateComponent value="Fecha"/></td>
-              <td><TimeComponent value="Hora"/></td>
+            <tr className={styles.rowInputsTableInit}>
+              <td><DateComponent placeholder="Fecha"/></td>
+              <td><TimeComponent placeholder="Hora"/></td>
             </tr>
           </tbody>
         </table>
         </>}
+        </Flex>
         <Flex justify="center" align="center">
-          <button className="button-cancel" onClick={handlerEdit}>Editar</button>
+          <button className={`button-save ${styles.marginTopEdit}`} onClick={handlerEdit}>Editar</button>
           {onPressEdit && <>
           <button className="button-save">Guardar</button>
           <button className="button-cancel" onClick={handlerDontEdit}>Cancelar</button>
