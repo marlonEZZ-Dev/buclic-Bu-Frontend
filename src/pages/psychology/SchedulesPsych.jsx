@@ -1,14 +1,19 @@
 import styles from "../../styles/psychology/schedulesPsych.module.css";
+
 import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import Modal from "../../components/global/Modal.jsx";
 import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
+
 import dayjs from "dayjs";
+
 import {Flex, Button} from "antd"
 import { InfoCircleOutlined } from "@ant-design/icons"
+
 import buddhistEra from "dayjs/plugin/buddhistEra";
 dayjs.extend(buddhistEra);
+
 import { useState } from "react";
 
 function TableEditable(){
