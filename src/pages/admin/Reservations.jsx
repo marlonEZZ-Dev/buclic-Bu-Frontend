@@ -11,7 +11,7 @@ const Reservations = () => {
     const [currentPage, setCurrentPage] = useState(1); // Página actual
     const [totalItems, setTotalItems] = useState(0); // Total de items (para paginación)
     const itemsPerPage = 10; // Elementos por página
-    const [availability, setAvailability] = useState({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 });
+    const [availability, setAvailability] = useState(0);
 
 
     const handleSearch = async (username) => {
@@ -100,29 +100,29 @@ const Reservations = () => {
 
 
     // Agrega esta función para obtener las reservas
-    //const fetchReservations = async () => {
-    //    try {
-    //        const response = await api.get(`/reservations/all?page=${currentPage - 1}&size=${itemsPerPage}`);
-    //        setTableData(response.data.content);
-    //        setTotalItems(response.data.page.totalElements); // Total de reservas
-    //        setCurrentPage(response.data.page.number + 1); // Página actual (ajusta para que sea 1-indexed)
-    //    } catch (error) {
-    //        console.error("Error al obtener las reservas:", error);
-    //        message.error('No se pudieron cargar las reservas.');
-    //    }
-    //};
+    const fetchReservations = async () => {
+        try {
+            const response = await api.get(`/reservations/all?page=${currentPage - 1}&size=${itemsPerPage}`);
+            setTableData(response.data.content);
+            setTotalItems(response.data.page.totalElements); // Total de reservas
+            setCurrentPage(response.data.page.number + 1); // Página actual (ajusta para que sea 1-indexed)
+        } catch (error) {
+            console.error("Error al obtener las reservas:", error);
+            message.error('No se pudieron cargar las reservas.');
+        }
+    };
 
     // Usa un efecto para cargar las reservas de manera constante
-    //useEffect(() => {
-    //    // Llama a la función de carga de reservas inmediatamente
-    //    fetchReservations();
+    useEffect(() => {
+        // Llama a la función de carga de reservas inmediatamente
+        fetchReservations();
 
         // Establece un intervalo para actualizar las reservas
-    //    const intervalId = setInterval(fetchReservations, 5000); // Actualiza cada 5 segundos
+        const intervalId = setInterval(fetchReservations, 5000); // Actualiza cada 5 segundos
 
         // Limpia el intervalo al desmontar el componente
-    //    return () => clearInterval(intervalId);
-    //}, [currentPage]);
+        return () => clearInterval(intervalId);
+    }, [currentPage]);
 
 
     // Manejador para cambiar de página
@@ -131,24 +131,25 @@ const Reservations = () => {
         fetchReservations(page); // Llama a fetchReservations con la nueva página
     };
 
+    // Llama al endpoint para obtener la disponibilidad por hora
     const fetchAvailability = async () => {
         try {
-            const response = await api.get('/reservations/availability');
-            setAvailability({
-                remainingSlotsLunch: response.data.remainingSlotsLunch || 0,
-                remainingSlotsSnack: response.data.remainingSlotsSnack || 0,
-            });
+            const response = await api.get('/reservations/availability-per-hour');
+            setAvailability(response.data); // Asume que el valor devuelto es un número con la disponibilidad actual
         } catch (error) {
             console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
-            setAvailability({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 });
+            message.error('No se pudo obtener la disponibilidad.');
+            setAvailability(0);
         }
     };
 
     useEffect(() => {
         fetchAvailability();
-        const intervalId = setInterval(fetchAvailability, 1000);
-        return () => clearInterval(intervalId);
+        const intervalId = setInterval(fetchAvailability, 1000); // Actualiza cada segundo
+        return () => clearInterval(intervalId); // Limpia el intervalo al desmontar el componente
     }, []);
+
+
 
     // Estilos personalizados para los botones
     const styles = {
@@ -202,10 +203,7 @@ const Reservations = () => {
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
                         <p style={{ fontWeight: 'bold' }}>
-                            Reservas disponibles de almuerzo: {availability.remainingSlotsLunch}
-                        </p>
-                        <p style={{ fontWeight: 'bold' }}>
-                            Reservas disponibles de refrigerio: {availability.remainingSlotsSnack}
+                            Reservas disponibles: {availability}
                         </p>
                     </Space>
 
