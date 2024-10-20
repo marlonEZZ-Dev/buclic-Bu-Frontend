@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-
+// PENSADOS PARA GESTIÓN DE USUARIOS
 const LIMITS_NAMES = 50
 //This is by users
 export const validName = name => name.length <= LIMITS_NAMES ? true : "Los nombres son muy largos"
@@ -38,4 +38,7 @@ export const validEmail = (email, funcionary) => {
 
 export const validRol = rol => rol.length !== 0 ? true : "Debe elegir un rol"
 
-export const validGrant = grant => (grant === "Beneficiario almuerzo") || (grant === "Beneficiario refrigerio") ? true : "Debe elegir un tipo de beca"
+export const validGrant = grant => (grant === "Beneficiario almuerzo") 
+|| (grant === "Beneficiario refrigerio") ? true : "Debe elegir un tipo de beca"
+/********************************************************************************************************/
+
