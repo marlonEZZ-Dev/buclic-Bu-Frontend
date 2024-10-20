@@ -17,45 +17,94 @@ import cssButtonsModal from "../../styles/admin/managementUsers.module.css"
 
 import { useState } from "react"
 
+function AssistanceCell(key){
+	const [selectedAssistance, setSelectedAssistance] = useState("nothing")
+	const [isModalActive, setIsModalActive] = useState(false)
+	const [yes, setYes] = useState(false)
+	let initShow = true
+	return (
+	<>
+	<Modal 
+		open={isModalActive}
+		onClose={() => setIsModalActive(false)}>
+		<Flex vertical
+			align="center"
+			justify="center">
+				<div style={{fontSize:"2rem"}}>
+					<ExclamationCircleOutlined />    <h3 style={{display:"inline"}}>Confirmar</h3>
+				</div>
+				<p style={{fontSize:"1.5rem"}}>{`¿Desea confirmar la ${selectedAssistance === "active" ? "asistencia?" 
+				: selectedAssistance ? "inasistencia" : ""}`}</p>
+		</Flex>
+		<Flex
+      align='center'
+      gap='small'
+      justify='space-around'>
+        <button
+				style={{fontSize:"1.5rem"}}
+				className={cssButtonsModal.buttonCancel} 
+				onClick={() => {
+					setYes(false)
+					setIsModalActive(false)
+				}}>
+					Cancelar
+				</button>
+        <button 
+				style={{fontSize:"1.5rem"}}
+				className={cssButtonsModal.buttonSave}
+				onClick={() => {
+					setYes(true)
+					setIsModalActive(false)
+				}}>
+					Guardar
+				</button>
+    </Flex>
+	</Modal>
+		<Flex 
+		key={key} 
+		justify="space-around" 
+		align="center">
+			{initShow && <>
+				<button 
+				name="active"
+				onClick={(e) => {
+					setSelectedAssistance(e.currentTarget.name)
+					setIsModalActive(true)
+				}}
+				className={styles.assistance}>
+					<Attendance non={false}/>
+			</button>
+			<button 
+				name="inactive" 
+				onClick={(e) => {
+					setSelectedAssistance(e.currentTarget.name)
+					setIsModalActive(true)
+				}} 
+				className={styles.assistance}>
+					<Attendance/>
+			</button>
+			</>}
+			{selectedAssistance === "active" && yes && <StateUser key={`stateUser-${selectedAssistance}`} active={true}/>}
+			{selectedAssistance === "inactive" && yes && <StateUser key={`stateUser-${selectedAssistance}`} active={false}/>}
+		</Flex>
+	</>
+	)
+}
+
 export default function AgendaPsych(){
 	dayjs.locale("es")
-
-	const [enableConfirm, setEnableConfirm] = useState(false)
-	const [whoClicked, setWhoClicked] = useState("")
   
 	let date = dayjs()
 
 	const appointmentPendingColums = ["Hora","Paciente", "Télefono", "Asistencia"]
 	
 	const appointmentDoneColums = ["Horario cita","Paciente", "Télefono", "Asistencia"]
-	
-	const handlerAttendanceClick = (event) => {
-		setEnableConfirm(true)
-		setWhoClicked(event.currentTarget.name)
-	}
-	
 
 	const rowsAppoinmentPending = [
 		[
-			"2 PM","Carolina Perez",123456789, <Flex key={1} justify="space-around" align="center">
-				<button 
-				name="btnAttendance" 
-				onClick={handlerAttendanceClick} 
-				className={styles.assistance}>
-					<Attendance non={false}/>
-				</button>
-				<button 
-				name="btnNonAttendance" 
-				onClick={handlerAttendanceClick} 
-				className={styles.assistance}>
-					<Attendance/>
-				</button>
-				</Flex>],
+			"2 PM","Carolina Perez",123456789, <AssistanceCell key={1}/>],
 		[
-			"3 PM","José Casanova",123456789, <Flex key={2} justify="space-around" align="center">
-				<button name="btnAttendance" onClick={handlerAttendanceClick} className={styles.assistance}><Attendance non={false}/></button>
-				<button name="btnNonAttendance" onClick={handlerAttendanceClick} className={styles.assistance}><Attendance/></button>
-				</Flex>]
+			"3 PM","José Casanova",123456789, <AssistanceCell key={2}/>]
 	]
 
 	const rowsAppointmentDone = [
@@ -74,24 +123,7 @@ export default function AgendaPsych(){
 			<Card
 			className={styles.card}
 			bordered
-			>
-			<Modal open={enableConfirm}>
-				<Flex vertical
-				align="center"
-				justify="center">
-					<div>
-						<ExclamationCircleOutlined />    <h3 style={{display:"inline"}}>Confirmar</h3>
-					</div>
-					<p>{`¿Desea confirmar la ${whoClicked === "btnAttendance" ? "asistencia?" : whoClicked ? "inasistencia" : ""}`}</p>
-				</Flex>
-			<Flex
-        align='center'
-        gap='small'
-        justify='space-around'>
-          <button className={cssButtonsModal.buttonCancel} onClick={() => setEnableConfirm(false)} >Cancelar</button>
-          <button className={cssButtonsModal.buttonSave}>Guardar</button>
-        </Flex>
-			</Modal>
+			>			
 				<Flex 
 				vertical
 				align="center"
