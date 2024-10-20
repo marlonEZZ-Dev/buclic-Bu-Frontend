@@ -12,6 +12,7 @@ const Reservations = () => {
     const [totalItems, setTotalItems] = useState(0); // Total de items (para paginación)
     const itemsPerPage = 10; // Elementos por página
     const [availability, setAvailability] = useState(0);
+    const [availabilityType, setAvailabilityType] = useState(''); // Agregado para tipo de disponibilidad
 
 
     const handleSearch = async (username) => {
@@ -132,21 +133,24 @@ const Reservations = () => {
     };
 
     // Llama al endpoint para obtener la disponibilidad por hora
+
     const fetchAvailability = async () => {
         try {
             const response = await api.get('/reservations/availability-per-hour');
-            setAvailability(response.data); // Asume que el valor devuelto es un número con la disponibilidad actual
+            setAvailability(response.data.availability || 0);
+            setAvailabilityType(response.data.type || ''); // Actualiza el tipo de disponibilidad
         } catch (error) {
             console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
             message.error('No se pudo obtener la disponibilidad.');
             setAvailability(0);
+            setAvailabilityType(''); // Resetea el tipo en caso de error
         }
     };
 
     useEffect(() => {
         fetchAvailability();
-        const intervalId = setInterval(fetchAvailability, 1000); // Actualiza cada segundo
-        return () => clearInterval(intervalId); // Limpia el intervalo al desmontar el componente
+        const intervalId = setInterval(fetchAvailability, 1000);
+        return () => clearInterval(intervalId);
     }, []);
 
 
@@ -203,7 +207,7 @@ const Reservations = () => {
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
                         <p style={{ fontWeight: 'bold' }}>
-                            Reservas disponibles: {availability}
+                            Reservas disponibles {availabilityType.toLowerCase()}: {availability} {/* Muestra el tipo y la disponibilidad */}
                         </p>
                     </Space>
 
@@ -247,7 +251,7 @@ const Reservations = () => {
 
                             {/* Botones */}
                             <div style={styles.buttonContainer}>
-                                <Button type="primary" style={styles.payButton} onClick={handlePayment} >
+                                <Button type="primary"className="button-pay"  style={styles.payButton} onClick={handlePayment} >
                                     Pagó
                                 </Button>
                                 <Button type="default" htmlType="reset" className="button-cancel" onClick={handleCancel}>
