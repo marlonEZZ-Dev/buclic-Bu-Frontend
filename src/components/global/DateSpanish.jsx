@@ -30,6 +30,7 @@ export default function DateSpanish({
           format={FIRST_YEAR}
           defaultOpenValue={dayjs().format(FIRST_YEAR)}
           {...props}
+          style={{display:"block"}}
         />
       </LabelAsteric>
     </ConfigProvider>
