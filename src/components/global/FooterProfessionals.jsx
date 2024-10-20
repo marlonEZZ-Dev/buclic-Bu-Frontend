@@ -2,12 +2,41 @@ import {Flex} from "antd"
 import {MailOutlined} from "@ant-design/icons"
 
 import styles from "../../styles/global/footerProfessionals.module.css"
+import { useState, useEffect } from "react";
 
-export default function FooterProfessionals({props}){
+export default function FooterProfessionals({...props}){
+  const [deviceType, setDeviceType] = useState("")
+  
   const globalTextWhite = {
     color:"#ffffff"
   }
+
+  const handleResize = () => {
+    const width = window.innerWidth;
+
+    if (width <= 767) {
+      setDeviceType('mobile');
+    } else if (width >= 768 && width <= 1024) {
+      setDeviceType('tablet');
+    } else {
+      setDeviceType('desktop');
+    }
+  };
   
+  useEffect(() => {
+    handleResize();
+
+    // Añade el event listener para cambios en el tamaño de la pantalla
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup al desmontar el componente
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  },[])
+
+  let isMobile = deviceType === "mobile"
+  let enableResponsive = isMobile || deviceType === "tablet"
   return (
     <>
       <footer className={styles.footer} {...props}>
@@ -20,7 +49,7 @@ export default function FooterProfessionals({props}){
         </Flex>
         <Flex className={styles.box}>
           <Flex 
-          vertical 
+          vertical={!isMobile}
           style={globalTextWhite}
           className={styles.boxLeft}>
             <p className={`${styles.parag} ${styles.subtitle}`}>Más información</p>
@@ -39,7 +68,7 @@ export default function FooterProfessionals({props}){
             </p>
           </Flex>
           <Flex 
-          vertical 
+          vertical={!isMobile}
           style={globalTextWhite}
           className={styles.boxRight}>
             <p className={`${styles.parag} ${styles.subtitle}`}>Contacto</p>
