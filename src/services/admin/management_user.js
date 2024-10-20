@@ -92,7 +92,7 @@ export const editUser = async (user) => {
     })
 
     if(response.status === 200 || response.status === 201){
-      return {success:true, message: "Usuario actulizado con éxito"}
+      return {success:true, message: "Usuario actualizado con éxito"}
     }else{
       return {success:false, message: "Error al enviar el usuario"}
     }

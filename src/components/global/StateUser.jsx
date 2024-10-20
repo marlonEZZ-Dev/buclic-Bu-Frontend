@@ -1,6 +1,6 @@
 import PropTypes from "prop-types"
-import ActiveIcon from "../../assets/icons/active.svg"
-import InactiveIcon from "../../assets/icons/inactive.svg"
+import InactiveIcon from "../../assets/icons/active.svg"
+import ActiveIcon from "../../assets/icons/inactive.svg"
 import styles from "../../styles/global/stateUser.module.css"
 // active : active or inactive the image showm
 
