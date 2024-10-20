@@ -2,54 +2,14 @@ import styles from "../../styles/psychology/schedulesPsych.module.css";
 import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import Modal from "../../components/global/Modal.jsx";
-import locale from "antd/es/locale/es_ES";
+import DateSpanish from "../../components/global/DateSpanish.jsx";
+import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import dayjs from "dayjs";
-import {Flex} from "antd"
+import {Flex, Button} from "antd"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import buddhistEra from "dayjs/plugin/buddhistEra";
 dayjs.extend(buddhistEra);
-import PropTypes from "prop-types"
-import { ConfigProvider, DatePicker, TimePicker, Button } from "antd";
 import { useState } from "react";
-
-// Componentes para DatePicker y TimePicker
-function DateComponent({ value = "", onChange = () => {}, ...props}) {
-  return (
-    <ConfigProvider locale={locale}>
-      <DatePicker
-        value={value}
-        onChange={onChange}
-        format="YYYY-MM-DD"
-        defaultOpenValue={dayjs().format("YYYY-MM-DD")}
-        {...props}
-      />
-    </ConfigProvider>
-  );
-}
-
-DateComponent.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func
-}
-
-function TimeComponent({ value = "", onChange = () => {}, ...props}) {
-  return (
-    <ConfigProvider locale={locale}>
-      <TimePicker
-        value={value}
-        onChange={onChange}
-        use12Hours
-        format="h:mm a"
-        {...props}
-      />
-    </ConfigProvider>
-  );
-}
-
-TimeComponent.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func
-}
 
 function TableEditable(){
   const [scheduleData, setScheduleData] = useState([
@@ -97,14 +57,14 @@ function TableEditable(){
           <tr key={`date-${dateIndex}`}>
           {/* Celda de la fecha */}
             <td>
-              <DateComponent
+              <DateSpanish
                 value={schedule.date}
                 onChange={(date) => handlerDateChange(date, dateIndex)}
               />
             </td>
              {/* Primer campo de hora */}
             <td>
-              <TimeComponent
+              <TimeSpanish
                 value={schedule.times[0]}
                 onChange={(time) =>
                   handlerTimeChange(time, dateIndex, 0)
@@ -118,7 +78,7 @@ function TableEditable(){
                   <tr key={`time-${dateIndex}-${timeIndex}`}>
                     <td></td>
                     <td>
-                      <TimeComponent
+                      <TimeSpanish
                         value={time}
                         onChange={(time) =>
                           handlerTimeChange(time, dateIndex, timeIndex + 1)
@@ -237,8 +197,8 @@ export default function SchedulesPsych() {
           </thead>
           <tbody>
             <tr className={styles.rowInputsTableInit}>
-              <td><DateComponent placeholder="Fecha"/></td>
-              <td><TimeComponent placeholder="Hora"/></td>
+              <td><DateSpanish placeholder="Fecha"/></td>
+              <td><TimeSpanish placeholder="Hora"/></td>
             </tr>
           </tbody>
         </table>
