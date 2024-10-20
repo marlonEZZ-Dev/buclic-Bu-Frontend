@@ -4,11 +4,14 @@ import ActiveIcon from "../../assets/icons/inactive.svg"
 import styles from "../../styles/global/stateUser.module.css"
 // active : active or inactive the image showm
 
-export default function StateUser({active}){
+export default function StateUser({key,active}){
 
-  return <img className={styles.image} src={active ? ActiveIcon : InactiveIcon}/>
+  return <img key={key} className={styles.image} src={active ? ActiveIcon : InactiveIcon}/>
 }
 
 StateUser.propTypes = {
-  active : PropTypes.bool.isRequired
+  active : PropTypes.bool.isRequired,
+  key: PropTypes.oneOfType([
+    PropTypes.number, 
+    PropTypes.string])
 }
