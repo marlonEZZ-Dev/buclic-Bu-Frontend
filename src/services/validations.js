@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
-// PENSADOS PARA GESTIÓN DE USUARIOS
 const LIMITS_NAMES = 50
+// PENSADOS PARA GESTIÓN DE USUARIOS
 //This is by users
 export const validName = name => name.length <= LIMITS_NAMES ? true : "Los nombres son muy largos"
 
@@ -42,3 +42,36 @@ export const validGrant = grant => (grant === "Beneficiario almuerzo")
 || (grant === "Beneficiario refrigerio") ? true : "Debe elegir un tipo de beca"
 /********************************************************************************************************/
 
+//Pensado para Registro de actividades enfermería
+export const validFullName = name => name.length <= (LIMITS_NAMES * 2) ? true : "El nombre es demasiado largo"
+
+export const validDate = date => {
+  if( !(date.isValid()) ) return "El dato ingresado no es una fecha válida"
+
+  const FORMAT = "YYYY-MM-DD"
+  const now = dayjs().startOf("day")
+  date = date.startOf("day")
+
+  return date >= now ? true 
+          : `La fecha ${date.format(FORMAT)} es anterior a la fecha de hoy ${now.format(FORMAT)}`  
+}
+
+export const validPhone = phone => {
+  if(isNaN(phone)){
+    return "Ingrese un número de celular válido"
+  }
+
+  const exampleNumber = 3130000000 + Math.round(Math.random() * 10000000)
+  return phone.length === 10 ? true : `El número de celular debe contener 10 digitos Ej: ${exampleNumber}`
+}
+
+export const validSemester = semester => {
+  if(isNaN(semester)){
+    return "El dato ingresado no es un número"
+  }
+  
+  return semester <= 11 ? true 
+  :"Una carrera tecnológica dura de 6 a 7 semestres y una carrera profesional de 10 a 11 semestres" 
+}
+
+export const validListEmpty = (list, message) => list.length === 0 ? message : true
