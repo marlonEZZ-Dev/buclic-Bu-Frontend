@@ -7,8 +7,7 @@ dayjs.extend(buddhistEra);
 
 import LabelAsteric from "./LabelAsteric.jsx";
 
-export default function TimeSpanish({ 
-  value = "",
+export default function TimeSpanish({
   title = "",
   isRenderAsteric = false,
   labelClass = "",
@@ -22,7 +21,6 @@ export default function TimeSpanish({
       labelClass={labelClass}
       >
         <TimePicker
-          value={value}
           onChange={onChange}
           use12Hours
           format="h:mm a"

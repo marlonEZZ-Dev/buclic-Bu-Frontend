@@ -9,7 +9,6 @@ import buddhistEra from "dayjs/plugin/buddhistEra";
 dayjs.extend(buddhistEra);
 
 export default function DateSpanish({ 
-  value = "", 
   isRenderAsteric = false, 
   labelClass = "", 
   title="title", 
@@ -25,7 +24,6 @@ export default function DateSpanish({
       title={title}
      >
         <DatePicker
-          value={value}
           onChange={onChange}
           format={FIRST_YEAR}
           defaultOpenValue={dayjs().format(FIRST_YEAR)}
