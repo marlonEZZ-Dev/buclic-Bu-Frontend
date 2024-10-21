@@ -94,17 +94,18 @@ export default function BecasNurse(){
           className={comboboxes}
           />
         </Flex>
-        <Flex align="center" justify="center" className={styles.divider} gap={30}>
-          <TextArea
-          title="Conducta"
-          placeholder="Conducta del paciente"
-          className={styles.textArea}
-          />
-        </Flex>
-        <Flex justify="center" align="center" className={styles.divider} gap={30}>
-          <button className="button-save">Guardar</button>
-          <button className="button-cancel">Cancelar</button>
-        </Flex>
+      </Flex>
+      <TextArea
+        title="Conducta"
+        labelClass={styles.textAlignLeft}
+        placeholder="Conducta de la actividad"
+        className={`${styles.textArea} ${styles.divider}`}
+        autoSize={{minRows:3, maxRows:8}}
+        required
+      />
+      <Flex justify="center" align="center" className={styles.divider} gap={30}>
+        <button className="button-save">Guardar</button>
+        <button className="button-cancel">Cancelar</button>
       </Flex>
       </Card>
       <FooterProfessionals/>

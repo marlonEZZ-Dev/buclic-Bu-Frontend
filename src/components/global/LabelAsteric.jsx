@@ -9,8 +9,9 @@ export default function LabelAsteric({
 }){
   return (
   <>
-    <label className={`${styles.labels} ${labelClass}`}>
-      {title} {isRenderAsteric ? <span className={styles.asteric}>*</span> : ""}
+    <label className={styles.labels}>
+      <span className={labelClass}>{title} {isRenderAsteric ? <span className={styles.asteric}>*</span> : ""}</span>
+      <br />
       {children}
     </label>
   </>

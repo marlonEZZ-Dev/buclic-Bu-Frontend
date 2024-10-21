@@ -1,3 +1,16 @@
+/*************************** Controlan el responsive *********************************/
+@media (max-width: 768px) { /*Celuares pequeños y muy pequeños*/
+  html{
+    font-size: clamp(1rem, 3.5vw, 7vw);
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 768px) { /*Tablets*/
+  html{
+    font-size: clamp(1rem, 2vw, 4vw);
+  }
+}
+/***********************************************************************************************/
 .contentTitle{
   margin-top: 6.25rem;
   & span{
@@ -18,8 +31,13 @@
   margin-right: auto;
 }
 
+.totalWidth{
+  width: 80%;
+}
+
 .textArea{
-  width: 100%;
+  width: 90%;
+  border-radius: .5rem;
 }
 
 .divider{
