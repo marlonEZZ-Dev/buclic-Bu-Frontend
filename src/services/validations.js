@@ -6,27 +6,39 @@ export const validName = name => name.length <= LIMITS_NAMES ? true : "Los nombr
 
 export const validLastname = lastname => lastname.length <= LIMITS_NAMES ? true : "Los apellidos son muy largos"
 
+const forCode = code => {
+  const c = Number.parseInt(code)
+  const limitTop = (dayjs().year() * 10000) + 99999 // ej: año 2024 -> 202499999
+  return (c >= 195000000) && (c <= limitTop) ? true : 
+  `El código no es válido, debe tener 9
+  dígitos. Ej: ${limitTop}`
+}
+
+const forNuip = nuip => {
+  return (nuip.length >= 8) && (nuip.length <= 10) ? true : 
+  `La cédula ${nuip} no es una cédula válida
+  esta debe contener entre 8  y 10 digitos`
+}
+
+const forPlan = plan => /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 digitos"
+
+const forArea = area => /^[a-zA-Z]$/.test(area) ? true : "El área debe por ejemplo ser adminstrativa, psicología, etc"
+
 export const validCode = (code, isCode) => {
   //Si es estudiante o beneficiario
   if(isCode){
-    const c = Number.parseInt(code)
-    const limitTop = (dayjs().year() * 10000) + 99999 // ej: año 2024 -> 202499999
-    return (c >= 195000000) && (c <= limitTop) ? true : 
-    `El código no es válido, debe tener 9
-    dígitos. Ej: ${limitTop}`
+    return forCode(code)
   }
   //Si es funcionario
-  return (code.length >= 8) && (code.length <= 10) ? true : 
-  `La cédula ${code} no es una cédula válida
-  esta debe contener entre 8  y 10 digitos`
+  return forNuip(code)
 }
 
 export const validPlan = (plan, isPlan) => {
   if(isPlan){
-    return /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 digitos" 
+    return forPlan(plan)
   }
-  //Área dependiente es un string sin restricciones
-  return true
+  //Área dependiente es un string
+  return forArea(plan)
 }
 
 export const validEmail = (email, funcionary) => {
@@ -70,8 +82,42 @@ export const validSemester = semester => {
     return "El dato ingresado no es un número"
   }
   
-  return semester <= 11 ? true 
+  return parseInt(semester) <= 11 ? true 
   :"Una carrera tecnológica dura de 6 a 7 semestres y una carrera profesional de 10 a 11 semestres" 
 }
 
-export const validListEmpty = (list, message) => list.length === 0 ? message : true
+export const validCodeOrNuip = value => {
+  const isCode = forCode(value)
+  const isNuip = forNuip(value)
+
+  if((typeof isCode === "boolean") && (typeof isNuip === "boolean")){
+    return true
+  }
+
+  if((typeof isCode === "string") && (typeof isNuip === "string")){
+    return `${isCode} \n ${isNuip}`
+  }
+
+  return (typeof isCode === "string") ? isCode : isNuip
+}
+
+export const validPlanOrArea = value => {
+  const isPlan = forPlan(value)
+  const isArea = forArea(value)
+
+  if((typeof isPlan === "boolean") && (typeof isArea === "boolean")){
+    return true
+  }
+
+  if((typeof isPlan === "string") && (typeof isArea === "string")){
+    return `${isPlan} \n ${isArea}`
+  }
+
+  return (typeof isPlan === "string") ? isPlan : isArea
+}
+
+export const validListEmpty = (listObj, optionSelected, message) => {
+  const include = listObj.find( obj => obj.value === optionSelected )
+  
+  return include === undefined ? message : true
+}
