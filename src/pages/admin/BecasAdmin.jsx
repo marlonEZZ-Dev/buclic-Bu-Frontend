@@ -286,7 +286,10 @@ const BecasAdmin = () => {
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
 
-        <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
+        <MenuBecas
+          onSelect={setSelectedType}
+          buttons={buttons}
+          selectedType={selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}>
           {settings && (
             <p style={{ fontWeight: 'bold' }}>
               {selectedType === 'almuerzo' // Si está en la sección de almuerzo

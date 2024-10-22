@@ -207,7 +207,7 @@ const Reservations = () => {
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
                         <p style={{ fontWeight: 'bold' }}>
-                            Reservas disponibles {availabilityType.toLowerCase()}: {availability} {/* Muestra el tipo y la disponibilidad */}
+                            Reservas disponibles de {availabilityType.toLowerCase()}: {availability} {/* Muestra el tipo y la disponibilidad */}
                         </p>
                     </Space>
 
@@ -252,7 +252,7 @@ const Reservations = () => {
                             {/* Botones */}
                             <div style={styles.buttonContainer}>
                                 <Button type="primary"className="button-pay"  style={styles.payButton} onClick={handlePayment} >
-                                    Pagó
+                                    Pagar
                                 </Button>
                                 <Button type="default" htmlType="reset" className="button-cancel" onClick={handleCancel}>
                                     Cancelar reserva
