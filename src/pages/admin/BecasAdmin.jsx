@@ -251,8 +251,8 @@ const BecasAdmin = () => {
 
 
   // Definir las columnas para cada tipo de menú
-  const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio', 'Nota'];
-  const columnsRefrigerio = ['Aperitivo', 'Bebida', 'Precio', 'Nota'];
+  const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre', 'Precio'];
+  const columnsRefrigerio = ['Aperitivo', 'Bebida', 'Precio'];
 
   // Convertir los datos del menú en filas para la tabla
   const almuerzoRows = [
@@ -261,7 +261,6 @@ const BecasAdmin = () => {
       menuData?.Almuerzo?.drink || '',
       menuData?.Almuerzo?.dessert || '',
       menuData?.Almuerzo?.price || 0,
-      menuData?.Almuerzo?.note || '',
     ],
   ];
 
@@ -270,7 +269,6 @@ const BecasAdmin = () => {
       menuData?.Refrigerio?.mainDish || '',
       menuData?.Refrigerio?.drink || '',
       menuData?.Refrigerio?.price || 0,
-      menuData?.Refrigerio?.note || '',
     ],
   ];
 
@@ -285,6 +283,10 @@ const BecasAdmin = () => {
       <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
+
+        {menuData?.Almuerzo?.note && (
+          <p><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>
+        )}
 
         <MenuBecas
           onSelect={setSelectedType}
@@ -341,7 +343,7 @@ const BecasAdmin = () => {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
             <p>Reservas disponibles: {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
-            <p>Costo: {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
+            <p>Costo: $ {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
           </div>
 
 
@@ -353,7 +355,7 @@ const BecasAdmin = () => {
           />
 
           <p style={{ textAlign: 'left', marginTop: '8px' }}>
-            Eres beneficiario/a de la beca tipo {benefitType}
+            Eres beneficiario/a de {benefitType}
           </p>
 
 
