@@ -312,7 +312,9 @@ const Reservations = () => {
                     {/* Componente de Tabla con Paginación */}
                     <TablePaginationR
                         rows={tableData.map(reservation => [
-                            reservation.username,
+                            <span onClick={() => handleSearch(reservation.username)} style={{ cursor: 'pointer', color: 'blue' }}>
+                                {reservation.username}
+                            </span>,
                             `${reservation.name} ${reservation.lastname}`,
                             `${formatDate(reservation.data)} ${reservation.time}`
                         ])}
@@ -322,6 +324,7 @@ const Reservations = () => {
                         totalItems={totalItems}
                         onPageChange={handlePageChange}
                     />
+
                 </Card>
             </main>
         </>
