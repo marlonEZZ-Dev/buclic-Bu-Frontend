@@ -45,7 +45,10 @@ export const listUsers = async (filter, page = 0, size = 10) => {
     const response = await axios.get(`/users/list?filter=${filter}&page=${page}&size=${size}`)
     return response.data
   } catch (error) {
-    return errorForGet.get(error.response.status)
+    return {
+      success: false,
+      message:errorForGet.get(error.response.status)
+    }
   }
 }
 
@@ -56,7 +59,10 @@ export const searchUser = async (username) => {
     const response = await axios.get(url)
     return response.data
   } catch (error) {
-    return errorForGet.get(error.response.status)
+    return {
+      success: false,
+      message: errorForGet.get(error.response.status)
+    }
   }
 }
 
@@ -76,7 +82,10 @@ export const createUser = async (user) => {
     if(response.status === 201) return "Usuario creado exitosamente" 
     
   }catch(error){
-    return errorForPost.get(error.response.status)
+    return {
+      success: false,
+      message: errorForPost.get(error.response.status)
+    }
   };
 }
 
@@ -95,7 +104,10 @@ export const importUsers = async (role, fileCSV) => {
       return { success: false, message: "Error al subir archivo" };
     }
   } catch (error) {
-    return errorForPost.get(error.response.status)
+    return {
+      succes: false,
+      message: errorForPost.get(error.response.status)
+    }
   }
 } 
 
@@ -118,11 +130,13 @@ export const editUser = async (user) => {
 
     if(response.status === 200 || response.status === 201){
       return {success:true, message: "Usuario actualizado con éxito"}
-    }else{
-      return {success:false, message: "Error al enviar el usuario"}
     }
+
   } catch (error) {
-    return errorForPut.get(error.response.status)
+    return {
+      success: false, 
+      message: errorForPut.get(error.response.status)
+    }
   }
 }
 
@@ -138,7 +152,10 @@ export const deleteBeneficiary = async (username) => {
       }
     }
   } catch (error) {
-    return errorForDelete.get(error.response.status)
+    return {
+      success: false, 
+      message: errorForDelete.get(error.response.status)
+    }
   }
 }
 
@@ -152,6 +169,9 @@ export const deleteBeneficiaries = async () => {
       }
     }
   } catch (error) {
-    return errorForDelete.get(error.response.status)
+    return {
+      success: false, 
+      message: errorForDelete.get(error.response.status)
+    }
   }
 }
