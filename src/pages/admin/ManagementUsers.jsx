@@ -24,6 +24,7 @@ export default function ManagementUsers(){
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
   const [savePressed, SetSavePressed] = useState(false)
+  const [refreshFields, setRefreshFields] = useState("non-refresh")
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -273,13 +274,14 @@ export default function ManagementUsers(){
     try {
       message = await createUser(user);
       await loadUsers()
+      setRefreshFields("refresh")
     } catch (error) {
       setModalStruct({title:"Error", content: error.message})
       setIsModalVerify(true)
     }
     setModalStruct({title:"Confirmación", content: message})
     setIsModalVerify(true)
-  }, [user, changesDescription, users]);
+  }, [user, changesDescription, users, refreshFields]);
 
   const handlerHiddenClickInput = () => hiddenFileInput.current.click()
   
@@ -357,6 +359,11 @@ export default function ManagementUsers(){
     } catch (error) {
       console.log(error.message);
     }
+  }
+
+  const handlerClearFields = () => {
+    setUser(initialUser)
+    setRefreshFields("refresh")
   }
 
   useEffect(() => {
@@ -632,7 +639,7 @@ export default function ManagementUsers(){
             gap={29} 
             vertical={isMobile}>
               <SmallInput
-                key={`name${changesDescription}`}
+                key={`name${changesDescription} ${refreshFields}`}
                 title='Nombre'
                 placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}
                 maxLength={40}
@@ -644,7 +651,7 @@ export default function ManagementUsers(){
                 />
               <SmallInput
                 title='Apellidos'
-                key={`lastName${changesDescription}`}
+                key={`lastName${changesDescription} ${refreshFields}`}
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}
                 maxLength={40}
                 minLength={3}
@@ -660,7 +667,7 @@ export default function ManagementUsers(){
           vertical={isMobile}
           >
             <SmallInput
-              key={`username${changesDescription}`}
+              key={`username${changesDescription} ${refreshFields}`}
               title={isFuncionary ? "Cédula" : "Código estudiantil"}
               placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}
               type="number"
@@ -673,7 +680,7 @@ export default function ManagementUsers(){
               />
             <SmallInput
               isRenderAsteric={isFuncionary ? false:true}
-              key={`plan${changesDescription}`}
+              key={`plan${changesDescription} ${refreshFields}`}
               title={isFuncionary ? "Área dependiente":"Plan"}
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}
               maxLength={40}
@@ -690,7 +697,7 @@ export default function ManagementUsers(){
           vertical={isMobile}
           >
             <SmallInput
-              key={`email${changesDescription}`}
+              key={`email${changesDescription} ${refreshFields}`}
               title='Correo electrónico'
               placeholder='Correo del estudiante'
               type="email"
@@ -715,7 +722,7 @@ export default function ManagementUsers(){
             <Select
               placeholder="Selecciona"
               className={styles.comboboxes}
-              key={`SelectImportant${changesDescription}`}
+              key={`SelectImportant${changesDescription} ${refreshFields}`}
               name={isBeneficiary ? "grant" : ""}
               defaultActiveFirstOption={isFuncionary}
               onChange={value => {
@@ -753,7 +760,7 @@ export default function ManagementUsers(){
             console.dir(changesDescription)
           }}>Guardar</button>
           <button className={styles.buttonCancel}
-          onClick={() => {setUser(initialUser)}}
+          onClick={handlerClearFields}
           >Cancelar</button>
         </Flex>
         <Divider/>
