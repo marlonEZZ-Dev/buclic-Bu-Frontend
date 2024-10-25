@@ -51,6 +51,8 @@ export const createUser = async (user) => {
     if(response.status === 201) return "Usuario creado exitosamente" 
     
   }catch(error){
+    if(error.response.status === 409) return "El usuario ya existe"
+    
     return getError(error)
   };
 }
