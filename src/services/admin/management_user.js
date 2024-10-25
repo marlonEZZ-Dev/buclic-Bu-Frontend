@@ -4,15 +4,40 @@ import axios from "../../api.js"
 En este archivo se encuentran las funciones que hacen peticiones al backend sobre 
 usuarios y enfoncadas a la vista Gestión de usuarios o ManagementUser
 */
+const errorForGet = new Map([
+  [400, "Solicitud inválida"],
+  [401, "No estas autorizado"],
+  [403, "No tienes los permisos para solicitar este recurso"],
+  [404, "Usuario no encontrado"],
+  [500, "Error interno del servidor"]
+])
 
-const getError = error => {
-  if (error.response) {
-    return { success: false, message: error.response.data.message || 'Error desconocido' };
-  } else {
-    // Error de red o de configuración
-    return { success: false, message: error.message || 'Error de red' };
-  }
-}
+const errorForPost = new Map([
+  [400, "Datos inválidos en la solicitud"],
+  [401, "No autorizado para crear usuarios"],
+  [403, "No tienes permisos para crear usuarios"],
+  [409, "El usuario ya existe"],
+  [413, "Archivo demasiado grande"],
+  [415, "Tipo de contenido no soportado"],
+  [500, "Error interno del servidor"]
+])
+
+const errorForPut = new Map([
+  [400, "Datos inválidos para la actualización"],
+  [401, "No autorizado para actualizar"],
+  [403, "No tienes permisos para actualizar"],
+  [404, "Usuario a actualizar no encontrado"],
+  [409, "Conflicto con el estado actual del usuario"],
+  [500, "Error interno del servidor"]
+])
+
+const errorForDelete = new([
+  [401, "No autorizado para eliminar"],
+  [403, "No tienes permisos para eliminar"],
+  [404, "Usuario a eliminar no encontrado"],
+  [409, "No se puede eliminar debido a dependencias"],
+  [500, "Error interno del servidor"]
+])
 
 //PETICIONES GET
 export const listUsers = async (filter, page = 0, size = 10) => {
@@ -20,7 +45,7 @@ export const listUsers = async (filter, page = 0, size = 10) => {
     const response = await axios.get(`/users/list?filter=${filter}&page=${page}&size=${size}`)
     return response.data
   } catch (error) {
-    return getError(error)
+    return errorForGet.get(error.response.status)
   }
 }
 
@@ -31,7 +56,7 @@ export const searchUser = async (username) => {
     const response = await axios.get(url)
     return response.data
   } catch (error) {
-    return getError(error)
+    return errorForGet.get(error.response.status)
   }
 }
 
@@ -51,9 +76,7 @@ export const createUser = async (user) => {
     if(response.status === 201) return "Usuario creado exitosamente" 
     
   }catch(error){
-    if(error.response.status === 409) return "El usuario ya existe"
-    
-    return getError(error)
+    return errorForPost.get(error.response.status)
   };
 }
 
@@ -72,7 +95,7 @@ export const importUsers = async (role, fileCSV) => {
       return { success: false, message: "Error al subir archivo" };
     }
   } catch (error) {
-    return { success: false, message: getError(error).message };
+    return errorForPost.get(error.response.status)
   }
 } 
 
@@ -99,10 +122,11 @@ export const editUser = async (user) => {
       return {success:false, message: "Error al enviar el usuario"}
     }
   } catch (error) {
-    return {success:false, message: getError(error).message}
+    return errorForPut.get(error.response.status)
   }
 }
 
+//PETICIONES DELETE
 export const deleteBeneficiary = async (username) => {
   try {
     const response = axios.put(`/users/delete/${username}`)
@@ -114,7 +138,7 @@ export const deleteBeneficiary = async (username) => {
       }
     }
   } catch (error) {
-    return {success:false, message: getError(error).message}
+    return errorForDelete.get(error.response.status)
   }
 }
 
@@ -128,9 +152,6 @@ export const deleteBeneficiaries = async () => {
       }
     }
   } catch (error) {
-    return {
-      success:false,
-      message: getError(error).message
-    }
+    return errorForDelete.get(error.response.status)
   }
 }
