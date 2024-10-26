@@ -7,12 +7,18 @@ export const validName = name => name.length <= LIMITS_NAMES ? true : "Los nombr
 export const validLastname = lastname => lastname.length <= LIMITS_NAMES ? true : "Los apellidos son muy largos"
 
 const forCode = code => {
-  const c = Number.parseInt(code)
-  const limitTop = (dayjs().year() * 10000) + 99999 // ej: año 2024 -> 202499999
-  return (c >= 195000000) && (c <= limitTop) ? true : 
-  `El código no es válido, debe tener 9
-  dígitos. Ej: ${limitTop}`
-}
+  // Verifica si el código es una cadena de exactamente 9 dígitos
+  code = String(code)
+  if (!( /^\d{9}$/.test(code) )) {
+    return "El código no es válido, debe tener 9 dígitos. Ej: 202059431"
+  }
+
+  const c = Number(code)
+  const limitTop = (dayjs().year() * 100000) + 99999 // ej: año 2024 -> 202499999
+  return (c >= 195000000) && (c <= limitTop) 
+    ? true 
+    : `El código no es válido, debe ser máximo ${limitTop}`
+};
 
 const forNuip = nuip => {
   return (nuip.length >= 8) && (nuip.length <= 10) ? true : 
