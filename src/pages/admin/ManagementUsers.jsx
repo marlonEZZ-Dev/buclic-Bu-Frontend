@@ -1,4 +1,4 @@
-import { Divider, Flex, Select } from 'antd'
+import { Divider, Flex, Select, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { useCallback, useEffect, useState, useRef } from 'react'
 
@@ -14,8 +14,25 @@ import TablePaginationUsers from '../../components/global/TablePaginationUsers.j
 import styles from "../../styles/admin/managementUsers.module.css"
 import otherStyles from "../../styles/global/inputSmall.module.css"
 
-import { createUser, deleteBeneficiaries, editUser, importUsers, listUsers, searchUser, deleteBeneficiary } from "../../services/admin/management_user.js"
-import { validCode, validEmail, validGrant, validLastname, validName, validPlan, validRol} from '../../services/validations.js'
+import { 
+  createUser, 
+  deleteBeneficiaries, 
+  editUser, 
+  importUsers, 
+  listUsers,
+  searchUser, 
+  deleteBeneficiary 
+} from "../../services/admin/management_user.js"
+
+import { 
+  validCode, 
+  validEmail, 
+  validGrant, 
+  validLastname, 
+  validName, 
+  validPlan, 
+  validRol
+} from '../../services/validations.js'
 
 export default function ManagementUsers(){
   //useStates
@@ -24,11 +41,14 @@ export default function ManagementUsers(){
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
   const [savePressed, SetSavePressed] = useState(false)
-  const [refreshFields, setRefreshFields] = useState("non-refresh")
+  const [refreshFields, setRefreshFields] = useState("")
+  const [statusRolesGrantSelect, setStatusRolesGrantSelect] = useState("")
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
   const [uploadStatus, setUploadStatus] = useState("ninguno")
+  //nofity
+  const [messageApi, contextHolder] = message.useMessage()
   //modals
   const [isModalImport, setIsModalImport] = useState(false)
   const [isModalEdit, setIsModalEdit] = useState(false)
@@ -116,20 +136,40 @@ export default function ManagementUsers(){
 
   const tranformToStateUser = atribbute => <StateUser active={atribbute} />
   
+  const getTypeUserCurrent = () => buttons[changesDescription].type.toLowerCase()
+  
   const loadUsers = async () => {
     if (buttons[changesDescription]) {
         try {
-            const result = await listUsers(buttons[changesDescription].type.toLowerCase())
+            const result = await listUsers(getTypeUserCurrent())
+            if("success" in result){
+              notifyError(result.message)
+              return
+            }
             const data = result.content
             setRows(data.map(user => ({
               ...user,
               isActive: tranformToStateUser(user.isActive)
             })))
         } catch (error) {
-            console.error("Error al listar usuarios:", error);
+            console.log(`Esto ocurre en loadUsers ${error}`)
+            return {success: false, message: error.message}
         }
     }
 };
+  const notifyError = message => {
+    messageApi.open({
+      type:"error",
+      content: message
+    })
+  }
+
+  const notifySuccess = message => {
+    messageApi.open({
+      type:"success",
+      content: message
+    })
+  }
 
   //Handlers
   const handlerClick = type => setChangesDescription(users.get(type))
@@ -170,10 +210,21 @@ export default function ManagementUsers(){
 
   const handlerCreateUser = e => {
     const {name, value} = e.target
+    const mapea = new Map([
+      ["username",validCode(value, !isFuncionary)],
+      ["name",validName(value)],
+      ["lastName",validLastname(value)],
+      ["email",validEmail(value, isFuncionary)],
+      ["plan",validPlan(value, !isFuncionary)],
+      ["roles",validRol(value)],
+      ["grant", !isBeneficiary ? true : validGrant(user.grant)]
+    ])
+    if(typeof (mapea.get(name)) === "boolean"){
     setUser(prevUser => ({
       ...prevUser,
       [name]: value
     }))
+    }
   }
 
   const handlerEditUser = e => {
@@ -213,75 +264,55 @@ export default function ManagementUsers(){
 
   }
 
-  const handlerVUsername = () => {
-    const username = validCode(user.username, !isFuncionary)
-    if(typeof username === "string"){
-      setModalStruct({title:"Advertencia",content:username})
-      setIsModalVerify(true)
+  const handlerBlur = (e, valid) => {
+    if((typeof valid === "string") || !(e.target.checkValidity())){
+      e.target.classList.add("invalid")
+    }else{
+      e.target.classList.remove("invalid")
     }
   }
 
-  const handlerVName = () => {
-    const name = validName(user.name)
-    if(typeof name === "string"){
-      setModalStruct({title:"Advertencia", content: name})
-      setIsModalVerify(true)
-    }
+  const handlerBlurSelect = valid => {
+    setStatusRolesGrantSelect((typeof valid === "string") ? "error" : "")
   }
 
-  const handlerVLastname = () => {
-    const lastname = validLastname(user.lastName)
-    if(typeof lastname === "string"){
-      setModalStruct({title:"Advertencia", content: lastname})
-      setIsModalVerify(true)
-    }
-  }
-
-  const handlerVEmail = () => {
-    const email = validEmail(user.email, isFuncionary)
-    if(typeof email === "string"){
-      setModalStruct({title:"Advertencia",content: email})
-      setIsModalVerify(true)
-    }
-  }
-  
-  const handlerVPlan = () => {
-    const plan = validPlan(user.plan, !isFuncionary)
-    if(typeof plan === "string"){
-      setModalStruct({title:"Advertencia", content: plan})
-      setIsModalVerify(true)
-    }
-  }
-
-  const handlerVRoles = () => {
-    const roles = validRol(user.roles)
-    if(typeof roles === "string"){
-      setModalStruct({title:"Advertencia",content: roles})
-      setIsModalVerify(true)
-    }
-  }
-  
-  const handlerVGrant = () => {
-    const grant = validGrant(user.grant)
-    if((typeof grant === "string") && (isBeneficiary)){
-      setModalStruct({title:"Advertencia", content: grant})
-      setIsModalVerify(true)
+  const handlerVerify = () => {
+    let content = ""
+    const verifier = [
+      validCode(user.username, !isFuncionary),
+      validName(user.name),
+      validLastname(user.lastName),
+      validEmail(user.email, isFuncionary),
+      validPlan(user.plan, !isFuncionary),
+      validRol(user.roles),
+      !isBeneficiary ? true : validGrant(user.grant)
+    ]
+    const allOk = verifier.every( i => i === true)
+    if(!allOk){
+      content = verifier.filter( i => typeof i === "string").join("\n")
+      setModalStruct({title: "Advertencia", content: content})
+      return
     }
   }
 
   const handlerSave = useCallback(async () => {
-    let message = ""
-    try {
-      message = await createUser(user);
-      await loadUsers()
+  try {
+    const responseCreate = await createUser(user);
+    if(responseCreate.success === false){
+      notifyError(responseCreate.message)
+      return
+    }
+    
+    const responseLoad = await loadUsers()
+    if((responseLoad !== undefined) && ("success" in responseLoad)){
+      notifyError(responseLoad.message)
+    }
+      notifySuccess(responseCreate)
       setRefreshFields("refresh")
     } catch (error) {
-      setModalStruct({title:"Error", content: error.message})
-      setIsModalVerify(true)
+      console.error(`Esto es en handlerSave ${error}`);
     }
-    setModalStruct({title:"Confirmación", content: message})
-    setIsModalVerify(true)
-  }, [user, changesDescription, users, refreshFields]);
+  }, [user, changesDescription, users, refreshFields, messageApi]);
 
   const handlerHiddenClickInput = () => hiddenFileInput.current.click()
   
@@ -314,31 +345,43 @@ export default function ManagementUsers(){
   }
 
   const handlerSearchUser = async () => {
-    console.dir(codeUser);
     try{
       const userFound = await searchUser(codeUser)
+      if((userFound !== undefined) && ("success" in userFound)){
+        notifyError(userFound.message)
+        return
+      }
       const arrayUserFound = []
       userFound.isActive = tranformToStateUser(userFound.isActive)
       arrayUserFound.push(userFound)
       setRows(arrayUserFound)
     }catch(error){
-      setModalStruct(error.message)
-      setIsModalVerify(true)
+      console.error(`Esto ocurre en handlerSearchUser ${error}`)
     }
   }
   //---------------------------------------------------------
 
   const handlerSendUserEdited = async () => {
-    let info = {}
     try {
-      info = await editUser(objectSelected)
-      await loadUsers()
+      const responseEdit = await editUser(objectSelected)
+      if(responseEdit.success === false){
+        notifyError(responseEdit.message)
+        return
+      }
+
+      const responseLoad = await loadUsers()
+      if(responseLoad.success === false){
+        notifyError(responseLoad.message)
+        return
+      }
+
+      if(responseEdit.success){
+        notifySuccess(responseEdit.message)
+        return
+      }
     } catch (error) {
-      setModalStruct({title:"Error", content:error.message})
-      setIsModalVerify(true)
+      notifyError(error)
     }
-    setModalStruct({title:"Confirmación", content:info.message})
-    setIsModalVerify(info.success)
     
   }
 
@@ -363,7 +406,7 @@ export default function ManagementUsers(){
 
   const handlerClearFields = () => {
     setUser(initialUser)
-    setRefreshFields("refresh")
+    setRefreshFields(getTypeUserCurrent())
   }
 
   useEffect(() => {
@@ -615,6 +658,7 @@ export default function ManagementUsers(){
           </Flex>          
         </Modal>
       )}
+      {contextHolder}
         <MenuBecas 
           buttons={buttons}
           onSelect={type => handlerClick(type)}
@@ -638,27 +682,23 @@ export default function ManagementUsers(){
             <Flex 
             gap={29} 
             vertical={isMobile}>
-              <SmallInput
-                key={`name${changesDescription} ${refreshFields}`}
-                title='Nombre'
+              <SmallInput title='Nombre'
+                key={`name${changesDescription}${refreshFields}`}                
                 placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}
-                maxLength={40}
-                minLength={3}
+                maxLength={50}
                 name="name"
-                onChange={e => handlerCreateUser(e)}
-                onBlur={handlerVName}
                 required
+                onChange={e => handlerCreateUser(e)}
+                onBlur={ e => handlerBlur(e, validName(user.name))}
                 />
-              <SmallInput
-                title='Apellidos'
-                key={`lastName${changesDescription} ${refreshFields}`}
+              <SmallInput title='Apellidos'
+                key={`lastName${changesDescription}${refreshFields}`}
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}
-                maxLength={40}
-                minLength={3}
+                maxLength={50}
+                required
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
-                onBlur={handlerVLastname}
-                required
+                onBlur={e => handlerBlur(e, validLastname(user.lastName))}
                 />
             </Flex>
 
@@ -666,29 +706,25 @@ export default function ManagementUsers(){
           gap={29}
           vertical={isMobile}
           >
-            <SmallInput
-              key={`username${changesDescription} ${refreshFields}`}
-              title={isFuncionary ? "Cédula" : "Código estudiantil"}
+            <SmallInput title={isFuncionary ? "Cédula" : "Código estudiantil"}
+              key={`username${changesDescription}${refreshFields}`}              
               placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}
               type="number"
-              min={100000000}
-              max={9999999999}
-              name="username"
-              onChange={e => handlerCreateUser(e)}
-              onBlur={handlerVUsername}
+              min={isFuncionary ? 10000000 : 200000000}
+              max={isFuncionary ? 9999999999 : 299999999}
               required
+              name="username"
+              onChange={ e => handlerCreateUser(e) }
+              onBlur={ e => handlerBlur(e, validCode(user.username, !isFuncionary))}
               />
-            <SmallInput
+            <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
               isRenderAsteric={isFuncionary ? false:true}
-              key={`plan${changesDescription} ${refreshFields}`}
-              title={isFuncionary ? "Área dependiente":"Plan"}
+              key={`plan${changesDescription}${refreshFields}`}
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}
-              maxLength={40}
-              minLength={3}
+              required
               name="plan"
               onChange={e => handlerCreateUser(e)}
-              onBlur={handlerVPlan}
-              required
+              onBlur={e => handlerBlur(e, validPlan(user.plan, !isFuncionary))}
               />
           </Flex>
           
@@ -696,13 +732,11 @@ export default function ManagementUsers(){
           gap={29}
           vertical={isMobile}
           >
-            <SmallInput
-              key={`email${changesDescription} ${refreshFields}`}
-              title='Correo electrónico'
+            <SmallInput title='Correo electrónico'
+              key={`email${changesDescription}${refreshFields}`}              
               placeholder='Correo del estudiante'
-              type="email"
-              minLength={5}
-              maxLength={80}
+              required
+              type="email"              
               name="email"
               onChange={e => {
                 handlerCreateUser(e)
@@ -711,20 +745,20 @@ export default function ManagementUsers(){
                   handlerAddRoleUserCreate("ESTUDIANTE")
                 }
               }}
-              onBlur={handlerVEmail}
-              required
+              onBlur={e => handlerBlur(e, validEmail(user.email, isFuncionary))}
             />
           {(!isStudent || !enableResponsive) && 
             <label 
             className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" :""}`}>
             {isFuncionary ? "Rol" : 
             <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
-            <Select
+            <Select name={isBeneficiary ? "grant" : ""}
+              key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
               className={styles.comboboxes}
-              key={`SelectImportant${changesDescription} ${refreshFields}`}
-              name={isBeneficiary ? "grant" : ""}
               defaultActiveFirstOption={isFuncionary}
+              status={statusRolesGrantSelect}
+              options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
               onChange={value => {
                 
                 if(isBeneficiary) {
@@ -737,10 +771,10 @@ export default function ManagementUsers(){
                   return
                 }
               }}
-              options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
               onBlur={() => {
-                if(isBeneficiary) handlerVGrant()
-                if(isFuncionary) handlerVRoles()
+                if(isBeneficiary || isFuncionary){
+                  handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles))
+                }
               }}
               />
             </label>}
@@ -754,10 +788,9 @@ export default function ManagementUsers(){
         >
           <button className={styles.buttonSave} 
           onClick={() => {
+            handlerVerify()
             SetSavePressed(!savePressed)
             handlerSave()
-            console.dir(user)
-            console.dir(changesDescription)
           }}>Guardar</button>
           <button className={styles.buttonCancel}
           onClick={handlerClearFields}
@@ -770,8 +803,8 @@ export default function ManagementUsers(){
         gap={11}
         >
           <Search
-            key={`findUser${changesDescription}`}
-            placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantíl'}
+            placeholder={ isFuncionary ? 'Cédula de la persona':'Código estudiantil'}
+            value={codeUser}
             onChange={e => setCodeUser(e.target.value)}
             onClick ={handlerSearchUser}
             />
@@ -794,7 +827,9 @@ export default function ManagementUsers(){
             </p>
             <ButtonRefresh 
             className={styles.flexEnd}
-            onClick = {loadUsers}
+            onClick = {() => {
+              setCodeUser("")
+              loadUsers()}}
             />
           </Flex>
           <Flex align='center' justify='center' wrap>
