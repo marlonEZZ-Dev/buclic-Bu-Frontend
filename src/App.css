@@ -215,6 +215,10 @@ p {
   color: #FFFFFF !important;
   /* Texto sigue siendo blanco */
 }
+/* Cambia el color del borde*/
+.invalid{
+  border:1px solid red !important;
+}
 
 /* Estilos ajustados para forzar el cambio */
 .button-cancel {
