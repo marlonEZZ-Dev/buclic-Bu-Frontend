@@ -10,10 +10,9 @@
   display: block;
   border: solid 1px var(--gray); 
   border-radius: .5rem;
-  padding: .25rem .6875rem .25rem;
+  padding: 4px 11px;
   width: 14.3125rem;
-  height: 2.75rem;
-  font-size: 14px;
+  height: 2rem;
 }
 
 .inputs:focus{
