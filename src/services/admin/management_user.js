@@ -31,7 +31,7 @@ const errorForPut = new Map([
   [500, "Error interno del servidor"]
 ])
 
-const errorForDelete = new([
+const errorForDelete = new Map([
   [401, "No autorizado para eliminar"],
   [403, "No tienes permisos para eliminar"],
   [404, "Usuario a eliminar no encontrado"],
@@ -129,7 +129,7 @@ export const editUser = async (user) => {
     })
 
     if(response.status === 200 || response.status === 201){
-      return {success:true, message: "Usuario actualizado con éxito"}
+      return {success:true, message: "Información actualizada"}
     }
 
   } catch (error) {
