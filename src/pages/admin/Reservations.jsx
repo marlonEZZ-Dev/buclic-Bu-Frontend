@@ -3,6 +3,8 @@ import api from '../../api';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
+import ReusableModal from '../../components/global/ReusableModal.jsx';
+
 import { Card, Space, Descriptions, Button, message } from 'antd';
 
 const Reservations = () => {
@@ -13,7 +15,8 @@ const Reservations = () => {
     const itemsPerPage = 10; // Elementos por página
     const [availability, setAvailability] = useState(0);
     const [availabilityType, setAvailabilityType] = useState(''); // Agregado para tipo de disponibilidad
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const [cancelModalVisible, setCancelModalVisible] = useState(false);
 
     const handleSearch = async (username) => {
         try {
@@ -167,6 +170,28 @@ const Reservations = () => {
         },
     };
 
+    // Función para mostrar el modal de confirmación de pago
+    const showPaymentConfirmationModal = () => {
+        setModalVisible(true);
+    };
+
+    // Función para manejar la confirmación en el modal
+    const handleConfirmPayment = () => {
+        setModalVisible(false);
+        handlePayment(); // Ejecuta el pago cuando se confirma
+    };
+
+    // Mostrar modal de cancelación
+    const showCancelConfirmationModal = () => {
+        setCancelModalVisible(true);
+    };
+
+    // Ocultar modal de cancelación
+    const handleConfirmCancel = () => {
+        setCancelModalVisible(false);
+        handleCancel(); // Ejecuta la cancelación cuando se confirma
+    };
+
     return (
         <>
             <HeaderAdmin />
@@ -207,7 +232,7 @@ const Reservations = () => {
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
                         <p style={{ fontWeight: 'bold' }}>
-                            Reservas disponibles {availabilityType.toLowerCase()}: {availability} {/* Muestra el tipo y la disponibilidad */}
+                            Reservas disponibles de {availabilityType.toLowerCase()}: {availability} {/* Muestra el tipo y la disponibilidad */}
                         </p>
                     </Space>
 
@@ -251,21 +276,45 @@ const Reservations = () => {
 
                             {/* Botones */}
                             <div style={styles.buttonContainer}>
-                                <Button type="primary"className="button-pay"  style={styles.payButton} onClick={handlePayment} >
-                                    Pagó
+                                <Button type="primary" className="button-pay" style={styles.payButton} onClick={showPaymentConfirmationModal} >
+                                    Pagar
                                 </Button>
-                                <Button type="default" htmlType="reset" className="button-cancel" onClick={handleCancel}>
+                                <Button type="default" htmlType="reset" className="button-cancel" onClick={showCancelConfirmationModal}>
                                     Cancelar reserva
                                 </Button>
 
                             </div>
+
+                            {/* Modal de confirmación de pago */}
+                            <ReusableModal
+                                title="Confirmación de pago"
+                                content={`¿Está seguro de realizar el pago a ${reservationData.name} ${reservationData.lastname}?`}
+                                cancelText="Cancelar"
+                                confirmText="Confirmar"
+                                onCancel={() => setModalVisible(false)}
+                                onConfirm={handleConfirmPayment}
+                                visible={modalVisible} // Controla la visibilidad del modal
+                            />
+                            {/* Modal de confirmación de cancelación */}
+                            <ReusableModal
+                                title="Confirmación cancelación de reserva"
+                                content={`¿Está seguro de cancelar la reserva de ${reservationData.name} ${reservationData.lastname}?`}
+                                cancelText="Cancelar"
+                                confirmText="Confirmar"
+                                onCancel={() => setCancelModalVisible(false)}
+                                onConfirm={handleConfirmCancel}
+                                visible={cancelModalVisible} // Controla la visibilidad del modal de cancelación
+                            />
+
                         </>
                     )}
 
                     {/* Componente de Tabla con Paginación */}
                     <TablePaginationR
                         rows={tableData.map(reservation => [
-                            reservation.username,
+                            <span onClick={() => handleSearch(reservation.username)} style={{ cursor: 'pointer', color: 'blue' }}>
+                                {reservation.username}
+                            </span>,
                             `${reservation.name} ${reservation.lastname}`,
                             `${formatDate(reservation.data)} ${reservation.time}`
                         ])}
@@ -275,6 +324,7 @@ const Reservations = () => {
                         totalItems={totalItems}
                         onPageChange={handlePageChange}
                     />
+
                 </Card>
             </main>
         </>

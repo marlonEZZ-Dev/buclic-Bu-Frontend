@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { Card, Space, Button, Form, Input, message } from 'antd';
+import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
 
 const PasswordAdmin = () => {
@@ -9,7 +11,8 @@ const PasswordAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // Estado para el modal
   const [confirmLoading, setConfirmLoading] = useState(false); // Estado para la carga del botón de confirmar
-
+  const navigate = useNavigate();
+  
   // Obtener el nombre de usuario del almacenamiento local
   const username = localStorage.getItem('username');
 
@@ -40,12 +43,25 @@ const PasswordAdmin = () => {
     setModalVisible(true); // Mostrar modal de confirmación
   };
 
+
+  const handleBack = () => {
+    navigate('/admin/perfilAdmin');
+  };
+
   return (
     <>
       <HeaderAdmin />
 
+
+
       {/* Contenido principal */}
       <main style={styles.main}>
+
+
+        <Button type="default" icon={<ArrowLeftOutlined style={{ color: '#fff' }} />} className="button-save"
+          onClick={handleBack}>
+        </Button>
+
         <Card bordered={true} style={styles.card}>
           {/* Título */}
           <Space style={styles.titleSpace}>
@@ -107,31 +123,36 @@ const PasswordAdmin = () => {
               </Button>
 
               {/* Botón Cancelar */}
-              <Button className="button-cancel" type="default" htmlType="reset" onClick={() => form.resetFields()} >
+              <Button className="button-cancel" type="default" htmlType="reset" onClick={handleBack} >
                 Cancelar
               </Button>
             </div>
           </Form>
 
           {/* Modal de confirmación */}
-          <Modal 
-            open={modalVisible} 
-            onClose={setModalVisible} 
-            modalTitle="Confirmar cambio de contraseña"
+          <Modal
+            open={modalVisible}
+            onClose={() => setModalVisible(false)}
+            modalTitle={
+              <span>
+                <InfoCircleOutlined style={{ color: '#faad14', marginRight: '8px', fontSize: '24px' }} /> {/* Icono con color de advertencia */}
+                <span style={{ fontWeight: 'bold' }}>Confirmar cambio de contraseña</span> {/* Texto en negrita */}
+              </span>
+            }
           >
-            <p>¿Estás seguro de que deseas cambiar la contraseña?</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <p style={{ textAlign: 'left', paddingLeft: '31px' }}>¿Estás seguro de cambiar la contraseña?</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
               <Button className="button-cancel" onClick={() => setModalVisible(false)}>Cancelar</Button>
-              <Button 
+              <Button
                 className="button-save"
-                type="primary" 
+                type="primary"
                 loading={confirmLoading}
                 onClick={() => {
                   const values = form.getFieldsValue(); // Obtener los valores del formulario
                   handleConfirmChangePassword(values); // Llamar a la función para confirmar el cambio de contraseña
                 }}
               >
-                Confirmar
+                Guardar
               </Button>
             </div>
           </Modal>

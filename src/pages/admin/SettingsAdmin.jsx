@@ -124,7 +124,7 @@ const SettingsAdmin = () => {
         setIsEditing(false);
     };
     const handleChangePasswordClick = () => {
-        navigate('/contrasenaAdmin');
+        navigate('/admin/contrasenaAdmin');
     };
 
 
