@@ -16,12 +16,13 @@ import SchedulingTable from "../../components/global/SchedulingTable";
 import esES from "antd/es/locale/es_ES";
 import moment from "moment";
 import api from "../../api.js";
+import ReusableModal from "../../components/global/ReusableModal"; // Importar el modal reutilizable
 
 const { Text } = Typography;
 
 const Psychologist = () => {
   const { token } = theme.useToken();
-  const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD")); // Estado inicial formateado
+  const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
@@ -30,6 +31,10 @@ const Psychologist = () => {
   const [pendingAppointment, setPendingAppointment] = useState(null);
   const [isPhoneError, setIsPhoneError] = useState(false);
   const [isSemesterError, setIsSemesterError] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
   const username = localStorage.getItem("username");
   const userEmail = localStorage.getItem("userEmail");
@@ -85,7 +90,7 @@ const Psychologist = () => {
       .then((response) => {
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
-          moment().format("YYYY-MM-DD"), // Asegura que use el formato correcto en la fecha inicial
+          moment().format("YYYY-MM-DD"),
           response.data.availableDates
         );
       })
@@ -94,9 +99,16 @@ const Psychologist = () => {
       });
   }, []);
 
-    const handleCancelAppointment = () => {
+  const showModal = (type, appointmentId = null) => {
+    setActionType(type);
+    setSelectedAppointmentId(appointmentId);
+    setModalVisible(true);
+  };
+
+  const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
+    setConfirmLoading(true);
     if (pendingAppointment) {
       api
         .delete(
@@ -111,7 +123,6 @@ const Psychologist = () => {
           message.success("Cita cancelada con éxito");
           setPendingAppointment(null);
 
-          // Restablecer al estado inicial (fecha actual y citas de esa fecha)
           const today = moment().format("YYYY-MM-DD");
           setSelectedDate(today);
           filterDatesBySelectedDay(today, availableDates);
@@ -121,46 +132,17 @@ const Psychologist = () => {
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
           message.error("Hubo un error al cancelar la cita.");
+        })
+        .finally(() => {
+          setConfirmLoading(false);
+          setModalVisible(false);
         });
     }
   };
 
-  const fetchAvailableDates = () => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
-    api
-      .get("/appointment?type=PSICOLOGIA", {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
-      .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(
-          moment().format("YYYY-MM-DD"),
-          response.data.availableDates
-        );
-      })
-      .catch((error) => {
-        console.error("Error al obtener los horarios:", error);
-      });
-  };
-
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // Solo permite números
-    setPhone(value);
-  
-    if (value.length === 10) {
-      setIsPhoneError(false); // Si son 10 dígitos, no hay error
-    } else {
-      setIsPhoneError(true); // Si no son 10 dígitos, muestra el error
-    }
-  };
-
-  const handleReserveAppointment = (availableDateId) => {
+  const handleConfirmReserve = () => {
     let hasError = false;
 
-    // Verificar que el teléfono tenga 10 dígitos
     if (phone.length !== 10) {
       setIsPhoneError(true);
       hasError = true;
@@ -168,7 +150,6 @@ const Psychologist = () => {
       setIsPhoneError(false);
     }
 
-    // Verificar que el campo semestre no esté vacío
     if (!semester) {
       setIsSemesterError(true);
       hasError = true;
@@ -178,17 +159,19 @@ const Psychologist = () => {
 
     if (hasError) {
       message.error("Digita los campos teléfono y semestre.");
-      return; // Detener la función si hay errores
+      setModalVisible(false);
+      return;
     }
 
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
+    setConfirmLoading(true);
     api
       .post(
         "/appointment-reservation",
         {
           pacientId: userId,
-          availableDateId,
+          availableDateId: selectedAppointmentId,
           eps,
           semester,
           phone,
@@ -204,12 +187,16 @@ const Psychologist = () => {
         message.success(response.data.message);
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
-          prevDates.filter((date) => date.id !== availableDateId)
+          prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
         console.error("Error al reservar la cita:", error);
         message.error("Debes agendar tu cita al menos una hora antes.");
+      })
+      .finally(() => {
+        setConfirmLoading(false);
+        setModalVisible(false);
       });
   };
 
@@ -241,16 +228,18 @@ const Psychologist = () => {
     );
   };
 
-  const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo permite letras y espacios
-    setSemester(value);
-  
-    // Eliminar el error en el campo semestre al escribir algo
-    if (value.trim() !== "") {
-      setIsSemesterError(false);
-    }
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    setPhone(value);
+    setIsPhoneError(value.length !== 10);
   };
-  
+
+  const handleSemesterChange = (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+    setSemester(value);
+    setIsSemesterError(value.trim() === "");
+  };
+
   return (
     <>
       <TopNavbar />
@@ -261,6 +250,21 @@ const Psychologist = () => {
         <h1 className="text-xl font-bold" style={{ textAlign: "center" }}>
           Cita psicología
         </h1>
+
+        {/* ReusableModal para confirmación de acciones */}
+        <ReusableModal
+          visible={modalVisible}
+          title={actionType === "cancel" ? "Confirmar Cancelación" : "Confirmar Reserva"}
+          content={
+            actionType === "cancel"
+              ? "¿Estás seguro de que deseas cancelar esta cita?"
+              : "¿Estás seguro de que deseas agendar esta cita?"
+          }
+          cancelText="Cancelar"
+          confirmText="Confirmar"
+          onCancel={() => setModalVisible(false)}
+          onConfirm={actionType === "cancel" ? handleConfirmCancel : handleConfirmReserve}
+        />
 
         {userName && (
           <Form layout="vertical" style={{ marginBottom: "20px" }}>
@@ -286,19 +290,19 @@ const Psychologist = () => {
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                label="Teléfono"
-                validateStatus={isPhoneError ? "error" : ""}
-                help={isPhoneError ? "El campo teléfono debe tener 10 dígitos." : ""}
-              >
-                <Input
-                  type="text"
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  maxLength={10} // Limita la entrada a 10 caracteres
-                  style={{ borderColor: isPhoneError ? "red" : "" }}
-                />
-              </Form.Item>
+                <Form.Item
+                  label="Teléfono"
+                  validateStatus={isPhoneError ? "error" : ""}
+                  help={isPhoneError ? "El campo teléfono debe tener 10 dígitos." : ""}
+                >
+                  <Input
+                    type="text"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
+                    style={{ borderColor: isPhoneError ? "red" : "" }}
+                  />
+                </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
@@ -331,7 +335,7 @@ const Psychologist = () => {
                 <Calendar
                   fullscreen={false}
                   onSelect={onDateSelect}
-                  disabledDate={disabledDate} // Deshabilita los días sin citas
+                  disabledDate={disabledDate}
                 />
               </div>
             </ConfigProvider>
@@ -345,7 +349,7 @@ const Psychologist = () => {
                   `Fecha: ${moment(selectedDate).format("YYYY-MM-DD")}`,
                 ]}
                 appointments={filteredDates}
-                onReserve={handleReserveAppointment}
+                onReserve={(availableDateId) => showModal("reserve", availableDateId)}
                 disableReserveButton={!!pendingAppointment}
               />
             ) : (
@@ -371,8 +375,8 @@ const Psychologist = () => {
               >
                 <span
                   style={{
-                    backgroundColor: "#d4edda", // Fondo verde suave
-                    color: "#155724", // Texto verde oscuro
+                    backgroundColor: "#d4edda",
+                    color: "#155724",
                     padding: "5px 10px",
                     borderRadius: "5px",
                     marginBottom: "10px",
@@ -393,7 +397,7 @@ const Psychologist = () => {
                     maxWidth: "150px",
                     width: "100%",
                   }}
-                  onClick={handleCancelAppointment}
+                  onClick={() => showModal("cancel")}
                 >
                   Cancelar cita
                 </Button>
