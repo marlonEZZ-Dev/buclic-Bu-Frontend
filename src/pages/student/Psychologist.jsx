@@ -22,7 +22,9 @@ const { Text } = Typography;
 
 const Psychologist = () => {
   const { token } = theme.useToken();
-  const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
+  const [selectedDate, setSelectedDate] = useState(
+    moment().format("YYYY-MM-DD")
+  );
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
@@ -35,6 +37,7 @@ const Psychologist = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
 
   const username = localStorage.getItem("username");
   const userEmail = localStorage.getItem("userEmail");
@@ -100,9 +103,51 @@ const Psychologist = () => {
   }, []);
 
   const showModal = (type, appointmentId = null) => {
-    setActionType(type);
-    setSelectedAppointmentId(appointmentId);
-    setModalVisible(true);
+    if (type === "reserve") {
+      let hasError = false;
+
+      if (phone.length !== 10) {
+        setIsPhoneError(true);
+        hasError = true;
+      } else {
+        setIsPhoneError(false);
+      }
+
+      if (!semester) {
+        setIsSemesterError(true);
+        hasError = true;
+      } else {
+        setIsSemesterError(false);
+      }
+
+      if (hasError) {
+        message.error("Digita los campos teléfono y semestre.");
+        return; // Detener la ejecución si hay errores
+      }
+
+      // Encuentra la fecha y hora de la cita seleccionada para mostrar en el modal
+      const selectedAppointment = availableDates.find(
+        (date) => date.id === appointmentId
+      );
+
+      setActionType(type);
+      setSelectedAppointmentId(appointmentId);
+      setModalVisible(true);
+      setModalContent(
+        `¿Estás seguro de que deseas agendar tu cita para el día ${moment(
+          selectedAppointment.dateTime
+        ).format("DD/MM/YYYY [a las] hh:mm A")}?`
+      );
+    } else if (type === "cancel" && pendingAppointment) {
+      // Muestra la fecha y hora de la cita pendiente en el modal de cancelación
+      setActionType(type);
+      setModalVisible(true);
+      setModalContent(
+        `¿Estás seguro de que deseas cancelar tu cita agendada para el día ${moment(
+          pendingAppointment.availableDate.dateTime
+        ).format("DD/MM/YYYY [a las] hh:mm A")}?`
+      );
+    }
   };
 
   const handleConfirmCancel = () => {
@@ -123,9 +168,11 @@ const Psychologist = () => {
           message.success("Cita cancelada con éxito");
           setPendingAppointment(null);
 
-          const today = moment().format("YYYY-MM-DD");
-          setSelectedDate(today);
-          filterDatesBySelectedDay(today, availableDates);
+          const today = moment(); // Mantén como objeto moment para el componente Calendar
+          setSelectedDate(today.format("YYYY-MM-DD"));
+
+          // Simular la selección de la fecha actual en el calendario
+          onDateSelect(today);
 
           fetchPendingAppointment();
         })
@@ -254,16 +301,18 @@ const Psychologist = () => {
         {/* ReusableModal para confirmación de acciones */}
         <ReusableModal
           visible={modalVisible}
-          title={actionType === "cancel" ? "Confirmar Cancelación" : "Confirmar Reserva"}
-          content={
+          title={
             actionType === "cancel"
-              ? "¿Estás seguro de que deseas cancelar esta cita?"
-              : "¿Estás seguro de que deseas agendar esta cita?"
+              ? "Confirmar Cancelación"
+              : "Confirmar Reserva"
           }
+          content={modalContent} // Aquí usamos modalContent
           cancelText="Cancelar"
           confirmText="Confirmar"
           onCancel={() => setModalVisible(false)}
-          onConfirm={actionType === "cancel" ? handleConfirmCancel : handleConfirmReserve}
+          onConfirm={
+            actionType === "cancel" ? handleConfirmCancel : handleConfirmReserve
+          }
         />
 
         {userName && (
@@ -293,7 +342,11 @@ const Psychologist = () => {
                 <Form.Item
                   label="Teléfono"
                   validateStatus={isPhoneError ? "error" : ""}
-                  help={isPhoneError ? "El campo teléfono debe tener 10 dígitos." : ""}
+                  help={
+                    isPhoneError
+                      ? "El campo teléfono debe tener 10 dígitos."
+                      : ""
+                  }
                 >
                   <Input
                     type="text"
@@ -308,7 +361,9 @@ const Psychologist = () => {
                 <Form.Item
                   label="Semestre"
                   validateStatus={isSemesterError ? "error" : ""}
-                  help={isSemesterError ? "El campo semestre es obligatorio." : ""}
+                  help={
+                    isSemesterError ? "El campo semestre es obligatorio." : ""
+                  }
                 >
                   <Input
                     type="text"
@@ -349,7 +404,9 @@ const Psychologist = () => {
                   `Fecha: ${moment(selectedDate).format("YYYY-MM-DD")}`,
                 ]}
                 appointments={filteredDates}
-                onReserve={(availableDateId) => showModal("reserve", availableDateId)}
+                onReserve={(availableDateId) =>
+                  showModal("reserve", availableDateId)
+                }
                 disableReserveButton={!!pendingAppointment}
               />
             ) : (
