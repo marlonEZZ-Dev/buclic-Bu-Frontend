@@ -21,7 +21,7 @@ const { Text } = Typography;
 
 const Psychologist = () => {
   const { token } = theme.useToken();
-  const [selectedDate, setSelectedDate] = useState(moment());
+  const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD")); // Estado inicial formateado
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
@@ -85,7 +85,7 @@ const Psychologist = () => {
       .then((response) => {
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
-          moment().format("YYYY-MM-DD"),
+          moment().format("YYYY-MM-DD"), // Asegura que use el formato correcto en la fecha inicial
           response.data.availableDates
         );
       })
@@ -94,7 +94,7 @@ const Psychologist = () => {
       });
   }, []);
 
-  const handleCancelAppointment = () => {
+    const handleCancelAppointment = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     if (pendingAppointment) {
@@ -110,8 +110,13 @@ const Psychologist = () => {
         .then(() => {
           message.success("Cita cancelada con éxito");
           setPendingAppointment(null);
+
+          // Restablecer al estado inicial (fecha actual y citas de esa fecha)
+          const today = moment().format("YYYY-MM-DD");
+          setSelectedDate(today);
+          filterDatesBySelectedDay(today, availableDates);
+
           fetchPendingAppointment();
-          fetchAvailableDates();
         })
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
@@ -204,7 +209,7 @@ const Psychologist = () => {
       })
       .catch((error) => {
         console.error("Error al reservar la cita:", error);
-        message.error("Hubo un error al reservar la cita.");
+        message.error("Debes agendar tu cita al menos una hora antes.");
       });
   };
 
@@ -337,7 +342,7 @@ const Psychologist = () => {
                 headers={[
                   "Hora",
                   "Lugar de atención",
-                  `Fecha: ${selectedDate}`,
+                  `Fecha: ${moment(selectedDate).format("YYYY-MM-DD")}`,
                 ]}
                 appointments={filteredDates}
                 onReserve={handleReserveAppointment}

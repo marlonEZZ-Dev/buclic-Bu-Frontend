@@ -42,7 +42,7 @@ const SchedulingTable = ({ headers, appointments, onReserve, disableReserveButto
             <tbody>
                 {appointments.map((appointment, rowIndex) => (
                     <tr key={rowIndex}>
-                        <td style={cellStyle}>{moment(appointment.dateTime).format('HH:mm')}</td>
+                        <td style={cellStyle}>{moment(appointment.dateTime).format("hh:mm A")}</td>
                         <td style={cellStyle}>{"Salón 312 bloque A"}</td>
                         <td style={cellStyle}>
                             <Button 
