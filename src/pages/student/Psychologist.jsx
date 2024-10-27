@@ -21,48 +21,35 @@ const { Text } = Typography;
 
 const Psychologist = () => {
   const { token } = theme.useToken();
-  const [selectedDate, setSelectedDate] = useState(moment()); // Fecha actual por defecto
+  const [selectedDate, setSelectedDate] = useState(moment());
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
-  const [phone, setPhone] = useState(""); // Estado para teléfono
-  const [eps, setEps] = useState(""); // Estado para EPS
-  const [semester, setSemester] = useState(""); // Estado para el semestre en formato string
-  const [pendingAppointment, setPendingAppointment] = useState(null); // Para almacenar la cita pendiente
+  const [phone, setPhone] = useState("");
+  const [eps, setEps] = useState("");
+  const [semester, setSemester] = useState("");
+  const [pendingAppointment, setPendingAppointment] = useState(null);
 
-  // Recupera la información individual del usuario desde localStorage
   const username = localStorage.getItem("username");
   const userEmail = localStorage.getItem("userEmail");
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
 
-  // Verificar y cargar los datos guardados en localStorage (si existen)
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
-    const storedEPS = localStorage.getItem("userEPS");
     const storedSemester = localStorage.getItem("userSemester");
 
     setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
-    setEps(storedEPS !== "null" && storedEPS ? storedEPS : "");
     setSemester(storedSemester !== "null" && storedSemester ? storedSemester : "");
   }, []);
 
   useEffect(() => {
-    if (!userId || !userName || !userEmail || !userPlan) {
-      console.error("No se encontró información del usuario en localStorage");
-    } else {
-      console.log("Datos del usuario encontrados:", {
-        userId,
-        userName,
-        userEmail,
-        userPlan,
-      });
-    }
-  }, []);
+    fetchPendingAppointment();
+  }, [userId]);
 
-  // Realiza la solicitud GET para obtener las citas pendientes del estudiante
   const fetchPendingAppointment = () => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+    const storedToken = localStorage.getItem("access");
+    console.log("Token de acceso:", storedToken); // Verificar el token
 
     api
       .get(`/appointment-reservation/student/${userId}`, {
@@ -71,31 +58,22 @@ const Psychologist = () => {
         },
       })
       .then((response) => {
-        const appointments = response.data.appointments;
-        const psychologyAppointment = appointments.find(
+        const psychologyAppointment = response.data.appointments.find(
           (appt) =>
             appt.availableDate.typeAppointment === "PSICOLOGIA" &&
             appt.pending === true
         );
-        if (psychologyAppointment) {
-          setPendingAppointment(psychologyAppointment);
-        } else {
-          setPendingAppointment(null);
-        }
+        setPendingAppointment(psychologyAppointment || null);
+        console.log("Cita pendiente:", psychologyAppointment); // Verificar cita pendiente
       })
       .catch((error) => {
         console.error("Error al obtener las citas del estudiante:", error);
       });
   };
 
-  // Llamar a fetchPendingAppointment cuando el componente se monta
   useEffect(() => {
-    fetchPendingAppointment();
-  }, [userId]);
-
-  // Realiza la solicitud GET para obtener los horarios disponibles
-  useEffect(() => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+    const storedToken = localStorage.getItem("access");
+    console.log("Token de acceso para horarios:", storedToken); // Verificar el token para la solicitud de horarios
 
     api
       .get("/appointment?type=PSICOLOGIA", {
@@ -104,6 +82,7 @@ const Psychologist = () => {
         },
       })
       .then((response) => {
+        console.log("Horarios disponibles:", response.data); // Verificar la respuesta de la API
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
           moment().format("YYYY-MM-DD"),
@@ -115,9 +94,8 @@ const Psychologist = () => {
       });
   }, []);
 
-  // Función para cancelar la cita pendiente
   const handleCancelAppointment = () => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+    const storedToken = localStorage.getItem("access");
 
     if (pendingAppointment) {
       api
@@ -126,11 +104,11 @@ const Psychologist = () => {
             Authorization: `Bearer ${storedToken}`,
           },
         })
-        .then((response) => {
+        .then(() => {
           message.success("Cita cancelada con éxito");
-          setPendingAppointment(null); // Eliminar la cita pendiente
-          fetchPendingAppointment(); // Actualizar el estado
-          fetchAvailableDates(); // Refrescar el calendario después de cancelar
+          setPendingAppointment(null);
+          fetchPendingAppointment();
+          fetchAvailableDates();
         })
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
@@ -139,7 +117,6 @@ const Psychologist = () => {
     }
   };
 
-  // Función para refrescar el calendario y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -150,6 +127,7 @@ const Psychologist = () => {
         },
       })
       .then((response) => {
+        console.log("Horarios disponibles:", response.data); // Verificar la respuesta de la API
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
           moment().format("YYYY-MM-DD"),
@@ -161,19 +139,9 @@ const Psychologist = () => {
       });
   };
 
-  // Función para reservar una cita
   const handleReserveAppointment = (availableDateId) => {
-    if (!phone || !eps || !semester) {
-      message.error(
-        "Por favor, complete todos los campos requeridos (EPS, Teléfono, Semestre)."
-      );
-      return;
-    }
-
-    if (!userId || !availableDateId) {
-      message.error(
-        "Error: Información de usuario incompleta. Por favor, inicie sesión nuevamente."
-      );
+    if (!phone || !semester) {
+      message.error("Por favor, complete todos los campos requeridos (Teléfono, Semestre).");
       return;
     }
 
@@ -184,10 +152,10 @@ const Psychologist = () => {
         "/appointment-reservation",
         {
           pacientId: userId,
-          availableDateId: availableDateId,
-          eps: eps,
-          semester: semester,
-          phone: phone,
+          availableDateId,
+          eps,
+          semester,
+          phone,
         },
         {
           headers: {
@@ -198,36 +166,21 @@ const Psychologist = () => {
       )
       .then((response) => {
         message.success(response.data.message);
-        localStorage.setItem("userPhone", phone);
-        localStorage.setItem("userEPS", eps);
-        localStorage.setItem("userSemester", semester);
-
-        // Actualiza las citas pendientes inmediatamente después de reservar
         fetchPendingAppointment();
-
-        setFilteredDates(
-          (prevDates) => prevDates.filter((date) => date.id !== availableDateId)
-        );
+        setFilteredDates((prevDates) => prevDates.filter((date) => date.id !== availableDateId));
       })
       .catch((error) => {
-        console.error(
-          "Error al reservar la cita:",
-          error.response ? error.response.data : error.message
-        );
-        message.error("Hubo un error al reservar la cita. Inténtelo de nuevo.");
+        console.error("Error al reservar la cita:", error);
+        message.error("Hubo un error al reservar la cita.");
       });
   };
 
-  // Filtrar los horarios por la fecha seleccionada y que no estén reservados
-  const filterDatesBySelectedDay = (
-    formattedSelectedDate,
-    dates = availableDates
-  ) => {
+  const filterDatesBySelectedDay = (formattedSelectedDate, dates = availableDates) => {
     const filtered = dates.filter((item) => {
       const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
-      // Solo mostrar horarios disponibles y que no estén reservados
       return itemDate === formattedSelectedDate && item.available === true;
     });
+    console.log("Citas filtradas para la fecha seleccionada:", filtered); // Verificar las citas filtradas
     setFilteredDates(filtered);
   };
 
@@ -236,73 +189,18 @@ const Psychologist = () => {
       const formattedDate = date.format("YYYY-MM-DD");
       setSelectedDate(formattedDate);
       filterDatesBySelectedDay(formattedDate);
-    } else {
-      console.error("Fecha inválida seleccionada");
     }
-  };
-
-  const disabledDate = (currentDate) => {
-    const formattedDate = currentDate.format("YYYY-MM-DD");
-    const today = moment().format("YYYY-MM-DD");
-    if (formattedDate === today) {
-      return false;
-    }
-    return !availableDates.some(
-      (item) =>
-        moment(item.dateTime).format("YYYY-MM-DD") === formattedDate &&
-        item.available === true
-    );
-  };
-
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setPhone(value);
-  };
-
-  const wrapperStyle = {
-    border: `1px solid ${token.colorBorderSecondary}`,
-    borderRadius: token.borderRadiusLG,
-    padding: "16px",
-    width: "70%",
-  };
-
-  const containerStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    marginTop: "20px",
-  };
-
-  const leftColumnStyle = {
-    flex: "1",
-    marginRight: "30px",
-    minWidth: "300px",
-  };
-
-  const rightColumnStyle = {
-    flex: "1",
-    minWidth: "300px",
-  };
-
-  const formWrapperStyle = {
-    marginBottom: "20px",
-  };
-
-  const headers = ["Hora", "Lugar de atención", `Fecha: ${selectedDate}`];
-
-  const textStyle = {
-    fontSize: "16px", // Este tamaño es el mismo que el texto "No hay horarios disponibles"
   };
 
   return (
     <>
       <TopNavbar />
-      <main className="psicologia-section" style={{ marginTop: "100px" }}>
-        <h1 className="text-xl font-bold">Cita psicología</h1>
+      <main className="psicologia-section" style={{ marginTop: "100px", padding: "0 20px" }}>
+        <h1 className="text-xl font-bold" style={{ textAlign: "center" }}>Cita psicología</h1>
 
         {userName && (
-          <Form layout="vertical" style={formWrapperStyle}>
-            <Row gutter={16}>
+          <Form layout="vertical" style={{ marginBottom: "20px" }}>
+            <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
                   <Input value={userName || ""} disabled />
@@ -325,88 +223,94 @@ const Psychologist = () => {
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Teléfono">
-                  <Input
-                    type="text"
-                    value={phone}
-                    onChange={handlePhoneChange}
-                    placeholder="Ingrese su teléfono"
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item label="EPS">
-                  <Input
-                    type="text"
-                    value={eps}
-                    onChange={(e) => setEps(e.target.value)}
-                    placeholder="Ingrese su EPS"
-                  />
+                  <Input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Semestre">
-                  <Input
-                    type="text"
-                    value={semester}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      const lettersOnly = value.replace(/[^a-zA-Z\s]/g, ""); // Permitir solo letras y espacios
-                      setSemester(lettersOnly);
-                    }}
-                    placeholder="Ingrese su semestre"
-                  />
+                  <Input type="text" value={semester} onChange={(e) => setSemester(e.target.value)} />
                 </Form.Item>
               </Col>
             </Row>
           </Form>
         )}
 
-        <div style={containerStyle}>
-          <div style={leftColumnStyle}>
+        <Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
+          <Col xs={24} md={12}>
             <ConfigProvider locale={esES}>
-              <div style={wrapperStyle}>
+              <div style={{ border: "1px solid #ddd", borderRadius: "8px", padding: "16px" }}>
                 <Calendar
                   fullscreen={false}
                   onSelect={onDateSelect}
-                  disabledDate={disabledDate}
+                  disabledDate={(current) => current && current < moment().endOf("day")}
                 />
               </div>
             </ConfigProvider>
-          </div>
-
-          <div style={rightColumnStyle}>
+          </Col>
+          <Col xs={24} md={12}>
             {filteredDates.length > 0 ? (
-              <>
-                <SchedulingTable
-                  headers={headers}
-                  appointments={filteredDates}
-                  onReserve={handleReserveAppointment}
-                  disableReserveButton={!!pendingAppointment} // Deshabilitar si ya tiene una cita pendiente
-                />
-                {/* Mostrar la cita pendiente si existe */}
-                {pendingAppointment && (
-                  <div style={{ marginTop: "20px", textAlign: "center" }}>
-                    <Text type="success" style={textStyle}>
-                      Ya tienes agendada una cita con psicología para el día{" "}
-                      {moment(pendingAppointment.availableDate.dateTime).format(
-                        "DD/MM/YYYY [a las] HH:mm"
-                      )}
-                    </Text>
-                    <Button
-                      className="button-cancel"
-                      style={{ marginLeft: "20px" }}
-                      onClick={handleCancelAppointment}
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                )}
-              </>
+              <SchedulingTable
+                headers={["Hora", "Lugar de atención", `Fecha: ${selectedDate}`]}
+                appointments={filteredDates}
+                onReserve={handleReserveAppointment}
+                disableReserveButton={!!pendingAppointment}
+              />
             ) : (
-              <p style={textStyle}>No hay horarios disponibles para la fecha seleccionada.</p>
+              <p style={{ fontSize: "16px", textAlign: "center" }}>
+                No hay horarios disponibles para la fecha seleccionada.
+              </p>
             )}
-          </div>
-        </div>
+
+{pendingAppointment && (
+  <div
+    style={{
+      marginTop: "20px",
+      padding: "10px 20px",
+      border: "1px solid #ddd",
+      borderRadius: "8px",
+      textAlign: "center",
+      backgroundColor: "#f9f9f9",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      maxWidth: "100%",
+    }}
+  >
+    <span
+      style={{
+        backgroundColor: "#d4edda", // Fondo verde suave
+        color: "#155724", // Texto verde oscuro
+        padding: "5px 10px",
+        borderRadius: "5px",
+       
+        marginBottom: "10px",
+        textAlign: "center",
+        width: "100%",
+        maxWidth: "300px",
+      }}
+    >
+      Agendaste una cita con psicología para el día{" "}
+      {moment(pendingAppointment.availableDate.dateTime).format(
+        "DD/MM/YYYY [a las] hh:mm A"
+      )}
+    </span>
+    <Button
+      className="button-cancel"
+      style={{
+        marginTop: "10px",
+        maxWidth: "150px",
+        width: "100%",
+      }}
+      onClick={handleCancelAppointment}
+    >
+      Cancelar cita
+    </Button>
+  </div>
+)}
+
+
+          </Col>
+        </Row>
       </main>
     </>
   );
