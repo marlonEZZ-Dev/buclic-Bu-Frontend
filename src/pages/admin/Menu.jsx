@@ -18,10 +18,10 @@ const Menu = () => {
     Refrigerio: false,
   });
 
-  // Estado temporal para manejar los datos durante la edición
+  // Estado temporal para manejar los datos durante la edición, incluyendo `link`
   const [tempMenuData, setTempMenuData] = useState({
-    Almuerzo: {},
-    Refrigerio: {}
+    Almuerzo: { link: "" },
+    Refrigerio: { link: "" }
   });
 
   useEffect(() => {
@@ -80,11 +80,17 @@ const Menu = () => {
   const saveMenu = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     const menuTypeData = tempMenuData[selectedType]; // Usar datos temporales para guardar
-    
+
     if (!token) {
       console.error("No se encontró el token de autenticación");
       message.error("Por favor, inicie sesión nuevamente");
       navigate("/login");
+      return;
+    }
+
+    // Validación de campos requeridos
+    if (!menuTypeData.mainDish || !menuTypeData.drink || !menuTypeData.price) {
+      message.error("Por favor, complete los campos de Plato Principal, Bebida y Precio.");
       return;
     }
     
@@ -103,6 +109,7 @@ const Menu = () => {
             drink: menuTypeData.drink,
             dessert: menuTypeData.dessert,
             price: menuTypeData.price,
+            link: menuTypeData.link,  // Enviar el nuevo campo `link`
           },
           {
             headers: {
@@ -122,6 +129,7 @@ const Menu = () => {
             drink: menuTypeData.drink,
             dessert: menuTypeData.dessert,
             price: menuTypeData.price,
+            link: menuTypeData.link,  // Enviar el nuevo campo `link`
           },
           {
             headers: {
@@ -179,6 +187,7 @@ const Menu = () => {
         drink: '',
         dessert: '',
         price: 0,
+        link: '',
       },
     }));
   };
@@ -347,6 +356,27 @@ const Menu = () => {
                   validatedValue === "" ? 0 : parseInt(validatedValue, 10)
                 );
               }}
+              style={{ width: "100%" }}
+              disabled={!isEditable[selectedType]}
+            />
+          </div>
+
+          {/* Input para el enlace (link) */}
+          <div style={{ width: "100%", marginBottom: "12px" }}>
+            <label
+              style={{
+                marginBottom: "6px",
+                textAlign: "left",
+                display: "block",
+              }}
+            >
+              Enlace
+            </label>
+            <Input
+              type="text"
+              placeholder="Ingresa un enlace"
+              value={tempMenuData[selectedType].link || ""}  // Mostrar valor temporal
+              onChange={(e) => handleInputChange("link", e.target.value)}
               style={{ width: "100%" }}
               disabled={!isEditable[selectedType]}
             />
