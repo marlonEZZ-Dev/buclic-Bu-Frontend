@@ -114,8 +114,18 @@ export default function ManagementUsers(){
     {value:"ODONTOLOGO", label:"Odontólogo (a)"},
     {value:"PSICOLOGO", label:"Psicólogo (a)"},
     {value:"FUNCIONARIO", label:"Funcionario (a)"},
-    {value:"EXTERNO", label:"Externo (a)"},
+    {value:"EXTERNO", label:"Externo (a)"}
   ]
+
+  const mapFuncionary = new Map([
+    ["ADMINISTRADOR",1],
+    ["ENFERMERO",4],
+    ["MONITOR",6],
+    ["ODONTOLOGO",3],
+    ["PSICOLOGO",7],
+    ["FUNCIONARIO",8],
+    ["EXTERNO",5]
+  ])
 
   const cbxStatus = [
     {value:true, label:"Activo"},
@@ -176,14 +186,27 @@ export default function ManagementUsers(){
 
   const getStatusValue = (statusComponent) => {
     if (React.isValidElement(statusComponent)) {
-      console.log(`componente en getStatusValue ${statusComponent}`)
-      console.dir(statusComponent)
-      console.log("active del componente")
-      console.dir(statusComponent.props.active)
       return statusComponent.props.active
     }
     return statusComponent
   };
+
+  const getValueComplexSelectInModal = () => {
+    if(isStudent) return getStatusValue(objectSelected.isActive)
+    if(isFuncionary) return objectSelected.roles[0].name
+    if(isBeneficiary && objectSelected.lunchBeneficiary){
+      return "Beneficiario almuerzo"
+    }else{
+      return "Beneficiario refrigerio"
+    }   
+  }
+
+  const getOptionsComplexSelectInModal = () => {
+    if(isStudent) return cbxStatus
+    if(isFuncionary) return cbxFuncionary
+    if(isBeneficiary) return cbxBeneficiaries
+    console.error("no deberían existir más usuarios")
+  }
 
   //Handlers
   const handlerClick = type => setChangesDescription(users.get(type))
@@ -195,7 +218,6 @@ export default function ManagementUsers(){
   const handlerOpenModalEdit = row => {
     setIsModalEdit(true)
     setObjectSelected(row)
-    console.dir(row)
   }
 
   const handlerCloseModalEdit = () => setIsModalEdit(false)
@@ -247,8 +269,7 @@ export default function ManagementUsers(){
     setObjectSelected(prev => ({
         ...prev,
         [name]: value
-      }));
-    
+    }));    
   }
 
   const handlerSetSelectCreateUser = value => {
@@ -266,19 +287,20 @@ export default function ManagementUsers(){
   }
 
   const handlerRoleEditUser = value => {
-    if(!objectSelected.roles.some( rol => rol.name === "ESTUDIANTE")){
-      setObjectSelected(o => ({
-        ...o,
-        roles:[...o.roles, value]
-      }))
-      return
-    }
-    setObjectSelected(o => ({
-      ...o,
-      roles:[value]
-    }))
+    // setObjectSelected(o => ({
+    //   ...o,
+    //   roles:[value]
+    // }))
+    console.log('Nuevo valor:', value);
+  console.log('Objecto seleccionado antes:', objectSelected);
 
-  }
+  setObjectSelected(o => {
+    const updatedObject = { ...o, roles: [value] };
+    console.log('Objecto seleccionado después:', updatedObject);
+    return updatedObject;
+  
+  });
+}
 
   const handlerBlur = (e, valid) => {
     if((typeof valid === "string") || !(e.target.checkValidity())){
@@ -356,12 +378,24 @@ export default function ManagementUsers(){
   const handlerSendFile = async () => {
     try {
       if(uploadStatus === "exitoso"){
-        importUsers((isBeneficiary || isStudent) ? "ESTUDIANTE" : "FUNCIONARIO" , file)
-        loadUsers()
+        const responseImport = await importUsers((isBeneficiary || isStudent) ? "ESTUDIANTE" : "FUNCIONARIO" , file)
+        if(responseImport !== undefined && responseImport.success === false){
+          notifyError(responseImport.message)
+          return
+        }
+        
+        const responseLoad = await loadUsers()
+        if(responseLoad !== undefined && responseLoad.success === false){
+          notifyError(responseLoad.message)
+          return
+        }
+
+        if(responseImport.success) notifySuccess(responseImport.message)
+        if(responseLoad.success) notifySuccess(responseLoad.message)
       }
       return
     } catch (error) {
-      console.error(error);
+      console.error(`Ocurrio un error en handlerSendFile ${error}`);
     }
     
   }
@@ -386,23 +420,24 @@ export default function ManagementUsers(){
   const handlerSendUserEdited = async () => {
     try {
       const responseEdit = await editUser(objectSelected)
-      if(responseEdit.success === false){
+      if((responseEdit !== undefined) && (responseEdit.success === false)){
         notifyError(responseEdit.message)
         return
       }
 
       const responseLoad = await loadUsers()
-      if(responseLoad.success === false){
+      if((responseLoad !== undefined) && (responseLoad.success === false)){
         notifyError(responseLoad.message)
         return
       }
 
       if(responseEdit.success){
         notifySuccess(responseEdit.message)
+        console.log(objectSelected)
         return
       }
     } catch (error) {
-      notifyError(error)
+      console.error(`Esto sucede en handlerSendUserEdited ${error}`)
     }
     
   }
@@ -429,19 +464,6 @@ export default function ManagementUsers(){
   const handlerClearFields = () => {
     setUser(initialUser)
     setRefreshFields(getTypeUserCurrent())
-  }
-
-  const handlerUpdateEditUser = async () => {
-    try {
-      const response =  await handlerSendUserEdited()
-      if("sucess" in response){
-        notifyError(response.message)
-        return
-      }
-      handlerCloseModalEdit()
-    } catch (error) {
-      console.error(`Esto sucede en handlerUpdateEditUser ${error}`)
-    }    
   }
 
   useEffect(() => {
@@ -493,12 +515,12 @@ export default function ManagementUsers(){
         </Flex>
         <Flex align='center' justify='center' gap={25}>
           <button 
-          className={styles.buttonCancel}
+          className={`button-cancel ${styles.buttons}`}
           onClick={handlerCloseModalImport}>
             Cancelar
           </button>
           <button 
-          className={styles.buttonSave}
+          className={`button-save ${styles.buttons}`}
           onClick={() => {
             if(uploadStatus === "exitoso"){
               handlerSendFile()
@@ -575,25 +597,20 @@ export default function ManagementUsers(){
             {isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
-          <Select value={isStudent ? getStatusValue(objectSelected.isActive) : 
-              isFuncionary ? objectSelected.roles[0].name : 
-              objectSelected.lunchBeneficiary ? "Beneficiario almuerzo":"Beneficiario refrigerio"}
+          <Select value={getValueComplexSelectInModal()}
             key={`selectEstadoRolTipoBeca${refreshFieldsEdit}`}
             className={styles.comboboxes}
             status={statusEstadoRolTipoBecaSelect}
-            options={isStudent ? cbxStatus 
-              : isFuncionary ? cbxFuncionary 
-              : cbxBeneficiaries}
-            onSelect={value => {
-              if(isStudent) handlerEditUser({target:{name:"isActive", value}})
-              if(isBeneficiary) handlerEditUser({target:{name:"lunchBeneficiary", value}})
-              if(isFuncionary) handlerRoleEditUser(value) 
+            options={getOptionsComplexSelectInModal()}
+            onSelect={ (value, option) => {
+              if(isStudent) handlerEditUser({target:{name:"isActive", value:option.value}})
+              if(isBeneficiary) handlerEditUser({target:{name:"lunchBeneficiary", value:option.value}})
+              if(isFuncionary) handlerRoleEditUser({id: mapFuncionary.get(option.value), name:option.value})
             }}
-            onBlur={e => {
-              console.dir(`value: ${e.target.value}... Type value's ${typeof e.target.value}`)
-              if(isStudent) handlerBlurSelect(validStatus(e.target.value), setStatusEstadoRolTipoBecaSelect)
-              if(isBeneficiary) handlerBlurSelect(validGrant(e.target.value), setStatusEstadoRolTipoBecaSelect)
-              if(isFuncionary) handlerBlurSelect(validRol(e.target.value), setStatusEstadoRolTipoBecaSelect)
+            onChange={value => {
+              if(isStudent) handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)
+              if(isBeneficiary) handlerBlurSelect(validGrant(value), setStatusEstadoRolTipoBecaSelect)
+              if(isFuncionary) handlerBlurSelect(validRol(value), setStatusEstadoRolTipoBecaSelect)
             }}
             />
           </label>
@@ -607,8 +624,8 @@ export default function ManagementUsers(){
             value={getStatusValue(objectSelected.isActive)}
             className={styles.comboboxes}
             options={cbxStatus}
-            onSelect={ value => handlerEditUser({target:{name:"isActive", value}})}
-            onBlur={e => handlerBlurSelect(validStatus(e.target.value), setStatusEstadoRolTipoBecaSelect)}
+            onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
+            onChange={value => handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)}
             />
         </label>
         </Flex>
@@ -620,7 +637,7 @@ export default function ManagementUsers(){
         justify='space-evenly'>
           <button 
           className={`button-save ${styles.buttons}`}
-          onClick={handlerUpdateEditUser}>
+          onClick={() => {handlerSendUserEdited(); handlerCloseModalEdit(false)}}>
             Guardar
           </button>
           <button className={`button-cancel ${styles.buttons}`}
