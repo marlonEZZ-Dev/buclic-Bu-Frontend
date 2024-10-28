@@ -1,6 +1,6 @@
 import { Divider, Flex, Select, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
-import { useCallback, useEffect, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 
 import ButtonRefresh from '../../components/admin/ButtonRefresh.jsx'
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
@@ -31,7 +31,8 @@ import {
   validLastname, 
   validName, 
   validPlan, 
-  validRol
+  validRol,
+  validStatus
 } from '../../services/validations.js'
 
 export default function ManagementUsers(){
@@ -42,7 +43,9 @@ export default function ManagementUsers(){
   const [deviceType, setDeviceType] = useState("")
   const [savePressed, SetSavePressed] = useState(false)
   const [refreshFields, setRefreshFields] = useState("")
+  const [refreshFieldsEdit, setRefreshFieldsEdit] = useState("clear")
   const [statusRolesGrantSelect, setStatusRolesGrantSelect] = useState("")
+  const [statusEstadoRolTipoBecaSelect, setStatusEstadoRolTipoBecaSelect] = useState("")
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -171,6 +174,17 @@ export default function ManagementUsers(){
     })
   }
 
+  const getStatusValue = (statusComponent) => {
+    if (React.isValidElement(statusComponent)) {
+      console.log(`componente en getStatusValue ${statusComponent}`)
+      console.dir(statusComponent)
+      console.log("active del componente")
+      console.dir(statusComponent.props.active)
+      return statusComponent.props.active
+    }
+    return statusComponent
+  };
+
   //Handlers
   const handlerClick = type => setChangesDescription(users.get(type))
 
@@ -228,11 +242,13 @@ export default function ManagementUsers(){
   }
 
   const handlerEditUser = e => {
-    const {name, value} = e.target
-    setObjectSelected(o => ({
-      ...o,
-      [name]:value
-    }))
+    const {name, value} = e.target;
+  
+    setObjectSelected(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    
   }
 
   const handlerSetSelectCreateUser = value => {
@@ -272,8 +288,8 @@ export default function ManagementUsers(){
     }
   }
 
-  const handlerBlurSelect = valid => {
-    setStatusRolesGrantSelect((typeof valid === "string") ? "error" : "")
+  const handlerBlurSelect = (valid, fnState) => {
+    fnState((typeof valid === "string") ? "error" : "")
   }
 
   const handlerVerify = () => {
@@ -289,8 +305,14 @@ export default function ManagementUsers(){
     ]
     const allOk = verifier.every( i => i === true)
     if(!allOk){
-      content = verifier.filter( i => typeof i === "string").join("\n")
-      setModalStruct({title: "Advertencia", content: content})
+      content = verifier
+      .filter( i => typeof i === "string")
+      .map((i, index) => <p key={`paragraph${index}`}>{i}</p>)
+      setModalStruct({
+        title: "Advertencia", 
+        content: content
+      })
+      setIsModalVerify(true)
       return
     }
   }
@@ -409,6 +431,19 @@ export default function ManagementUsers(){
     setRefreshFields(getTypeUserCurrent())
   }
 
+  const handlerUpdateEditUser = async () => {
+    try {
+      const response =  await handlerSendUserEdited()
+      if("sucess" in response){
+        notifyError(response.message)
+        return
+      }
+      handlerCloseModalEdit()
+    } catch (error) {
+      console.error(`Esto sucede en handlerUpdateEditUser ${error}`)
+    }    
+  }
+
   useEffect(() => {
     handleResize();
 
@@ -483,69 +518,84 @@ export default function ManagementUsers(){
         <Flex vertical justify='space-around' align='center'>
         <span style={fontSizeTitleModal}>Editar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</span>
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput
+          <SmallInput title='Nombre'
+            key={`inputName-${refreshFieldsEdit}`}
             isRenderAsteric={false}
             name="name"
-            title='Nombre'
             value={objectSelected.name}
-            maxLength={60}
-            minLength={3}
+            maxLength={50}
+            required
             onChange={e => handlerEditUser(e)}
+            onBlur={ e => handlerBlur(e, validName(e.currentTarget.value))}
             />
-          <SmallInput
-            title='Apellidos'
+          <SmallInput title='Apellidos'
+            key={`inputLastname${refreshFieldsEdit}`}
             name="lastName"
             value={objectSelected.lastName}
-            maxLength={60}
-            minLength={3}
+            maxLength={50}
+            required
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validLastname(e, e.currentTarget.value))}
             />
         </Flex>
 
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput
-            title={isFuncionary ? "Cédula" : "Código estudiantil"}
+          <SmallInput title={isFuncionary ? "Cédula" : "Código estudiantil"}
+            key={`inputUsername${refreshFieldsEdit}`}
             name="username"
+            min={isFuncionary ? 10000000 : 200000000}
+            max={isFuncionary ? 9999999999 : 299999999}
+            required
             value={objectSelected.username}
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validCode(e.currentTarget.value, !isFuncionary))}
             />
-          <SmallInput
-            isRenderAsteric={isFuncionary ? false:true}
-            title={isFuncionary ? "Área dependiente":"Plan"}
+          <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
+            key={`inputPlan${refreshFieldsEdit}`}
+            isRenderAsteric={!isFuncionary}
             name="plan"
             value={objectSelected.plan}
-            minLength={4}
+            required
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validPlan(e.currentTarget.value, !isFuncionary))}
             />
         </Flex>
           
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput 
-            title='Correo electrónico'
+          <SmallInput title='Correo electrónico'
+            key={`inputEmail${refreshFieldsEdit}`}
             value={objectSelected.email}
             name="email"
             type="email"
-            minLength={5}
-            maxLength={80}
+            required
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validEmail(e.currentTarget.value, isFuncionary))}
             />
           <label className={`${otherStyles.labels}`}>
             {isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
-          <Select
-            value={isStudent ? objectSelected.isActive.props.active : 
+          <Select value={isStudent ? getStatusValue(objectSelected.isActive) : 
               isFuncionary ? objectSelected.roles[0].name : 
               objectSelected.lunchBeneficiary ? "Beneficiario almuerzo":"Beneficiario refrigerio"}
+            key={`selectEstadoRolTipoBeca${refreshFieldsEdit}`}
             className={styles.comboboxes}
+            status={statusEstadoRolTipoBecaSelect}
             options={isStudent ? cbxStatus 
               : isFuncionary ? cbxFuncionary 
               : cbxBeneficiaries}
-            onChange={value => {
+            onSelect={value => {
               if(isStudent) handlerEditUser({target:{name:"isActive", value}})
               if(isBeneficiary) handlerEditUser({target:{name:"lunchBeneficiary", value}})
               if(isFuncionary) handlerRoleEditUser(value) 
-            }}/>
+            }}
+            onBlur={e => {
+              console.dir(`value: ${e.target.value}... Type value's ${typeof e.target.value}`)
+              if(isStudent) handlerBlurSelect(validStatus(e.target.value), setStatusEstadoRolTipoBecaSelect)
+              if(isBeneficiary) handlerBlurSelect(validGrant(e.target.value), setStatusEstadoRolTipoBecaSelect)
+              if(isFuncionary) handlerBlurSelect(validRol(e.target.value), setStatusEstadoRolTipoBecaSelect)
+            }}
+            />
           </label>
         </Flex>
 
@@ -554,10 +604,11 @@ export default function ManagementUsers(){
             Estado
           <Select
             placeholder="Selecciona"
-            value={objectSelected.isActive.props.active}
+            value={getStatusValue(objectSelected.isActive)}
             className={styles.comboboxes}
             options={cbxStatus}
-            onChange={ value => handlerEditUser({target:{name:"isActive", value}})}
+            onSelect={ value => handlerEditUser({target:{name:"isActive", value}})}
+            onBlur={e => handlerBlurSelect(validStatus(e.target.value), setStatusEstadoRolTipoBecaSelect)}
             />
         </label>
         </Flex>
@@ -568,14 +619,12 @@ export default function ManagementUsers(){
         gap='small'
         justify='space-evenly'>
           <button 
-          className={styles.buttonSave}
-          onClick={() => {
-            handlerSendUserEdited()
-            handlerCloseModalEdit()
-          }}>
+          className={`button-save ${styles.buttons}`}
+          onClick={handlerUpdateEditUser}>
             Guardar
           </button>
-          <button className={styles.buttonCancel} onClick={handlerCloseModalEdit}>Cancelar</button>
+          <button className={`button-cancel ${styles.buttons}`}
+          onClick={() => setRefreshFieldsEdit("action-clear")}>Cancelar</button>
         </Flex>
       </Modal>) }
       {isModalAllDelete && (
@@ -654,7 +703,13 @@ export default function ManagementUsers(){
         onClose={() => setIsModalVerify(false)}>
           <Flex vertical align='center' justify='center'>
             <span style={fontSizeTitleModal}>{modalStruct.title}</span>
-            <p>{modalStruct.content}</p>
+            {modalStruct.content}
+          </Flex>
+          <Flex justify='center' align='center'>
+            <button className='button-save'
+             onClick={() => setIsModalVerify(false)}>
+              Entendido
+            </button>
           </Flex>          
         </Modal>
       )}
@@ -718,7 +773,7 @@ export default function ManagementUsers(){
               onBlur={ e => handlerBlur(e, validCode(user.username, !isFuncionary))}
               />
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
-              isRenderAsteric={isFuncionary ? false:true}
+              isRenderAsteric={!isFuncionary}
               key={`plan${changesDescription}${refreshFields}`}
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}
               required
@@ -773,7 +828,7 @@ export default function ManagementUsers(){
               }}
               onBlur={() => {
                 if(isBeneficiary || isFuncionary){
-                  handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles))
+                  handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles), setStatusRolesGrantSelect)
                 }
               }}
               />
@@ -786,13 +841,13 @@ export default function ManagementUsers(){
         gap='small'
         justify='space-evenly'
         >
-          <button className={styles.buttonSave} 
+          <button className={`button-save ${styles.buttons}`} 
           onClick={() => {
             handlerVerify()
             SetSavePressed(!savePressed)
             handlerSave()
           }}>Guardar</button>
-          <button className={styles.buttonCancel}
+          <button className={`button-cancel ${styles.buttons}`}
           onClick={handlerClearFields}
           >Cancelar</button>
         </Flex>
@@ -836,7 +891,7 @@ export default function ManagementUsers(){
             <TablePaginationUsers
               columns={headerTb}
               rows={rows}
-              enableDelete={isBeneficiary ? true:false}
+              enableDelete={isBeneficiary}
               enableEdit
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={1}
