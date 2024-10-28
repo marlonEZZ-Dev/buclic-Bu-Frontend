@@ -100,12 +100,10 @@ export const importUsers = async (role, fileCSV) => {
     )
     if (response.status === 201) {
       return { success: true, message: "Archivo subido con éxito" };
-    } else {
-      return { success: false, message: "Error al subir archivo" };
     }
   } catch (error) {
     return {
-      succes: false,
+      success: false,
       message: errorForPost.get(error.response.status)
     }
   }
