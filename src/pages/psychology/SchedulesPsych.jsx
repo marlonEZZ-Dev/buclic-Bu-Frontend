@@ -63,6 +63,7 @@ function TableEditable(){
           {/* Celda de la fecha */}
             <td>
               <DateSpanish
+                key={`dateSpanish-${dateIndex}`}
                 value={schedule.date}
                 onChange={(date) => handlerDateChange(date, dateIndex)}
               />
@@ -70,6 +71,7 @@ function TableEditable(){
              {/* Primer campo de hora */}
             <td>
               <TimeSpanish
+                key={`timeSpanish${dateIndex}`}
                 value={schedule.times[0]}
                 onChange={(time) =>
                   handlerTimeChange(time, dateIndex, 0)
@@ -84,6 +86,7 @@ function TableEditable(){
                     <td></td>
                     <td>
                       <TimeSpanish
+                        key={`timeSpanish-${timeIndex}`}
                         value={time}
                         onChange={(time) =>
                           handlerTimeChange(time, dateIndex, timeIndex + 1)
