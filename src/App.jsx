@@ -64,6 +64,7 @@ import BecasExternal from "./pages/external/BecasExternal";
 import SettingExternal from "./pages/external/SettingExternal";
 import ChangePasswordExt from "./pages/external/ChangePasswordExt";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import HistoryDetail from "./pages/nurse/HistoryDetail";
 import { Outlet } from "react-router-dom";
 
 
@@ -130,6 +131,7 @@ function App() {
         <Route path="historial" element={<HistoryNurse />} />
         <Route path="informe" element={<InformNurse />} />
         <Route path="ajuste" element={<SettingNurse />} />
+        <Route path="detallesHistorial/:id" element={<HistoryDetail />} />
 
         </Route>
 
