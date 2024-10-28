@@ -59,9 +59,9 @@ function TableEditable(){
         {scheduleData.map((schedule, dateIndex) => (
         <>
        {/* Fila principal de la fecha */}
-          <tr key={`date-${dateIndex}`}>
+          <tr key={`dateRow-${dateIndex}`}>
           {/* Celda de la fecha */}
-            <td>
+            <td key={`cellInput-${dateIndex}`}>
               <DateSpanish
                 key={`dateSpanish-${dateIndex}`}
                 value={schedule.date}
@@ -69,7 +69,7 @@ function TableEditable(){
               />
             </td>
              {/* Primer campo de hora */}
-            <td>
+            <td key={`cellInput--${dateIndex}`}>
               <TimeSpanish
                 key={`timeSpanish${dateIndex}`}
                 value={schedule.times[0]}
@@ -83,7 +83,7 @@ function TableEditable(){
                 {/* Fila para las horas adicionales (si hay más de una hora) */}
                 {schedule.times.slice(1).map((time, timeIndex) => (
                   <tr key={`time-${dateIndex}-${timeIndex}`}>
-                    <td></td>
+                    <td key={`emptyTime-${dateIndex}`}></td>
                     <td>
                       <TimeSpanish
                         key={`timeSpanish-${timeIndex}`}
@@ -97,15 +97,16 @@ function TableEditable(){
                 ))}
 
                 {/* Enlace para agregar una nueva hora */}
-                <tr style={{borderBottomColor:"#D9D9D9"}}>
-                  <td></td>
+                <tr key={`RowLink-${dateIndex}`} style={{borderBottomColor:"#D9D9D9"}}>
+                  <td key={`emptyTime--${dateIndex}`}></td>
                   <td>
                     <Button
+                      key={`btnLink-${dateIndex}`}
                       type="link"
                       style={{color:"var(--red)"}}
                       onClick={() => handlerCreateTime(dateIndex)}
                     >
-                      +<span className={`text-red ${styles.decorateText}`}> Agregar Hora</span>
+                      +<span key={`linkHour-${dateIndex}`} className={`text-red ${styles.decorateText}`}> Agregar Hora</span>
                     </Button>
                   </td>
                 </tr>
