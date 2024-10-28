@@ -21,7 +21,6 @@ export default function DateSpanish({
      <LabelAsteric
       isRenderAsteric={isRenderAsteric}
       labelClass={labelClass}
-      title={title}
      >
         <DatePicker
           onChange={onChange}
