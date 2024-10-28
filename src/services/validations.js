@@ -28,7 +28,7 @@ const forNuip = nuip => {
 
 const forPlan = plan => /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 digitos"
 
-const forArea = area => /^[a-zA-Z]+$/.test(area) ? true : "El área debe por ejemplo ser administrativa, psicología, etc"
+const forArea = area => /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+$/.test(area) ? true : "El área debe por ejemplo ser administrativa, psicología, etc"
 
 export const validCode = (code, isCode) => {
   //Si es estudiante o beneficiario
