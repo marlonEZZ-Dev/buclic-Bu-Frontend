@@ -156,3 +156,7 @@
   width: min-content;
   align-self: flex-end;
 }
+
+.inputWidthModal{
+  width: 11.5rem;
+}
