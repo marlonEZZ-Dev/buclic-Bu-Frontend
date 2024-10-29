@@ -1,40 +1,30 @@
-import { ConfigProvider, TimePicker } from "antd";
-import PropTypes from "prop-types"
-import locale from "antd/es/locale/es_ES";
-import dayjs from "dayjs";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-dayjs.extend(buddhistEra);
+// TimeSpanish.jsx
+import React from 'react';
+import { TimePicker } from 'antd';
+import dayjs from 'dayjs';
 
-import LabelAsteric from "./LabelAsteric.jsx";
+const timePickerStyle = {
+  width: '100%',
+};
 
-export default function TimeSpanish({
-  title = "",
-  isRenderAsteric = false,
-  labelClass = "",
-  onChange = () => {}, 
-  ...props}) {
+const TimeSpanish = ({ value, onChange, disabled, placeholder }) => {
+  const timeValue = value ? dayjs(value, 'HH:mm') : null;
+
+  const handleChange = (time) => {
+    const timeString = time ? time.format('HH:mm') : '';
+    onChange(timeString);
+  };
+
   return (
-    <ConfigProvider locale={locale}>
-      <LabelAsteric
-      title={title}
-      isRenderAsteric={isRenderAsteric}
-      labelClass={labelClass}
-      >
-        <TimePicker
-          onChange={onChange}
-          use12Hours
-          format="h:mm a"
-          {...props}
-        />
-      </LabelAsteric>
-    </ConfigProvider>
+    <TimePicker
+      value={timeValue}
+      onChange={handleChange}
+      disabled={disabled}
+      placeholder={placeholder || "Seleccione hora"}
+      format="HH:mm"
+      style={timePickerStyle}
+    />
   );
-}
+};
 
-TimeSpanish.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  title: PropTypes.string,
-  isRenderAsteric: PropTypes.bool,
-  labelClass: PropTypes.string
-}
+export default TimeSpanish;

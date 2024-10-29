@@ -1,43 +1,31 @@
-import { ConfigProvider, DatePicker } from "antd";
+// DateSpanish.jsx
+import React from 'react';
+import { DatePicker } from 'antd';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
 
-import LabelAsteric from "./LabelAsteric.jsx";
+const datePickerStyle = {
+  width: '100%',
+};
 
-import PropTypes from "prop-types"
-import locale from "antd/es/locale/es_ES";
-import dayjs from "dayjs";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-dayjs.extend(buddhistEra);
+const DateSpanish = ({ value, onChange, disabled, placeholder }) => {
+  const dateValue = value ? dayjs(value) : null;
 
-export default function DateSpanish({ 
-  isRenderAsteric = false, 
-  labelClass = "", 
-  title="title", 
-  onChange = () => {}, 
-  ...props}) {
+  const handleChange = (date) => {
+    const dateString = date ? date.format('YYYY-MM-DD') : '';
+    onChange(dateString);
+  };
 
-  const FIRST_YEAR = "YYYY-MM-DD"
   return (
-    <ConfigProvider locale={locale}>
-     <LabelAsteric
-      isRenderAsteric={isRenderAsteric}
-      labelClass={labelClass}
-     >
-        <DatePicker
-          onChange={onChange}
-          format={FIRST_YEAR}
-          defaultOpenValue={dayjs().format(FIRST_YEAR)}
-          {...props}
-          style={{display:"block"}}
-        />
-      </LabelAsteric>
-    </ConfigProvider>
+    <DatePicker
+      value={dateValue}
+      onChange={handleChange}
+      disabled={disabled}
+      placeholder={placeholder || "Seleccione fecha"}
+      format="DD/MM/YYYY"
+      style={datePickerStyle}
+    />
   );
-}
+};
 
-DateSpanish.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  isRenderAsteric: PropTypes.bool,
-  labelClass: PropTypes.string,
-  title: PropTypes.string
-}
+export default DateSpanish;
