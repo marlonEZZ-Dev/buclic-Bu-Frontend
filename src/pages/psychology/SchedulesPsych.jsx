@@ -175,31 +175,33 @@ export default function SchedulesPsych() {
 
       console.log('Enviando datos:', requestData);
 
+      // Realiza la petición al backend
       const response = await api.post("/appointment/create-date", requestData);
 
-      if (response.status === 200) {
-        showNotification('success', 'Horarios guardados exitosamente');
-        return true;
+      // Verificar el estado de la respuesta
+      if (response?.status === 200 || response?.status === 201) {
+        return true; // Guardado exitoso
+      } else {
+        throw new Error('Error al guardar los horarios.'); // Lanza un error si la respuesta no es 200 o 201
       }
-
-      return false;
     } catch (error) {
       console.error('Error al guardar horarios:', error);
 
       let errorMessage = 'Hubo un error al guardar los horarios.';
 
       if (error.response) {
-        errorMessage = error.response.data?.message || 'Error desconocido';
+        errorMessage = error.response.data?.message || 'Error desconocido del servidor.';
       } else if (error.request) {
-        errorMessage = 'No se pudo conectar con el servidor.';
+        errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión a internet.';
       }
 
       showNotification('error', errorMessage);
       return false;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Detener el estado de carga
     }
   };
+
 
   const handlerBtnSave = () => {
     if (!validateScheduleData()) {
@@ -215,12 +217,27 @@ export default function SchedulesPsych() {
   };
 
   const confirmSave = async () => {
-    const saved = await saveDataToBackend();
-    if (saved) {
-      handlerSaveChangesClose();
-      handlerDontEdit();
+    setIsLoading(true); // Iniciar la carga al comenzar el proceso de guardado
+
+    try {
+      const saved = await saveDataToBackend();
+      if (saved) {
+        showNotification('success', 'El horario fue asignado con éxito.'); // Notificación de éxito
+        setScheduleData([{ date: "", times: [""] }]); // Limpiar los inputs
+        handlerSaveChangesClose(); // Cerrar el modal
+        handlerDontEdit(); // Salir del modo de edición
+      } else {
+        showNotification('error', 'No se pudo guardar el horario. Intente de nuevo.'); // Notificación de error
+      }
+    } catch (error) {
+      console.error('Error en la confirmación de guardado:', error);
+      showNotification('error', 'Hubo un error inesperado. Intente nuevamente.');
+    } finally {
+      setIsLoading(false); // Detener el estado de carga después del proceso
     }
   };
+
+
 
   return (
     <>
