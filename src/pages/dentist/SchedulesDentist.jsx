@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
+import HeaderDentist from '../../components/dentist/HeaderDentist.jsx';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import Modal from "../../components/global/Modal.jsx";
 import DateSpanish from "../../components/global/DateSpanish.jsx";
@@ -9,6 +9,7 @@ import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
 import { Flex, Button, message } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
+
 
 const styles = {
   container: {
@@ -242,7 +243,7 @@ export default function SchedulesPsych() {
   return (
     <>
       {contextHolder}
-      <HeaderPsych />
+      <HeaderDentist/>
 
       <div style={styles.container}>
         <Modal

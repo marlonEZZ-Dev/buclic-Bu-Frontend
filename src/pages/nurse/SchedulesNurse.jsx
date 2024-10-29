@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
+import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import Modal from "../../components/global/Modal.jsx";
 import DateSpanish from "../../components/global/DateSpanish.jsx";
@@ -242,7 +242,7 @@ export default function SchedulesPsych() {
   return (
     <>
       {contextHolder}
-      <HeaderPsych />
+      <HeaderNurse />
 
       <div style={styles.container}>
         <Modal
