@@ -39,6 +39,7 @@ import AppointmentsNurse from "./pages/nurse/AppointmentsNurse";
 import BecasNurse from "./pages/nurse/VisitsNurse";
 import HistoryNurse from "./pages/nurse/HistoryNurse";
 import InformNurse from "./pages/nurse/InformNurse";
+import ViewNursingReport from "./pages/nurse/ViewInformsNurse";
 import SchedulesNurse from "./pages/nurse/SchedulesNurse";
 import VisitsNurse from "./pages/nurse/VisitsNurse";
 import BecasDentist from "./pages/dentist/BecasDentist";
@@ -130,6 +131,7 @@ function App() {
         <Route path="actividades" element={<VisitsNurse />} />
         <Route path="historial" element={<HistoryNurse />} />
         <Route path="informe" element={<InformNurse />} />
+        <Route path="VerInforme/:id" element={<ViewNursingReport/>}/>
         <Route path="ajuste" element={<SettingNurse />} />
         <Route path="detallesHistorial/:id" element={<HistoryDetail />} />
 
