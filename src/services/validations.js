@@ -28,7 +28,7 @@ const forNuip = nuip => {
 
 const forPlan = plan => /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 digitos"
 
-const forArea = area => /^[a-zA-Z]+$/.test(area) ? true : "El área debe por ejemplo ser adminstrativa, psicología, etc"
+const forArea = area => /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+$/.test(area) ? true : "El área debe por ejemplo ser administrativa, psicología, etc"
 
 export const validCode = (code, isCode) => {
   //Si es estudiante o beneficiario
@@ -58,6 +58,8 @@ export const validRol = rol => rol.length !== 0 ? true : "Debe elegir un rol"
 
 export const validGrant = grant => (grant === "Beneficiario almuerzo") 
 || (grant === "Beneficiario refrigerio") ? true : "Debe elegir un tipo de beca"
+
+export const validStatus = status => (typeof status === "boolean") ? true : "Debe seleccionar un estado"
 /********************************************************************************************************/
 
 //Pensado para Registro de actividades enfermería

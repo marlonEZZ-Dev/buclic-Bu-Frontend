@@ -40,7 +40,7 @@ const errorForDelete = new Map([
 ])
 
 //PETICIONES GET
-export const listUsers = async (filter, page = 0, size = 10) => {
+export const listUsers = async (filter, page, size = 10) => {
   try {
     const response = await axios.get(`/users/list?filter=${filter}&page=${page}&size=${size}`)
     return response.data
@@ -100,12 +100,10 @@ export const importUsers = async (role, fileCSV) => {
     )
     if (response.status === 201) {
       return { success: true, message: "Archivo subido con éxito" };
-    } else {
-      return { success: false, message: "Error al subir archivo" };
     }
   } catch (error) {
     return {
-      succes: false,
+      success: false,
       message: errorForPost.get(error.response.status)
     }
   }
@@ -122,6 +120,9 @@ export const editUser = async (user) => {
       lastName: user.lastName,
       email: user.email,
       plan: user.plan,
+      eps: user.eps,
+      semester: user.semester,
+      phone: user.phone,
       isActive: user.isActive,
       lunchBeneficiary: isLunch(),
       snackBeneficiary: !isLunch(),
@@ -135,7 +136,8 @@ export const editUser = async (user) => {
   } catch (error) {
     return {
       success: false, 
-      message: errorForPut.get(error.response.status)
+      message: errorForPut.get(error.response.status),
+      errorGet : error
     }
   }
 }

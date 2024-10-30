@@ -1,6 +1,6 @@
 import { Divider, Flex, Select, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
-import { useCallback, useEffect, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 
 import ButtonRefresh from '../../components/admin/ButtonRefresh.jsx'
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx"
@@ -31,18 +31,24 @@ import {
   validLastname, 
   validName, 
   validPlan, 
-  validRol
+  validRol,
+  validStatus
 } from '../../services/validations.js'
+import deepEqual from '../../utils/deep_equal.js'
 
 export default function ManagementUsers(){
   //useStates
   const [changesDescription, setChangesDescription] = useState(1)
   const [objectSelected, setObjectSelected] = useState(null)
+  const [objectSelectedClone, setObjectSelectedClone] = useState(null)
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
   const [savePressed, SetSavePressed] = useState(false)
   const [refreshFields, setRefreshFields] = useState("")
   const [statusRolesGrantSelect, setStatusRolesGrantSelect] = useState("")
+  const [statusEstadoRolTipoBecaSelect, setStatusEstadoRolTipoBecaSelect] = useState("")
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -111,8 +117,18 @@ export default function ManagementUsers(){
     {value:"ODONTOLOGO", label:"Odontólogo (a)"},
     {value:"PSICOLOGO", label:"Psicólogo (a)"},
     {value:"FUNCIONARIO", label:"Funcionario (a)"},
-    {value:"EXTERNO", label:"Externo (a)"},
+    {value:"EXTERNO", label:"Externo (a)"}
   ]
+
+  const mapFuncionary = new Map([
+    ["ADMINISTRADOR",1],
+    ["ENFERMERO",4],
+    ["MONITOR",6],
+    ["ODONTOLOGO",3],
+    ["PSICOLOGO",7],
+    ["FUNCIONARIO",8],
+    ["EXTERNO",5]
+  ])
 
   const cbxStatus = [
     {value:true, label:"Activo"},
@@ -131,6 +147,8 @@ export default function ManagementUsers(){
     {key: "isActive", label: "Activo"}
   ]
 
+  const ITEM_PER_PAGE = 10
+
   //functions  
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
@@ -138,14 +156,17 @@ export default function ManagementUsers(){
   
   const getTypeUserCurrent = () => buttons[changesDescription].type.toLowerCase()
   
+  const handlePageChange = page => setCurrentPage(page)
+  
   const loadUsers = async () => {
     if (buttons[changesDescription]) {
         try {
-            const result = await listUsers(getTypeUserCurrent())
+            const result = await listUsers(getTypeUserCurrent(), currentPage-1)
             if("success" in result){
               notifyError(result.message)
               return
             }
+            setTotalItems(result.page.totalElements)
             const data = result.content
             setRows(data.map(user => ({
               ...user,
@@ -171,17 +192,45 @@ export default function ManagementUsers(){
     })
   }
 
+  const getStatusValue = (statusComponent) => {
+    if (React.isValidElement(statusComponent)) {
+      return statusComponent.props.active
+    }
+    return statusComponent
+  };
+
+  const getValueComplexSelectInModal = () => {
+    if(isStudent) return getStatusValue(objectSelected.isActive)
+    if(isFuncionary) return objectSelected.roles[0].name
+    if(isBeneficiary && objectSelected.lunchBeneficiary){
+      return "Beneficiario almuerzo"
+    }else{
+      return "Beneficiario refrigerio"
+    }   
+  }
+
+  const getOptionsComplexSelectInModal = () => {
+    if(isStudent) return cbxStatus
+    if(isFuncionary) return cbxFuncionary
+    if(isBeneficiary) return cbxBeneficiaries
+    console.error("no deberían existir más usuarios")
+  }
+
   //Handlers
   const handlerClick = type => setChangesDescription(users.get(type))
 
+  
   //Manejadores de estado de modals
+
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
   
   const handlerOpenModalEdit = row => {
+    row.isActive = getStatusValue(row.isActive)
+    setObjectSelectedClone(structuredClone(row))
+    row.isActive = tranformToStateUser(row.isActive)    
     setIsModalEdit(true)
     setObjectSelected(row)
-    console.dir(row)
   }
 
   const handlerCloseModalEdit = () => setIsModalEdit(false)
@@ -189,7 +238,6 @@ export default function ManagementUsers(){
   const handlerOpenModalDelete = row => {
     setIsModalDelete(true)
     setObjectSelected(row)
-    console.dir(objectSelected)
   }
   const handlerCloseModalDelete = () => setIsModalDelete(false)
 
@@ -228,11 +276,12 @@ export default function ManagementUsers(){
   }
 
   const handlerEditUser = e => {
-    const {name, value} = e.target
-    setObjectSelected(o => ({
-      ...o,
-      [name]:value
-    }))
+    const {name, value} = e.target;
+  
+    setObjectSelected(prev => ({
+        ...prev,
+        [name]: value
+    }));    
   }
 
   const handlerSetSelectCreateUser = value => {
@@ -250,19 +299,20 @@ export default function ManagementUsers(){
   }
 
   const handlerRoleEditUser = value => {
-    if(!objectSelected.roles.some( rol => rol.name === "ESTUDIANTE")){
-      setObjectSelected(o => ({
-        ...o,
-        roles:[...o.roles, value]
-      }))
-      return
-    }
-    setObjectSelected(o => ({
-      ...o,
-      roles:[value]
-    }))
+    // setObjectSelected(o => ({
+    //   ...o,
+    //   roles:[value]
+    // }))
+    console.log('Nuevo valor:', value);
+  console.log('Objecto seleccionado antes:', objectSelected);
 
-  }
+  setObjectSelected(o => {
+    const updatedObject = { ...o, roles: [value] };
+    console.log('Objecto seleccionado después:', updatedObject);
+    return updatedObject;
+  
+  });
+}
 
   const handlerBlur = (e, valid) => {
     if((typeof valid === "string") || !(e.target.checkValidity())){
@@ -272,11 +322,11 @@ export default function ManagementUsers(){
     }
   }
 
-  const handlerBlurSelect = valid => {
-    setStatusRolesGrantSelect((typeof valid === "string") ? "error" : "")
+  const handlerBlurSelect = (valid, fnState) => {
+    fnState((typeof valid === "string") ? "error" : "")
   }
 
-  const handlerVerify = () => {
+  const handlerVerify = user => {
     let content = ""
     const verifier = [
       validCode(user.username, !isFuncionary),
@@ -289,8 +339,14 @@ export default function ManagementUsers(){
     ]
     const allOk = verifier.every( i => i === true)
     if(!allOk){
-      content = verifier.filter( i => typeof i === "string").join("\n")
-      setModalStruct({title: "Advertencia", content: content})
+      content = verifier
+      .filter( i => typeof i === "string")
+      .map((i, index) => <p key={`paragraph${index}`}>{i}</p>)
+      setModalStruct({
+        title: "Advertencia", 
+        content: content
+      })
+      setIsModalVerify(true)
       return
     }
   }
@@ -334,12 +390,28 @@ export default function ManagementUsers(){
   const handlerSendFile = async () => {
     try {
       if(uploadStatus === "exitoso"){
-        importUsers((isBeneficiary || isStudent) ? "ESTUDIANTE" : "FUNCIONARIO" , file)
-        loadUsers()
+        const responseImport = await importUsers((isBeneficiary || isStudent) ? "ESTUDIANTE" : "FUNCIONARIO" , file)
+        if((responseImport !== undefined) && 
+          ("success" in responseImport) && 
+          (responseImport.success === false)){
+          notifyError(responseImport.message)
+          return
+        }
+        
+        const responseLoad = await loadUsers()
+        if((responseLoad !== undefined) &&
+          ("success" in responseLoad) && 
+          (responseLoad.success === false)){
+          notifyError(responseLoad.message)
+          return
+        }
+
+        if(responseImport.success) notifySuccess(responseImport.message)
+        if(responseLoad.success) notifySuccess(responseLoad.message)
       }
       return
     } catch (error) {
-      console.error(error);
+      console.error(`Ocurrio un error en handlerSendFile ${error}`);
     }
     
   }
@@ -363,24 +435,30 @@ export default function ManagementUsers(){
 
   const handlerSendUserEdited = async () => {
     try {
+      console.log(objectSelected)
+      objectSelected.isActive = getStatusValue(objectSelected.isActive)
       const responseEdit = await editUser(objectSelected)
-      if(responseEdit.success === false){
+      if((responseEdit !== undefined) && ("errorGet" in responseEdit)){
+        console.log(responseEdit.errorGet);
+      }
+      if((responseEdit !== undefined) && (responseEdit.success === false)){
         notifyError(responseEdit.message)
         return
       }
 
       const responseLoad = await loadUsers()
-      if(responseLoad.success === false){
+      if((responseLoad !== undefined) && (responseLoad.success === false)){
         notifyError(responseLoad.message)
         return
       }
 
       if(responseEdit.success){
         notifySuccess(responseEdit.message)
+        console.log(objectSelected)
         return
       }
     } catch (error) {
-      notifyError(error)
+      console.error(`Esto sucede en handlerSendUserEdited ${error}`)
     }
     
   }
@@ -438,7 +516,7 @@ export default function ManagementUsers(){
         onClose={handlerCloseModalImport}>
         <Flex vertical align='center' justify='center'>
           <span style={fontSizeTitleModal}>Importar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</span>
-          <p>Descarga la plantilla <a href="#">aquí</a> y selecciona el archivo modificado</p>
+          <p>Descarga la plantilla <a href={`../../../public/importar_${isStudent ? "estudiantes": isFuncionary ? "funcionarios": isBeneficiary ? "beneficiarios" : ""}.csv`}>aquí</a> y selecciona el archivo modificado</p>
         <Flex align="flex-start" justify='space-around'>
           <button 
           className={styles.buttonLoad}
@@ -458,12 +536,12 @@ export default function ManagementUsers(){
         </Flex>
         <Flex align='center' justify='center' gap={25}>
           <button 
-          className={styles.buttonCancel}
+          className={`button-cancel ${styles.buttons}`}
           onClick={handlerCloseModalImport}>
             Cancelar
           </button>
           <button 
-          className={styles.buttonSave}
+          className={`button-save ${styles.buttons}`}
           onClick={() => {
             if(uploadStatus === "exitoso"){
               handlerSendFile()
@@ -483,69 +561,81 @@ export default function ManagementUsers(){
         <Flex vertical justify='space-around' align='center'>
         <span style={fontSizeTitleModal}>Editar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</span>
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput
+          <SmallInput title='Nombre'
             isRenderAsteric={false}
             name="name"
-            title='Nombre'
             value={objectSelected.name}
-            maxLength={60}
-            minLength={3}
+            maxLength={50}
+            required
+            className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onBlur={ e => handlerBlur(e, validName(e.currentTarget.value))}
             />
-          <SmallInput
-            title='Apellidos'
+          <SmallInput title='Apellidos'
+            isRenderAsteric={false}
             name="lastName"
             value={objectSelected.lastName}
-            maxLength={60}
-            minLength={3}
+            maxLength={50}
+            required
+            className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validLastname(e.currentTarget.value))}
             />
         </Flex>
 
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput
-            title={isFuncionary ? "Cédula" : "Código estudiantil"}
+          <SmallInput title={isFuncionary ? "Cédula" : "Código estudiantil"}
             name="username"
+            min={isFuncionary ? 10000000 : 200000000}
+            max={isFuncionary ? 9999999999 : 299999999}
+            required
+            isRenderAsteric={false}
+            className={styles.inputWidthModal}
             value={objectSelected.username}
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validCode(e.currentTarget.value, !isFuncionary))}
             />
-          <SmallInput
-            isRenderAsteric={isFuncionary ? false:true}
-            title={isFuncionary ? "Área dependiente":"Plan"}
+          <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
+            isRenderAsteric={false}
             name="plan"
             value={objectSelected.plan}
-            minLength={4}
+            required
+            className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validPlan(e.currentTarget.value, !isFuncionary))}
             />
         </Flex>
           
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput 
-            title='Correo electrónico'
+          <SmallInput title='Correo electrónico'
             value={objectSelected.email}
+            isRenderAsteric={false}
             name="email"
             type="email"
-            minLength={5}
-            maxLength={80}
+            required
+            className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onBlur={e => handlerBlur(e, validEmail(e.currentTarget.value, isFuncionary))}
             />
           <label className={`${otherStyles.labels}`}>
             {isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
-          <Select
-            value={isStudent ? objectSelected.isActive.props.active : 
-              isFuncionary ? objectSelected.roles[0].name : 
-              objectSelected.lunchBeneficiary ? "Beneficiario almuerzo":"Beneficiario refrigerio"}
-            className={styles.comboboxes}
-            options={isStudent ? cbxStatus 
-              : isFuncionary ? cbxFuncionary 
-              : cbxBeneficiaries}
+          <Select value={getValueComplexSelectInModal()}
+            className={`${styles.comboboxes} ${styles.inputWidthModal}`}
+            status={statusEstadoRolTipoBecaSelect}
+            options={getOptionsComplexSelectInModal()}
+            onSelect={ (value, option) => {
+              if(isStudent) handlerEditUser({target:{name:"isActive", value:option.value}})
+              if(isBeneficiary) handlerEditUser({target:{name:"lunchBeneficiary", value:option.value}})
+              if(isFuncionary) handlerRoleEditUser({id: mapFuncionary.get(option.value), name:option.value})
+            }}
             onChange={value => {
-              if(isStudent) handlerEditUser({target:{name:"isActive", value}})
-              if(isBeneficiary) handlerEditUser({target:{name:"lunchBeneficiary", value}})
-              if(isFuncionary) handlerRoleEditUser(value) 
-            }}/>
+              if(isStudent) handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)
+              if(isBeneficiary) handlerBlurSelect(validGrant(value), setStatusEstadoRolTipoBecaSelect)
+              if(isFuncionary) handlerBlurSelect(validRol(value), setStatusEstadoRolTipoBecaSelect)
+            }}
+            />
           </label>
         </Flex>
 
@@ -554,10 +644,11 @@ export default function ManagementUsers(){
             Estado
           <Select
             placeholder="Selecciona"
-            value={objectSelected.isActive.props.active}
-            className={styles.comboboxes}
+            value={getStatusValue(objectSelected.isActive)}
+            className={`${styles.comboboxes} ${styles.inputWidthModal}`}
             options={cbxStatus}
-            onChange={ value => handlerEditUser({target:{name:"isActive", value}})}
+            onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
+            onChange={value => handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)}
             />
         </label>
         </Flex>
@@ -568,14 +659,20 @@ export default function ManagementUsers(){
         gap='small'
         justify='space-evenly'>
           <button 
-          className={styles.buttonSave}
+          className={`button-save ${styles.buttons}`}
           onClick={() => {
-            handlerSendUserEdited()
-            handlerCloseModalEdit()
-          }}>
+            if(!deepEqual(objectSelected, objectSelectedClone)){
+              handlerVerify(objectSelected)
+              handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
+              setObjectSelectedClone(null)
+            }
+            handlerCloseModalEdit(false) 
+            return
+            }}>
             Guardar
           </button>
-          <button className={styles.buttonCancel} onClick={handlerCloseModalEdit}>Cancelar</button>
+          <button className={`button-cancel ${styles.buttons}`}
+          onClick={() => setObjectSelected(objectSelectedClone)}>Cancelar</button>
         </Flex>
       </Modal>) }
       {isModalAllDelete && (
@@ -596,12 +693,12 @@ export default function ManagementUsers(){
             gap='small'
             justify='space-evenly'>
               <button 
-              className={styles.buttonCancel} 
+              className={`button-cancel ${styles.buttons}`} 
               onClick={handlerCloseModalAllDelete}>
                 No
               </button>
               <button 
-              className={styles.buttonSave}
+              className={`button-save ${styles.buttons}`}
               onClick={() => {
                 handlerDeleteUsers()
                 .then(() => handlerCloseModalAllDelete)
@@ -631,12 +728,12 @@ export default function ManagementUsers(){
             gap='small'
             justify='space-evenly'>
               <button 
-              className={styles.buttonCancel} 
+              className={`button-cancel ${styles.buttons}`} 
               onClick={handlerCloseModalDelete}>
                 No
               </button>
               <button 
-              className={styles.buttonSave}
+              className={`button-cancel ${styles.buttons}`}
               onClick={() => {
                 handlerDeleteUser()
                 .then(handlerCloseModalDelete())
@@ -654,14 +751,20 @@ export default function ManagementUsers(){
         onClose={() => setIsModalVerify(false)}>
           <Flex vertical align='center' justify='center'>
             <span style={fontSizeTitleModal}>{modalStruct.title}</span>
-            <p>{modalStruct.content}</p>
+            {modalStruct.content}
+          </Flex>
+          <Flex justify='center' align='center'>
+            <button className={`button-save ${styles.buttons}`}
+             onClick={() => setIsModalVerify(false)}>
+              Entendido
+            </button>
           </Flex>          
         </Modal>
       )}
       {contextHolder}
         <MenuBecas 
           buttons={buttons}
-          onSelect={type => handlerClick(type)}
+          onSelect={type => {handlerClick(type); setCurrentPage(1)}}
           >
             <button 
             className={styles.buttonImport} 
@@ -718,7 +821,7 @@ export default function ManagementUsers(){
               onBlur={ e => handlerBlur(e, validCode(user.username, !isFuncionary))}
               />
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
-              isRenderAsteric={isFuncionary ? false:true}
+              isRenderAsteric={!isFuncionary}
               key={`plan${changesDescription}${refreshFields}`}
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}
               required
@@ -773,7 +876,7 @@ export default function ManagementUsers(){
               }}
               onBlur={() => {
                 if(isBeneficiary || isFuncionary){
-                  handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles))
+                  handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles), setStatusRolesGrantSelect)
                 }
               }}
               />
@@ -786,13 +889,13 @@ export default function ManagementUsers(){
         gap='small'
         justify='space-evenly'
         >
-          <button className={styles.buttonSave} 
+          <button className={`button-save ${styles.buttons}`} 
           onClick={() => {
-            handlerVerify()
+            handlerVerify(user)
             SetSavePressed(!savePressed)
             handlerSave()
           }}>Guardar</button>
-          <button className={styles.buttonCancel}
+          <button className={`button-cancel ${styles.buttons}`}
           onClick={handlerClearFields}
           >Cancelar</button>
         </Flex>
@@ -836,11 +939,13 @@ export default function ManagementUsers(){
             <TablePaginationUsers
               columns={headerTb}
               rows={rows}
-              enableDelete={isBeneficiary ? true:false}
+              enableDelete={isBeneficiary}
               enableEdit
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
-              currentPage={1}
-              itemsPerPage={10}
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEM_PER_PAGE}
+              onPageChange={handlePageChange}
               onEdit={handlerOpenModalEdit}
               onDelete={isBeneficiary ? handlerOpenModalDelete:undefined}
               />

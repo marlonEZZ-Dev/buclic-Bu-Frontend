@@ -95,20 +95,10 @@
   color: var(--gray-dark);
 }
 
-.buttonCancel{
-  color: var(--red);
-}
-
-.buttonCancel{
-  background-color: var(--white);
-  border: solid 1px var(--gray);
-}
-
 .buttonSearch{
   padding-inline: .6875rem;
 }
 
-.buttonSave,
 .buttonImport,
 .buttonSearch,
 .buttonDeleteBen{
@@ -133,33 +123,22 @@
   transition: box-shadow 0.3s ease-in-out; /* Suaviza la transición */
 }
 
-.buttonSave, 
-.buttonCancel{
+.buttons{
   margin-top: 1.875rem;
   margin-bottom: 1.25rem;
 }
 
-.buttonSave,
-.buttonCancel,
 .buttonImport{
   height: 1.875rem;
   width: 5.625rem;
 }
 
-.buttonSave,
-.buttonCancel,
 .buttonImport,
 .buttonSearch,
 .buttonDeleteBen{
   border-radius: .5rem;
 }
 
-.buttonCancel:hover{
-  color: var(--white);
-}
-
-.buttonSave:hover, 
-.buttonCancel:hover, 
 .buttonImport:hover,
 .buttonSearch:hover,
 .buttonDeleteBen:hover{
@@ -176,4 +155,8 @@
 .buttonDeleteBen{
   width: min-content;
   align-self: flex-end;
+}
+
+.inputWidthModal{
+  width: 11.5rem;
 }
