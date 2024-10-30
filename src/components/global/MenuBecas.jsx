@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Card } from 'antd';
 import PropTypes from 'prop-types';
 
-const MenuBecas = ({ buttons, children, onSelect, selectedType }) => {
-  const [selected, setSelected] = useState('');
+const MenuBecas = ({ buttons, children, onSelect, selectedType, defaultSelected }) => {
+  // Usar defaultSelected para establecer el valor inicial de selected
+  const [selected, setSelected] = useState(defaultSelected || buttons[0].type);
 
   const handleClick = (type) => {
     setSelected(type);
@@ -51,7 +52,7 @@ const MenuBecas = ({ buttons, children, onSelect, selectedType }) => {
   // Estilo para la Card (ancho variable dependiendo del tamaño de la pantalla)
   const cardStyle = {
     width: '100%',
-    maxWidth: '600px', // Limitar ancho máximo para pantallas grandes
+    maxWidth: '600px',
     marginTop: '0',
     padding: '10px',
   };
@@ -84,10 +85,11 @@ const MenuBecas = ({ buttons, children, onSelect, selectedType }) => {
 };
 
 MenuBecas.propTypes = {
-  buttons: PropTypes.array,
+  buttons: PropTypes.array.isRequired,
   children: PropTypes.node,
-  onSelect: PropTypes.func,
-  selectedType: PropTypes.string,
+  onSelect: PropTypes.func.isRequired,
+  selectedType: PropTypes.string.isRequired,
+  defaultSelected: PropTypes.string, // Prop para establecer el menú activo por defecto
 };
 
 export default MenuBecas;
