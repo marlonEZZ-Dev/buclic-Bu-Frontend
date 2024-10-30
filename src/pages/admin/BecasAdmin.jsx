@@ -14,7 +14,6 @@ const BecasAdmin = () => {
   const [loading, setLoading] = useState(false);  // Manejar el estado de carga
   const [settings, setSettings] = useState(null);  // Estado para almacenar las configuraciones de becas
   const [benefitType, setBenefitType] = useState(''); // Estado para el tipo de beneficio
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
   const username = localStorage.getItem('username');
@@ -74,7 +73,6 @@ const BecasAdmin = () => {
 
     checkReservation();
   }, [username]);
-
 
 
   // Obtener el tipo de beneficio del usuario
@@ -291,19 +289,6 @@ const BecasAdmin = () => {
     { type: 'refrigerio', label: 'Refrigerio' },
   ];
 
-  const handleReserveClick = () => {
-    setIsModalVisible(true); // Abre el modal al hacer clic en "Reservar"
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false); // Cierra el modal al cancelar
-  };
-
-  const handleConfirm = () => {
-    handleReserve()
-    console.log("Reserva confirmada");
-    setIsModalVisible(false); // Cierra el modal después de confirmar
-  };
 
   const handleCancelReserveClick = () => {
     setIsCancelModalVisible(true); // Abre el modal de cancelación
@@ -330,9 +315,16 @@ const BecasAdmin = () => {
           <p><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>
         )}
 
+        {menuData?.Almuerzo?.link && (
+          <p>
+            <a href={menuData.Almuerzo.link} target="_blank" rel="noopener noreferrer" style={{ color: '#C20E1A' }}>Encuesta de satisfacción</a>
+          </p>
+        )}
+
         <MenuBecas
           onSelect={setSelectedType}
           buttons={buttons}
+          defaultSelected="almuerzo"
           selectedType={selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}>
           {settings && (
             <p style={{ fontWeight: 'bold' }}>
@@ -388,9 +380,6 @@ const BecasAdmin = () => {
             <p>Costo: $ {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
           </div>
 
-
-
-
           <Tables
             rows={selectedType === 'refrigerio' ? refrigerioRows : almuerzoRows}
             columns={selectedType === 'refrigerio' ? columnsRefrigerio : columnsAlmuerzo}
@@ -407,7 +396,7 @@ const BecasAdmin = () => {
               type="default"
               htmlType="submit"
               className="button-save"
-              onClick={handleReserveClick}
+              onClick={handleReserve}
               disabled={(selectedType === 'almuerzo' ? almuerzoReservation.hasReservation : refrigerioReservation.hasReservation) || loading}
             >
               {loading ? 'Reservando...' : 'Reservar'}
@@ -423,13 +412,6 @@ const BecasAdmin = () => {
               {loading ? 'Cancelando...' : 'Cancelar reserva'}
             </Button>
 
-            <ReusableModal
-              visible={isModalVisible}
-              title="Confirmar Reserva"
-              content="¿Estás seguro de que deseas reservar?"
-              onCancel={handleCancel}
-              onConfirm={handleConfirm}
-            />
 
             {/* Modal para confirmar la cancelación de la reserva */}
             <ReusableModal

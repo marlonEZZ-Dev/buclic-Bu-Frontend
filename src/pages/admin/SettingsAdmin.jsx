@@ -197,10 +197,15 @@ const SettingsAdmin = () => {
                                             placeholder="Número de almuerzos"
                                             disabled={!isEditing}
                                             value={settingData?.numLunch || ''}
-                                            onChange={(e) => setSettingData((prev) => ({
-                                                ...prev,
-                                                numLunch: e.target.value,
-                                            }))}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value >= 0 || value === '') {
+                                                    setSettingData((prev) => ({
+                                                        ...prev,
+                                                        numLunch: value,
+                                                    }));
+                                                }
+                                            }}
                                         />
                                     </div>
                                     <div style={{ width: '38%' }}>
@@ -210,10 +215,15 @@ const SettingsAdmin = () => {
                                             placeholder="Número de refrigerios"
                                             disabled={!isEditing}
                                             value={settingData?.numSnack || ''}
-                                            onChange={(e) => setSettingData((prev) => ({
-                                                ...prev,
-                                                numSnack: e.target.value,
-                                            }))}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value >= 0 || value === '') {
+                                                    setSettingData((prev) => ({
+                                                        ...prev,
+                                                        numSnack: value,
+                                                    }));
+                                                }
+                                            }}
                                         />
                                     </div>
                                 </div>
