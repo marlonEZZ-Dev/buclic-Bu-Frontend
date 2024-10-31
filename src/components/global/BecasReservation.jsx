@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import HeaderAdmin from '../../components/admin/HeaderAdmin';
-import Tables from '../../components/global/Tables';
-import MenuBecas from '../../components/global/MenuBecas';
-import ReusableModal from '../../components/global/ReusableModal';
+import HeaderAdmin from '../admin/HeaderAdmin';
+import Tables from './Tables';
+import MenuBecas from './MenuBecas';
+import ReusableModal from './ReusableModal';
 import { Button, message } from 'antd';
 import api from '../../api';
 
-const BecasAdmin = () => {
+const BecasReservation = () => {
   const [menuData, setMenuData] = useState({ Almuerzo: {}, Refrigerio: {} });  // Estado para almacenar el menú
   const [selectedType, setSelectedType] = useState('almuerzo');  // Estado para el tipo de menú seleccionado
   const [almuerzoReservation, setAlmuerzoReservation] = useState({ hasReservation: false, reservationId: null, date: null, time: null });
@@ -307,7 +307,6 @@ const BecasAdmin = () => {
 
   return (
     <>
-      <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold">Becas de Alimentación</h1>
 
@@ -432,4 +431,4 @@ const BecasAdmin = () => {
   );
 };
 
-export default BecasAdmin;
+export default BecasReservation;
