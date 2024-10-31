@@ -98,20 +98,35 @@ export const importUsers = async (role, fileCSV) => {
         'Content-Type': 'multipart/form-data'
       }}
     )
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
       return { success: true, message: "Archivo subido con éxito" };
     }
   } catch (error) {
     return {
       success: false,
-      message: errorForPost.get(error.response.status)
+      message: errorForPost.get(error.response.status),
+      error: error
     }
   }
 } 
 
 //PETICIONES PUT
 export const editUser = async (user) => {
-  const isLunch = () => user.lunchBeneficiary === "Beneficiaro almuerzo"
+  // console.log("En edit user Revisando el array de roles "+ user.roles)
+  
+  if(user.lunchBeneficiary === "Beneficiario almuerzo"){
+    user.lunchBeneficiary = true
+    user.snackBeneficiary = false
+  }else{
+    user.lunchBeneficiary = false
+    user.snackBeneficiary = true
+  }
+  if(!("eps" in user)) user.eps = "eps"
+  if(!("semester" in user)) user.semester = "semester"
+  if(!("phone" in user)) user.phone = 1023456789
+  
+  console.log("En edit user Usuario pasado")
+  console.dir(user)
   try {
     const response = await axios.put("/users/edit",{
       id:user.id,
@@ -124,8 +139,8 @@ export const editUser = async (user) => {
       semester: user.semester,
       phone: user.phone,
       isActive: user.isActive,
-      lunchBeneficiary: isLunch(),
-      snackBeneficiary: !isLunch(),
+      lunchBeneficiary: user.lunchBeneficiary,
+      snackBeneficiary: user.snackBeneficiary,
       roles: user.roles
     })
 
@@ -142,15 +157,13 @@ export const editUser = async (user) => {
   }
 }
 
-//PETICIONES DELETE
 export const deleteBeneficiary = async (username) => {
   try {
-    const response = axios.put(`/users/delete/${username}`)
-
-    if(response.status === 200){
+    const response = await axios.put(`/users/delete/${username}`)
+    if(response.status === 200 || response.status === 201){
       return {
         success:true,
-        message:`usuario con código ${username} fue eliminado exitosamente`
+        message:`beneficiario con cédula ${username} fue eliminado exitosamente`
       }
     }
   } catch (error) {
@@ -163,7 +176,7 @@ export const deleteBeneficiary = async (username) => {
 
 export const deleteBeneficiaries = async () => {
   try {
-    const response = axios.put("/users/delete")
+    const response = await axios.put("/users/delete")
     if(response.status){
       return {
         success: true, 
