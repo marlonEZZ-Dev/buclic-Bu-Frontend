@@ -46,13 +46,6 @@
   position: relative;
 }
 
-.comboboxes{
-  display: block;
-  width: 14.3125rem;
-  height: 2rem;
-  font-size: .9375rem;
-}
-
 .displayNone{
   display: none;
 }
@@ -155,6 +148,13 @@
 .buttonDeleteBen{
   width: min-content;
   align-self: flex-end;
+}
+
+.comboboxes{
+  display: block;
+  width: 12.8rem;
+  height: 2rem;
+  font-size: .9375rem;
 }
 
 .inputWidthModal{
