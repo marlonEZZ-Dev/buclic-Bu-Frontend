@@ -61,12 +61,8 @@ export const validRol = (rol) => {
   const hasMonitor = rol.includes("MONITOR")
   const hasStudent = rol.includes("ESTUDIANTE")
 
-  if(rol.length === 1 && hasMonitor){
-    return "Sí el estudiante es monitor debe tener ambos"
-  }
-
   if(rol.length === 2 && !(hasStudent && hasMonitor)){
-    return "El usuario solo debe tener un dos roles si y solo si es un estudiante"
+    return "El usuario solo debe tener dos roles sí y solo sí es un estudiante"
   }
 
   return true
