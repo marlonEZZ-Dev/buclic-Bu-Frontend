@@ -84,6 +84,7 @@ export default function ManagementUsers(){
 
   const fontSizeTitleModal = {fontSize:"1.5rem"}
 
+  //Pestañas para cada usuario
   const buttons = [
     {type:"Beneficiarios",label:"Beneficiarios"},
     {type:"Estudiantes",label:"Estudiantes"},
@@ -105,6 +106,7 @@ export default function ManagementUsers(){
     }
   ]
 
+  //Valores para el combobox o lista desplegable
   const cbxBeneficiaries = [
     {value:"Beneficiario almuerzo", label:"Beneficiario almuerzo"},
     {value:"Beneficiario refrigerio", label:"Beneficiario refrigerio"}
@@ -124,6 +126,7 @@ export default function ManagementUsers(){
     {value:true, label:"Activo"},
     {value:false, label:"Inactivo"}    
   ]
+  //-------------------------------------------
   /*
   Las porperties estan en inglés entonces es necesario que correctamente se encuentren 
   los valores para cada columna, así hay una key que contiene el nombre de la property 
@@ -139,38 +142,44 @@ export default function ManagementUsers(){
 
   const ITEM_PER_PAGE = 10
 
-  //functions  
+  //functions 
+  //Crea un mapa para asociar cada tipo de usuario a un número 
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
   const tranformToStateUser = atribbute => <StateUser active={atribbute} />
   
   const getTypeUserCurrent = () => buttons[changesDescription].type.toLowerCase()
   
-  const handlePageChange = page => setCurrentPage(page)
-  
   const getArrObjInArrStr = arr => arr.map( obj => obj.name )
 
   const loadUsers = async () => {
     if (buttons[changesDescription]) {
         try {
-            const result = await listUsers(getTypeUserCurrent(), currentPage-1)
+            const result = await listUsers(getTypeUserCurrent(), currentPage-1, ITEM_PER_PAGE)
             if("success" in result){
               notifyError(result.message)
               return
             }
-            setTotalItems(result.page.totalElements)
             const data = result.content
             setRows(data.map(user => ({
               ...user,
               isActive: tranformToStateUser(user.isActive),
               roles: getArrObjInArrStr(user.roles)
             })))
+            setTotalItems(result.page.totalElements)
+            setCurrentPage(result.page.number + 1)
         } catch (error) {
             console.log(`Esto ocurre en loadUsers ${error}`)
             return {success: false, message: error.message}
         }
     }
 };
+
+const handlePageChange = page => {
+  setCurrentPage(page)
+  loadUsers(page)
+}
+
   const notifyError = message => {
     messageApi.open({
       type:"error",
@@ -287,31 +296,17 @@ export default function ManagementUsers(){
   }
 
   const handlerAddRoleUserCreate = value => {
-    if(value === "MONITOR"){
     setUser(prevUser => ({
       ...prevUser,
-      roles:[value, "ESTUDIANTE"]
+      roles:[value]
     }))
-  }
-  setUser(prevUser => ({
-    ...prevUser,
-    roles:[value]
-  }))
-  console.log("Roles en creación "+user.roles)
   }
 
   const handlerRoleEditUser = value => {
-    if(value === "MONITOR"){
-      setObjectSelected(o => ({
-        ...o,
-        roles:[value, "ESTUDIANTE"]
-      }));
-    }
     setObjectSelected(o => ({
       ...o,
       roles:[value]
     }));
-    console.log("Roles en modificación "+objectSelected.roles)
 }
 
   const handlerBlur = (e, valid) => {
@@ -686,6 +681,7 @@ export default function ManagementUsers(){
           onClick={() => {
             if(!deepEqual(objectSelected, objectSelectedClone)){
               if(handlerVerify(objectSelected)){
+                if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
                 handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
                 setObjectSelectedClone(null)
                 handlerCloseModalEdit(false) 
@@ -884,15 +880,15 @@ export default function ManagementUsers(){
               defaultActiveFirstOption={isFuncionary}
               status={statusRolesGrantSelect}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
-              onChange={value => {
+              onSelect={(value, option) => {
                 
                 if(isBeneficiary) {
-                  handlerSetSelectCreateUser(value)
+                  handlerSetSelectCreateUser(option.value)
                   return
                 } 
 
                 if(isFuncionary) {
-                  handlerAddRoleUserCreate(value)
+                  handlerAddRoleUserCreate(option.value)
                   return
                 }
               }}
@@ -914,7 +910,9 @@ export default function ManagementUsers(){
           <button className={`button-save ${styles.buttons}`} 
           onClick={() => {
             if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
+            if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
             if(handlerVerify(user)){
+              console.dir(user)
               SetSavePressed(!savePressed)
               handlerSave()
               handlerClearFields()
