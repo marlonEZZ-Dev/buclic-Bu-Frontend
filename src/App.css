@@ -20,15 +20,15 @@ body {
   text-align: center;
 }
 
-.text-red{
+.text-red {
   color: var(--red);
 }
 
-.text-left{
+.text-left {
   text-align: left;
 }
 
-.bg-dark-gray{
+.bg-dark-gray {
   background-color: var(--gray-dark);
 }
 
@@ -153,6 +153,7 @@ p {
   color: #C20E1A;
   font-weight: bold;
 }
+
 .odontologia-section h1 {
   margin-bottom: 2rem;
   /* Margen entre el título, párrafo y el menú */
@@ -215,9 +216,10 @@ p {
   color: #FFFFFF !important;
   /* Texto sigue siendo blanco */
 }
+
 /* Cambia el color del borde*/
-.invalid{
-  border:1px solid red !important;
+.invalid {
+  border: 1px solid red !important;
 }
 
 /* Estilos ajustados para forzar el cambio */
@@ -362,5 +364,19 @@ que debería ocupar si no lo estuviera */
     width: 100%;
     min-width: unset;
     /* Elimina el ancho mínimo en pantallas muy pequeñas */
+  }
+}
+
+@media (max-width: 600px) {
+  .header-cell {
+    font-size: 1.5rem;
+    /* Cambia este tamaño según sea necesario */
+  }
+}
+
+@media (min-width: 601px) {
+  .header-cell {
+    font-size: 1.125rem;
+    /* Tamaño para pantallas más grandes */
   }
 }
