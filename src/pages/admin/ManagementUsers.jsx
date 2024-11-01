@@ -203,7 +203,9 @@ const handlePageChange = page => {
 
   const getValueComplexSelectInModal = () => {
     if(isStudent) return getStatusValue(objectSelected.isActive)
-    if(isFuncionary) return objectSelected.roles[0]
+    if(isFuncionary) {
+      return objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]
+    }
     if(isBeneficiary && objectSelected.lunchBeneficiary){
       return "Beneficiario almuerzo"
     }else{
@@ -262,21 +264,10 @@ const handlePageChange = page => {
 
   const handlerCreateUser = e => {
     const {name, value} = e.target
-    const mapea = new Map([
-      ["username",validCode(value, !isFuncionary)],
-      ["name",validName(value)],
-      ["lastName",validLastname(value)],
-      ["email",validEmail(value, isFuncionary)],
-      ["plan",validPlan(value, !isFuncionary)],
-      ["roles",validRol(value)],
-      ["grant", !isBeneficiary ? true : validGrant(user.grant)]
-    ])
-    if(typeof (mapea.get(name)) === "boolean"){
     setUser(prevUser => ({
       ...prevUser,
       [name]: value
     }))
-    }
   }
 
   const handlerEditUser = e => {
@@ -832,7 +823,7 @@ const handlePageChange = page => {
           >
             <SmallInput title={isFuncionary ? "Cédula" : "Código estudiantil"}
               key={`username${changesDescription}${refreshFields}`}              
-              placeholder={isFuncionary ? "Cédula de la persona":"Código del estudiante"}
+              placeholder={isFuncionary ? "Cédula de la persona":"Ej: 202412345"}
               type="number"
               min={isFuncionary ? 10000000 : 200000000}
               max={isFuncionary ? 9999999999 : 299999999}
@@ -845,7 +836,7 @@ const handlePageChange = page => {
               isRenderAsteric={!isFuncionary}
               key={`plan${changesDescription}${refreshFields}`}
               type={(isStudent || isBeneficiary) ? "number" : "text"} 
-              placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}
+              placeholder={ isFuncionary ? "Área de la persona":'Ej: 1234'}
               min={(isStudent || isBeneficiary) ? 1000 : undefined}
               max={(isStudent || isBeneficiary) ? 9999 : undefined}
               required

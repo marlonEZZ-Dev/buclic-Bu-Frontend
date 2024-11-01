@@ -36,7 +36,7 @@ import { SettingsProvider } from "./utils/SettingsContext";
 import AgendaNurse from "./pages/nurse/AgendaNurse";
 import SettingNurse from "./pages/nurse/SettingNurse";
 import AppointmentsNurse from "./pages/nurse/AppointmentsNurse";
-import BecasNurse from "./pages/nurse/VisitsNurse";
+import BecasNurse from "./pages/nurse/BecasNurse";
 import HistoryNurse from "./pages/nurse/HistoryNurse";
 import InformNurse from "./pages/nurse/InformNurse";
 import ViewNursingReport from "./pages/nurse/ViewInformsNurse";
