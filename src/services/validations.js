@@ -30,6 +30,10 @@ const forPlan = plan => /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 dig
 
 const forArea = area => /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+$/.test(area) ? true : "El área debe por ejemplo ser administrativa, psicología, etc"
 
+const forEmailFuncionary = email => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim()) ? true : "Dirección de correo inválida"
+
+const forEmailStudent = email => /^[a-zA-Z]+(\.[a-zA-Z]+){1,2}@correounivalle.edu.co$/.test(email.trim()) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
+
 export const validCode = (code, isCode) => {
   //Si es estudiante o beneficiario
   if(isCode){
@@ -49,9 +53,9 @@ export const validPlan = (plan, isPlan) => {
 
 export const validEmail = (email, funcionary) => {
   if(funcionary){
-    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email) ? true : "Dirección de correo inválida"
-  } 
-  return /^[a-zA-Z]+(\.[a-zA-Z]){1,2}@correounivalle.edu.co$/.test(email) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
+    return forEmailFuncionary(email)
+  }
+  return forEmailStudent(email)
 }
 
 export const validRol = (rol) => {

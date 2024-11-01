@@ -203,7 +203,8 @@ const handlePageChange = page => {
 
   const getValueComplexSelectInModal = () => {
     if(isStudent) return getStatusValue(objectSelected.isActive)
-    if(isFuncionary) return objectSelected.roles[0]
+    if(isFuncionary) objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]      
+    
     if(isBeneficiary && objectSelected.lunchBeneficiary){
       return "Beneficiario almuerzo"
     }else{
@@ -262,21 +263,10 @@ const handlePageChange = page => {
 
   const handlerCreateUser = e => {
     const {name, value} = e.target
-    const mapea = new Map([
-      ["username",validCode(value, !isFuncionary)],
-      ["name",validName(value)],
-      ["lastName",validLastname(value)],
-      ["email",validEmail(value, isFuncionary)],
-      ["plan",validPlan(value, !isFuncionary)],
-      ["roles",validRol(value)],
-      ["grant", !isBeneficiary ? true : validGrant(user.grant)]
-    ])
-    if(typeof (mapea.get(name)) === "boolean"){
     setUser(prevUser => ({
       ...prevUser,
       [name]: value
     }))
-    }
   }
 
   const handlerEditUser = e => {
