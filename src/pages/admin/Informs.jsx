@@ -29,6 +29,7 @@ const CombinedReports = () => {
   const columnsDaily = ['Fecha generado', 'Beca', 'Acciones'];
   const columnsSemestral = ['Beca', 'Semestre', 'Acciones'];
 
+  // Función para obtener los informes con paginación
   const fetchReports = useCallback(async () => {
     try {
       const filter = selectedType === "Diarios" ? "diario" : "semester";
@@ -36,8 +37,8 @@ const CombinedReports = () => {
 
       if (response.data && Array.isArray(response.data.content)) {
         setReports(response.data.content);
-        setTotalItems(response.data.page.totalElements); // Total de elementos para la paginación
-        setCurrentPage(response.data.page.number + 1); // Actualizar la página actual para que sea 1-indexed
+        setTotalItems(response.data.page.totalElements); // Total de elementos para paginación
+        setCurrentPage(response.data.page.number + 1); // Página actual
       } else {
         console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
@@ -208,6 +209,116 @@ const CombinedReports = () => {
           <h2 style={{ color: '#C20E1A', marginBottom: 16, textAlign: 'center' }}>
             Informes {selectedType === "Diarios" ? "diarios" : "semestrales"}
           </h2>
+
+          {selectedType === "Diarios" ? (
+            <>
+              <p style={{ textAlign: 'center' }}>
+                Aquí puedes generar los informes diarios de las becas de alimentación
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <Button
+                  style={{
+                    marginRight: '10px',
+                    backgroundColor: selectedBeca === 'Almuerzo' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Almuerzo' ? 'white' : '#C20E1A',
+                    border: '1px solid #C20E1A'
+                  }}
+                  onClick={() => generateReport('almuerzo')}
+                >
+                  Almuerzo
+                </Button>
+                <Button
+                  style={{
+                    backgroundColor: selectedBeca === 'Refrigerio' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Refrigerio' ? 'white' : '#C20E1A',
+                    border: '1px solid #C20E1A'
+                  }}
+                  onClick={() => generateReport('refrigerio')}
+                >
+                  Refrigerio
+                </Button>
+              </div>
+              <p style={{ textAlign: 'center' }}>
+                Aquí puedes buscar los informes diarios generados a través de la fecha
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <DatePicker
+                  style={{ marginRight: '10px' }}
+                  onChange={(date) => setDateSearch(date)}
+                />
+                <Button
+                  icon={<SearchOutlined />}
+                  style={{
+                    backgroundColor: '#C20E1A',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                  onClick={handleCustomSearch}
+                >
+                  Buscar por Fecha
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p style={{ textAlign: 'center' }}>
+                Para generar los informes semestrales debes ingresar el semestre y seleccionar la beca
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <Input
+                  placeholder="Semestre informe ej: 2024-2"
+                  style={{ width: 200, marginRight: '10px' }}
+                  value={semesterInput}
+                  onChange={(e) => setSemesterInput(e.target.value)}
+                />
+                <Button
+                  style={{
+                    marginRight: '10px',
+                    backgroundColor: selectedBeca === 'Almuerzo' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Almuerzo' ? 'white' : '#C20E1A',
+                    border: '1px solid #C20E1A'
+                  }}
+                  onClick={() => generateReport('Almuerzo')}
+                >
+                  Almuerzo
+                </Button>
+                <Button
+                  style={{
+                    backgroundColor: selectedBeca === 'Refrigerio' ? '#C20E1A' : 'white',
+                    color: selectedBeca === 'Refrigerio' ? 'white' : '#C20E1A',
+                    border: '1px solid #C20E1A'
+                  }}
+                  onClick={() => generateReport('Refrigerio')}
+                >
+                  Refrigerio
+                </Button>
+              </div>
+              <p style={{ textAlign: 'center' }}>
+                Aquí puedes buscar los informes semestrales generados a través del semestre
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <Input
+                  placeholder="Semestre informe ej: 2024-2"
+                  style={{ width: 200, marginRight: '10px' }}
+                  value={semesterInput}
+                  onChange={(e) => setSemesterInput(e.target.value)}
+                />
+                <Button
+                  icon={<SearchOutlined />}
+                  style={{
+                    backgroundColor: '#C20E1A',
+                    color: 'white',
+                    border: 'none'
+                  }}
+                  onClick={handleCustomSearch}
+                >
+                  Buscar por Semestre
+                </Button>
+              </div>
+            </>
+          )}
 
           <TablePaginationR
             rows={reports.map(formatReportData)}
