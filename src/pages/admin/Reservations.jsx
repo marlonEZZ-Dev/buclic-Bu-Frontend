@@ -116,23 +116,14 @@ const Reservations = () => {
         }
     };
 
-    // Usa un efecto para cargar las reservas de manera constante
+    // Usa un efecto para cargar las reservas iniciales
     useEffect(() => {
-        // Llama a la función de carga de reservas inmediatamente
         fetchReservations();
-
-        // Establece un intervalo para actualizar las reservas
-        const intervalId = setInterval(fetchReservations, 5000); // Actualiza cada 5 segundos
-
-        // Limpia el intervalo al desmontar el componente
-        return () => clearInterval(intervalId);
     }, [currentPage]);
-
 
     // Manejador para cambiar de página
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        fetchReservations(page); // Llama a fetchReservations con la nueva página
     };
 
     // Llama al endpoint para obtener la disponibilidad por hora
@@ -316,7 +307,7 @@ const Reservations = () => {
                                 {reservation.username}
                             </span>,
                             `${reservation.name} ${reservation.lastname}`,
-                            `${formatDate(reservation.data)} ${reservation.time}`
+                            `${formatDate(reservation.data)} ${formatTime(reservation.time)}`
                         ])}
                         columns={['Código', 'Nombre', 'Fecha y Hora de Reserva']}
                         currentPage={currentPage}
