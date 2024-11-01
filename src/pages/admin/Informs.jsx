@@ -17,8 +17,8 @@ const CombinedReports = () => {
   const [selectedBeca, setSelectedBeca] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [reportToDelete, setReportToDelete] = useState(null);
-  const [semesterInput, setSemesterInput] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [semesterInput, setSemesterInput] = useState(''); // Para el input de semestre
+  const [searchTermInput, setSearchTermInput] = useState(''); // Para otro input de búsqueda (si aplica)
   const [dateSearch, setDateSearch] = useState(null);
 
   const itemsPerPage = 10;
@@ -29,16 +29,15 @@ const CombinedReports = () => {
   const columnsDaily = ['Fecha generado', 'Beca', 'Acciones'];
   const columnsSemestral = ['Beca', 'Semestre', 'Acciones'];
 
-  // Función para obtener los informes con paginación
   const fetchReports = useCallback(async () => {
     try {
       const filter = selectedType === "Diarios" ? "diario" : "semester";
-      const response = await api.get(`/report/list?filter=${filter}&page=${currentPage - 1}&size=${itemsPerPage}&search=${searchTerm}`);
+      const response = await api.get(`/report/list?filter=${filter}&page=${currentPage - 1}&size=${itemsPerPage}&search=${searchTermInput}`);
 
       if (response.data && Array.isArray(response.data.content)) {
         setReports(response.data.content);
-        setTotalItems(response.data.page.totalElements); // Total de elementos para paginación
-        setCurrentPage(response.data.page.number + 1); // Página actual
+        setTotalItems(response.data.page.totalElements); 
+        setCurrentPage(response.data.page.number + 1);
       } else {
         console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
@@ -47,7 +46,7 @@ const CombinedReports = () => {
       console.error('Error fetching reports:', error);
       message.error('No se pudieron cargar los informes');
     }
-  }, [selectedType, currentPage, searchTerm]);
+  }, [selectedType, currentPage, searchTermInput]);
 
   useEffect(() => {
     fetchReports();
@@ -56,7 +55,7 @@ const CombinedReports = () => {
   useEffect(() => {
     setSelectedBeca(null);
     setSemesterInput('');
-    setSearchTerm('');
+    setSearchTermInput('');
     setCurrentPage(1);
   }, [selectedType]);
 
@@ -302,8 +301,8 @@ const CombinedReports = () => {
                 <Input
                   placeholder="Semestre informe ej: 2024-2"
                   style={{ width: 200, marginRight: '10px' }}
-                  value={semesterInput}
-                  onChange={(e) => setSemesterInput(e.target.value)}
+                  value={searchTermInput}
+                  onChange={(e) => setSearchTermInput(e.target.value)}
                 />
                 <Button
                   icon={<SearchOutlined />}
