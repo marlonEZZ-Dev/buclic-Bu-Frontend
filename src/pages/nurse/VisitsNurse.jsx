@@ -14,7 +14,7 @@ import {Card, Flex} from "antd";
 import { useEffect, useState } from "react";
 import { validCodeOrNuip, validDate, validFullName, validListEmpty, validPhone, validPlanOrArea, validSemester } from "../../services/validations.js";
 
-export default function BecasNurse(){
+export default function VisitsNurse(){
   const [deviceType, setDeviceType] = useState("")
   const [defineModal, setDefineModal] = useState({status:false, title:"", content:""})
 
