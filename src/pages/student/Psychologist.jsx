@@ -168,12 +168,7 @@ const Psychologist = () => {
           message.success("Cita cancelada con éxito");
           setPendingAppointment(null);
 
-          const today = moment(); // Mantén como objeto moment para el componente Calendar
-          setSelectedDate(today.format("YYYY-MM-DD"));
-
-          // Simular la selección de la fecha actual en el calendario
-          onDateSelect(today);
-
+          // Actualiza solo las citas pendientes sin modificar la fecha seleccionada ni los horarios filtrados
           fetchPendingAppointment();
         })
         .catch((error) => {
