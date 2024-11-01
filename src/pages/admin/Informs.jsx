@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, message, DatePicker } from 'antd';
-import { EyeOutlined, DownloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, DownloadOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
@@ -17,9 +17,10 @@ const CombinedReports = () => {
   const [selectedBeca, setSelectedBeca] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [reportToDelete, setReportToDelete] = useState(null);
-  const [semesterInput, setSemesterInput] = useState(''); // Para el input de semestre
-  const [searchTermInput, setSearchTermInput] = useState(''); // Para otro input de búsqueda (si aplica)
+  const [semesterInput, setSemesterInput] = useState(''); // Para el input de semestre al generar informe
+  const [searchTermInput, setSearchTermInput] = useState(''); // Para el input de búsqueda
   const [dateSearch, setDateSearch] = useState(null);
+  const [noResults, setNoResults] = useState(false); // Estado para controlar si hay resultados o no
 
   const itemsPerPage = 10;
   const buttons = [
@@ -36,8 +37,9 @@ const CombinedReports = () => {
 
       if (response.data && Array.isArray(response.data.content)) {
         setReports(response.data.content);
-        setTotalItems(response.data.page.totalElements); 
+        setTotalItems(response.data.page.totalElements);
         setCurrentPage(response.data.page.number + 1);
+        setNoResults(response.data.content.length === 0); // Verifica si no hay resultados
       } else {
         console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
@@ -45,6 +47,7 @@ const CombinedReports = () => {
     } catch (error) {
       console.error('Error fetching reports:', error);
       message.error('No se pudieron cargar los informes');
+      setNoResults(true); // En caso de error, también mostramos el mensaje de no resultados
     }
   }, [selectedType, currentPage, searchTermInput]);
 
@@ -170,22 +173,34 @@ const CombinedReports = () => {
         searchValue = dateSearch.format('YYYY-MM-DD');
         endpoint = `/report/date/${searchValue}`;
       } else {
-        if (!semesterInput) {
+        if (!searchTermInput) {
           message.warning('Por favor, ingrese un semestre para buscar.');
           return;
         }
-        searchValue = semesterInput;
+        searchValue = searchTermInput;
         endpoint = `/report/semester/${searchValue}`;
       }
 
       const response = await api.get(endpoint);
       setReports(response.data);
       setTotalItems(response.data.length);
+      setNoResults(response.data.length === 0); // Actualiza si no hay resultados
       message.success('Búsqueda realizada con éxito');
     } catch (error) {
       console.error('Error en la búsqueda:', error);
       message.error(`No se pudo realizar la búsqueda: ${error.response?.data?.message || error.message}`);
+      setNoResults(true); // En caso de error, también mostramos el mensaje de no resultados
     }
+  };
+
+  const handleReloadTable = () => {
+    // Restablecer búsqueda y recargar todos los informes
+    setSemesterInput('');
+    setSearchTermInput('');
+    setDateSearch(null);
+    setCurrentPage(1);
+    setNoResults(false);
+    fetchReports(); // Recargar todos los informes
   };
 
   const formatReportData = (report) => {
@@ -266,7 +281,7 @@ const CombinedReports = () => {
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 <Input
-                  placeholder="Semestre informe ej: 2024-2"
+                  placeholder="Semestre informe ej: 2024-1"
                   style={{ width: 200, marginRight: '10px' }}
                   value={semesterInput}
                   onChange={(e) => setSemesterInput(e.target.value)}
@@ -299,7 +314,7 @@ const CombinedReports = () => {
 
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 <Input
-                  placeholder="Semestre informe ej: 2024-2"
+                  placeholder="Buscar por semestre ej: 2024-2"
                   style={{ width: 200, marginRight: '10px' }}
                   value={searchTermInput}
                   onChange={(e) => setSearchTermInput(e.target.value)}
@@ -319,14 +334,27 @@ const CombinedReports = () => {
             </>
           )}
 
-          <TablePaginationR
-            rows={reports.map(formatReportData)}
-            columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
-            onPageChange={handlePageChange}
-          />
+          {noResults ? (
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: 'red' }}>No se encontraron resultados para la búsqueda.</p>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleReloadTable}
+                style={{ backgroundColor: '#C20E1A', color: 'white' }}
+              >
+                Recargar Tabla
+              </Button>
+            </div>
+          ) : (
+            <TablePaginationR
+              rows={reports.map(formatReportData)}
+              columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={totalItems}
+              onPageChange={handlePageChange}
+            />
+          )}
 
           <Modal
             open={isDeleteModalVisible}
