@@ -44,7 +44,7 @@ export default function ManagementUsers(){
   const [rows, setRows] = useState(null)
   const [deviceType, setDeviceType] = useState("")
   const [savePressed, SetSavePressed] = useState(false)
-  const [refreshFields, setRefreshFields] = useState("")
+  const [refreshFields, setRefreshFields] = useState(0)
   const [statusRolesGrantSelect, setStatusRolesGrantSelect] = useState("")
   const [statusEstadoRolTipoBecaSelect, setStatusEstadoRolTipoBecaSelect] = useState("")
   const [currentPage, setCurrentPage] = useState(1);
@@ -84,6 +84,7 @@ export default function ManagementUsers(){
 
   const fontSizeTitleModal = {fontSize:"1.5rem"}
 
+  //Pestañas para cada usuario
   const buttons = [
     {type:"Beneficiarios",label:"Beneficiarios"},
     {type:"Estudiantes",label:"Estudiantes"},
@@ -105,6 +106,7 @@ export default function ManagementUsers(){
     }
   ]
 
+  //Valores para el combobox o lista desplegable
   const cbxBeneficiaries = [
     {value:"Beneficiario almuerzo", label:"Beneficiario almuerzo"},
     {value:"Beneficiario refrigerio", label:"Beneficiario refrigerio"}
@@ -120,20 +122,11 @@ export default function ManagementUsers(){
     {value:"EXTERNO", label:"Externo (a)"}
   ]
 
-  const mapFuncionary = new Map([
-    ["ADMINISTRADOR",1],
-    ["ENFERMERO",4],
-    ["MONITOR",6],
-    ["ODONTOLOGO",3],
-    ["PSICOLOGO",7],
-    ["FUNCIONARIO",8],
-    ["EXTERNO",5]
-  ])
-
   const cbxStatus = [
     {value:true, label:"Activo"},
     {value:false, label:"Inactivo"}    
   ]
+  //-------------------------------------------
   /*
   Las porperties estan en inglés entonces es necesario que correctamente se encuentren 
   los valores para cada columna, así hay una key que contiene el nombre de la property 
@@ -149,35 +142,44 @@ export default function ManagementUsers(){
 
   const ITEM_PER_PAGE = 10
 
-  //functions  
+  //functions 
+  //Crea un mapa para asociar cada tipo de usuario a un número 
   const users = new Map(buttons.map( (obj, index) => [obj.type, index]))
 
   const tranformToStateUser = atribbute => <StateUser active={atribbute} />
   
   const getTypeUserCurrent = () => buttons[changesDescription].type.toLowerCase()
   
-  const handlePageChange = page => setCurrentPage(page)
-  
+  const getArrObjInArrStr = arr => arr.map( obj => obj.name )
+
   const loadUsers = async () => {
     if (buttons[changesDescription]) {
         try {
-            const result = await listUsers(getTypeUserCurrent(), currentPage-1)
+            const result = await listUsers(getTypeUserCurrent(), currentPage-1, ITEM_PER_PAGE)
             if("success" in result){
               notifyError(result.message)
               return
             }
-            setTotalItems(result.page.totalElements)
             const data = result.content
             setRows(data.map(user => ({
               ...user,
-              isActive: tranformToStateUser(user.isActive)
+              isActive: tranformToStateUser(user.isActive),
+              roles: getArrObjInArrStr(user.roles)
             })))
+            setTotalItems(result.page.totalElements)
+            setCurrentPage(result.page.number + 1)
         } catch (error) {
             console.log(`Esto ocurre en loadUsers ${error}`)
             return {success: false, message: error.message}
         }
     }
 };
+
+const handlePageChange = page => {
+  setCurrentPage(page)
+  loadUsers(page)
+}
+
   const notifyError = message => {
     messageApi.open({
       type:"error",
@@ -201,7 +203,7 @@ export default function ManagementUsers(){
 
   const getValueComplexSelectInModal = () => {
     if(isStudent) return getStatusValue(objectSelected.isActive)
-    if(isFuncionary) return objectSelected.roles[0].name
+    if(isFuncionary) return objectSelected.roles[0]
     if(isBeneficiary && objectSelected.lunchBeneficiary){
       return "Beneficiario almuerzo"
     }else{
@@ -226,9 +228,11 @@ export default function ManagementUsers(){
   const handlerCloseModalImport = () => setIsModalImport(false)
   
   const handlerOpenModalEdit = row => {
+    //Debe seguir ese orden el código...
+    //Si lo va a modificar tenga mucho cuidado
     row.isActive = getStatusValue(row.isActive)
     setObjectSelectedClone(structuredClone(row))
-    row.isActive = tranformToStateUser(row.isActive)    
+    row.isActive = tranformToStateUser(row.isActive)
     setIsModalEdit(true)
     setObjectSelected(row)
   }
@@ -294,24 +298,15 @@ export default function ManagementUsers(){
   const handlerAddRoleUserCreate = value => {
     setUser(prevUser => ({
       ...prevUser,
-      roles:[...prevUser.roles, value]
+      roles:[value]
     }))
   }
 
   const handlerRoleEditUser = value => {
-    // setObjectSelected(o => ({
-    //   ...o,
-    //   roles:[value]
-    // }))
-    console.log('Nuevo valor:', value);
-  console.log('Objecto seleccionado antes:', objectSelected);
-
-  setObjectSelected(o => {
-    const updatedObject = { ...o, roles: [value] };
-    console.log('Objecto seleccionado después:', updatedObject);
-    return updatedObject;
-  
-  });
+    setObjectSelected(o => ({
+      ...o,
+      roles:[value]
+    }));
 }
 
   const handlerBlur = (e, valid) => {
@@ -335,10 +330,14 @@ export default function ManagementUsers(){
       validEmail(user.email, isFuncionary),
       validPlan(user.plan, !isFuncionary),
       validRol(user.roles),
-      !isBeneficiary ? true : validGrant(user.grant)
+      !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
     ]
     const allOk = verifier.every( i => i === true)
-    if(!allOk){
+    if(allOk){
+      return true
+    }else{
+      
+      //Llena la modal
       content = verifier
       .filter( i => typeof i === "string")
       .map((i, index) => <p key={`paragraph${index}`}>{i}</p>)
@@ -347,7 +346,7 @@ export default function ManagementUsers(){
         content: content
       })
       setIsModalVerify(true)
-      return
+      return false
     }
   }
 
@@ -364,11 +363,11 @@ export default function ManagementUsers(){
       notifyError(responseLoad.message)
     }
       notifySuccess(responseCreate)
-      setRefreshFields("refresh")
+      setRefreshFields(refreshFields + 1)
     } catch (error) {
       console.error(`Esto es en handlerSave ${error}`);
     }
-  }, [user, changesDescription, users, refreshFields, messageApi]);
+  }, [user, changesDescription, users, refreshFields, messageApi, setRefreshFields]);
 
   const handlerHiddenClickInput = () => hiddenFileInput.current.click()
   
@@ -406,8 +405,14 @@ export default function ManagementUsers(){
           return
         }
 
-        if(responseImport.success) notifySuccess(responseImport.message)
-        if(responseLoad.success) notifySuccess(responseLoad.message)
+        if(responseImport !== undefined &&
+          responseImport.success) {
+            notifySuccess(responseImport.message)
+          }
+        if(responseLoad !== undefined && 
+          responseLoad.success) {
+            notifySuccess(responseLoad.message)
+          }
       }
       return
     } catch (error) {
@@ -435,11 +440,12 @@ export default function ManagementUsers(){
 
   const handlerSendUserEdited = async () => {
     try {
-      console.log(objectSelected)
       objectSelected.isActive = getStatusValue(objectSelected.isActive)
+
       const responseEdit = await editUser(objectSelected)
+      
       if((responseEdit !== undefined) && ("errorGet" in responseEdit)){
-        console.log(responseEdit.errorGet);
+        console.error(responseEdit.errorGet)
       }
       if((responseEdit !== undefined) && (responseEdit.success === false)){
         notifyError(responseEdit.message)
@@ -460,23 +466,29 @@ export default function ManagementUsers(){
     } catch (error) {
       console.error(`Esto sucede en handlerSendUserEdited ${error}`)
     }
-    
   }
 
   const handlerDeleteUser = async () => {
     if(!isBeneficiary) return
     try {
-      await deleteBeneficiary(objectSelected.username)
+      const responseDel = await deleteBeneficiary(objectSelected.username)
       await loadUsers()
+      notifySuccess(responseDel.message)
     } catch (error) {
-      console.log(error.message);
+      console.log("mensaje de error " + error.message)
     }
   }
+
   const handlerDeleteUsers = async () => {
     if(!isBeneficiary) return
     try {
-      await deleteBeneficiaries()
+      const responseAllDelete = await deleteBeneficiaries()
+      if(!responseAllDelete.success){
+        notifyError(responseAllDelete.message)
+        return
+      }
       await loadUsers()
+      notifySuccess(responseAllDelete.message)
     } catch (error) {
       console.log(error.message);
     }
@@ -484,7 +496,7 @@ export default function ManagementUsers(){
 
   const handlerClearFields = () => {
     setUser(initialUser)
-    setRefreshFields(getTypeUserCurrent())
+    setRefreshFields(refreshFields + 1)
   }
 
   useEffect(() => {
@@ -597,8 +609,11 @@ export default function ManagementUsers(){
             />
           <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
             isRenderAsteric={false}
+            type={(isStudent || isBeneficiary) ? "number" : "text"}
             name="plan"
             value={objectSelected.plan}
+            min={(isStudent || isBeneficiary) ? 1000 : undefined}
+            max={(isStudent || isBeneficiary) ? 9999 : undefined}
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
@@ -626,9 +641,12 @@ export default function ManagementUsers(){
             status={statusEstadoRolTipoBecaSelect}
             options={getOptionsComplexSelectInModal()}
             onSelect={ (value, option) => {
-              if(isStudent) handlerEditUser({target:{name:"isActive", value:option.value}})
-              if(isBeneficiary) handlerEditUser({target:{name:"lunchBeneficiary", value:option.value}})
-              if(isFuncionary) handlerRoleEditUser({id: mapFuncionary.get(option.value), name:option.value})
+              const selected = option.value
+              if(isStudent) handlerEditUser({target:{name:"isActive", value:selected}})
+              if(isBeneficiary) {
+                handlerEditUser({target:{name:"lunchBeneficiary", value:selected}})
+              }
+              if(isFuncionary) handlerRoleEditUser(selected)
             }}
             onChange={value => {
               if(isStudent) handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)
@@ -662,11 +680,13 @@ export default function ManagementUsers(){
           className={`button-save ${styles.buttons}`}
           onClick={() => {
             if(!deepEqual(objectSelected, objectSelectedClone)){
-              handlerVerify(objectSelected)
-              handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
-              setObjectSelectedClone(null)
+              if(handlerVerify(objectSelected)){
+                if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
+                handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
+                setObjectSelectedClone(null)
+                handlerCloseModalEdit(false) 
+              }
             }
-            handlerCloseModalEdit(false) 
             return
             }}>
             Guardar
@@ -733,7 +753,7 @@ export default function ManagementUsers(){
                 No
               </button>
               <button 
-              className={`button-cancel ${styles.buttons}`}
+              className={`button-save ${styles.buttons}`}
               onClick={() => {
                 handlerDeleteUser()
                 .then(handlerCloseModalDelete())
@@ -765,6 +785,7 @@ export default function ManagementUsers(){
         <MenuBecas 
           buttons={buttons}
           onSelect={type => {handlerClick(type); setCurrentPage(1)}}
+          defaultSelected={buttons[1].type}
           >
             <button 
             className={styles.buttonImport} 
@@ -823,7 +844,10 @@ export default function ManagementUsers(){
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
               isRenderAsteric={!isFuncionary}
               key={`plan${changesDescription}${refreshFields}`}
+              type={(isStudent || isBeneficiary) ? "number" : "text"} 
               placeholder={ isFuncionary ? "Área de la persona":'Plan del estudiante'}
+              min={(isStudent || isBeneficiary) ? 1000 : undefined}
+              max={(isStudent || isBeneficiary) ? 9999 : undefined}
               required
               name="plan"
               onChange={e => handlerCreateUser(e)}
@@ -841,13 +865,7 @@ export default function ManagementUsers(){
               required
               type="email"              
               name="email"
-              onChange={e => {
-                handlerCreateUser(e)
-                const rolAdded  = user.roles.includes("ESTUDIANTE")
-                if(((isStudent || isBeneficiary) && !rolAdded)){
-                  handlerAddRoleUserCreate("ESTUDIANTE")
-                }
-              }}
+              onChange={e => handlerCreateUser(e)}
               onBlur={e => handlerBlur(e, validEmail(user.email, isFuncionary))}
             />
           {(!isStudent || !enableResponsive) && 
@@ -862,15 +880,15 @@ export default function ManagementUsers(){
               defaultActiveFirstOption={isFuncionary}
               status={statusRolesGrantSelect}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
-              onChange={value => {
+              onSelect={(value, option) => {
                 
                 if(isBeneficiary) {
-                  handlerSetSelectCreateUser(value)
+                  handlerSetSelectCreateUser(option.value)
                   return
                 } 
 
                 if(isFuncionary) {
-                  handlerAddRoleUserCreate(value)
+                  handlerAddRoleUserCreate(option.value)
                   return
                 }
               }}
@@ -891,9 +909,14 @@ export default function ManagementUsers(){
         >
           <button className={`button-save ${styles.buttons}`} 
           onClick={() => {
-            handlerVerify(user)
-            SetSavePressed(!savePressed)
-            handlerSave()
+            if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
+            if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
+            if(handlerVerify(user)){
+              console.dir(user)
+              SetSavePressed(!savePressed)
+              handlerSave()
+              handlerClearFields()
+            }            
           }}>Guardar</button>
           <button className={`button-cancel ${styles.buttons}`}
           onClick={handlerClearFields}

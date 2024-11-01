@@ -1,7 +1,13 @@
 import HeaderNurse from "../../components/nurse/HeaderNurse";
+import BecasReservation from '../../components/global/BecasReservation';
 
-export default function BecasNurse(){
-    return(
-        <HeaderNurse/>
+const BecasNurse = () => {
+    return (
+        <>
+            <HeaderNurse />
+            <BecasReservation />
+        </>
     );
 }
+
+export default BecasNurse;

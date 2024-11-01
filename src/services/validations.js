@@ -51,13 +51,33 @@ export const validEmail = (email, funcionary) => {
   if(funcionary){
     return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email) ? true : "Dirección de correo inválida"
   } 
-  return /^[a-zA-Z]+\.[a-zA-Z]+@correounivalle.edu.co$/.test(email) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
+  return /^[a-zA-Z]+(\.[a-zA-Z]){1,2}@correounivalle.edu.co$/.test(email) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
 }
 
-export const validRol = rol => rol.length !== 0 ? true : "Debe elegir un rol"
+export const validRol = (rol) => {
+  
+  if(rol.length === 0) return "Debe elegir un rol"
+  
+  const hasMonitor = rol.includes("MONITOR")
+  const hasStudent = rol.includes("ESTUDIANTE")
 
-export const validGrant = grant => (grant === "Beneficiario almuerzo") 
-|| (grant === "Beneficiario refrigerio") ? true : "Debe elegir un tipo de beca"
+  if(rol.length === 2 && !(hasStudent && hasMonitor)){
+    return "El usuario solo debe tener dos roles sí y solo sí es un estudiante"
+  }
+
+  return true
+}
+
+export const validGrant = (grant, isEdit) => {
+  if(isEdit) return true
+  
+  if((grant === "Beneficiario almuerzo") ||
+    (grant === "Beneficiario refrigerio")){
+    return true
+  } else{
+    return "Debe elegir un tipo de beca"
+  }
+}
 
 export const validStatus = status => (typeof status === "boolean") ? true : "Debe seleccionar un estado"
 /********************************************************************************************************/

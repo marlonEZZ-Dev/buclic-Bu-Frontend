@@ -1,7 +1,13 @@
 import HeaderExternal from "../../components/external/HeaderExternal";
+import BecasReservation from '../../components/global/BecasReservation';
 
-export default function BecasExternal(){
-    return(
-        <HeaderExternal/>
-    );    
+const BecasExternal = () => {
+    return (
+        <>
+            <HeaderExternal />
+            <BecasReservation />
+        </>
+    );
 }
+
+export default BecasExternal;

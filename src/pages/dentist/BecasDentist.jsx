@@ -1,7 +1,14 @@
 import HeaderDentist from "../../components/dentist/HeaderDentist";
+import BecasReservation from '../../components/global/BecasReservation';
 
-export default function BecasDentist (){
-    return(
-        <HeaderDentist/>
+
+const BecasDentist = () => {
+    return (
+        <>
+            <HeaderDentist />
+            <BecasReservation />
+        </>
     );
 }
+
+export default BecasDentist;

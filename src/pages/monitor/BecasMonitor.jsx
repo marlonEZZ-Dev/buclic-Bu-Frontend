@@ -1,7 +1,15 @@
 import HeaderMonitor from "../../components/monitor/HeaderMonitor";
+import BecasReservation from '../../components/global/BecasReservation';
 
-export default function BecasMonitor(){
-    return(
-        <HeaderMonitor/>
+
+const BecasMonitor = () => {
+    return (
+        <>
+            <HeaderMonitor />
+            <BecasReservation />
+        </>
+
     );
 }
+
+export default BecasMonitor;

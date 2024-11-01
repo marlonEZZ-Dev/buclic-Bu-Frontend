@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useParams } from "react-router-dom";
-import { Badge, Descriptions, Card } from "antd";
+import { Badge, Descriptions, Card, Button } from "antd";
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import HeaderNurse from "../../components/nurse/HeaderNurse";
 import api from "../../api";
 
 const HistoryDetail = () => {
     const { id } = useParams();
     const [activity, setActivity] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchActivityDetail = async () => {
@@ -25,10 +28,33 @@ const HistoryDetail = () => {
         return <p>Cargando detalles de la actividad...</p>;
     }
 
+    const handleBack = () => {
+        navigate('/enfermeria/historial');
+    };
+
     return (
         <>
             <HeaderNurse />
             <main className="becas-section" style={{ marginTop: '100px' }}>
+
+                <div style={{ display: 'flex', marginLeft:'60px' , alignItems: 'center', width: '100%' }}> {/* Contenedor flexible */}
+                    <Button
+                        type="default"
+                        icon={<ArrowLeftOutlined style={{ color: '#fff', fontSize: '16px' }} />} // Ajusta el tamaño del ícono si es necesario
+                        className="button-save"
+                        onClick={handleBack}
+                        style={{
+                            marginRight: '10px',
+                            width: '32px',
+                            height: '30px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: 0 // Para eliminar el padding interno
+                        }}
+                    >
+                    </Button>
+                </div>
                 <h1 className="text-xl font-bold">Historial de Actividades</h1>
                 <p>Aquí puede observar los detalles de la actividad que se realizo en el servicio.</p>
                 <Card>
@@ -95,9 +121,10 @@ const HistoryDetail = () => {
                         </Descriptions.Item>
                     </Descriptions>
                 </Card>
-            </main>
+            </main >
         </>
     );
 };
+
 
 export default HistoryDetail;

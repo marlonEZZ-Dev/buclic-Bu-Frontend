@@ -21,6 +21,12 @@ const TablePaginationR = ({
         textAlign: 'center',
     };
 
+    // Agregar estilo responsive utilizando media queries
+    const mediaQueryStyle = {
+        '@media (max-width: 600px)': {
+            fontSize: '0.9rem', // Cambia el tamaño para pantallas pequeñas
+        },
+    };
     // Estilos para las celdas
     const cellStyle = {
         border: '1px solid #ddd',
