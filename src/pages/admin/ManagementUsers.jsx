@@ -203,8 +203,9 @@ const handlePageChange = page => {
 
   const getValueComplexSelectInModal = () => {
     if(isStudent) return getStatusValue(objectSelected.isActive)
-    if(isFuncionary) objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]      
-    
+    if(isFuncionary) {
+      return objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]
+    }
     if(isBeneficiary && objectSelected.lunchBeneficiary){
       return "Beneficiario almuerzo"
     }else{
