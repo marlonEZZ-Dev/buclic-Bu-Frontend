@@ -1,0 +1,16 @@
+.container{
+  position: relative;
+  margin-bottom: 1.875rem; /* Espacio extra para el mensaje */
+  text-align: left;
+  border-radius: .5rem;
+  outline: none;
+}
+
+.select{
+  width: 13rem;
+}
+
+.error select{
+  border: 1px solid red;
+}
+

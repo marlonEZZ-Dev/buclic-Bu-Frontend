@@ -1,0 +1,53 @@
+import { Select } from "antd";
+import PropTypes, { oneOfType } from "prop-types";
+import {
+  labels as labelsCSS, 
+  error as errorCSS,
+  message as messageCSS,
+  inputs as inputCSS
+} from "../../styles/global/inputSmall.module.css"; // Asegúrate de que este archivo tenga los estilos definidos
+import styles from "../../styles/global/select.module.css";
+
+export default function SelectWithError({
+    title = "Select",
+    errorMessage = "",
+    options = [],
+    classContainer = "",
+    ...props
+}) {
+    const waitBoolOrString = (data) => {
+        if (typeof data === "boolean") return "";
+        if (typeof data === "string") return data;
+        throw new Error("Property errorMessage debe ser un booleano o string");
+    };
+
+    const errorText = waitBoolOrString(errorMessage);
+    const hasError = Boolean(errorText);
+
+    return (
+        <div className={`${styles.container} ${classContainer}`}>
+            <label className={labelsCSS}>
+                <span style={{display:"block"}}>{title}</span>
+                <Select
+                    {...props}
+                    options={options}
+                    className={`${styles.select} ${hasError ? styles.error : ""}`}
+                />
+            </label>
+            {hasError && <span className={messageCSS}>{errorText}</span>}
+        </div>
+    );
+}
+
+SelectWithError.propTypes = {
+    title: PropTypes.string,
+    errorMessage: oneOfType([PropTypes.string, PropTypes.bool]),
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
+            label: PropTypes.string,
+            value: PropTypes.any,
+        })
+    ),
+    className: PropTypes.string,
+    classContainer: PropTypes.string
+};
