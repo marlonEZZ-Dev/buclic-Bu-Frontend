@@ -10,75 +10,85 @@ import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 
 const SettingsAdmin = () => {
-    const { settingId, setSettingId, settingData, setSettingData } = useSettings();
     const [isEditing, setIsEditing] = useState(false);
     const [selectedType, setSelectedType] = useState('Perfil');
     const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);  // Nuevo estado para el perfil
 
+    const [settingId, setSettingId] = useState(null);
+    const [settingData, setSettingData] = useState({});
+    const [initialSettingData, setInitialSettingData] = useState({}); // Estado para los datos originales
+
     useEffect(() => {
-        const fetchSetting = async () => {
-            try {
-                const response = await api.get('/setting');
-                const settingsList = response.data; // La lista de ajustes
-
-                console.log('Response from /setting:', settingsList);
-
-                if (settingsList.length === 0) {
-                    console.log('No settings found, setting initial data...');
-                    // No hay ajustes, por lo que se debe crear uno nuevo
-                    setSettingId(null);
-                    setSettingData({
-                        id: null,
-                        startSemester: null,
-                        endSemester: null,
-                        numLunch: null,
-                        numSnack: null,
-                        starBeneficiaryLunch: null,
-                        endBeneficiaryLunch: null,
-                        starLunch: null,
-                        endLunch: null,
-                        starBeneficiarySnack: null,
-                        endBeneficiarySnack: null,
-                        starSnack: null,
-                        endSnack: null,
-                    });
-                } else if (settingsList.length === 1) {
-                    // Hay un ajuste, se debe editar
-                    const setting = settingsList[0];
-                    console.log('Setting found:', setting);
-
-                    setSettingId(setting.id);
-
-                    // Asignar los datos de settingRequest al estado
-                    setSettingData(setting.settingRequest);  // Extraemos los datos de settingRequest
-                } else {
-                    console.log('Unexpected number of settings:', settingsList.length);
-                }
-            } catch (error) {
-                console.error('Error fetching settings:', error);
-                message.error('Error al cargar los ajustes.');
-            }
-        };
-
-        const fetchProfileData = async () => {
-            try {
-                // Supongamos que el username está almacenado en localStorage
-                const username = localStorage.getItem('username');
-                if (username) {
-                    const response = await api.get(`/users/${username}`); // Llamada al backend
-                    setProfileData(response.data);  // Guardar los datos del perfil
-                }
-            } catch (error) {
-                message.error('Error al cargar el perfil del usuario.');
-            }
-        };
-
-        // Hacemos la llamada al servidor siempre que entremos en la ventana de Becas
-        console.log('Fetching settings...');
         fetchSetting();
-        fetchProfileData();  // Llamada para obtener el perfil
-    }, [setSettingData, setSettingId]);
+    }, []);
+
+    const fetchSetting = async () => {
+        try {
+            const response = await api.get('/setting');
+            const settingsList = response.data;
+
+            console.log('Response from /setting:', settingsList);
+
+            if (settingsList.length === 0) {
+                // No hay ajustes
+                setSettingId(null);
+                const defaultData = {
+                    id: null,
+                    startSemester: null,
+                    endSemester: null,
+                    numLunch: null,
+                    numSnack: null,
+                    starBeneficiaryLunch: null,
+                    endBeneficiaryLunch: null,
+                    starLunch: null,
+                    endLunch: null,
+                    starBeneficiarySnack: null,
+                    endBeneficiarySnack: null,
+                    starSnack: null,
+                    endSnack: null,
+                };
+                setSettingData(defaultData);
+                setInitialSettingData(defaultData); // También actualiza el estado inicial
+            } else if (settingsList.length === 1) {
+                const setting = settingsList[0];
+                setSettingId(setting.id);
+                const fetchedData = setting.settingRequest;
+                setSettingData(fetchedData);
+                setInitialSettingData(fetchedData); // Guardar los datos originales
+            } else {
+                console.log('Unexpected number of settings:', settingsList.length);
+            }
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+            // Manejo de error
+        }
+    };
+
+
+    const fetchProfileData = async () => {
+        try {
+            const username = localStorage.getItem('username');
+            if (username) {
+                const response = await api.get(`/users/${username}`); // Asegúrate de que las comillas sean correctas
+                setProfileData(response.data); // Guardar los datos del perfil
+            }
+        } catch (error) {
+            message.error('Error al cargar el perfil del usuario.');
+        }
+    };
+
+    useEffect(() => {
+        if (selectedType === 'Perfil') {
+            fetchProfileData(); // Llamar a la función cuando el tipo seleccionado es 'Perfil'
+        }
+    }, [selectedType]); // Solo vuelve a ejecutar si selectedType cambia
+
+
+    const handleCancelClick = () => {
+        setSettingData(initialSettingData); // Restablece los datos al original
+        setIsEditing(false); // Cambia a modo no edición
+    };
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -106,23 +116,26 @@ const SettingsAdmin = () => {
     const handleSaveClick = async () => {
         try {
             if (settingId) {
+                // Actualiza un ajuste existente
                 await api.put('/setting', { ...settingData, id: settingId });
                 message.success('Ajustes guardados exitosamente.');
             } else {
+                // Crea un nuevo ajuste
                 const response = await api.post('/setting', settingData);
                 setSettingId(response.data.id);
                 setSettingData(response.data.settingRequest);
                 message.success('Ajustes creados exitosamente.');
             }
-            setIsEditing(false);
+            // Actualiza initialSettingData para reflejar los datos guardados
+            setInitialSettingData(settingData);
+            setIsEditing(false); // Cambia a modo no edición
         } catch (error) {
             message.error('Error al guardar los ajustes.');
         }
     };
 
-    const handleCancelClick = () => {
-        setIsEditing(false);
-    };
+
+
     const handleChangePasswordClick = () => {
         navigate('/admin/contrasenaAdmin');
     };
@@ -138,6 +151,7 @@ const SettingsAdmin = () => {
             <HeaderAdmin />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
+
                     {selectedType === 'Perfil' && profileData ? (
                         <Form layout="vertical" style={{ marginTop: '8px' }}>
                             <Form.Item label="Nombres">
@@ -153,7 +167,7 @@ const SettingsAdmin = () => {
                                 <Input value={profileData.benefitType} disabled /> {/* Muestra el tipo de beneficio */}
                             </Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
-                                <Button className="button-actionsGeneral" type="primary" onClick={handleChangePasswordClick}>
+                                <Button className="button-save" type="primary" onClick={handleChangePasswordClick}>
                                     Cambiar contraseña
                                 </Button>
                             </div>
