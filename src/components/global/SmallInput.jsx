@@ -1,33 +1,45 @@
-  import styles from "../../styles/global/inputSmall.module.css"
+import styles from "../../styles/global/inputSmall.module.css";
+import PropTypes, { oneOfType } from "prop-types";
 
-  import PropTypes from "prop-types"
-
-  export default function InputSmall({
-    isRenderAsteric= true,
-    labelClassname="",
-    title="title",
+export default function InputSmall({
+    isRenderAsteric = true,
+    labelClassname = "",
+    title = "title",
+    errorMessage = "",
     ...props
-  }){
+}) {
+    const waitBoolOrString = (data) => {
+      if (typeof data === "boolean") return "";
+      if (typeof data === "string") return data;
+      throw new Error("Property errorMessage debe ser un booleano o string");
+    };
 
-    return(
-      <label className={`${styles.labels} ${labelClassname}`}>
-        {title} {isRenderAsteric ? <span className={styles.asteric}>*</span> : ""}
-        <input 
-        {...props}
-        type={"type" in props ? props.type : "text"}
-        className={`${styles.inputs} ${props.className}`}
-        />
-      </label>
-      )
-  }
+    const errorText = waitBoolOrString(errorMessage);
+    const hasError = Boolean(errorText);
 
-  InputSmall.propTypes = {
+    return (
+        <div className={styles.inputContainer}>
+            <label className={`${styles.labels} ${labelClassname}`}>
+                <span>
+                    {title} {isRenderAsteric ? <span className={styles.asteric}>*</span> : ""}
+                </span>
+                <input
+                    {...props}
+                    type={"type" in props ? props.type : "text"}
+                    className={`${styles.inputs} ${hasError ? styles.error : ""} ${props.className}`}
+                />
+            </label>
+            {hasError && <span className={styles.message}>{errorText}</span>}
+        </div>
+    );
+}
+
+InputSmall.propTypes = {
     isRenderAsteric: PropTypes.bool,
     labelClassname: PropTypes.string,
     placeholder: PropTypes.string,
     title: PropTypes.string,
-    props: PropTypes.shape({
-      className: PropTypes.string,
-      type: PropTypes.string
-    })
-  }
+    errorMessage: oneOfType([PropTypes.string, PropTypes.bool]),
+    className: PropTypes.string,
+    type: PropTypes.string,
+};
