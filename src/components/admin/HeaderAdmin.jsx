@@ -102,12 +102,6 @@ export default function HeaderAdmin(props) {
                 Becas
               </li>
               <li
-                onClick={() => handleButtonClick("/admin/citasAdm")}
-                className={location.pathname === "/admin/citasAdm" ? "active" : ""}
-              >
-                Citas
-              </li>
-              <li
                 onClick={() => handleButtonClick("/admin/reservas")}
                 className={location.pathname === "/admin/reservas" ? "active" : ""}
               >
@@ -155,12 +149,6 @@ export default function HeaderAdmin(props) {
                 className={location.pathname === "/admin/becaAdm" ? "active" : ""}
               >
                 Becas
-              </li>
-              <li
-                onClick={() => handleButtonClick("/admin/citasAdm")}
-                className={location.pathname === "/admin/citasAdm" ? "active" : ""}
-              >
-                Citas
               </li>
               <li
                 onClick={() => handleButtonClick("/admin/reservas")}
