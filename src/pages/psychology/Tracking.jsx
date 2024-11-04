@@ -4,6 +4,7 @@ import SearchInput from '../../components/global/SearchInput.jsx';
 import TablePagination from '../../components/global/TablePagination.jsx';
 import StateUser from "../../components/global/StateUser.jsx"; // Importa el componente StateUser
 import { Card, Space, Button, Descriptions, DatePicker, TimePicker, Row, Col } from 'antd';
+import api from '../../api.js';
 
 const AssistanceIcon = ({ attended, id }) => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -75,9 +76,13 @@ const Tracking = () => {
                         <Descriptions.Item label={<span style={styles.boldLabel}>Programa</span>} className="descriptions-item">
                             {person.dateTime}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<span style={styles.boldLabel}>Contacto</span>} className="descriptions-item">
+                        <Descriptions.Item label={<span style={styles.boldLabel}>Semestre</span>} className="descriptions-item">
                             {person.plan}
                         </Descriptions.Item>
+                        <Descriptions.Item label={<span style={styles.boldLabel}>Telefono</span>} className="descriptions-item">
+                            {person.plan}
+                        </Descriptions.Item>
+
                     </Descriptions>
 
                     {/* Agendar próxima cita */}
