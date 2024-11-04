@@ -102,7 +102,9 @@ const PasswordAdmin = () => {
               name="newPassword"
               rules={[{ required: true, message: 'Ingresa la nueva contraseña' }]}
             >
-              <Input.Password placeholder="Nueva contraseña" />
+              <Input.Password placeholder="Nueva contraseña"
+                onPaste={(e) => e.preventDefault()} // Evita pegar en el campo
+              />
             </Form.Item>
 
             {/* Campo Confirmar nueva contraseña */}
@@ -122,7 +124,9 @@ const PasswordAdmin = () => {
                 }),
               ]}
             >
-              <Input.Password placeholder="Confirmar nueva contraseña" />
+              <Input.Password placeholder="Confirmar nueva contraseña"
+                onPaste={(e) => e.preventDefault()} // Evita pegar en el campo
+              />
             </Form.Item>
 
             {/* Botones */}
