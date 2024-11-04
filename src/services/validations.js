@@ -1,10 +1,22 @@
 import dayjs from "dayjs"
+
 const LIMITS_NAMES = 50
+const EMPTY_FIELD = "El campo esta vacío"
 // PENSADOS PARA GESTIÓN DE USUARIOS
 //This is by users
-export const validName = name => name.length <= LIMITS_NAMES ? true : "Los nombres son muy largos"
+export const validName = name => {
+    name = name.trim()
+    if(name.length > LIMITS_NAMES) return "Los nombres son muy largos"
+    if(name.length === 0) return EMPTY_FIELD
+    return true
+  }
 
-export const validLastname = lastname => lastname.length <= LIMITS_NAMES ? true : "Los apellidos son muy largos"
+export const validLastname = lastname => {
+  lastname = lastname.trim()
+  if(lastname.length > LIMITS_NAMES) return "Los apellidos son muy largos"
+  if(lastname.length === 0) return EMPTY_FIELD
+  return true
+}
 
 const forCode = code => {
   // Verifica si el código es una cadena de exactamente 9 dígitos
@@ -20,11 +32,7 @@ const forCode = code => {
     : `El código no es válido, debe ser máximo ${limitTop}`
 };
 
-const forNuip = nuip => {
-  return (nuip.length >= 8) && (nuip.length <= 10) ? true : 
-  `La cédula ${nuip} no es una cédula válida
-  esta debe contener entre 8  y 10 digitos`
-}
+const forNuip = nuip => (nuip.length >= 8) ? true : "Debe tener mínimo 8 digitos"
 
 const forPlan = plan => /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 digitos"
 
@@ -39,7 +47,6 @@ export const validCode = (code, isCode) => {
   if(isCode){
     return forCode(code)
   }
-  //Si es funcionario
   return forNuip(code)
 }
 
