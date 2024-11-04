@@ -19,6 +19,20 @@ const SettingsAdmin = () => {
     const [settingData, setSettingData] = useState({});
     const [initialSettingData, setInitialSettingData] = useState({}); // Estado para los datos originales
 
+    const [errors, setErrors] = useState({
+        semester: '',
+        numLunch: '',
+        numSnack: '',
+        starBeneficiaryLunch: '',
+        endBeneficiaryLunch: '',
+        starLunch: '',
+        endLunch: '',
+        starBeneficiarySnack: '',
+        endBeneficiarySnack: '',
+        starSnack: '',
+        endSnack: ''
+    });
+
     useEffect(() => {
         fetchSetting();
     }, []);
@@ -114,6 +128,45 @@ const SettingsAdmin = () => {
     };
 
     const handleSaveClick = async () => {
+        const newErrors = {};
+        let hasError = false;
+
+        // Validaciones de campos obligatorios
+        if (!settingData.startSemester || !settingData.endSemester) {
+            newErrors.semester = 'La duración del semestre es obligatoria.';
+            hasError = true;
+        }
+        if (!settingData.numLunch) {
+            newErrors.numLunch = 'El número de becas de almuerzo es obligatorio.';
+            hasError = true;
+        }
+        if (!settingData.numSnack) {
+            newErrors.numSnack = 'El número de becas de refrigerio es obligatorio.';
+            hasError = true;
+        }
+
+        if (!settingData.starBeneficiaryLunch || !settingData.endBeneficiaryLunch) {
+            newErrors.beneficiaryLunch = 'Los horarios de almuerzo son obligatorios.'; // Mensaje único
+            hasError = true;
+        }
+        if (!settingData.starLunch || !settingData.endLunch) {
+            newErrors.Lunch = 'Los horarios de almuerzo son obligatorios.';
+            hasError = true;
+        }
+        if (!settingData.starBeneficiarySnack || !settingData.endBeneficiarySnack) {
+            newErrors.BeneficiarySnack = 'Los horarios refrigerio son obligatorios.';
+            hasError = true;
+        }
+        if (!settingData.starSnack || !settingData.endSnack) {
+            newErrors.Snack = 'Los horarios de refrigerio son obligatorios.';
+            hasError = true;
+        }
+
+        // Si hay errores, actualizar el estado y salir
+        if (hasError) {
+            setErrors(newErrors);
+            return;
+        }
         try {
             if (settingId) {
                 // Actualiza un ajuste existente
@@ -130,7 +183,22 @@ const SettingsAdmin = () => {
             setInitialSettingData(settingData);
             setIsEditing(false); // Cambia a modo no edición
         } catch (error) {
-            message.error('Error al guardar los ajustes.');
+            if (error.response) {
+                const { status, data } = error.response;
+
+                if (status === 400 && data.message) {
+                    // Mostrar mensaje de error específico del backend
+                    message.error(data.message);
+                } else if (status === 500) {
+                    // Error de servidor
+                    message.error('Error del servidor. Inténtalo de nuevo más tarde.');
+                } else {
+                    message.error('Ocurrió un error desconocido.');
+                }
+            } else {
+                // Error de red
+                message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+            }
         }
     };
 
@@ -176,9 +244,14 @@ const SettingsAdmin = () => {
                         <div style={{ marginBottom: '10px', textAlign: 'left' }}>
                             <p>Aquí hay ajustes adicionales relacionados a las becas de alimentación.</p>
                             <Space direction="vertical" size={12}>
-                                <label style={{ display: 'block' }}>Duración del semestre</label>
+                                <label style={{ display: 'block' }}>Duración del semestre <span style={{ color: 'red' }}>*</span> </label>
                                 <RangePicker
-                                    style={{ width: '100%' }}
+                                    style={{
+                                        width: '100%',
+                                        borderColor: errors.semester ? 'red' : undefined, // Cambia el borde a rojo si hay un error
+                                        borderWidth: errors.semester ? '1px' : undefined, // Asegúrate de que el borde esté visible
+                                        borderStyle: 'solid' // Estilo de borde sólido
+                                    }}
                                     disabled={!isEditing}
                                     value={[
                                         settingData?.startSemester ? dayjs(settingData.startSemester) : null,
@@ -191,6 +264,11 @@ const SettingsAdmin = () => {
                                                 startSemester: dates[0] ? dates[0].format('YYYY-MM-DD') : null,
                                                 endSemester: dates[1] ? dates[1].format('YYYY-MM-DD') : null,
                                             }));
+                                            // Limpiar el mensaje de error si se seleccionan fechas
+                                            setErrors((prevErrors) => ({
+                                                ...prevErrors,
+                                                semester: '', // Asumiendo que tienes un campo 'semester' en los errores
+                                            }));
                                         } else {
                                             setSettingData((prev) => ({
                                                 ...prev,
@@ -201,11 +279,12 @@ const SettingsAdmin = () => {
                                     }}
                                     allowEmpty={[true, true]}
                                 />
+                                {errors.semester && <span style={{ color: 'red' }}>{errors.semester}</span>}
                             </Space>
                             <div style={{ marginTop: '20px' }}>
                                 <div style={{ display: 'flex', marginBottom: '12px' }}>
                                     <div style={{ width: '38%', marginRight: '20px' }}>
-                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas almuerzo</label>
+                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas almuerzo<span style={{ color: 'red' }}>*</span> </label>
                                         <Input
                                             type="number"
                                             placeholder="Número de almuerzos"
@@ -218,12 +297,20 @@ const SettingsAdmin = () => {
                                                         ...prev,
                                                         numLunch: value,
                                                     }));
+                                                    // Limpiar el mensaje de error si el campo es corregido
+                                                    if (errors.numLunch) {
+                                                        setErrors((prevErrors) => ({
+                                                            ...prevErrors,
+                                                            numLunch: '',
+                                                        }));
+                                                    }
                                                 }
                                             }}
                                         />
+                                        {errors.numLunch && <span style={{ color: 'red' }}>{errors.numLunch}</span>}
                                     </div>
                                     <div style={{ width: '38%' }}>
-                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas refrigerio</label>
+                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas refrigerio<span style={{ color: 'red' }}>*</span> </label>
                                         <Input
                                             type="number"
                                             placeholder="Número de refrigerios"
@@ -236,119 +323,206 @@ const SettingsAdmin = () => {
                                                         ...prev,
                                                         numSnack: value,
                                                     }));
+                                                    // Limpiar el mensaje de error si el campo es corregido
+                                                    if (errors.numSnack) {
+                                                        setErrors((prevErrors) => ({
+                                                            ...prevErrors,
+                                                            numSnack: '',
+                                                        }));
+                                                    }
                                                 }
                                             }}
                                         />
+                                        {errors.numSnack && <span style={{ color: 'red' }}>{errors.numSnack}</span>}
                                     </div>
                                 </div>
                                 {/* Accesos y horarios */}
                                 {/* Acceso para beneficiarios almuerzo */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios almuerzo</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios almuerzo <span style={{ color: 'red' }}>*</span></p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.beneficiaryLunch ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starBeneficiaryLunch ? dayjs(settingData.starBeneficiaryLunch, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            starBeneficiaryLunch: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                starBeneficiaryLunch: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    beneficiaryLunch: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.beneficiaryLunch ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endBeneficiaryLunch ? dayjs(settingData.endBeneficiaryLunch, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            endBeneficiaryLunch: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                endBeneficiaryLunch: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    beneficiaryLunch: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
                                 </Space>
+                                {errors.beneficiaryLunch && <span style={{ color: 'red' }}>{errors.beneficiaryLunch}</span>}
 
                                 {/* Acceso para venta libre almuerzo */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre almuerzo</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre almuerzo <span style={{ color: 'red' }}>*</span></p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.Lunch ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starLunch ? dayjs(settingData.starLunch, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            starLunch: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                starLunch: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    Lunch: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
+
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.Lunch ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endLunch ? dayjs(settingData.endLunch, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            endLunch: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                endLunch: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    Lunch: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
                                 </Space>
+                                {errors.Lunch && <span style={{ color: 'red' }}>{errors.Lunch}</span>}
 
                                 {/* Acceso para beneficiarios refrigerio */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios refrigerio</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios refrigerio <span style={{ color: 'red' }}>*</span></p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.BeneficiarySnack ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starBeneficiarySnack ? dayjs(settingData.starBeneficiarySnack, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            starBeneficiarySnack: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                starBeneficiarySnack: time ? time.format('HH:mm') : null,
+                                            }))
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    BeneficiarySnack: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
+
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.BeneficiarySnack ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endBeneficiarySnack ? dayjs(settingData.endBeneficiarySnack, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            endBeneficiarySnack: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                endBeneficiarySnack: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    BeneficiarySnack: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
                                 </Space>
+                                {errors.BeneficiarySnack && <span style={{ color: 'red' }}>{errors.BeneficiarySnack}</span>}
 
                                 {/* Acceso para venta libre refrigerio */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre refrigerio</p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre refrigerio<span style={{ color: 'red' }}>*</span></p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.Snack ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.starSnack ? dayjs(settingData.starSnack, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            starSnack: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                starSnack: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    Snack: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
+
                                     <TimePicker
                                         placeholder="Fin"
-                                        style={{ width: '78%' }}
+                                        style={{ width: '78%', borderColor: errors.Snack ? 'red' : undefined }}
                                         format="HH:mm"
                                         disabled={!isEditing}
                                         value={settingData?.endSnack ? dayjs(settingData.endSnack, 'HH:mm') : null}
-                                        onChange={(time) => setSettingData((prev) => ({
-                                            ...prev,
-                                            endSnack: time ? time.format('HH:mm') : null,
-                                        }))}
+                                        onChange={(time) => {
+                                            setSettingData((prev) => ({
+                                                ...prev,
+                                                endSnack: time ? time.format('HH:mm') : null,
+                                            }));
+                                            // Limpia el error si se selecciona un tiempo válido
+                                            if (time) {
+                                                setErrors((prevErrors) => ({
+                                                    ...prevErrors,
+                                                    Snack: '', // Limpia el mensaje de error
+                                                }));
+                                            }
+                                        }}
                                     />
                                 </Space>
+                                {errors.Snack && <span style={{ color: 'red' }}>{errors.Snack}</span>}
 
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' }}>
