@@ -307,10 +307,10 @@ const BecasReservation = () => {
   return (
     <>
       <main className="becas-section" style={{ marginTop: '100px' }}>
-        <h1 className="text-xl font-bold">Becas de Alimentación</h1>
+        <h1 className="text-xl font-bold" style={{ marginBottom: '6px' }}>Becas de Alimentación</h1>
 
         {menuData?.Almuerzo?.note && (
-          <p><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>
+          <p style={{ marginBottom: '6px' }}><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>
         )}
 
         {menuData?.Almuerzo?.link && (
@@ -318,6 +318,7 @@ const BecasReservation = () => {
             <a href={menuData.Almuerzo.link} target="_blank" rel="noopener noreferrer" style={{ color: '#C20E1A' }}>Encuesta de satisfacción</a>
           </p>
         )}
+
 
         <MenuBecas
           onSelect={setSelectedType}
