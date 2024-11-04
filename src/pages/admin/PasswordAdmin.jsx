@@ -62,8 +62,6 @@ const PasswordAdmin = () => {
     <>
       <HeaderAdmin />
 
-
-
       {/* Contenido principal */}
       <main style={styles.main}>
 
