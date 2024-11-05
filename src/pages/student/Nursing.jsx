@@ -118,7 +118,7 @@ const Nursing = () => {
 
    
     if (hasError) {
-      message.error("Digita los campos teléfono, EPS y semestre.");
+      message.error("Digita los campos teléfono y eps.");
       return; // Detener la ejecución si hay errores
     }
 
