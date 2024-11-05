@@ -3,6 +3,7 @@ import { useSettings } from '../../utils/SettingsContext';  // Importar el conte
 import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import MenuBecas from '../../components/global/MenuBecas';
+import ReusableModal from '../../components/global/ReusableModal';
 import { Button, Form, Input, Space, DatePicker, TimePicker, message } from 'antd';
 import api from '../../api';
 import dayjs from 'dayjs';
@@ -18,6 +19,9 @@ const SettingsAdmin = () => {
     const [settingId, setSettingId] = useState(null);
     const [settingData, setSettingData] = useState({});
     const [initialSettingData, setInitialSettingData] = useState({}); // Estado para los datos originales
+
+    const [confirmSettings, setConfirmSettings] = useState(false); // Estado para la carga del botón de confirmar
+    const [cancelModalVisible, setCancelModalVisible] = useState(false); // Estado para el modal de cancelación
 
     const [errors, setErrors] = useState({
         semester: '',
@@ -202,6 +206,39 @@ const SettingsAdmin = () => {
         }
     };
 
+    //Modal guardar ajuste de becas
+    const handleSaveSetting = () => {
+        setConfirmSettings(true); // Abre el modal de cancelación
+    };
+
+    // Función para cerrar el modal de cancelar ajustes sin confirmar
+    const handleSaveSettings = () => {
+        setConfirmSettings(false); // Cierra el modal al cancelar
+    };
+
+     // Función para confirmar la cancelación de los ajustes
+  const handleConfirmSaveSettings = () => {
+    handleSaveClick()
+    setConfirmSettings(false); // Cierra el modal después de confirmar
+  };
+
+
+
+    //Modal cancelar ajustes de becas
+    const handleCancelSetting = () => {
+        setCancelModalVisible(true); // Abre el modal de cancelación
+    };
+
+    // Función para cerrar el modal de cancelar ajustes sin confirmar
+    const handleCancelSettings = () => {
+        setCancelModalVisible(false); // Cierra el modal al cancelar
+    };
+
+     // Función para confirmar la cancelación de los ajustes
+  const handleConfirmCancelSettings = () => {
+    handleCancelClick()
+    setCancelModalVisible(false); // Cierra el modal después de confirmar
+  };
 
 
     const handleChangePasswordClick = () => {
@@ -530,14 +567,34 @@ const SettingsAdmin = () => {
                                     <>
 
                                         {/* Mostrar "Guardar" cuando esté en modo de edición */}
-                                        <Button className="button-save" type="primary" onClick={handleSaveClick} disabled={!isEditing}>
+                                        <Button className="button-save" type="primary" onClick={handleSaveSetting} disabled={!isEditing}>
                                             Guardar
                                         </Button>
 
+                                        <ReusableModal
+                                            visible={confirmSettings}
+                                            title="Confirmación guardar ajustes becas"
+                                            content={`¿Estás seguro de guardar los ajustes de becas?`}
+                                            cancelText="Cancelar"
+                                            confirmText="Confirmar"
+                                            onCancel={handleSaveSettings}
+                                            onConfirm={handleConfirmSaveSettings}
+                                        />
+
                                         {/* Mostrar "Cancelar" cuando esté en modo de edición */}
-                                        <Button className="button-cancel" onClick={handleCancelClick}>
+                                        <Button className="button-cancel" onClick={handleCancelSetting}>
                                             Cancelar
                                         </Button>
+                                        {/* Modal para confirmar la cancelación de ajustes de becas */}
+                                        <ReusableModal
+                                            visible={cancelModalVisible}
+                                            title="Confirmar cancelación de ajustes becas"
+                                            content={`¿Estás seguro de cancelar los ajustes de becas?`}
+                                            cancelText="Cancelar"
+                                            confirmText="Confirmar"
+                                            onCancel={handleCancelSettings}
+                                            onConfirm={handleConfirmCancelSettings}
+                                        />
                                     </>
                                 ) : (
                                     <>
@@ -552,6 +609,7 @@ const SettingsAdmin = () => {
                                             <Button className="button-save" type="primary" onClick={handleEditClick}>
                                                 Editar
                                             </Button>
+
                                         )}
                                     </>
                                 )}

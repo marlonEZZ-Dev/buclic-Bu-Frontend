@@ -89,8 +89,6 @@ const Reservations = () => {
         }
     };
 
-
-
     // Función para formatear la fecha
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -273,7 +271,6 @@ const Reservations = () => {
                                 <Button type="default" htmlType="reset" className="button-cancel" onClick={showCancelConfirmationModal}>
                                     Cancelar reserva
                                 </Button>
-
                             </div>
 
                             {/* Modal de confirmación de pago */}

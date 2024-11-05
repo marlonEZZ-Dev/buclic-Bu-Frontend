@@ -24,6 +24,7 @@ const DateSpanish = ({ value, onChange, disabled, placeholder }) => {
       placeholder={placeholder || "Seleccione fecha"}
       format="DD/MM/YYYY"
       style={datePickerStyle}
+      disabledDate={(current) => current && current.isBefore(dayjs(), 'day')} // Deshabilita fechas pasadas
     />
   );
 };
