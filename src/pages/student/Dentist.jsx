@@ -27,11 +27,8 @@ const Dentist = () => {
   );
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
-  const [phone, setPhone] = useState("");
-  const [eps, setEps] = useState("");
-  const [semester, setSemester] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
-  const [isPhoneError, setIsPhoneError] = useState(false);
+  
   const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -40,20 +37,11 @@ const Dentist = () => {
   const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
 
   const username = localStorage.getItem("username");
-  const userEmail = localStorage.getItem("userEmail");
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
 
-  useEffect(() => {
-    const storedPhone = localStorage.getItem("userPhone");
-    const storedSemester = localStorage.getItem("userSemester");
 
-    setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
-    setSemester(
-      storedSemester !== "null" && storedSemester ? storedSemester : ""
-    );
-  }, []);
 
   useEffect(() => {
     fetchPendingAppointment();
@@ -106,25 +94,6 @@ const Dentist = () => {
     if (type === "reserve") {
       let hasError = false;
 
-      if (phone.length !== 10) {
-        setIsPhoneError(true);
-        hasError = true;
-      } else {
-        setIsPhoneError(false);
-      }
-
-      if (!semester) {
-        setIsSemesterError(true);
-        hasError = true;
-      } else {
-        setIsSemesterError(false);
-      }
-
-      if (hasError) {
-        message.error("Digita los campos teléfono y semestre.");
-        return; // Detener la ejecución si hay errores
-      }
-
       // Encuentra la fecha y hora de la cita seleccionada para mostrar en el modal
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
@@ -150,6 +119,7 @@ const Dentist = () => {
     }
   };
 
+  
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -166,10 +136,15 @@ const Dentist = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
+
+          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
 
-          // Actualiza solo las citas pendientes sin modificar la fecha seleccionada ni los horarios filtrados
-          fetchPendingAppointment();
+          // Actualiza la lista de citas disponibles después de la cancelación
+          fetchAvailableDates();
+          
+          // Filtra las citas disponibles para la fecha seleccionada
+          filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
@@ -182,29 +157,31 @@ const Dentist = () => {
     }
   };
 
+  // Nueva función para obtener y actualizar las citas disponibles
+  const fetchAvailableDates = () => {
+    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+
+    api
+      .get("/appointment?type=ODONTOLOGIA", {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      })
+      .then((response) => {
+        setAvailableDates(response.data.availableDates);
+        filterDatesBySelectedDay(
+          selectedDate,
+          response.data.availableDates
+        );
+      })
+      .catch((error) => {
+        console.error("Error al obtener los horarios:", error);
+      });
+  };
+
+  
+
   const handleConfirmReserve = () => {
-    let hasError = false;
-
-    if (phone.length !== 10) {
-      setIsPhoneError(true);
-      hasError = true;
-    } else {
-      setIsPhoneError(false);
-    }
-
-    if (!semester) {
-      setIsSemesterError(true);
-      hasError = true;
-    } else {
-      setIsSemesterError(false);
-    }
-
-    if (hasError) {
-      message.error("Digita los campos teléfono y semestre.");
-      setModalVisible(false);
-      return;
-    }
-
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     setConfirmLoading(true);
@@ -214,9 +191,6 @@ const Dentist = () => {
         {
           pacientId: userId,
           availableDateId: selectedAppointmentId,
-          eps,
-          semester,
-          phone,
         },
         {
           headers: {
@@ -270,17 +244,8 @@ const Dentist = () => {
     );
   };
 
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setPhone(value);
-    setIsPhoneError(value.length !== 10);
-  };
-
-  const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-    setSemester(value);
-    setIsSemesterError(value.trim() === "");
-  };
+  
+  
 
   return (
     <>
@@ -318,11 +283,7 @@ const Dentist = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Correo">
-                  <Input value={userEmail || ""} disabled />
-                </Form.Item>
-              </Col>
+              
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Código">
                   <Input value={username || ""} disabled />
@@ -333,41 +294,10 @@ const Dentist = () => {
                   <Input value={userPlan || ""} disabled />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  label="Teléfono"
-                  validateStatus={isPhoneError ? "error" : ""}
-                  help={
-                    isPhoneError
-                      ? "El campo teléfono debe tener 10 dígitos."
-                      : ""
-                  }
-                >
-                  <Input
-                    type="text"
-                    value={phone}
-                    onChange={handlePhoneChange}
-                    maxLength={10}
-                    style={{ borderColor: isPhoneError ? "red" : "" }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  label="Semestre"
-                  validateStatus={isSemesterError ? "error" : ""}
-                  help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
-                  }
-                >
-                  <Input
-                    type="text"
-                    value={semester}
-                    onChange={handleSemesterChange}
-                    style={{ borderColor: isSemesterError ? "red" : "" }}
-                  />
-                </Form.Item>
-              </Col>
+              
+                
+                  
+              
             </Row>
           </Form>
         )}

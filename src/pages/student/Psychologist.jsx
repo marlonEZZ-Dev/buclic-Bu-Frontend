@@ -39,8 +39,7 @@ const Psychologist = () => {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
 
-  const username = localStorage.getItem("username");
-  const userEmail = localStorage.getItem("userEmail");
+  
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
@@ -149,7 +148,6 @@ const Psychologist = () => {
       );
     }
   };
-
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -166,10 +164,15 @@ const Psychologist = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
+
+          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
 
-          // Actualiza solo las citas pendientes sin modificar la fecha seleccionada ni los horarios filtrados
-          fetchPendingAppointment();
+          // Actualiza la lista de citas disponibles después de la cancelación
+          fetchAvailableDates();
+          
+          // Filtra las citas disponibles para la fecha seleccionada
+          filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
@@ -182,31 +185,54 @@ const Psychologist = () => {
     }
   };
 
+  // Nueva función para obtener y actualizar las citas disponibles
+  const fetchAvailableDates = () => {
+    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+
+    api
+      .get("/appointment?type=PSICOLOGIA", {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      })
+      .then((response) => {
+        setAvailableDates(response.data.availableDates);
+        filterDatesBySelectedDay(
+          selectedDate,
+          response.data.availableDates
+        );
+      })
+      .catch((error) => {
+        console.error("Error al obtener los horarios:", error);
+      });
+  };
+
+
   const handleConfirmReserve = () => {
     let hasError = false;
-
+  
     if (phone.length !== 10) {
       setIsPhoneError(true);
       hasError = true;
     } else {
       setIsPhoneError(false);
     }
-
+  
     if (!semester) {
       setIsSemesterError(true);
       hasError = true;
     } else {
       setIsSemesterError(false);
     }
-
+  
     if (hasError) {
       message.error("Digita los campos teléfono y semestre.");
       setModalVisible(false);
       return;
     }
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -227,6 +253,15 @@ const Psychologist = () => {
       )
       .then((response) => {
         message.success(response.data.message);
+  
+        // Actualizar el localStorage y el estado inmediatamente
+        localStorage.setItem("userPhone", phone);
+        localStorage.setItem("userSemester", semester);
+  
+        // Refrescar los inputs inmediatamente
+        setPhone(phone);
+        setSemester(semester);
+  
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
@@ -241,7 +276,7 @@ const Psychologist = () => {
         setModalVisible(false);
       });
   };
-
+  
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
     dates = availableDates
@@ -318,16 +353,7 @@ const Psychologist = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Correo">
-                  <Input value={userEmail || ""} disabled />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Código">
-                  <Input value={username || ""} disabled />
-                </Form.Item>
-              </Col>
+              
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
