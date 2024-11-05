@@ -1,16 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
-import { Card, Button, Form, Input, Flex } from 'antd';
-import { Space } from 'antd';
+import { Button, Form, Input, message, Card } from 'antd';
+import api from '../../api';
 
 const Settings = () => {
+    const navigate = useNavigate();
+    const [profileData, setProfileData] = useState(null);
 
-    const navigate = useNavigate(); // Inicializa el hook useNavigate
+    const fetchProfileData = async () => {
+        try {
+            const username = localStorage.getItem('username');
+            if (username) {
+                const response = await api.get(`/users/${username}`);
+                setProfileData(response.data); // Guardar los datos del perfil
+            }
+        } catch (error) {
+            message.error('Error al cargar el perfil del usuario.');
+        }
+    };
 
-    // Función para manejar el clic en "Cambiar contraseña"
+    useEffect(() => {
+        fetchProfileData();
+    }, []);
+
     const handleChangePasswordClick = () => {
-        navigate('/cambiarContrasena'); // Redirigir a la ruta de cambio de contraseña
+        navigate('/estudiante/contrasena');
     };
 
     return (
@@ -18,45 +33,40 @@ const Settings = () => {
             <TopNavbar />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <Card
-                    bordered={true}
-                    style={{
-                        width: '100%',       // Ancho del 100% para ser flexible
-                        maxWidth: '500px',   // Limitar el ancho máximo a 500px
-                        marginTop: '100px',
-                        margin: '3px auto',
-                        justifyContent: 'center',
-                    }}
+                    title="Perfil"
+                    bordered={false}
+                    style={{ width: '100%', maxWidth: '600px' }}
                 >
-                    <Space style={{ marginTop: '5px', alignItems: 'center' }}>
-                        <h1 className="titleCard">Perfil</h1>
-                    </Space>
-
-                    <p>¡Bienvenido a tu perfil! Aquí puedes ver y actualizar tu contraseña.</p>
-
-                    <Form layout="vertical" style={{ marginTop: '8px' }} >
-                        <Form.Item label="Nombres">
-                            <Input placeholder="input placeholder" disabled />
-                        </Form.Item>
-                        <Form.Item label="Apellidos">
-                            <Input placeholder="input placeholder" disabled />
-                        </Form.Item>
-                        <Form.Item label="Correo">
-                            <Input placeholder="input placeholder" disabled />
-                        </Form.Item>
-                        <Form.Item label="Tipo de beneficio">
-                            <Input placeholder="input placeholder" disabled />
-                        </Form.Item>
-
-                        <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
-                            <Button className="button-actionsGeneral"  type="primary" onClick={handleChangePasswordClick}>
-                                Cambiar contraseña
-                            </Button>
-                        </div>
-
-                    </Form>
+                    {profileData ? (
+                        <Form layout="vertical">
+                            <Form.Item label={<span style={{ color: 'black', }}>Nombres</span>}>
+                                <Input value={profileData.name} disabled style={{ color: '#767676' }} />
+                            </Form.Item>
+                            <Form.Item label={<span style={{ color: 'black' }}>Apellidos</span>}>
+                                <Input value={profileData.lastName} disabled style={{ color: '#767676' }} />
+                            </Form.Item>
+                            <Form.Item label={<span style={{ color: 'black' }}>Correo</span>}>
+                                <Input value={profileData.email} disabled style={{ color: '#767676' }} />
+                            </Form.Item>
+                            <Form.Item label={<span style={{ color: 'black' }}>Tipo de beneficio</span>}>
+                                <Input value={profileData.benefitType} disabled style={{ color: '#767676' }} />
+                            </Form.Item>
+                            <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
+                                <Button
+                                    className="button-save"
+                                    style={{ width: '180px' }}
+                                    type="primary"
+                                    onClick={handleChangePasswordClick}
+                                >
+                                    Cambiar contraseña
+                                </Button>
+                            </div>
+                        </Form>
+                    ) : (
+                        <p>Por favor selecciona una opción de perfil para ver los datos.</p>
+                    )}
                 </Card>
             </main>
-
         </>
     );
 };

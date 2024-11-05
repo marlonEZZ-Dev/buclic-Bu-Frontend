@@ -216,11 +216,11 @@ const SettingsAdmin = () => {
         setConfirmSettings(false); // Cierra el modal al cancelar
     };
 
-     // Función para confirmar la cancelación de los ajustes
-  const handleConfirmSaveSettings = () => {
-    handleSaveClick()
-    setConfirmSettings(false); // Cierra el modal después de confirmar
-  };
+    // Función para confirmar la cancelación de los ajustes
+    const handleConfirmSaveSettings = () => {
+        handleSaveClick()
+        setConfirmSettings(false); // Cierra el modal después de confirmar
+    };
 
 
 
@@ -234,11 +234,11 @@ const SettingsAdmin = () => {
         setCancelModalVisible(false); // Cierra el modal al cancelar
     };
 
-     // Función para confirmar la cancelación de los ajustes
-  const handleConfirmCancelSettings = () => {
-    handleCancelClick()
-    setCancelModalVisible(false); // Cierra el modal después de confirmar
-  };
+    // Función para confirmar la cancelación de los ajustes
+    const handleConfirmCancelSettings = () => {
+        handleCancelClick()
+        setCancelModalVisible(false); // Cierra el modal después de confirmar
+    };
 
 
     const handleChangePasswordClick = () => {
@@ -259,20 +259,20 @@ const SettingsAdmin = () => {
 
                     {selectedType === 'Perfil' && profileData ? (
                         <Form layout="vertical" style={{ marginTop: '8px' }}>
-                            <Form.Item label="Nombres">
-                                <Input value={profileData.name} disabled /> {/* Muestra el nombre */}
+                            <Form.Item label={<span style={{ color: 'black', }}>Nombres</span>}>
+                                <Input value={profileData.name} disabled style={{ color: '#767676' }} />
                             </Form.Item>
-                            <Form.Item label="Apellidos">
-                                <Input value={profileData.lastName} disabled /> {/* Muestra el apellido */}
+                            <Form.Item label={<span style={{ color: 'black' }}>Apellidos</span>}>
+                                <Input value={profileData.lastName} disabled style={{ color: '#767676' }} />
                             </Form.Item>
-                            <Form.Item label="Correo">
-                                <Input value={profileData.email} disabled /> {/* Muestra el correo */}
+                            <Form.Item label={<span style={{ color: 'black' }}>Correo</span>}>
+                                <Input value={profileData.email} disabled style={{ color: '#767676' }} />
                             </Form.Item>
-                            <Form.Item label="Tipo de beneficio">
-                                <Input value={profileData.benefitType} disabled /> {/* Muestra el tipo de beneficio */}
+                            <Form.Item label={<span style={{ color: 'black' }}>Tipo de beneficio</span>}>
+                                <Input value={profileData.benefitType} disabled style={{ color: '#767676' }} />
                             </Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
-                                <Button className="button-save" type="primary" onClick={handleChangePasswordClick}>
+                                <Button className="button-save" style={{ width: '180px' }} type="primary" onClick={handleChangePasswordClick}>
                                     Cambiar contraseña
                                 </Button>
                             </div>

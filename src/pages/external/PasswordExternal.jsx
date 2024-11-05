@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
+import HeaderExternal from "../../components/external/HeaderExternal";
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import Modal from './global/Modal';
+import Modal from '../../components/global/Modal';
 
-const Password = () => {
+const PasswordExternal = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // Estado para el modal
   const [confirmLoading, setConfirmLoading] = useState(false); // Estado para la carga del botón de confirmar
+  const [cancelModalVisible, setCancelModalVisible] = useState(false); // Estado para el modal de cancelación
   const navigate = useNavigate();
-  
+
   // Obtener el nombre de usuario del almacenamiento local
   const username = localStorage.getItem('username');
 
@@ -42,13 +44,23 @@ const Password = () => {
     setModalVisible(true); // Mostrar modal de confirmación
   };
 
+  // Nueva función para manejar la cancelación
+  const handleCancel = () => {
+    setCancelModalVisible(true); // Mostrar modal de confirmación de cancelación
+  };
+
+  const confirmCancel = () => {
+    setCancelModalVisible(false);
+    handleBack(); // Llama a la función de navegación
+  };
 
   const handleBack = () => {
-    navigate('/admin/perfilAdmin');
+    navigate('/externo/ajuste');
   };
 
   return (
     <>
+      <HeaderExternal />
 
       {/* Contenido principal */}
       <main style={styles.main}>
@@ -77,7 +89,7 @@ const Password = () => {
             <Form.Item
               label="Contraseña actual"
               name="currentPassword"
-              rules={[{ required: true, message: 'Por favor ingresa tu contraseña actual' }]}
+              rules={[{ required: true, message: 'Ingresa tu contraseña actual' }]}
             >
               <Input.Password placeholder="Contraseña actual" />
             </Form.Item>
@@ -86,9 +98,11 @@ const Password = () => {
             <Form.Item
               label="Nueva contraseña"
               name="newPassword"
-              rules={[{ required: true, message: 'Por favor ingresa la nueva contraseña' }]}
+              rules={[{ required: true, message: 'Ingresa la nueva contraseña' }]}
             >
-              <Input.Password placeholder="Nueva contraseña" />
+              <Input.Password placeholder="Nueva contraseña"
+                onPaste={(e) => e.preventDefault()} // Evita pegar en el campo
+              />
             </Form.Item>
 
             {/* Campo Confirmar nueva contraseña */}
@@ -97,7 +111,7 @@ const Password = () => {
               name="confirmPassword"
               dependencies={['newPassword']}
               rules={[
-                { required: true, message: 'Por favor confirma tu nueva contraseña' },
+                { required: true, message: 'Confirma tu nueva contraseña' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('newPassword') === value) {
@@ -108,7 +122,9 @@ const Password = () => {
                 }),
               ]}
             >
-              <Input.Password placeholder="Confirmar nueva contraseña" />
+              <Input.Password placeholder="Confirmar nueva contraseña"
+                onPaste={(e) => e.preventDefault()} // Evita pegar en el campo
+              />
             </Form.Item>
 
             {/* Botones */}
@@ -119,7 +135,7 @@ const Password = () => {
               </Button>
 
               {/* Botón Cancelar */}
-              <Button className="button-cancel" type="default" htmlType="reset" onClick={handleBack} >
+              <Button className="button-cancel" type="default" htmlType="reset" onClick={handleCancel} >
                 Cancelar
               </Button>
             </div>
@@ -149,6 +165,30 @@ const Password = () => {
                 }}
               >
                 Guardar
+              </Button>
+            </div>
+          </Modal>
+
+          {/* Modal de confirmación de cancelación */}
+          <Modal
+            open={cancelModalVisible}
+            onClose={() => setCancelModalVisible(false)}
+            modalTitle={
+              <span>
+                <InfoCircleOutlined style={{ color: '#faad14', marginRight: '8px', fontSize: '24px' }} />
+                <span style={{ fontWeight: 'bold' }}>Confirmar cancelación</span>
+              </span>
+            }
+          >
+            <p style={{ textAlign: 'left', paddingLeft: '31px' }}>¿Estás seguro de cancelar el cambio de contraseña?</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <Button className="button-cancel" onClick={() => setCancelModalVisible(false)}>Cancelar</Button>
+              <Button
+                className="button-save"
+                type="primary"
+                onClick={confirmCancel}
+              >
+                Confirmar
               </Button>
             </div>
           </Modal>
@@ -192,4 +232,4 @@ const styles = {
   },
 };
 
-export default Password;
+export default PasswordExternal;
