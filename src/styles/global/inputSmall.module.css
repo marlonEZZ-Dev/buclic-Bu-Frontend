@@ -6,6 +6,12 @@
   color: var(--red);
 }
 
+.inputContainer {
+  position: relative;
+  margin-bottom: 1.875rem; /* Espacio extra para el mensaje */
+  text-align: left;
+}
+
 .inputs{
   display: block;
   border: solid 1px var(--gray); 
@@ -13,6 +19,22 @@
   padding: 4px 11px;
   width: 13rem;
   height: 2rem;
+
+  padding: .5rem;
+  font-size: 1rem;
+}
+
+.message{
+  position: absolute;
+  top: 100%;
+  left: 0;
+  font-size: .75rem;
+  color: red;
+  margin-top: .25rem;
+}
+
+.error{
+  border: 1px solid red;
 }
 
 .inputs:focus{

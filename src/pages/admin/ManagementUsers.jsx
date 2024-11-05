@@ -1,4 +1,4 @@
-import { Divider, Flex, Select, message } from 'antd'
+import { Divider, Flex, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 
@@ -12,7 +12,6 @@ import SmallInput from '../../components/global/SmallInput.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
 
 import styles from "../../styles/admin/managementUsers.module.css"
-import otherStyles from "../../styles/global/inputSmall.module.css"
 
 import { 
   createUser, 
@@ -35,6 +34,8 @@ import {
   validStatus
 } from '../../services/validations.js'
 import deepEqual from '../../utils/deep_equal.js'
+import ReusableModal from '../../components/global/ReusableModal.jsx'
+import SelectWithError from '../../components/global/SelectWithError.jsx'
 
 export default function ManagementUsers(){
   //useStates
@@ -45,10 +46,10 @@ export default function ManagementUsers(){
   const [deviceType, setDeviceType] = useState("")
   const [savePressed, SetSavePressed] = useState(false)
   const [refreshFields, setRefreshFields] = useState(0)
-  const [statusRolesGrantSelect, setStatusRolesGrantSelect] = useState("")
-  const [statusEstadoRolTipoBecaSelect, setStatusEstadoRolTipoBecaSelect] = useState("")
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [statusRolesGrantSelect, setStatusRolesGrantSelect] = useState(undefined)
+  const [statusEstadoRolTipoBecaSelect, setStatusEstadoRolTipoBecaSelect] = useState(undefined)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalItems, setTotalItems] = useState(0)
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -60,8 +61,17 @@ export default function ManagementUsers(){
   const [isModalEdit, setIsModalEdit] = useState(false)
   const [isModalAllDelete, setIsModalAllDelete] = useState(false)
   const [isModalDelete, setIsModalDelete] = useState(false)
-  const [isModalVerify, setIsModalVerify] = useState(false);
-  const [modalStruct, setModalStruct] = useState({title:"",content:""})
+  const defaultValidation = {
+    code: "",
+    name: "",
+    lastname: "",
+    email: "",
+    plan: "",
+    roles: "",
+    grant: ""
+  }
+  const [okValidation, setOkValidation] = useState(defaultValidation)
+  const [okValidationEdit, setOkValidationEdit] = useState(defaultValidation)
   //Datos
   const [codeUser, setCodeUser] = useState("")
   const initialUser = {
@@ -133,14 +143,16 @@ export default function ManagementUsers(){
   del objeto y luego esta relacionada con el nombre de la columna que es el label esto
   para filtrar las columnas que se debe mostrar
   */
-  const headerTb = [
+  const headerTb = !enableResponsive ? [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
-    {key: enableResponsive ? "":"email", label: enableResponsive ? "":"Correo"},
+    {key: "email", label: "Correo"},
+    {key: "isActive", label: "Activo"}
+  ] : [
+    {key: "username", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "name", label: "Nombre"},
     {key: "isActive", label: "Activo"}
   ]
-
-  const ITEM_PER_PAGE = 10
 
   //functions 
   //Crea un mapa para asociar cada tipo de usuario a un número 
@@ -153,31 +165,34 @@ export default function ManagementUsers(){
   const getArrObjInArrStr = arr => arr.map( obj => obj.name )
 
   const loadUsers = async () => {
-    if (buttons[changesDescription]) {
-        try {
-            const result = await listUsers(getTypeUserCurrent(), currentPage-1, ITEM_PER_PAGE)
-            if("success" in result){
-              notifyError(result.message)
-              return
-            }
-            const data = result.content
-            setRows(data.map(user => ({
-              ...user,
-              isActive: tranformToStateUser(user.isActive),
-              roles: getArrObjInArrStr(user.roles)
-            })))
-            setTotalItems(result.page.totalElements)
-            setCurrentPage(result.page.number + 1)
-        } catch (error) {
-            console.log(`Esto ocurre en loadUsers ${error}`)
-            return {success: false, message: error.message}
-        }
+  if (buttons[changesDescription]) {
+    try {
+      const result = await listUsers(getTypeUserCurrent(), currentPage, 10);
+      if ("success" in result) {
+        notifyError(result.message);
+        return;
+      }
+      setRows(result.content.map(user => ({
+        ...user,
+        isActive: tranformToStateUser(user.isActive),
+        roles: getArrObjInArrStr(user.roles),
+      })));
+      setTotalItems(result.page.totalElements)
+      // setCurrentPage(result.page.number + 1)
+      console.log(result)
+    } catch (error) {
+        console.log(`Esto ocurre en loadUsers ${error}`);
+        return { success: false, message: error.message };
     }
-};
+  }
+  }
 
 const handlePageChange = page => {
   setCurrentPage(page)
-  loadUsers(page)
+  console.log(page)
+  console.log("Esto es cuando se actualiza")
+  console.dir(rows)
+  loadUsers()
 }
 
   const notifyError = message => {
@@ -225,6 +240,12 @@ const handlePageChange = page => {
 
   
   //Manejadores de estado de modals
+  const handlerKeyDown = (e) => {
+    // Evita la entrada de signos negativos y puntos
+    if (e.key === "-" || e.key === "." || e.key === ",") {
+      e.preventDefault();
+    }
+  };
 
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
@@ -237,9 +258,7 @@ const handlePageChange = page => {
     row.isActive = tranformToStateUser(row.isActive)
     setIsModalEdit(true)
     setObjectSelected(row)
-  }
-
-  const handlerCloseModalEdit = () => setIsModalEdit(false)
+  }  
 
   const handlerOpenModalDelete = row => {
     setIsModalDelete(true)
@@ -300,7 +319,7 @@ const handlePageChange = page => {
     }));
 }
 
-  const handlerBlur = (e, valid) => {
+  const changeClassToRed = (e, valid) => {
     if((typeof valid === "string") || !(e.target.checkValidity())){
       e.target.classList.add("invalid")
     }else{
@@ -308,37 +327,44 @@ const handlePageChange = page => {
     }
   }
 
-  const handlerBlurSelect = (valid, fnState) => {
-    fnState((typeof valid === "string") ? "error" : "")
+  const handlerBlurSelect = (valid, fnState) => fnState((typeof valid === "string") ? "error" : "")
+
+  const handlerOkValidation = ({name, value, fnState = () => {}, clear = false}) => {
+    if(clear) {
+      fnState(defaultValidation)
+      setStatusEstadoRolTipoBecaSelect(undefined)
+      setStatusRolesGrantSelect(undefined)
+    }
+    fnState( o => ({
+        ...o,
+        [name]:value
+    }))
   }
 
-  const handlerVerify = user => {
-    let content = ""
-    const verifier = [
-      validCode(user.username, !isFuncionary),
-      validName(user.name),
-      validLastname(user.lastName),
-      validEmail(user.email, isFuncionary),
-      validPlan(user.plan, !isFuncionary),
-      validRol(user.roles),
-      !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
-    ]
-    const allOk = verifier.every( i => i === true)
-    if(allOk){
-      return true
-    }else{
-      
-      //Llena la modal
-      content = verifier
-      .filter( i => typeof i === "string")
-      .map((i, index) => <p key={`paragraph${index}`}>{i}</p>)
-      setModalStruct({
-        title: "Advertencia", 
-        content: content
-      })
-      setIsModalVerify(true)
-      return false
-    }
+  const handlerCloseModalEdit = () => {
+    setIsModalEdit(false)
+    handlerOkValidation({clear: true})
+  }
+
+  const handlerVerify = (user, isEdit = false) => {
+    const p = isEdit ? setOkValidationEdit : setOkValidation 
+    handlerOkValidation({name:"code", value:validCode(user.username, !isFuncionary), fnState: p})
+
+    handlerOkValidation({name:"name", value:validName(user.name), fnState: p})
+
+    handlerOkValidation({name:"lastname", value:validLastname(user.lastName), fnState: p})
+
+    handlerOkValidation({name:"email", value:validEmail(user.email, isFuncionary), fnState: p})
+
+    handlerOkValidation({name:"plan", value:validPlan(user.plan, !isFuncionary), fnState: p})
+    
+    handlerOkValidation({name:"roles", value:validRol(user.roles), fnState: p})
+
+    handlerOkValidation({name:"grant", value:!isBeneficiary ? true : validGrant(user.grant, isModalEdit), fnState: p})
+    
+    if(isEdit) handlerOkValidation({name:"status", value:validStatus(user.isActive), fnState: p})
+    
+    return Object.values(isEdit ? okValidationEdit : okValidation).every(i => i === true) 
   }
 
   const handlerSave = useCallback(async () => {
@@ -488,6 +514,8 @@ const handlePageChange = page => {
   const handlerClearFields = () => {
     setUser(initialUser)
     setRefreshFields(refreshFields + 1)
+    setStatusEstadoRolTipoBecaSelect(undefined)
+    setStatusRolesGrantSelect(undefined)    
   }
 
   useEffect(() => {
@@ -569,20 +597,22 @@ const handlePageChange = page => {
             name="name"
             value={objectSelected.name}
             maxLength={50}
+            errorMessage={okValidationEdit.name}
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={ e => handlerBlur(e, validName(e.currentTarget.value))}
+            onBlur={ e => changeClassToRed(e, validName(e.currentTarget.value))}
             />
           <SmallInput title='Apellidos'
             isRenderAsteric={false}
             name="lastName"
             value={objectSelected.lastName}
             maxLength={50}
+            errorMessage={okValidationEdit.lastname}
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={e => handlerBlur(e, validLastname(e.currentTarget.value))}
+            onBlur={e => changeClassToRed(e, validLastname(e.currentTarget.value))}
             />
         </Flex>
 
@@ -591,24 +621,28 @@ const handlePageChange = page => {
             name="username"
             min={isFuncionary ? 10000000 : 200000000}
             max={isFuncionary ? 9999999999 : 299999999}
+            errorMessage={okValidationEdit.code}
             required
             isRenderAsteric={false}
             className={styles.inputWidthModal}
             value={objectSelected.username}
             onChange={e => handlerEditUser(e)}
-            onBlur={e => handlerBlur(e, validCode(e.currentTarget.value, !isFuncionary))}
+            onKeyDown={handlerKeyDown}
+            onBlur={e => changeClassToRed(e, validCode(e.currentTarget.value, !isFuncionary))}
             />
           <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
             isRenderAsteric={false}
-            type={(isStudent || isBeneficiary) ? "number" : "text"}
+            type={isFuncionary ? "text" : "number"}
             name="plan"
             value={objectSelected.plan}
-            min={(isStudent || isBeneficiary) ? 1000 : undefined}
-            max={(isStudent || isBeneficiary) ? 9999 : undefined}
+            errorMessage={okValidationEdit.plan}
+            min={isFuncionary ? undefined : 1000}
+            max={isFuncionary ? undefined : 9999}
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={e => handlerBlur(e, validPlan(e.currentTarget.value, !isFuncionary))}
+            onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
+            onBlur={e => changeClassToRed(e, validPlan(e.currentTarget.value, !isFuncionary))}
             />
         </Flex>
           
@@ -616,19 +650,19 @@ const handlePageChange = page => {
           <SmallInput title='Correo electrónico'
             value={objectSelected.email}
             isRenderAsteric={false}
+            errorMessage={okValidationEdit.email}
             name="email"
             type="email"
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={e => handlerBlur(e, validEmail(e.currentTarget.value, isFuncionary))}
+            onBlur={e => changeClassToRed(e, validEmail(e.currentTarget.value, isFuncionary))}
             />
-          <label className={`${otherStyles.labels}`}>
-            {isStudent ? "Estado" 
+          <SelectWithError title={isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
-          <Select value={getValueComplexSelectInModal()}
-            className={`${styles.comboboxes} ${styles.inputWidthModal}`}
+            errorMessage={isStudent ? okValidationEdit.status : isFuncionary ? okValidationEdit.roles : okValidationEdit.grant} 
+            value={getValueComplexSelectInModal()}
             status={statusEstadoRolTipoBecaSelect}
             options={getOptionsComplexSelectInModal()}
             onSelect={ (value, option) => {
@@ -645,21 +679,17 @@ const handlePageChange = page => {
               if(isFuncionary) handlerBlurSelect(validRol(value), setStatusEstadoRolTipoBecaSelect)
             }}
             />
-          </label>
         </Flex>
 
         {isFuncionary && <Flex align='center' justify='flex-start'>
-        <label className={`${otherStyles.labels}`}>
-            Estado
-          <Select
-            placeholder="Selecciona"
-            value={getStatusValue(objectSelected.isActive)}
-            className={`${styles.comboboxes} ${styles.inputWidthModal}`}
-            options={cbxStatus}
-            onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
-            onChange={value => handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)}
-            />
-        </label>
+        <SelectWithError title='Estado'
+          errorMessage={okValidationEdit.status}
+          placeholder="Selecciona"
+          value={getStatusValue(objectSelected.isActive)}
+          options={cbxStatus}
+          onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
+          onChange={value => handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)}
+          />
         </Flex>
         }
         </Flex>
@@ -671,11 +701,11 @@ const handlePageChange = page => {
           className={`button-save ${styles.buttons}`}
           onClick={() => {
             if(!deepEqual(objectSelected, objectSelectedClone)){
-              if(handlerVerify(objectSelected)){
+              if(handlerVerify(objectSelected, isModalEdit)){
                 if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
                 handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
                 setObjectSelectedClone(null)
-                handlerCloseModalEdit(false) 
+                handlerCloseModalEdit(false)
               }
             }
             return
@@ -683,101 +713,50 @@ const handlePageChange = page => {
             Guardar
           </button>
           <button className={`button-cancel ${styles.buttons}`}
-          onClick={() => setObjectSelected(objectSelectedClone)}>Cancelar</button>
+          onClick={() => {
+            setObjectSelected(objectSelectedClone)
+            handlerOkValidation({clear: true, fnState: setOkValidationEdit})
+            // setIsModalEdit(false)
+          }}>Cancelar</button>
         </Flex>
       </Modal>) }
       {isModalAllDelete && (
-        <Modal
-        open={isModalAllDelete}
-        footer={null}
-        onClose={handlerCloseModalAllDelete}>
-          <Flex vertical align='center' justify='space-around'>
-            <span style={fontSizeTitleModal}>Eliminar beneficiarios</span>
-            <p>
-              ¿Desea eliminar todos los beneficiarios
-              <br />
-              actuales de la plataforma?
-            </p>
-          </Flex>
-          <Flex
-            align='center'
-            gap='small'
-            justify='space-evenly'>
-              <button 
-              className={`button-cancel ${styles.buttons}`} 
-              onClick={handlerCloseModalAllDelete}>
-                No
-              </button>
-              <button 
-              className={`button-save ${styles.buttons}`}
-              onClick={() => {
-                handlerDeleteUsers()
-                .then(() => handlerCloseModalAllDelete)
-                .catch( error => console.log(error))
-                
-              }}>
-                Si
-              </button>
-          </Flex>
-        </Modal>
-      ) }
+        <ReusableModal 
+        title='Eliminar beneficiarios' 
+        content='¿Desea eliminar todos los beneficiarios actuales de la plataforma?'
+        cancelText='No'
+        confirmText='Si'
+        visible={isModalAllDelete}
+        onCancel={handlerCloseModalAllDelete}
+        onConfirm={() => {
+          handlerDeleteUsers()
+          .then(() => handlerCloseModalAllDelete)
+          .catch( error => console.log(error))
+        }}/>)}
       {isModalDelete && (
-        <Modal
-        open={isModalDelete}
-        footer={null}
-        onClose={handlerCloseModalDelete}>
-          <Flex vertical align='center' justify='space-around'>
-            <span>Eliminar beneficiario</span>
-            <p>
-              ¿Desea eliminar el beneficiario de la
-              <br />
-              plataforma?
-            </p>
-          </Flex>
-          <Flex
-            align='center'
-            gap='small'
-            justify='space-evenly'>
-              <button 
-              className={`button-cancel ${styles.buttons}`} 
-              onClick={handlerCloseModalDelete}>
-                No
-              </button>
-              <button 
-              className={`button-save ${styles.buttons}`}
-              onClick={() => {
-                handlerDeleteUser()
-                .then(handlerCloseModalDelete())
-                .catch()
-              }}>
-                Si
-              </button>
-          </Flex>
-        </Modal>
+        <ReusableModal 
+        title='Eliminar beneficiario'
+        content='¿Desea eliminar el beneficiario de la plataforma?'
+        cancelText='No'
+        confirmText='Si'
+        visible={isModalDelete}
+        onCancel={handlerCloseModalDelete}
+        onConfirm={() => {
+          handlerDeleteUser()
+          .then(handlerCloseModalDelete())
+          .catch()
+        }}
+        />
       ) }
-      {isModalVerify && (
-        <Modal 
-        open={isModalVerify}
-        footer={null}
-        onClose={() => setIsModalVerify(false)}>
-          <Flex vertical align='center' justify='center'>
-            <span style={fontSizeTitleModal}>{modalStruct.title}</span>
-            {modalStruct.content}
-          </Flex>
-          <Flex justify='center' align='center'>
-            <button className={`button-save ${styles.buttons}`}
-             onClick={() => setIsModalVerify(false)}>
-              Entendido
-            </button>
-          </Flex>          
-        </Modal>
-      )}
       {contextHolder}
         <MenuBecas 
           buttons={buttons}
-          onSelect={type => {handlerClick(type); setCurrentPage(1)}}
-          defaultSelected={buttons[1].type}
-          >
+          onSelect={type => {
+            handlerClick(type)
+            setCurrentPage(0)
+            handlerOkValidation({clear: true, fnState: setOkValidation})
+          }}
+          defaultSelected={buttons[1].type}>
             <button 
             className={styles.buttonImport} 
             onClick={handlerOpenModalImport}>
@@ -801,19 +780,21 @@ const handlePageChange = page => {
                 key={`name${changesDescription}${refreshFields}`}                
                 placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}
                 maxLength={50}
+                errorMessage={okValidation.name}
                 name="name"
                 required
                 onChange={e => handlerCreateUser(e)}
-                onBlur={ e => handlerBlur(e, validName(user.name))}
+                onBlur={ e => changeClassToRed(e, validName(user.name))}
                 />
               <SmallInput title='Apellidos'
                 key={`lastName${changesDescription}${refreshFields}`}
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}
                 maxLength={50}
+                errorMessage={okValidation.lastname}
                 required
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
-                onBlur={e => handlerBlur(e, validLastname(user.lastName))}
+                onBlur={e => changeClassToRed(e, validLastname(user.lastName))}
                 />
             </Flex>
 
@@ -825,27 +806,31 @@ const handlePageChange = page => {
               key={`username${changesDescription}${refreshFields}`}              
               placeholder={isFuncionary ? "Cédula de la persona":"Ej: 202412345"}
               type="number"
+              errorMessage={okValidation.code}
               min={isFuncionary ? 10000000 : 200000000}
-              max={isFuncionary ? 9999999999 : 299999999}
+              max={isFuncionary ? 99999999 : 299999999}
               required
               name="username"
               onChange={ e => handlerCreateUser(e) }
-              onBlur={ e => handlerBlur(e, validCode(user.username, !isFuncionary))}
+              onKeyDown={handlerKeyDown}
+              onBlur={ e => changeClassToRed(e, validCode(user.username, !isFuncionary))}
               />
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
               isRenderAsteric={!isFuncionary}
               key={`plan${changesDescription}${refreshFields}`}
-              type={(isStudent || isBeneficiary) ? "number" : "text"} 
-              placeholder={ isFuncionary ? "Área de la persona":'Ej: 1234'}
-              min={(isStudent || isBeneficiary) ? 1000 : undefined}
-              max={(isStudent || isBeneficiary) ? 9999 : undefined}
+              type={isFuncionary ? "text" : "number"} 
+              placeholder={ isFuncionary ? "Área de la persona":"Ej: 1234"}
+              min={isFuncionary ? undefined : 1000}
+              max={isFuncionary ? undefined : 9999}
+              errorMessage={okValidation.plan}
               required
               name="plan"
               onChange={e => handlerCreateUser(e)}
-              onBlur={e => handlerBlur(e, validPlan(user.plan, !isFuncionary))}
+              onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
+              onBlur={e => changeClassToRed(e, validPlan(user.plan, !isFuncionary))}
               />
           </Flex>
-          
+
           <Flex 
           gap={29}
           vertical={isMobile}
@@ -853,24 +838,23 @@ const handlePageChange = page => {
             <SmallInput title='Correo electrónico'
               key={`email${changesDescription}${refreshFields}`}              
               placeholder='Correo del estudiante'
+              errorMessage={okValidation.email}
               required
               type="email"              
               name="email"
               onChange={e => handlerCreateUser(e)}
-              onBlur={e => handlerBlur(e, validEmail(user.email, isFuncionary))}
+              onBlur={e => changeClassToRed(e, validEmail(user.email, isFuncionary))}
             />
           {(!isStudent || !enableResponsive) && 
-            <label 
-            className={`${otherStyles.labels} ${isStudent ? "visibility-hidden" :""}`}>
-            {isFuncionary ? "Rol" : 
-            <span>Tipo de beca <span className={otherStyles.asteric}>*</span></span>}          
-            <Select name={isBeneficiary ? "grant" : ""}
+            <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beca"}
+              name={isBeneficiary ? "grant" : ""}
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
-              className={styles.comboboxes}
+              classContainer={`${isStudent ? "visibility-hidden" :""}`}
               defaultActiveFirstOption={isFuncionary}
               status={statusRolesGrantSelect}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
+              errorMessage={isFuncionary ? okValidation.roles : okValidation.grant}
               onSelect={(value, option) => {
                 
                 if(isBeneficiary) {
@@ -888,8 +872,7 @@ const handlePageChange = page => {
                   handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles), setStatusRolesGrantSelect)
                 }
               }}
-              />
-            </label>}
+              />}
           </Flex>
         </Flex>
 
@@ -903,14 +886,17 @@ const handlePageChange = page => {
             if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
             if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
             if(handlerVerify(user)){
-              console.dir(user)
+              handlerOkValidation({clear:true, fnState: setOkValidation})
               SetSavePressed(!savePressed)
               handlerSave()
-              handlerClearFields()
+              handlerClearFields()              
             }            
           }}>Guardar</button>
           <button className={`button-cancel ${styles.buttons}`}
-          onClick={handlerClearFields}
+          onClick={() => {
+            handlerClearFields()
+            handlerOkValidation({clear: true, fnState: setOkValidation})
+          }}
           >Cancelar</button>
         </Flex>
         <Divider/>
@@ -925,14 +911,14 @@ const handlePageChange = page => {
             onChange={e => setCodeUser(e.target.value)}
             onClick ={handlerSearchUser}
             />
-          {isBeneficiary ? 
+          {isBeneficiary && 
           <button 
           className={styles.buttonDeleteBen}
           onClick={handlerOpenModalAllDelete}>
             Borrar los
             <br />
             beneficiarios
-          </button> : ""}
+          </button>}
         </Flex>
         <Flex vertical>
           <Flex justify='space-between'>
@@ -958,8 +944,8 @@ const handlePageChange = page => {
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={currentPage}
               totalItems={totalItems}
-              itemsPerPage={ITEM_PER_PAGE}
-              onPageChange={handlePageChange}
+              onNext={handlePageChange}
+              onPrev={handlePageChange}
               onEdit={handlerOpenModalEdit}
               onDelete={isBeneficiary ? handlerOpenModalDelete:undefined}
               />

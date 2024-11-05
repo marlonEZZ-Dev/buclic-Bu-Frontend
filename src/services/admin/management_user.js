@@ -40,7 +40,7 @@ const errorForDelete = new Map([
 ])
 
 //PETICIONES GET
-export const listUsers = async (filter, page, size = 10) => {
+export const listUsers = async (filter, page, size) => {
   try {
     const response = await axios.get(`/users/list?filter=${filter}&page=${page}&size=${size}`)
     return response.data
@@ -124,9 +124,6 @@ export const editUser = async (user) => {
   if(!("eps" in user)) user.eps = "eps"
   if(!("semester" in user)) user.semester = "semester"
   if(!("phone" in user)) user.phone = 1023456789
-  
-  console.log("En edit user Usuario pasado")
-  console.dir(user)
   try {
     const response = await axios.put("/users/edit",{
       id:user.id,

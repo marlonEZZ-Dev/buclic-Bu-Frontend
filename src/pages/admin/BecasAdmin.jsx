@@ -309,10 +309,10 @@ const BecasAdmin = () => {
     <>
       <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
-        <h1 className="text-xl font-bold">Becas de Alimentación</h1>
+        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Becas de Alimentación</h1>
 
         {menuData?.Almuerzo?.note && (
-          <p><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>
+          <p style={{ marginBottom: '6px' }}><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>
         )}
 
         {menuData?.Almuerzo?.link && (

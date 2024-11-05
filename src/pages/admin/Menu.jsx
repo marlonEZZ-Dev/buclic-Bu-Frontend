@@ -24,6 +24,13 @@ const Menu = () => {
     Refrigerio: { link: "" }
   });
 
+  // Estado para errores de validación en campos obligatorios
+  const [validationErrors, setValidationErrors] = useState({
+    mainDish: false,
+    drink: false,
+    price: false,
+  });
+
   useEffect(() => {
     // Realiza la solicitud GET para obtener los datos del menú desde el backend
     const fetchMenuData = async () => {
@@ -66,7 +73,7 @@ const Menu = () => {
 
   }, [navigate, setMenuData]);
 
-  // Maneja los cambios de los inputs en el estado temporal
+  // Maneja los cambios de los inputs en el estado temporal y la validación
   const handleInputChange = (field, value) => {
     setTempMenuData((prevData) => ({
       ...prevData,
@@ -75,6 +82,14 @@ const Menu = () => {
         [field]: value,
       },
     }));
+
+    // Si el campo se llena, eliminar el error de validación para ese campo
+    if (value) {
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: false,
+      }));
+    }
   };
 
   const saveMenu = async () => {
@@ -82,15 +97,23 @@ const Menu = () => {
     const menuTypeData = tempMenuData[selectedType]; // Usar datos temporales para guardar
 
     if (!token) {
-      console.error("No se encontró el token de autenticación");
       message.error("Por favor, inicie sesión nuevamente");
       navigate("/login");
       return;
     }
 
     // Validación de campos requeridos
-    if (!menuTypeData.mainDish || !menuTypeData.drink || !menuTypeData.price) {
-      message.error("Por favor, complete los campos de Plato Principal, Bebida y Precio.");
+    const errors = {
+      mainDish: !menuTypeData.mainDish,
+      drink: !menuTypeData.drink,
+      price: !menuTypeData.price,
+    };
+
+    setValidationErrors(errors);
+
+    // Si alguno de los campos está vacío, mostrar mensaje y detener el guardado
+    if (Object.values(errors).some((error) => error)) {
+      message.error("Por favor, complete los campos obligatorios.");
       return;
     }
     
@@ -103,13 +126,13 @@ const Menu = () => {
         response = await api.put(
           "/menu", 
           {
-            id: menuData[selectedType].id,  // Incluye el ID en el cuerpo de la solicitud
+            id: menuData[selectedType].id,
             note: menuTypeData.note,
-            mainDish: menuTypeData.mainDish,  // Enviar mainDish directamente
+            mainDish: menuTypeData.mainDish,
             drink: menuTypeData.drink,
             dessert: menuTypeData.dessert,
             price: menuTypeData.price,
-            link: menuTypeData.link,  // Enviar el nuevo campo `link`
+            link: menuTypeData.link,
           },
           {
             headers: {
@@ -122,14 +145,14 @@ const Menu = () => {
       } else {
         // Si no hay menú previo (es decir, no hay ID), hacer una solicitud POST
         response = await api.post(
-          "/menu",  // POST para crear un nuevo menú
+          "/menu",
           {
             note: menuTypeData.note,
-            mainDish: menuTypeData.mainDish,  // Enviar mainDish directamente
+            mainDish: menuTypeData.mainDish,
             drink: menuTypeData.drink,
             dessert: menuTypeData.dessert,
             price: menuTypeData.price,
-            link: menuTypeData.link,  // Enviar el nuevo campo `link`
+            link: menuTypeData.link,
           },
           {
             headers: {
@@ -144,7 +167,7 @@ const Menu = () => {
       // Actualizar los datos en el contexto solo después de guardar
       setMenuData((prevMenuData) => ({
         ...prevMenuData,
-        [selectedType]: response.data, // Guardar la respuesta actualizada en el contexto
+        [selectedType]: response.data,
       }));
   
       // Deshabilitar la edición después de guardar
@@ -211,6 +234,11 @@ const Menu = () => {
     { type: "Refrigerio", label: "Refrigerio" },
   ];
 
+  const formatPrice = (value) => {
+    if (value === undefined || value === null) return ""; // Retorna una cadena vacía si el valor no está definido
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+  
   return (
     <>
       <HeaderAdmin />
@@ -231,9 +259,9 @@ const Menu = () => {
           >
             <label
               style={{
-                marginRight: "12px", // Espacio entre el label y el TextArea
+                marginRight: "12px",
                 textAlign: "left",
-                width: "50px", // Ancho del label para alinear con el TextArea
+                width: "50px",
               }}
             >
               Nota
@@ -242,9 +270,9 @@ const Menu = () => {
               placeholder="Añade una nota"
               autoSize
               style={{ width: "100%" }}
-              value={tempMenuData[selectedType].note}  // Mostrar valor temporal
+              value={tempMenuData[selectedType].note}
               onChange={(e) => handleInputChange("note", e.target.value)}
-              disabled={!isEditable[selectedType]} // Hacer el input no editable
+              disabled={!isEditable[selectedType]}
             />
           </div>
           <p
@@ -271,13 +299,13 @@ const Menu = () => {
             <TextArea
               placeholder={mainDishPlaceholder}
               autoSize
-              style={{ width: "100%" }}
-              value={tempMenuData[selectedType].mainDish}  // Siempre usaremos mainDish en el frontend, ya que es el mismo campo en backend
+              style={{
+                width: "100%",
+                borderColor: validationErrors.mainDish ? "red" : undefined,
+              }}
+              value={tempMenuData[selectedType].mainDish}
               onChange={(e) =>
-                handleInputChange(
-                  "mainDish", // Siempre se actualiza como mainDish en el frontend
-                  e.target.value
-                )
+                handleInputChange("mainDish", e.target.value)
               }
               disabled={!isEditable[selectedType]}
             />
@@ -297,8 +325,11 @@ const Menu = () => {
             <TextArea
               placeholder="Describe la bebida"
               autoSize
-              style={{ width: "100%" }}
-              value={tempMenuData[selectedType].drink}  // Mostrar valor temporal
+              style={{
+                width: "100%",
+                borderColor: validationErrors.drink ? "red" : undefined,
+              }}
+              value={tempMenuData[selectedType].drink}
               onChange={(e) => handleInputChange("drink", e.target.value)}
               disabled={!isEditable[selectedType]}
             />
@@ -320,7 +351,7 @@ const Menu = () => {
                 placeholder="Describe el postre"
                 autoSize
                 style={{ width: "100%" }}
-                value={tempMenuData[selectedType].dessert}  // Mostrar valor temporal
+                value={tempMenuData[selectedType].dessert}
                 onChange={(e) => handleInputChange("dessert", e.target.value)}
                 disabled={!isEditable[selectedType]}
               />
@@ -344,19 +375,20 @@ const Menu = () => {
               value={
                 tempMenuData[selectedType].price === 0
                   ? ""
-                  : tempMenuData[selectedType].price  // Mostrar valor temporal
+                  : formatPrice(tempMenuData[selectedType].price)
               }
               onChange={(e) => {
-                const value = e.target.value;
-
-                // Validar que el valor sea un número entero positivo
+                const value = e.target.value.replace(/\./g, "");
                 const validatedValue = value.replace(/[^0-9]/g, "");
                 handleInputChange(
                   "price",
                   validatedValue === "" ? 0 : parseInt(validatedValue, 10)
                 );
               }}
-              style={{ width: "100%" }}
+              style={{
+                width: "100%",
+                borderColor: validationErrors.price ? "red" : undefined,
+              }}
               disabled={!isEditable[selectedType]}
             />
           </div>
@@ -375,7 +407,7 @@ const Menu = () => {
             <Input
               type="text"
               placeholder="Ingresa un enlace"
-              value={tempMenuData[selectedType].link || ""}  // Mostrar valor temporal
+              value={tempMenuData[selectedType].link || ""}
               onChange={(e) => handleInputChange("link", e.target.value)}
               style={{ width: "100%" }}
               disabled={!isEditable[selectedType]}
@@ -409,7 +441,7 @@ const Menu = () => {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "#C20E1A";
                     }}
-                    onClick={handleCreateClick} // Habilitar creación del menú
+                    onClick={handleCreateClick}
                   >
                     Crear
                   </Button>
@@ -429,7 +461,7 @@ const Menu = () => {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "#C20E1A";
                     }}
-                    onClick={handleEdit} // Habilitar edición solo del menú seleccionado
+                    onClick={handleEdit}
                   >
                     Editar
                   </Button>
@@ -439,7 +471,7 @@ const Menu = () => {
                   <Button
                     type="default"
                     className="button-save"
-                    onClick={saveMenu} // Llamar a la función para guardar el menú
+                    onClick={saveMenu}
                   >
                     Guardar
                   </Button>
@@ -447,7 +479,7 @@ const Menu = () => {
                   <Button
                     type="default"
                     className="button-cancel"
-                    onClick={handleCancel} // Cancelar edición solo del menú seleccionado
+                    onClick={handleCancel}
                   >
                     Cancelar
                   </Button>
