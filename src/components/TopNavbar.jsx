@@ -85,7 +85,7 @@ export default function TopNavbar(props) {
             <ul className="drawer-menu">
               <li onClick={() => handleButtonClick("/estudiante/citas")} className={location.pathname === "/estudiante/citas" ? "active" : ""}>Citas</li>
               <li onClick={() => handleButtonClick("/estudiante/becas")} className={location.pathname === "/estudiante/becas" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/estudiante/ajustes")} className={location.pathname === "/estudiante/ajustes" ? "active" : ""}>Perfil</li>
+              <li onClick={() => handleButtonClick("/estudiante/ajustes")} className={location.pathname === "/estudiante/ajustes" ? "active" : ""}>Ajustes</li>
             </ul>
             
             {/* Botón de cerrar sesión en la parte inferior del Drawer */}
@@ -101,7 +101,7 @@ export default function TopNavbar(props) {
             <ul>
               <li onClick={() => handleButtonClick("/estudiante/citas")} className={location.pathname === "/estudiante/citas" ? "active" : ""}>Citas</li>
               <li onClick={() => handleButtonClick("/estudiante/becas")} className={location.pathname === "/estudiante/becas" ? "active" : ""}>Becas</li>
-              <li onClick={() => handleButtonClick("/estudiante/ajustes")} className={location.pathname === "/estudiante/ajustes" ? "active" : ""}>Perfil</li>
+              <li onClick={() => handleButtonClick("/estudiante/ajustes")} className={location.pathname === "/estudiante/ajustes" ? "active" : ""}>Ajustes</li>
             </ul>
           </nav>
 
