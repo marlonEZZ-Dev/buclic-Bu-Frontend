@@ -152,7 +152,7 @@ const Psychologist = () => {
 
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     if (pendingAppointment) {
       api
@@ -166,10 +166,21 @@ const Psychologist = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
+  
+          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
-
-          // Actualiza solo las citas pendientes sin modificar la fecha seleccionada ni los horarios filtrados
-          fetchPendingAppointment();
+          
+          // Actualiza el estado de citas disponibles para reflejar el cambio inmediatamente
+          setAvailableDates((prevDates) => [
+            ...prevDates,
+            {
+              ...pendingAppointment.availableDate,
+              available: true, // Marca la cita como disponible
+            },
+          ]);
+  
+          // Filtra las citas disponibles para la fecha seleccionada
+          filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
@@ -181,32 +192,33 @@ const Psychologist = () => {
         });
     }
   };
+  
 
   const handleConfirmReserve = () => {
     let hasError = false;
-
+  
     if (phone.length !== 10) {
       setIsPhoneError(true);
       hasError = true;
     } else {
       setIsPhoneError(false);
     }
-
+  
     if (!semester) {
       setIsSemesterError(true);
       hasError = true;
     } else {
       setIsSemesterError(false);
     }
-
+  
     if (hasError) {
       message.error("Digita los campos teléfono y semestre.");
       setModalVisible(false);
       return;
     }
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -227,6 +239,15 @@ const Psychologist = () => {
       )
       .then((response) => {
         message.success(response.data.message);
+  
+        // Actualizar el localStorage y el estado inmediatamente
+        localStorage.setItem("userPhone", phone);
+        localStorage.setItem("userSemester", semester);
+  
+        // Refrescar los inputs inmediatamente
+        setPhone(phone);
+        setSemester(semester);
+  
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
@@ -241,7 +262,7 @@ const Psychologist = () => {
         setModalVisible(false);
       });
   };
-
+  
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
     dates = availableDates
