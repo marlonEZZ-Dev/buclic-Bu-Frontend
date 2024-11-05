@@ -7,7 +7,7 @@ const timePickerStyle = {
   width: '100%',
 };
 
-const TimeSpanish = ({ value, onChange, disabled, placeholder }) => {
+const TimeSpanish = ({ value, onChange, disabled, placeholder, disabledHours }) => {
   const timeValue = value ? dayjs(value, 'HH:mm') : null;
 
   const handleChange = (time) => {
@@ -23,6 +23,7 @@ const TimeSpanish = ({ value, onChange, disabled, placeholder }) => {
       placeholder={placeholder || "Seleccione hora"}
       format="HH:mm"
       style={timePickerStyle}
+      disabledHours={disabledHours} // Aplica la lógica para deshabilitar horas
     />
   );
 };
