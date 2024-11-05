@@ -39,8 +39,7 @@ const Psychologist = () => {
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
 
-  const username = localStorage.getItem("username");
-  const userEmail = localStorage.getItem("userEmail");
+  
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
@@ -149,10 +148,9 @@ const Psychologist = () => {
       );
     }
   };
-
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-  
+
     setConfirmLoading(true);
     if (pendingAppointment) {
       api
@@ -166,19 +164,13 @@ const Psychologist = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
-  
+
           // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
+
+          // Actualiza la lista de citas disponibles después de la cancelación
+          fetchAvailableDates();
           
-          // Actualiza el estado de citas disponibles para reflejar el cambio inmediatamente
-          setAvailableDates((prevDates) => [
-            ...prevDates,
-            {
-              ...pendingAppointment.availableDate,
-              available: true, // Marca la cita como disponible
-            },
-          ]);
-  
           // Filtra las citas disponibles para la fecha seleccionada
           filterDatesBySelectedDay(selectedDate);
         })
@@ -192,7 +184,29 @@ const Psychologist = () => {
         });
     }
   };
-  
+
+  // Nueva función para obtener y actualizar las citas disponibles
+  const fetchAvailableDates = () => {
+    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+
+    api
+      .get("/appointment?type=PSICOLOGIA", {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      })
+      .then((response) => {
+        setAvailableDates(response.data.availableDates);
+        filterDatesBySelectedDay(
+          selectedDate,
+          response.data.availableDates
+        );
+      })
+      .catch((error) => {
+        console.error("Error al obtener los horarios:", error);
+      });
+  };
+
 
   const handleConfirmReserve = () => {
     let hasError = false;
@@ -339,16 +353,7 @@ const Psychologist = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Correo">
-                  <Input value={userEmail || ""} disabled />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Código">
-                  <Input value={username || ""} disabled />
-                </Form.Item>
-              </Col>
+              
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
