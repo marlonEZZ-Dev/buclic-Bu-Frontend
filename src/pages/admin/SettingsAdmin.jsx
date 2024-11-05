@@ -272,7 +272,7 @@ const SettingsAdmin = () => {
                                 <Input value={profileData.benefitType} disabled /> {/* Muestra el tipo de beneficio */}
                             </Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
-                                <Button className="button-save" type="primary" onClick={handleChangePasswordClick}>
+                                <Button className="button-save" style={{ width: '200px' }} type="primary" onClick={handleChangePasswordClick}>
                                     Cambiar contraseña
                                 </Button>
                             </div>
