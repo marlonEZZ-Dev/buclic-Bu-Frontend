@@ -8,17 +8,17 @@ export default function InputSmall({
     errorMessage = "",
     ...props
 }) {
-    const waitBoolOrString = (data) => {
-      if (typeof data === "boolean") return "";
-      if (typeof data === "string") return data;
-      throw new Error("Property errorMessage debe ser un booleano o string");
+    const expectedBoolOrString = data => {
+        if (data === true) return "";
+        if (typeof data === "string") return data;
+        throw new Error("Property errorMessage debe ser un booleano o string");
     };
 
-    const errorText = waitBoolOrString(errorMessage);
-    const hasError = Boolean(errorText);
+    const errorText = expectedBoolOrString(errorMessage);
+    const hasError = errorText.length !== 0;
 
     return (
-        <div className={styles.inputContainer}>
+        <div className={`${styles.inputContainer} ${hasError ? styles.containerError : ""}`}>
             <label className={`${styles.labels} ${labelClassname}`}>
                 <span>
                     {title} {isRenderAsteric ? <span className={styles.asteric}>*</span> : ""}

@@ -1,3 +1,9 @@
+/* Aplica borde rojo solo al selector de Ant Design */
+:global(.error .ant-select-selector) {
+  border: 1px solid red !important;
+}
+
+
 .container{
   position: relative;
   margin-bottom: 1.875rem; /* Espacio extra para el mensaje */
@@ -8,9 +14,10 @@
 
 .select{
   width: 13rem;
+  height: 2rem;
 }
 
-.error select{
+.error .ant-select-selector{
   border: 1px solid red;
 }
 

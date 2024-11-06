@@ -1,26 +1,44 @@
 import dayjs from "dayjs"
 
-const LIMITS_NAMES = 50
-const EMPTY_FIELD = "El campo esta vacío"
-// PENSADOS PARA GESTIÓN DE USUARIOS
-//This is by users
-export const validName = name => {
-    name = name.trim()
-    if(name.length > LIMITS_NAMES) return "Los nombres son muy largos"
-    if(name.length === 0) return EMPTY_FIELD
-    return true
-  }
+const LIMITS_NAMES = 50;
+const EMPTY_FIELD = "El campo está vacío";
 
-export const validLastname = lastname => {
-  lastname = lastname.trim()
-  if(lastname.length > LIMITS_NAMES) return "Los apellidos son muy largos"
-  if(lastname.length === 0) return EMPTY_FIELD
-  return true
-}
+// Función para verificar si el campo está vacío
+const validEmptyField = (text) => {
+  if (text.length === 0) {
+    return EMPTY_FIELD;
+  }
+  return true; // Si no está vacío, retorna true
+};
+
+// Validación de nombres
+export const validName = (name) => {
+  name = name.trim();
+  if (name.length > LIMITS_NAMES) return "Los nombres son muy largos";
+  
+  // Llama a validEmptyField y retorna su resultado si es un mensaje de error
+  const isEmpty = validEmptyField(name);
+  if (isEmpty !== true) return isEmpty;
+
+  return true;
+};
+
+// Validación de apellidos
+export const validLastname = (lastname) => {
+  lastname = lastname.trim();
+  if (lastname.length > LIMITS_NAMES) return "Los apellidos son muy largos";
+  
+  // Llama a validEmptyField y retorna su resultado si es un mensaje de error
+  const isEmpty = validEmptyField(lastname);
+  if (isEmpty !== true) return isEmpty;
+
+  return true;
+};
 
 const forCode = code => {
   // Verifica si el código es una cadena de exactamente 9 dígitos
   code = String(code)
+  validEmptyField(code)
   if (!( /^\d{9}$/.test(code) )) {
     return "El código no es válido, debe tener 9 dígitos. Ej: 202059431"
   }
@@ -40,7 +58,7 @@ const forArea = area => /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+$/.test(area) ? t
 
 const forEmailFuncionary = email => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim()) ? true : "Dirección de correo inválida"
 
-const forEmailStudent = email => /^[a-zA-Z]+(\.[a-zA-Z]+){1,2}@correounivalle.edu.co$/.test(email.trim()) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
+const forEmailStudent = email => /^[a-zA-Z]+(\.[a-zA-Z]+){1,2}@correounivalle\.edu\.co$/.test(email.trim()) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
 
 export const validCode = (code, isCode) => {
   //Si es estudiante o beneficiario

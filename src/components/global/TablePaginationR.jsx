@@ -18,7 +18,6 @@ const TablePaginationR = ({
         color: 'black',
         fontSize: '1.1rem', // Tamaño de fuente un poco más pequeño
         padding: '0.8rem', // Usar rem para un mejor ajuste
-        padding: '8px',
         textAlign: 'center',
     };
 
