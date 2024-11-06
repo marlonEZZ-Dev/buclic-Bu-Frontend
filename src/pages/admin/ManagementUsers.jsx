@@ -634,7 +634,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.name, pressedSave]);
+}, [objectSelected?.name]);
 
 useEffect(() => {
   if (objectSelected) {
@@ -644,7 +644,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.lastName, pressedSave]);
+}, [objectSelected?.lastName]);
 
 useEffect(() => {
   if (objectSelected) {
@@ -654,7 +654,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.email, pressedSave]);
+}, [objectSelected?.email]);
 
 useEffect(() => {
   if (objectSelected) {
@@ -664,7 +664,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.username, pressedSave]);
+}, [objectSelected?.username]);
 
 useEffect(() => {
   if (objectSelected) {
@@ -674,7 +674,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.plan, pressedSave]);
+}, [objectSelected?.plan]);
 
 useEffect(() => {
   if (objectSelected) {
@@ -684,7 +684,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.roles, pressedSave]);
+}, [objectSelected?.roles]);
 
 useEffect(() => {
   if (objectSelected) {
@@ -694,7 +694,7 @@ useEffect(() => {
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.grant, pressedSave]);
+}, [objectSelected?.grant]);
 
 
   return (
@@ -914,6 +914,7 @@ useEffect(() => {
             handlerClick(type)
             setCurrentPage(0)
             handlerOkValidation({clear: true, fnState: setOkValidation})
+            setPressedSave(false)
           }}
           defaultSelected={buttons[1].type}>
             <button 
@@ -1009,10 +1010,10 @@ useEffect(() => {
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
               classContainer={`${isStudent ? "visibility-hidden" :""}`}
-              defaultActiveFirstOption={isFuncionary}
+              // defaultActiveFirstOption={isFuncionary}
               status={statusRolesGrantSelect}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
-              errorMessage={isFuncionary ? okValidation.roles : okValidation.grant}
+              errorMessage={(isFuncionary && pressedSave) ? okValidation.roles : okValidation.grant}
               onSelect={(value, option) => {
                 
                 if(isBeneficiary) {
@@ -1023,11 +1024,6 @@ useEffect(() => {
                 if(isFuncionary) {
                   handlerAddRoleUserCreate(option.value)
                   return
-                }
-              }}
-              onBlur={() => {
-                if(isBeneficiary || isFuncionary){
-                  handlerBlurSelect(isBeneficiary ? validGrant(user.grant) : isFuncionary && validRol(user.roles), setStatusRolesGrantSelect)
                 }
               }}
               />}
@@ -1059,6 +1055,7 @@ useEffect(() => {
           <button className={`button-cancel ${styles.buttons}`}
           onClick={() => {
             handlerClearFields()
+            setPressedSave(false)
             handlerOkValidation({clear: true, fnState: setOkValidation})
           }}
           >Cancelar</button>

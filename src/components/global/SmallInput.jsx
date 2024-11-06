@@ -18,7 +18,7 @@ export default function InputSmall({
     const hasError = errorText.length !== 0;
 
     return (
-        <div className={styles.inputContainer}>
+        <div className={`${styles.inputContainer} ${hasError ? styles.containerError : ""}`}>
             <label className={`${styles.labels} ${labelClassname}`}>
                 <span>
                     {title} {isRenderAsteric ? <span className={styles.asteric}>*</span> : ""}
