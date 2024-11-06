@@ -16,7 +16,7 @@ import SchedulingTable from "../../components/global/SchedulingTable";
 import esES from "antd/es/locale/es_ES";
 import moment from "moment";
 import api from "../../api.js";
-import ReusableModal from "../../components/global/ReusableModal"; // Importar el modal reutilizable
+import ReusableModal from "../../components/global/ReusableModal";
 
 const { Text } = Typography;
 
@@ -28,18 +28,16 @@ const Psychologist = () => {
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
-  const [eps, setEps] = useState("");
   const [semester, setSemester] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
   const [isPhoneError, setIsPhoneError] = useState(false);
   const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
+  const [actionType, setActionType] = useState("");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-  const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
+  const [modalContent, setModalContent] = useState("");
 
-  
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
@@ -124,7 +122,6 @@ const Psychologist = () => {
         return; // Detener la ejecución si hay errores
       }
 
-      // Encuentra la fecha y hora de la cita seleccionada para mostrar en el modal
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
       );
@@ -138,7 +135,6 @@ const Psychologist = () => {
         ).format("DD/MM/YYYY [a las] hh:mm A")}?`
       );
     } else if (type === "cancel" && pendingAppointment) {
-      // Muestra la fecha y hora de la cita pendiente en el modal de cancelación
       setActionType(type);
       setModalVisible(true);
       setModalContent(
@@ -148,6 +144,7 @@ const Psychologist = () => {
       );
     }
   };
+
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -165,13 +162,9 @@ const Psychologist = () => {
         .then(() => {
           message.success("Cita cancelada con éxito");
 
-          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
 
-          // Actualiza la lista de citas disponibles después de la cancelación
           fetchAvailableDates();
-          
-          // Filtra las citas disponibles para la fecha seleccionada
           filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
@@ -185,7 +178,6 @@ const Psychologist = () => {
     }
   };
 
-  // Nueva función para obtener y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -207,32 +199,11 @@ const Psychologist = () => {
       });
   };
 
-
   const handleConfirmReserve = () => {
-    let hasError = false;
-  
-    if (phone.length !== 10) {
-      setIsPhoneError(true);
-      hasError = true;
-    } else {
-      setIsPhoneError(false);
-    }
-  
-    if (!semester) {
-      setIsSemesterError(true);
-      hasError = true;
-    } else {
-      setIsSemesterError(false);
-    }
-  
-    if (hasError) {
-      message.error("Digita los campos teléfono y semestre.");
-      setModalVisible(false);
-      return;
-    }
-  
+    if (isPhoneError || isSemesterError) return;
+
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-  
+
     setConfirmLoading(true);
     api
       .post(
@@ -240,7 +211,6 @@ const Psychologist = () => {
         {
           pacientId: userId,
           availableDateId: selectedAppointmentId,
-          eps,
           semester,
           phone,
         },
@@ -253,15 +223,13 @@ const Psychologist = () => {
       )
       .then((response) => {
         message.success(response.data.message);
-  
-        // Actualizar el localStorage y el estado inmediatamente
+
         localStorage.setItem("userPhone", phone);
         localStorage.setItem("userSemester", semester);
-  
-        // Refrescar los inputs inmediatamente
+
         setPhone(phone);
         setSemester(semester);
-  
+
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
@@ -276,7 +244,7 @@ const Psychologist = () => {
         setModalVisible(false);
       });
   };
-  
+
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
     dates = availableDates
@@ -312,10 +280,11 @@ const Psychologist = () => {
   };
 
   const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo permite letras y espacios
     setSemester(value);
-    setIsSemesterError(value.trim() === "");
-  };
+    setIsSemesterError(value.trim() === ""); // Error si está vacío
+};
+
 
   return (
     <>
@@ -328,7 +297,6 @@ const Psychologist = () => {
           Cita psicología
         </h1>
 
-        {/* ReusableModal para confirmación de acciones */}
         <ReusableModal
           visible={modalVisible}
           title={
@@ -336,7 +304,7 @@ const Psychologist = () => {
               ? "Confirmar Cancelación"
               : "Confirmar Reserva"
           }
-          content={modalContent} // Aquí usamos modalContent
+          content={modalContent}
           cancelText="Cancelar"
           confirmText="Confirmar"
           onCancel={() => setModalVisible(false)}
