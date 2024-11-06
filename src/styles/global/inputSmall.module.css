@@ -8,8 +8,12 @@
 
 .inputContainer {
   position: relative;
-  margin-bottom: 1.875rem; /* Espacio extra para el mensaje */
   text-align: left;
+  transition: margin-bottom 0.3s ease;
+}
+
+.containerError{
+  margin-bottom: 1.5rem;
 }
 
 .inputs{
@@ -19,9 +23,6 @@
   padding: 4px 11px;
   width: 13rem;
   height: 2rem;
-
-  padding: .5rem;
-  font-size: 1rem;
 }
 
 .message{
@@ -30,7 +31,6 @@
   left: 0;
   font-size: .75rem;
   color: red;
-  margin-top: .25rem;
 }
 
 .error{

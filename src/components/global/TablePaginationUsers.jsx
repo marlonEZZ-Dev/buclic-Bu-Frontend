@@ -82,36 +82,41 @@ export default function TablePaginationUsers({
     };
 
     return (
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ textAlign: 'center', margin: '20px 0', width: '100%' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <thead>
                     <tr>
                         {columns.map((column, index) => (
                             <th
                                 key={`header-${column.key || index}`}
-                                style={headerStyle}
+                                style={{ ...headerStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                             >
                                 {column.label}
                             </th>
                         ))}
-                        <th style={headerStyle}>{nameActionsButtons}</th>
+                        <th style={{ ...headerStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {nameActionsButtons}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {safeRows.length > 0 ? (
                         safeRows.map((row, rowIndex) => (
                             <tr key={`row-${rowIndex}`}>
-                                {columns.map((column, colIndex) => {
-                                    return (
-                                        <td
-                                            key={`cell-${rowIndex}-${colIndex}`}
-                                            style={cellStyle}
-                                        >
-                                            {row[column.key]}
-                                        </td>
-                                    );
-                                })}
-                                <td>
+                                {columns.map((column, colIndex) => (
+                                    <td
+                                        key={`cell-${rowIndex}-${colIndex}`}
+                                        style={{
+                                            ...cellStyle,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                    >
+                                        {row[column.key]}
+                                    </td>
+                                ))}
+                                <td style={{ ...cellStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     <Flex justify='center' align='center'>
                                         {enableDelete && <ButtonDelete key={`delete${rowIndex}`} onClick={() => handlerGetRowDelete(row)} />}
                                         {enableEdit && <ButtonEdit key={`edit${rowIndex}`} onClick={() => handlerGetRowEdit(row)} />}
@@ -128,7 +133,7 @@ export default function TablePaginationUsers({
                     )}
                 </tbody>
             </table>
-
+    
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <button
                     onClick={goToPreviousPage}
@@ -142,7 +147,6 @@ export default function TablePaginationUsers({
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                {/* esto solo cuando currentPage es cero */}
                 <div style={pageIndicatorStyle}>Página {currentPage + 1} de {totalPages}</div>
                 <button
                     onClick={goToNextPage}
@@ -177,5 +181,7 @@ TablePaginationUsers.propTypes = {
     onPageChange: PropTypes.func,
     onCellClick: PropTypes.func,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func
+    onEdit: PropTypes.func,
+    onNext: PropTypes.func,
+    onPrev: PropTypes.func,
 }

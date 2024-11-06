@@ -88,7 +88,7 @@ MenuBecas.propTypes = {
   buttons: PropTypes.array.isRequired,
   children: PropTypes.node,
   onSelect: PropTypes.func.isRequired,
-  selectedType: PropTypes.string.isRequired,
+  selectedType: PropTypes.string,
   defaultSelected: PropTypes.string, // Prop para establecer el menú activo por defecto
 };
 
