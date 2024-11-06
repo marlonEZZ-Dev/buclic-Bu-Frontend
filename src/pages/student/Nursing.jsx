@@ -15,13 +15,16 @@ import {
 import SchedulingTable from "../../components/global/SchedulingTable";
 import esES from "antd/es/locale/es_ES";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 import api from "../../api.js";
-import ReusableModal from "../../components/global/ReusableModal"; // Importar el modal reutilizable
+import ReusableModal from "../../components/global/ReusableModal";
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
 const Nursing = () => {
   const { token } = theme.useToken();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
     moment().format("YYYY-MM-DD")
   );
@@ -34,9 +37,9 @@ const Nursing = () => {
   const [isEpsError, setIsEpsError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
+  const [actionType, setActionType] = useState("");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-  const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
+  const [modalContent, setModalContent] = useState("");
 
   const username = localStorage.getItem("username");
   const userEmail = localStorage.getItem("userEmail");
@@ -116,10 +119,9 @@ const Nursing = () => {
       setIsEpsError(false);
     }
 
-   
     if (hasError) {
-      message.error("Digita los campos teléfono y eps.");
-      return; // Detener la ejecución si hay errores
+      message.error("Digita los campos teléfono y EPS.");
+      return;
     }
 
     if (type === "reserve") {
@@ -163,13 +165,8 @@ const Nursing = () => {
         .then(() => {
           message.success("Cita cancelada con éxito");
 
-          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
-
-          // Actualiza la lista de citas disponibles después de la cancelación
           fetchAvailableDates();
-          
-          // Filtra las citas disponibles para la fecha seleccionada
           filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
@@ -183,7 +180,6 @@ const Nursing = () => {
     }
   };
 
-  // Nueva función para obtener y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -205,74 +201,67 @@ const Nursing = () => {
       });
   };
 
-  
-
   const handleConfirmReserve = () => {
     let hasError = false;
 
     if (phone.length !== 10) {
-        setIsPhoneError(true);
-        hasError = true;
+      setIsPhoneError(true);
+      hasError = true;
     } else {
-        setIsPhoneError(false);
+      setIsPhoneError(false);
     }
 
     if (!eps) {
-        setIsEpsError(true);
-        hasError = true;
+      setIsEpsError(true);
+      hasError = true;
     } else {
-        setIsEpsError(false);
+      setIsEpsError(false);
     }
 
-
     if (hasError) {
-        message.error("Digita los campos teléfono y eps.");
-        setModalVisible(false);
-        return;
+      message.error("Digita los campos teléfono y EPS.");
+      setModalVisible(false);
+      return;
     }
 
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     setConfirmLoading(true);
 
-    // Configura los datos para la solicitud según el formato esperado
     const requestData = {
-        availableDateId: selectedAppointmentId,   // entero
-        pacientId: parseInt(userId, 10),          // entero
-        eps,                                      // cadena
-        phone: parseInt(phone, 10)                // entero
+      availableDateId: selectedAppointmentId,
+      pacientId: parseInt(userId, 10),
+      eps,
+      phone: parseInt(phone, 10),
     };
 
-    console.log("Datos enviados:", requestData);
-
     api
-        .post(
-            "/appointment-reservation",
-            requestData,
-            {
-                headers: {
-                    Authorization: `Bearer ${storedToken}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        )
-        .then((response) => {
-            message.success(response.data.message);
-            fetchPendingAppointment();
-            setFilteredDates((prevDates) =>
-                prevDates.filter((date) => date.id !== selectedAppointmentId)
-            );
-        })
-        .catch((error) => {
-            console.error("Error al reservar la cita:", error);
-            message.error("Error al procesar la solicitud.");
-        })
-        .finally(() => {
-            setConfirmLoading(false);
-            setModalVisible(false);
-        });
-};
-
+      .post(
+        "/appointment-reservation",
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        message.success(response.data.message);
+        fetchPendingAppointment();
+        setFilteredDates((prevDates) =>
+          prevDates.filter((date) => date.id !== selectedAppointmentId)
+        );
+      })
+      .catch((error) => {
+        console.error("Error al reservar la cita:", error);
+        message.error("Error al procesar la solicitud.");
+      })
+      .finally(() => {
+        setConfirmLoading(false);
+        setModalVisible(false);
+      });
+  };
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
@@ -309,13 +298,17 @@ const Nursing = () => {
     localStorage.setItem("userPhone", value);
   };
 
-
   const handleEpsChange = (e) => {
-    const value = e.target.value.trim();
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo permite letras y espacios
     setEps(value);
     setIsEpsError(value === "");
-    localStorage.setItem("userEPS", value); // Guarda el EPS en localStorage
+    localStorage.setItem("userEPS", value);
   };
+
+  const handleBack = () => {
+    navigate('/estudiante/citas');
+  };
+
   return (
     <>
       <TopNavbar />
@@ -323,11 +316,14 @@ const Nursing = () => {
         className="enfermeria-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
       >
+        <Button type="default" icon={<ArrowLeftOutlined style={{ color: '#fff' }} />} className="button-save"
+          onClick={handleBack}>
+        </Button>
+
         <h1 className="text-xl font-bold" style={{ textAlign: "center" }}>
           Cita enfermería
         </h1>
 
-        {/* ReusableModal para confirmación de acciones */}
         <ReusableModal
           visible={modalVisible}
           title={
@@ -335,7 +331,7 @@ const Nursing = () => {
               ? "Confirmar Cancelación"
               : "Confirmar Reserva"
           }
-          content={modalContent} // Aquí usamos modalContent
+          content={modalContent}
           cancelText="Cancelar"
           confirmText="Confirmar"
           onCancel={() => setModalVisible(false)}
@@ -390,9 +386,7 @@ const Nursing = () => {
                 <Form.Item
                   label="EPS"
                   validateStatus={isEpsError ? "error" : ""}
-                  help={
-                    isEpsError ? "El campo EPS es obligatorio." : ""
-                  }
+                  help={isEpsError ? "El campo EPS es obligatorio." : ""}
                 >
                   <Input
                     type="text"
@@ -402,7 +396,6 @@ const Nursing = () => {
                   />
                 </Form.Item>
               </Col>
-      
             </Row>
           </Form>
         )}
