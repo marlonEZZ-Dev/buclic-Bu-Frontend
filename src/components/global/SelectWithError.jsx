@@ -23,7 +23,7 @@ export default function SelectWithError({
     const hasError = Boolean(errorText);
 
     return (
-        <div className={`${styles.container} ${classContainer}`}>
+        <div className={`${styles.container} ${hasError ? styles.containerError : ""} ${classContainer}`}>
             <label className={labelsCSS}>
                 <span style={{display:"block"}}>{title}</span>
                 <Select

@@ -51,6 +51,7 @@ export default function ManagementUsers(){
   const [currentPage, setCurrentPage] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
   const [pressedSave, setPressedSave] = useState(false)
+  const [pressedEdit, setPressedEdit] = useState(false)
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -316,14 +317,6 @@ const handlePageChange = page => {
     }));
 }
 
-  const changeClassToRed = (e, valid) => {
-    if((typeof valid === "string") || !(e.target.checkValidity())){
-      e.target.classList.add("invalid")
-    }else{
-      e.target.classList.remove("invalid")
-    }
-  }
-
   const handlerBlurSelect = (valid, fnState) => fnState((typeof valid === "string") ? "error" : "")
 
   const handlerOkValidation = ({name, value, fnState = () => {}, clear = false}) => {
@@ -343,29 +336,6 @@ const handlePageChange = page => {
     setIsModalEdit(false)
     handlerOkValidation({clear: true})
   }
-
-  // const handlerVerify = (user, isEdit = false) => {
-  //   console.log("user")
-  //   console.dir(user)
-  //   const p = isEdit ? setOkValidationEdit : setOkValidation 
-  //   handlerOkValidation({name:"username", value:validCode(user.username, !isFuncionary), fnState: p})
-
-  //   handlerOkValidation({name:"name", value:validName(user.name), fnState: p})
-
-  //   handlerOkValidation({name:"lastName", value:validLastname(user.lastName), fnState: p})
-
-  //   handlerOkValidation({name:"email", value:validEmail(user.email, isFuncionary), fnState: p})
-
-  //   handlerOkValidation({name:"plan", value:validPlan(user.plan, !isFuncionary), fnState: p})
-    
-  //   handlerOkValidation({name:"roles", value:validRol(user.roles), fnState: p})
-
-  //   handlerOkValidation({name:"grant", value:!isBeneficiary ? true : validGrant(user.grant, isModalEdit), fnState: p})
-    
-  //   return Object.values(isEdit ? okValidationEdit : okValidation)
-  //     .every(i => (i.length !== 0) || (i === true)) 
-  // }
-
   const handlerVerify = (user, isEdit = false) => {
     const fnState = isEdit ? setOkValidationEdit : setOkValidation;
 
@@ -627,76 +597,80 @@ useEffect(() => {
 }, [user.grant, pressedSave]);
 
 useEffect(() => {
-  if (objectSelected) { // Verificación de existencia
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "name",
           value: validName(objectSelected.name),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.name]);
+}, [pressedEdit, objectSelected?.name]);
 
+// Validación del campo "lastname"
 useEffect(() => {
-  if (objectSelected) {
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "lastname",
           value: validLastname(objectSelected.lastName),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.lastName]);
+}, [pressedEdit, objectSelected?.lastName]);
 
+// Validación del campo "email"
 useEffect(() => {
-  if (objectSelected) {
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "email",
           value: validEmail(objectSelected.email, isFuncionary),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.email]);
+}, [pressedEdit, objectSelected?.email]);
 
+// Validación del campo "username"
 useEffect(() => {
-  if (objectSelected) {
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "username",
           value: validCode(objectSelected.username, !isFuncionary),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.username]);
+}, [pressedEdit, objectSelected?.username]);
 
+// Validación del campo "plan"
 useEffect(() => {
-  if (objectSelected) {
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "plan",
           value: validPlan(objectSelected.plan, !isFuncionary),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.plan]);
+}, [pressedEdit, objectSelected?.plan]);
 
+// Validación del campo "roles"
 useEffect(() => {
-  if (objectSelected) {
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "roles",
           value: validRol(objectSelected.roles),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.roles]);
+}, [pressedEdit, objectSelected?.roles]);
 
+// Validación del campo "grant"
 useEffect(() => {
-  if (objectSelected) {
+  if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "grant",
           value: validGrant(objectSelected.grant, isModalEdit),
           fnState: setOkValidationEdit
       });
   }
-}, [objectSelected?.grant]);
-
-
+}, [pressedEdit, objectSelected?.grant]);
   return (
     <>
       <HeaderAdmin/>
@@ -751,7 +725,7 @@ useEffect(() => {
       <Modal
       open={isModalEdit}
       onClose={handlerCloseModalEdit}>
-        <Flex vertical justify='space-around' align='center'>
+        <Flex vertical justify='space-around' align='center' gap={20}>
         <span style={fontSizeTitleModal}>Editar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</span>
         <Flex gap={29} vertical={isMobile}>
           <SmallInput title='Nombre'
@@ -763,7 +737,6 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={ e => changeClassToRed(e, validName(e.currentTarget.value))}
             />
           <SmallInput title='Apellidos'
             isRenderAsteric={false}
@@ -774,7 +747,6 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={e => changeClassToRed(e, validLastname(e.currentTarget.value))}
             />
         </Flex>
 
@@ -823,6 +795,7 @@ useEffect(() => {
             errorMessage={isStudent ? okValidationEdit.status : isFuncionary ? okValidationEdit.roles : okValidationEdit.grant} 
             value={getValueComplexSelectInModal()}
             status={statusEstadoRolTipoBecaSelect}
+            classContainer={styles.inputWidthModal}
             options={getOptionsComplexSelectInModal()}
             onSelect={ (value, option) => {
               const selected = option.value
@@ -845,6 +818,7 @@ useEffect(() => {
           errorMessage={okValidationEdit.status}
           placeholder="Selecciona"
           value={getStatusValue(objectSelected.isActive)}
+          classContainer={styles.inputWidthModal}
           options={cbxStatus}
           onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
           onChange={value => handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)}
@@ -859,7 +833,10 @@ useEffect(() => {
           <button 
           className={`button-save ${styles.buttons}`}
           onClick={() => {
-            if(!deepEqual(objectSelected, objectSelectedClone)){
+            if(deepEqual(objectSelected, objectSelectedClone)){
+              notifyError("No hay cambios")
+            }else{
+              setPressedEdit(true)
               if(handlerVerify(objectSelected, isModalEdit)){
                 if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
                 handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
@@ -867,7 +844,6 @@ useEffect(() => {
                 handlerCloseModalEdit(false)
               }
             }
-            return
             }}>
             Guardar
           </button>
@@ -875,6 +851,7 @@ useEffect(() => {
           onClick={() => {
             setObjectSelected(objectSelectedClone)
             handlerOkValidation({clear: true, fnState: setOkValidationEdit})
+            setPressedEdit(false)
             // setIsModalEdit(false)
           }}>Cancelar</button>
         </Flex>
@@ -1010,7 +987,6 @@ useEffect(() => {
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
               classContainer={`${isStudent ? "visibility-hidden" :""}`}
-              // defaultActiveFirstOption={isFuncionary}
               status={statusRolesGrantSelect}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
               errorMessage={(isFuncionary && pressedSave) ? okValidation.roles : okValidation.grant}

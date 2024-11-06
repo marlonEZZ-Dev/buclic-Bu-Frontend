@@ -6,10 +6,14 @@
 
 .container{
   position: relative;
-  margin-bottom: 1.875rem; /* Espacio extra para el mensaje */
   text-align: left;
   border-radius: .5rem;
   outline: none;
+  transition: margin-bottom 0.3s ease;
+}
+
+.containerError{
+  margin-bottom: 1.5rem; /* Espacio extra para el mensaje */  
 }
 
 .select{
