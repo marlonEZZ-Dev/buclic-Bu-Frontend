@@ -229,6 +229,7 @@ export default function SchedulesNurse() {
     setScheduleData(originalScheduleData);
     setModifiedScheduleData([]);
   };
+
   const handlerCreateDate = () => {
     const lastDateEntry = scheduleData[scheduleData.length - 1];
     if (lastDateEntry && (!lastDateEntry.date || lastDateEntry.times.some(time => time.time === ""))) {
@@ -454,7 +455,7 @@ export default function SchedulesNurse() {
                               value={schedule.date}
                               onChange={(date) => handlerDateChange(date, dateIndex)}
                               disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
-                              disabled={!isEditing || isLoading}
+                              disabled={!isEditing || !schedule.times.some(time => time.isNew)}
                               style={{ width: '100%' }}
                             />
                             {/* <Button
@@ -478,7 +479,7 @@ export default function SchedulesNurse() {
                                 <TimeSpanish
                                   value={time.time}
                                   onChange={(newTime) => handlerTimeChange(newTime, dateIndex, timeIndex)}
-                                  disabled={!isEditing || isLoading}
+                                  disabled={!isEditing || !time.isNew}
                                   style={{ width: '100%', marginBottom: '0.5rem' }}
                                 />
                                 <Button
