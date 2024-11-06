@@ -18,7 +18,7 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -191,10 +191,7 @@ const Nursing = () => {
       })
       .then((response) => {
         setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(
-          selectedDate,
-          response.data.availableDates
-        );
+        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
@@ -236,16 +233,12 @@ const Nursing = () => {
     };
 
     api
-      .post(
-        "/appointment-reservation",
-        requestData,
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      .post("/appointment-reservation", requestData, {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then((response) => {
         message.success(response.data.message);
         fetchPendingAppointment();
@@ -306,7 +299,7 @@ const Nursing = () => {
   };
 
   const handleBack = () => {
-    navigate('/estudiante/citas');
+    navigate("/estudiante/citas");
   };
 
   return (
@@ -316,13 +309,37 @@ const Nursing = () => {
         className="enfermeria-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
       >
-        <Button type="default" icon={<ArrowLeftOutlined style={{ color: '#fff' }} />} className="button-save"
-          onClick={handleBack}>
-        </Button>
-
-        <h1 className="text-xl font-bold" style={{ textAlign: "center" }}>
-          Cita enfermería
-        </h1>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "20px",
+          }}
+        >
+          <Button
+            type="default"
+            icon={<ArrowLeftOutlined style={{ color: "#fff" }} />}
+            className="button-save"
+            onClick={handleBack}
+            style={{
+              marginRight: "10px",
+              backgroundColor: "#b20000",
+              border: "none",
+              marginTop: "-30px",
+            }}
+          />
+          <h1
+            className="text-xl font-bold"
+            style={{
+              color: "#b20000",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Cita enfermería
+          </h1>
+        </div>
 
         <ReusableModal
           visible={modalVisible}
