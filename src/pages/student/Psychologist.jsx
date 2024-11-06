@@ -17,11 +17,13 @@ import esES from "antd/es/locale/es_ES";
 import moment from "moment";
 import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
-
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 const { Text } = Typography;
 
 const Psychologist = () => {
   const { token } = theme.useToken();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
     moment().format("YYYY-MM-DD")
   );
@@ -285,6 +287,9 @@ const Psychologist = () => {
     setIsSemesterError(value.trim() === ""); // Error si está vacío
 };
 
+const handleBack = () => {
+  navigate("/estudiante/citas");
+};
 
   return (
     <>
@@ -293,9 +298,37 @@ const Psychologist = () => {
         className="psicologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
       >
-        <h1 className="text-xl font-bold" style={{ textAlign: "center" }}>
-          Cita psicología
-        </h1>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "20px",
+          }}
+        >
+          <Button
+            type="default"
+            icon={<ArrowLeftOutlined style={{ color: "#fff" }} />}
+            className="button-save"
+            onClick={handleBack}
+            style={{
+              marginRight: "10px",
+              backgroundColor: "#b20000",
+              border: "none",
+              marginTop: "-30px",
+            }}
+          />
+          <h1
+            className="text-xl font-bold"
+            style={{
+              color: "#b20000",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            Cita psicología
+          </h1>
+        </div>
 
         <ReusableModal
           visible={modalVisible}
