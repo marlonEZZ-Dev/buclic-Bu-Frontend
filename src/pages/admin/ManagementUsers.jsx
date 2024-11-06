@@ -33,7 +33,7 @@ import {
   validRol,
   validStatus
 } from '../../services/validations.js'
-import deepEqual from '../../utils/deep_equal.js'
+import deepEqual from '../../utils/functions/deep_equal.js'
 import ReusableModal from '../../components/global/ReusableModal.jsx'
 import SelectWithError from '../../components/global/SelectWithError.jsx'
 
@@ -50,6 +50,7 @@ export default function ManagementUsers(){
   const [statusEstadoRolTipoBecaSelect, setStatusEstadoRolTipoBecaSelect] = useState(undefined)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
+  const [pressedSave, setPressedSave] = useState(false)
   //Cargar archivo
   const [file, setFile] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -62,9 +63,9 @@ export default function ManagementUsers(){
   const [isModalAllDelete, setIsModalAllDelete] = useState(false)
   const [isModalDelete, setIsModalDelete] = useState(false)
   const defaultValidation = {
-    code: "",
+    username: "",
     name: "",
-    lastname: "",
+    lastName: "",
     email: "",
     plan: "",
     roles: "",
@@ -178,7 +179,6 @@ export default function ManagementUsers(){
         roles: getArrObjInArrStr(user.roles),
       })));
       setTotalItems(result.page.totalElements)
-      // setCurrentPage(result.page.number + 1)
       console.log(result)
     } catch (error) {
         console.log(`Esto ocurre en loadUsers ${error}`);
@@ -189,9 +189,6 @@ export default function ManagementUsers(){
 
 const handlePageChange = page => {
   setCurrentPage(page)
-  console.log(page)
-  console.log("Esto es cuando se actualiza")
-  console.dir(rows)
   loadUsers()
 }
 
@@ -334,11 +331,12 @@ const handlePageChange = page => {
       fnState(defaultValidation)
       setStatusEstadoRolTipoBecaSelect(undefined)
       setStatusRolesGrantSelect(undefined)
-    }
-    fnState( o => ({
+    }else{
+      fnState( o => ({
         ...o,
-        [name]:value
+        [name]: value === true ? true : value
     }))
+    }    
   }
 
   const handlerCloseModalEdit = () => {
@@ -346,26 +344,48 @@ const handlePageChange = page => {
     handlerOkValidation({clear: true})
   }
 
+  // const handlerVerify = (user, isEdit = false) => {
+  //   console.log("user")
+  //   console.dir(user)
+  //   const p = isEdit ? setOkValidationEdit : setOkValidation 
+  //   handlerOkValidation({name:"username", value:validCode(user.username, !isFuncionary), fnState: p})
+
+  //   handlerOkValidation({name:"name", value:validName(user.name), fnState: p})
+
+  //   handlerOkValidation({name:"lastName", value:validLastname(user.lastName), fnState: p})
+
+  //   handlerOkValidation({name:"email", value:validEmail(user.email, isFuncionary), fnState: p})
+
+  //   handlerOkValidation({name:"plan", value:validPlan(user.plan, !isFuncionary), fnState: p})
+    
+  //   handlerOkValidation({name:"roles", value:validRol(user.roles), fnState: p})
+
+  //   handlerOkValidation({name:"grant", value:!isBeneficiary ? true : validGrant(user.grant, isModalEdit), fnState: p})
+    
+  //   return Object.values(isEdit ? okValidationEdit : okValidation)
+  //     .every(i => (i.length !== 0) || (i === true)) 
+  // }
+
   const handlerVerify = (user, isEdit = false) => {
-    const p = isEdit ? setOkValidationEdit : setOkValidation 
-    handlerOkValidation({name:"code", value:validCode(user.username, !isFuncionary), fnState: p})
+    const fnState = isEdit ? setOkValidationEdit : setOkValidation;
 
-    handlerOkValidation({name:"name", value:validName(user.name), fnState: p})
+    const validations = {
+        username: validCode(user.username, !isFuncionary),
+        name: validName(user.name),
+        lastName: validLastname(user.lastName),
+        email: validEmail(user.email, isFuncionary),
+        plan: validPlan(user.plan, !isFuncionary),
+        roles: validRol(user.roles),
+        grant: !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
+    };
 
-    handlerOkValidation({name:"lastname", value:validLastname(user.lastName), fnState: p})
+    // Actualiza el estado de validación de forma consistente
+    fnState(validations);
 
-    handlerOkValidation({name:"email", value:validEmail(user.email, isFuncionary), fnState: p})
+    // Retorna true solo si todas las validaciones son correctas
+    return Object.values(validations).every(result => result === true);
+};
 
-    handlerOkValidation({name:"plan", value:validPlan(user.plan, !isFuncionary), fnState: p})
-    
-    handlerOkValidation({name:"roles", value:validRol(user.roles), fnState: p})
-
-    handlerOkValidation({name:"grant", value:!isBeneficiary ? true : validGrant(user.grant, isModalEdit), fnState: p})
-    
-    if(isEdit) handlerOkValidation({name:"status", value:validStatus(user.isActive), fnState: p})
-    
-    return Object.values(isEdit ? okValidationEdit : okValidation).every(i => i === true) 
-  }
 
   const handlerSave = useCallback(async () => {
   try {
@@ -535,6 +555,148 @@ const handlePageChange = page => {
     setUser(initialUser)
   }, [changesDescription])
 
+  // Para cada campo en `user`, agrega un useEffect similar al siguiente
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "name",
+          value: validName(user.name),
+          fnState: setOkValidation
+      });
+  }
+}, [user.name, pressedSave]);
+
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "lastname",
+          value: validLastname(user.lastName),
+          fnState: setOkValidation
+      });
+  }
+}, [user.lastName, pressedSave]);
+
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "email",
+          value: validEmail(user.email, isFuncionary),
+          fnState: setOkValidation
+      });
+  }
+}, [user.email, pressedSave]);
+
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "username",
+          value: validCode(user.username, !isFuncionary),
+          fnState: setOkValidation
+      });
+  }
+}, [user.username, pressedSave]);
+
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "plan",
+          value: validPlan(user.plan, !isFuncionary),
+          fnState: setOkValidation
+      });
+  }
+}, [user.plan, pressedSave]);
+
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "roles",
+          value: validRol(user.roles),
+          fnState: setOkValidation
+      });
+  }
+}, [user.roles, pressedSave]);
+
+useEffect(() => {
+  if (pressedSave) {
+      handlerOkValidation({
+          name: "grant",
+          value: validGrant(user.grant, isModalEdit),
+          fnState: setOkValidation
+      });
+  }
+}, [user.grant, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) { // Verificación de existencia
+      handlerOkValidation({
+          name: "name",
+          value: validName(objectSelected.name),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.name, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) {
+      handlerOkValidation({
+          name: "lastname",
+          value: validLastname(objectSelected.lastName),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.lastName, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) {
+      handlerOkValidation({
+          name: "email",
+          value: validEmail(objectSelected.email, isFuncionary),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.email, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) {
+      handlerOkValidation({
+          name: "username",
+          value: validCode(objectSelected.username, !isFuncionary),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.username, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) {
+      handlerOkValidation({
+          name: "plan",
+          value: validPlan(objectSelected.plan, !isFuncionary),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.plan, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) {
+      handlerOkValidation({
+          name: "roles",
+          value: validRol(objectSelected.roles),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.roles, pressedSave]);
+
+useEffect(() => {
+  if (objectSelected) {
+      handlerOkValidation({
+          name: "grant",
+          value: validGrant(objectSelected.grant, isModalEdit),
+          fnState: setOkValidationEdit
+      });
+  }
+}, [objectSelected?.grant, pressedSave]);
+
+
   return (
     <>
       <HeaderAdmin/>
@@ -608,7 +770,7 @@ const handlePageChange = page => {
             name="lastName"
             value={objectSelected.lastName}
             maxLength={50}
-            errorMessage={okValidationEdit.lastname}
+            errorMessage={okValidationEdit.lastName}
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
@@ -621,14 +783,13 @@ const handlePageChange = page => {
             name="username"
             min={isFuncionary ? 10000000 : 200000000}
             max={isFuncionary ? 9999999999 : 299999999}
-            errorMessage={okValidationEdit.code}
+            errorMessage={okValidationEdit.username}
             required
             isRenderAsteric={false}
             className={styles.inputWidthModal}
             value={objectSelected.username}
             onChange={e => handlerEditUser(e)}
             onKeyDown={handlerKeyDown}
-            onBlur={e => changeClassToRed(e, validCode(e.currentTarget.value, !isFuncionary))}
             />
           <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
             isRenderAsteric={false}
@@ -642,7 +803,6 @@ const handlePageChange = page => {
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
             onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
-            onBlur={e => changeClassToRed(e, validPlan(e.currentTarget.value, !isFuncionary))}
             />
         </Flex>
           
@@ -656,7 +816,6 @@ const handlePageChange = page => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onBlur={e => changeClassToRed(e, validEmail(e.currentTarget.value, isFuncionary))}
             />
           <SelectWithError title={isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
@@ -780,21 +939,20 @@ const handlePageChange = page => {
                 key={`name${changesDescription}${refreshFields}`}                
                 placeholder={`Nombre(s) ${isFuncionary ? "de la persona" : "del estudiante"}`}
                 maxLength={50}
-                errorMessage={okValidation.name}
+                autoComplete="off"
+                errorMessage={pressedSave ? okValidation.name : ""}
                 name="name"
                 required
-                onChange={e => handlerCreateUser(e)}
-                onBlur={ e => changeClassToRed(e, validName(user.name))}
-                />
+                onChange={e => handlerCreateUser(e)}/>
               <SmallInput title='Apellidos'
                 key={`lastName${changesDescription}${refreshFields}`}
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}
                 maxLength={50}
-                errorMessage={okValidation.lastname}
+                autoComplete="off"
+                errorMessage={pressedSave ? okValidation.lastName : ""}
                 required
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
-                onBlur={e => changeClassToRed(e, validLastname(user.lastName))}
                 />
             </Flex>
 
@@ -806,14 +964,14 @@ const handlePageChange = page => {
               key={`username${changesDescription}${refreshFields}`}              
               placeholder={isFuncionary ? "Cédula de la persona":"Ej: 202412345"}
               type="number"
-              errorMessage={okValidation.code}
+              errorMessage={pressedSave ? okValidation.username : ""}
+              autoComplete="off"
               min={isFuncionary ? 10000000 : 200000000}
               max={isFuncionary ? 99999999 : 299999999}
               required
               name="username"
-              onChange={ e => handlerCreateUser(e) }
+              onChange={handlerCreateUser}
               onKeyDown={handlerKeyDown}
-              onBlur={ e => changeClassToRed(e, validCode(user.username, !isFuncionary))}
               />
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
               isRenderAsteric={!isFuncionary}
@@ -822,12 +980,12 @@ const handlePageChange = page => {
               placeholder={ isFuncionary ? "Área de la persona":"Ej: 1234"}
               min={isFuncionary ? undefined : 1000}
               max={isFuncionary ? undefined : 9999}
-              errorMessage={okValidation.plan}
+              errorMessage={pressedSave ? okValidation.plan : ""}
               required
+              autoComplete="off"
               name="plan"
               onChange={e => handlerCreateUser(e)}
               onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
-              onBlur={e => changeClassToRed(e, validPlan(user.plan, !isFuncionary))}
               />
           </Flex>
 
@@ -838,12 +996,12 @@ const handlePageChange = page => {
             <SmallInput title='Correo electrónico'
               key={`email${changesDescription}${refreshFields}`}              
               placeholder='Correo del estudiante'
-              errorMessage={okValidation.email}
+              errorMessage={pressedSave ? okValidation.email : ""}
               required
+              autoComplete="off"
               type="email"              
               name="email"
               onChange={e => handlerCreateUser(e)}
-              onBlur={e => changeClassToRed(e, validEmail(user.email, isFuncionary))}
             />
           {(!isStudent || !enableResponsive) && 
             <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beca"}
@@ -883,14 +1041,20 @@ const handlePageChange = page => {
         >
           <button className={`button-save ${styles.buttons}`} 
           onClick={() => {
+            setPressedSave(true)
             if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
             if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
+            let verify = "No entro"
             if(handlerVerify(user)){
-              handlerOkValidation({clear:true, fnState: setOkValidation})
+              verify = "Entro"
               SetSavePressed(!savePressed)
               handlerSave()
-              handlerClearFields()              
+              handlerClearFields()
+              handlerOkValidation({clear:true, fnState: setOkValidation})
+              setPressedSave(false)
             }            
+            console.log(verify)
+            console.dir(okValidation)
           }}>Guardar</button>
           <button className={`button-cancel ${styles.buttons}`}
           onClick={() => {
