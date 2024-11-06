@@ -16,22 +16,18 @@ const TablePaginationR = ({
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
-        fontSize: '1.125rem',
+        fontSize: '1.1rem', // Tamaño de fuente un poco más pequeño
+        padding: '0.8rem', // Usar rem para un mejor ajuste
         padding: '8px',
         textAlign: 'center',
     };
 
-    // Agregar estilo responsive utilizando media queries
-    const mediaQueryStyle = {
-        '@media (max-width: 600px)': {
-            fontSize: '0.9rem', // Cambia el tamaño para pantallas pequeñas
-        },
-    };
     // Estilos para las celdas
     const cellStyle = {
         border: '1px solid #ddd',
-        padding: '8px',
+        padding: '0.8rem', // Usar rem para un mejor ajuste
         textAlign: 'center',
+        fontSize: '1rem', // Tamaño de fuente base
     };
 
     // Estilo de los botones de paginación
@@ -39,9 +35,9 @@ const TablePaginationR = ({
         backgroundColor: '#FFFFFF',
         color: '#B3B3B3',
         border: 'none',
-        height: '30px',
+        height: '2rem', // Usar rem
         flex: 1,
-        margin: '0 5px',
+        margin: '0 0.5rem', // Usar rem
         borderRadius: '8px',
         transition: 'background-color 0.3s',
         cursor: 'pointer',
@@ -56,7 +52,7 @@ const TablePaginationR = ({
     const pageIndicatorStyle = {
         backgroundColor: '#C20E1A',
         color: '#FFFFFF',
-        padding: '5px 10px',
+        padding: '0.5rem 1rem', // Usar rem
         borderRadius: '8px',
         display: 'inline-block',
     };

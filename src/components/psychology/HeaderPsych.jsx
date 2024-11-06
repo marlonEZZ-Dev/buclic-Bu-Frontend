@@ -86,6 +86,7 @@ export default function HeaderPsych(props) {
               <li onClick={() => handleButtonClick("/psicologo/horario")} className={location.pathname === "/psicologo/horario" ? "active" : ""}>Horarios</li>
               <li onClick={() => handleButtonClick("/psicologo/agenda")} className={location.pathname === "/psicologo/agenda" ? "active" : ""}>Agenda</li>
               <li onClick={() => handleButtonClick("/psicologo/seguimiento")} className={location.pathname === "/psicologo/seguimiento" ? "active" : ""}>Seguimiento</li>
+              <li onClick={() => handleButtonClick("/psicologo/ajustes")} className={location.pathname === "/psicologo/ajustes" ? "active" : ""}>Ajustes</li>
             </ul>
             
             {/* Botón de cerrar sesión en la parte inferior del Drawer */}
@@ -104,6 +105,7 @@ export default function HeaderPsych(props) {
               <li onClick={() => handleButtonClick("/psicologo/horario")} className={location.pathname === "/psicologo/horario" ? "active" : ""}>Horarios</li>
               <li onClick={() => handleButtonClick("/psicologo/agenda")} className={location.pathname === "/psicologo/agenda" ? "active" : ""}>Agenda</li>
               <li onClick={() => handleButtonClick("/psicologo/seguimiento")} className={location.pathname === "/psicologo/seguimiento" ? "active" : ""}>Seguimiento</li>
+              <li onClick={() => handleButtonClick("/psicologo/ajustes")} className={location.pathname === "/psicologo/ajustes" ? "active" : ""}>Ajustes</li>
             </ul>
           </nav>
 

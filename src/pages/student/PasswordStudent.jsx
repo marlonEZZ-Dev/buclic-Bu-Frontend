@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
-import HeaderAdmin from '../../components/admin/HeaderAdmin';
+import TopNavbar from '../../components/TopNavbar';
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
 
-const PasswordAdmin = () => {
+const PasswordStudent = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // Estado para el modal
@@ -55,12 +55,12 @@ const PasswordAdmin = () => {
   };
 
   const handleBack = () => {
-    navigate('/admin/perfilAdmin');
+    navigate('/estudiante/ajustes');
   };
 
   return (
     <>
-      <HeaderAdmin />
+      <TopNavbar />
 
       {/* Contenido principal */}
       <main style={styles.main}>
@@ -232,4 +232,4 @@ const styles = {
   },
 };
 
-export default PasswordAdmin;
+export default PasswordStudent;

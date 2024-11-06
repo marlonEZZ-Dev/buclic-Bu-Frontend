@@ -18,7 +18,6 @@ import Settings from "./pages/student/Settings";
 import Psychologist from "./pages/student/Psychologist";
 import Nursing from "./pages/student/Nursing";
 import Dentist from "./pages/student/Dentist";
-import ChangePassword from "./pages/student/ChangePassword";
 import BecasAdmin from "./pages/admin/BecasAdmin";
 import NursingAdmin from "./pages/admin/NursingAdmin";
 import PsychologistAdmin from "./pages/admin/PsychologistAdmin";
@@ -30,6 +29,8 @@ import BecasPsych from "./pages/psychology/BecasPsych";
 import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
 import SchedulesPsych from "./pages/psychology/SchedulesPsych";
 import AgendaPsych from "./pages/psychology/AgendaPsych";
+import PasswordPysch from "./pages/psychology/PasswordPysch";
+import SettingPysch from "./pages/psychology/SettingPsych";
 import Tracking from "./pages/psychology/Tracking";
 import { MenuProvider } from "./utils/MenuContext"; // Importar el MenuProvider>
 import { SettingsProvider } from "./utils/SettingsContext";
@@ -42,6 +43,7 @@ import InformNurse from "./pages/nurse/InformNurse";
 import ViewNursingReport from "./pages/nurse/ViewInformsNurse";
 import SchedulesNurse from "./pages/nurse/SchedulesNurse";
 import VisitsNurse from "./pages/nurse/VisitsNurse";
+import PasswordNurse from "./pages/nurse/PasswordNurse";
 import BecasDentist from "./pages/dentist/BecasDentist";
 import AppointmentDentist from "./pages/dentist/AppointmentDentist";
 import SchedulesDentist from "./pages/dentist/SchedulesDentist";
@@ -54,7 +56,7 @@ import AppointmentMonitor from "./pages/monitor/AppointmentMonitor";
 import Reservation from "./pages/monitor/Reservation";
 import MenuMonitor from "./pages/monitor/MenuMonitor";
 import SettingMonitor from "./pages/monitor/SettingMonitor";
-import ChangePasswordWorker from "./pages/worker/ChangePasswordWorker";
+import PasswordMonitor from "./pages/monitor/PasswordMonitor";
 import AppointmentsWorker from "./pages/worker/AppointmentsWorker"
 import BecasWorker from "./pages/worker/BecasWorker"
 import DentistWorker from "./pages/worker/DentistWorker"
@@ -63,9 +65,13 @@ import PsychologistWorker from "./pages/worker/PsychologistWorker"
 import SettingWorker from "./pages/worker/SettingWorker"
 import BecasExternal from "./pages/external/BecasExternal";
 import SettingExternal from "./pages/external/SettingExternal";
-import ChangePasswordExt from "./pages/external/ChangePasswordExt";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { Outlet } from "react-router-dom";
+import PasswordStudent from "./pages/student/PasswordStudent";
+import PasswordWorker from "./pages/worker/PasswordWorker";
+import PasswordExternal from "./pages/external/PasswordExternal";
+import PasswordDentist from "./pages/dentist/PasswordDentist";
+
 
 
 function App() {
@@ -104,7 +110,7 @@ function App() {
         <Route path="becas" element={<Becas />} />
         <Route path="citas" element={<Appointments />} />
         <Route path="ajustes" element={<Settings />} />
-        <Route path="cambiarContrasena" element={<ChangePassword />} />
+        <Route path="contrasena" element={<PasswordStudent />} />
         <Route path="psicologia" element={<Psychologist />} />
         <Route path="enfermeria" element={<Nursing />} />
         <Route path="odontologia" element={<Dentist />} />
@@ -118,6 +124,8 @@ function App() {
         <Route path="horario" element={<SchedulesPsych />} />
         <Route path="agenda" element={<AgendaPsych />} />
         <Route path="seguimiento" element={<Tracking />} />
+        <Route path="ajustes" element={<SettingPysch />} />
+        <Route path="contrasena" element={<PasswordPysch />} />
 
         </Route>
 
@@ -132,6 +140,7 @@ function App() {
         <Route path="informe" element={<InformNurse />} />
         <Route path="VerInforme/:id" element={<ViewNursingReport/>}/>
         <Route path="ajuste" element={<SettingNurse />} />
+        <Route path="contrasena" element={<PasswordNurse />} />
 
         </Route>
 
@@ -144,6 +153,7 @@ function App() {
         <Route path="visitas" element={<VisitsDentist />} />
         <Route path="historial" element={<HistoryDentist />} />
         <Route path="ajustes" element={<SettingDentist />} />
+        <Route path="contrasena" element={<PasswordDentist />} />
         </Route>
 
         <Route path="/monitor" element={<ProtectedRoute allowedRoles={["MONITOR"]}><Outlet /></ProtectedRoute>}>
@@ -153,6 +163,7 @@ function App() {
         <Route path="reservas" element={<Reservation />} />
         <Route path="menu" element={<MenuMonitor />} />
         <Route path="ajustes" element={<SettingMonitor />} />
+        <Route path="contrasena" element={<PasswordMonitor />} />
         </Route>
 
         <Route path="/funcionario" element={<ProtectedRoute allowedRoles={["FUNCIONARIO"]}><Outlet /></ProtectedRoute>}>
@@ -160,7 +171,7 @@ function App() {
         <Route path="becas" element={<BecasWorker />} />
         <Route path="citas" element={<AppointmentsWorker />} />
         <Route path="ajustes" element={<SettingWorker />} />
-        <Route path="cambiarContrasena" element={<ChangePasswordWorker />} />
+        <Route path="contrasena" element={<PasswordWorker />} />
         <Route path="psicologia" element={<PsychologistWorker />} />
         <Route path="enfermeria" element={<NursingWorker />} />
         <Route path="odontologia" element={<DentistWorker />} />
@@ -169,8 +180,8 @@ function App() {
         <Route path="/externo" element={<ProtectedRoute allowedRoles={["EXTERNO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de externo */}
         <Route path="becas" element={<BecasExternal />} />
-        <Route path="ajustes" element={<SettingExternal />} />
-        <Route path="cambiarContrasena" element={<ChangePasswordExt />} />
+        <Route path="ajuste" element={<SettingExternal />} />
+        <Route path="contrasena" element={<PasswordExternal />} />
         </Route>
 
         </Routes>

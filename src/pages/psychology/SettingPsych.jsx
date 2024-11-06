@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HeaderWorker from "../../components/worker/HeaderWorker";
+import HeaderPsych from "../../components/psychology/HeaderPsych";
 import { Button, Form, Input, message, Card } from 'antd';
 import api from '../../api';
 
-const SettingWorker= () => {
+const SettingPysch = () => {
     const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
 
@@ -25,12 +25,12 @@ const SettingWorker= () => {
     }, []);
 
     const handleChangePasswordClick = () => {
-        navigate('/funcionario/contrasena');
+        navigate('/psicologo/contrasena');
     };
 
     return (
         <>
-            <HeaderWorker />
+            <HeaderPsych />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <Card
                     title="Perfil"
@@ -71,4 +71,4 @@ const SettingWorker= () => {
     );
 };
 
-export default SettingWorker;
+export default SettingPysch;

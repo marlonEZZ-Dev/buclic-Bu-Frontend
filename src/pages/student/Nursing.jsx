@@ -29,11 +29,9 @@ const Nursing = () => {
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
   const [eps, setEps] = useState("");
-  const [semester, setSemester] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
   const [isPhoneError, setIsPhoneError] = useState(false);
   const [isEpsError, setIsEpsError] = useState(false);
-  const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
@@ -49,13 +47,9 @@ const Nursing = () => {
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
     const storedEps = localStorage.getItem("userEPS");
-    const storedSemester = localStorage.getItem("userSemester");
 
     setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
     setEps(storedEps !== "null" && storedEps ? storedEps : "");
-    setSemester(
-      storedSemester !== "null" && storedSemester ? storedSemester : ""
-    );
   }, []);
 
   useEffect(() => {
@@ -122,15 +116,9 @@ const Nursing = () => {
       setIsEpsError(false);
     }
 
-    if (!semester) {
-      setIsSemesterError(true);
-      hasError = true;
-    } else {
-      setIsSemesterError(false);
-    }
-
+   
     if (hasError) {
-      message.error("Digita los campos teléfono, EPS y semestre.");
+      message.error("Digita los campos teléfono y eps.");
       return; // Detener la ejecución si hay errores
     }
 
@@ -174,10 +162,15 @@ const Nursing = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
+
+          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
 
-          // Actualiza solo las citas pendientes sin modificar la fecha seleccionada ni los horarios filtrados
-          fetchPendingAppointment();
+          // Actualiza la lista de citas disponibles después de la cancelación
+          fetchAvailableDates();
+          
+          // Filtra las citas disponibles para la fecha seleccionada
+          filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
           console.error("Error al cancelar la cita:", error);
@@ -189,6 +182,30 @@ const Nursing = () => {
         });
     }
   };
+
+  // Nueva función para obtener y actualizar las citas disponibles
+  const fetchAvailableDates = () => {
+    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+
+    api
+      .get("/appointment?type=ENFERMERIA", {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      })
+      .then((response) => {
+        setAvailableDates(response.data.availableDates);
+        filterDatesBySelectedDay(
+          selectedDate,
+          response.data.availableDates
+        );
+      })
+      .catch((error) => {
+        console.error("Error al obtener los horarios:", error);
+      });
+  };
+
+  
 
   const handleConfirmReserve = () => {
     let hasError = false;
@@ -207,15 +224,9 @@ const Nursing = () => {
         setIsEpsError(false);
     }
 
-    if (!semester) {
-        setIsSemesterError(true);
-        hasError = true;
-    } else {
-        setIsSemesterError(false);
-    }
 
     if (hasError) {
-        message.error("Digita los campos teléfono, EPS y semestre.");
+        message.error("Digita los campos teléfono y eps.");
         setModalVisible(false);
         return;
     }
@@ -229,7 +240,6 @@ const Nursing = () => {
         availableDateId: selectedAppointmentId,   // entero
         pacientId: parseInt(userId, 10),          // entero
         eps,                                      // cadena
-        semester,                                 // cadena
         phone: parseInt(phone, 10)                // entero
     };
 
@@ -296,20 +306,16 @@ const Nursing = () => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     setPhone(value);
     setIsPhoneError(value.length !== 10);
+    localStorage.setItem("userPhone", value);
   };
+
 
   const handleEpsChange = (e) => {
     const value = e.target.value.trim();
     setEps(value);
     setIsEpsError(value === "");
+    localStorage.setItem("userEPS", value); // Guarda el EPS en localStorage
   };
-
-  const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-    setSemester(value);
-    setIsSemesterError(value.trim() === "");
-  };
-
   return (
     <>
       <TopNavbar />
@@ -396,22 +402,7 @@ const Nursing = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  label="Semestre"
-                  validateStatus={isSemesterError ? "error" : ""}
-                  help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
-                  }
-                >
-                  <Input
-                    type="text"
-                    value={semester}
-                    onChange={handleSemesterChange}
-                    style={{ borderColor: isSemesterError ? "red" : "" }}
-                  />
-                </Form.Item>
-              </Col>
+      
             </Row>
           </Form>
         )}
