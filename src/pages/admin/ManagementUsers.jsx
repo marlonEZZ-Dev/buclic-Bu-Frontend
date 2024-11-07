@@ -683,7 +683,7 @@ useEffect(() => {
         onClose={handlerCloseModalImport}>
         <Flex vertical align='center' justify='center'>
           <span style={fontSizeTitleModal}>Importar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</span>
-          <p>Descarga la plantilla <a href={`../../../public/importar_${isStudent ? "estudiantes": isFuncionary ? "funcionarios": isBeneficiary ? "beneficiarios" : ""}.csv`}>aquí</a> y selecciona el archivo modificado</p>
+          <p>Descarga la plantilla <a href="../../../public/importar_beneficiarios.csv">aquí</a> y selecciona el archivo modificado</p>
         <Flex align="flex-start" justify='space-around'>
           <button 
           className={styles.buttonLoad}
