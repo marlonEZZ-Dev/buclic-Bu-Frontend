@@ -186,6 +186,14 @@ const Tracking = () => {
 
               <h3 style={styles.sectionTitle}>Agendar próxima cita</h3>
               <div style={styles.scheduleContainer}>
+                <Row style={styles.headerRow} gutter={16}>
+                  <Col span={12} style={styles.headerCell}>
+                    Fecha
+                  </Col>
+                  <Col span={12} style={styles.headerCell}>
+                    Hora
+                  </Col>
+                </Row>
                 <Row gutter={16} style={styles.inputRow}>
                   <Col span={12}>
                     <DatePicker
@@ -242,9 +250,24 @@ const styles = {
   card: { width: "100%", maxWidth: "700px", margin: "3px auto", justifyContent: "center" },
   searchContainer: { display: "flex", justifyContent: "center", marginTop: "20px" },
   sectionTitle: { fontSize: "16px", fontWeight: "bold", margin: "15px 0", textAlign: "center" },
-  inputRow: { marginTop: "15px" },
+  headerRow: {
+    backgroundColor: "#e0e0e0",
+    padding: "10px",
+    fontWeight: "bold",
+    textAlign: "center",
+    borderTopLeftRadius: "8px",
+    borderTopRightRadius: "8px",
+  },
+  headerCell: { textAlign: "center" },
+  inputRow: { marginTop: "0px", padding: "10px" },
   buttonRow: { paddingTop: "10px", textAlign: "center" },
-  scheduleContainer: { marginTop: "20px" },
+  scheduleContainer: {
+    marginTop: "20px",
+    border: "1px solid #d9d9d9",
+    borderRadius: "8px",
+    overflow: "hidden",
+    backgroundColor: "white",
+  },
   tableTitle: { fontSize: "16px", fontWeight: "bold", margin: "20px 0", textAlign: "left" },
   saveButton: { backgroundColor: "#D32F2F", borderColor: "#D32F2F", color: "white" },
   cancelButton: { color: "#D32F2F", borderColor: "#D32F2F" },
