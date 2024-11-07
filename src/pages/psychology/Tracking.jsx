@@ -3,22 +3,11 @@ import React, { useState } from "react";
 import SearchInput from "../../components/global/SearchInput.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
-import {
-  Card,
-  Space,
-  Button,
-  Descriptions,
-  DatePicker,
-  TimePicker,
-  Row,
-  Col,
-} from "antd";
+import { Card, Space, Button, Descriptions, DatePicker, TimePicker, Row, Col } from "antd";
 import api from "../../api.js";
 
-const AssistanceIcon = ({ attended, id }) => (
-  <div
-    style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-  >
+const AssistanceIcon = ({ attended }) => (
+  <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
     <StateUser active={attended} />
   </div>
 );
@@ -39,24 +28,15 @@ const Tracking = () => {
     setSelectedTime(time);
   };
 
-  
-
-const handleSearch = async () => {
-    const usernameProfesional = localStorage.getItem('username');
+  const handleSearch = async () => {
     try {
-        const response = await api.get('/appointment-reservation/by-username', {
-            data: {
-                username: searchUsername,
-                usernameProfesional: usernameProfesional
-            }
-        });
-        setUserInfo(response.data[0]);
+      const response = await api.get(`/appointment-reservation/by-username/${searchUsername}`);
+      setUserInfo(response.data);
     } catch (error) {
-        console.error("Error fetching user data:", error);
-        setUserInfo(null);
+      console.error("Error fetching user data:", error);
+      setUserInfo(null); // Limpiar la información del usuario si hay un error
     }
   };
-
 
   const handleSave = () => {
     console.log("Fecha seleccionada:", selectedDate);
@@ -68,18 +48,28 @@ const handleSearch = async () => {
     setSelectedTime(null);
   };
 
-  // Datos para la tabla
-  const columns = ["Horario cita", "Psicólogo(a)", "Asistencia"];
-  const rows = [
-    [
-      userInfo?.username || "N/A",
-      userInfo?.name || "N/A",
-      <AssistanceIcon
-        attended={userInfo?.isActive ?? false}
-        id={userInfo?.username}
-      />,
-    ],
-  ];
+  // Función para formatear fecha y hora en formato de 12 horas
+const formatDateTime12Hour = (dateTime) => {
+  const date = new Date(dateTime);
+  return date.toLocaleString("es-ES", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+// Datos para la tabla de citas solicitadas
+const columns = ["Fecha y Hora", "Psicólogo(a)", "Asistencia"];
+const rows = userInfo?.listReservation?.content.map((reservation) => [
+  formatDateTime12Hour(reservation.dateTime),
+  reservation.namePycho,
+  <AssistanceIcon attended={reservation.assistant} />,
+]) || [];
+
+  
 
   return (
     <>
@@ -87,126 +77,99 @@ const handleSearch = async () => {
 
       <main className="becas-section" style={{ marginTop: "100px" }}>
         <h1 className="text-xl font-bold">Seguimientos</h1>
-        <p>
-          Aquí puedes buscar a los pacientes con las citas que han solicitado
-        </p>
+        <p>Aquí puedes buscar a los pacientes con las citas que han solicitado</p>
         <Card bordered={true} style={styles.card}>
           <div style={styles.searchContainer}>
             <SearchInput
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
-              onClick={handleSearch} // Cambia onSearch por onClick
+              onClick={handleSearch}
             />
           </div>
 
           <h3 style={styles.sectionTitle}>Información del paciente</h3>
           {userInfo ? (
-            <Descriptions bordered column={1} style={styles.descriptions}>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Nombre</span>}
-              >
-                {userInfo.name}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Código/Cédula</span>}
-              >
-                {userInfo.username}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Programa</span>}
-              >
-                {userInfo.plan}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Semestre</span>}
-              >
-                {userInfo.semester}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Teléfono</span>}
-              >
-                {userInfo.phone}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Correo</span>}
-              >
-                {userInfo.email}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>EPS</span>}
-              >
-                {userInfo.eps || "No registrado"}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <span style={styles.boldLabel}>Beneficiario de Almuerzo</span>
-                }
-              >
-                {userInfo.lunchBeneficiary ? "Sí" : "No"}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <span style={styles.boldLabel}>Beneficiario de Merienda</span>
-                }
-              >
-                {userInfo.snackBeneficiary ? "Sí" : "No"}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={<span style={styles.boldLabel}>Estado Activo</span>}
-              >
-                {userInfo.isActive ? "Activo" : "Inactivo"}
-              </Descriptions.Item>
-            </Descriptions>
+            <>
+              <Descriptions bordered column={1} style={styles.descriptions}>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Nombre</span>}>
+                  {userInfo.name}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Código/Cédula</span>}>
+                  {userInfo.username}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Programa</span>}>
+                  {userInfo.plan}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Semestre</span>}>
+                  {userInfo.semester}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Teléfono</span>}>
+                  {userInfo.phone}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Correo</span>}>
+                  {userInfo.email}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>EPS</span>}>
+                  {userInfo.eps || "No registrado"}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Beneficiario de Almuerzo</span>}>
+                  {userInfo.lunchBeneficiary ? "Sí" : "No"}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Beneficiario de Merienda</span>}>
+                  {userInfo.snackBeneficiary ? "Sí" : "No"}
+                </Descriptions.Item>
+                <Descriptions.Item label={<span style={styles.boldLabel}>Estado Activo</span>}>
+                  {userInfo.isActive ? "Activo" : "Inactivo"}
+                </Descriptions.Item>
+              </Descriptions>
+
+              {/* Sección para agendar próxima cita */}
+              <h3 style={styles.sectionTitle}>Agendar próxima cita</h3>
+              <div style={styles.scheduleContainer}>
+                <div style={styles.dateTimeSection}>
+                  <Row style={styles.headerRow}>
+                    <Col span={12} style={styles.headerCell}>
+                      Fecha
+                    </Col>
+                    <Col span={12} style={styles.headerCell}>
+                      Hora
+                    </Col>
+                  </Row>
+                  <Row gutter={16} style={styles.inputRow}>
+                    <Col span={12}>
+                      <DatePicker
+                        onChange={handleDateChange}
+                        value={selectedDate}
+                        style={{ width: "100%" }}
+                        placeholder="Fecha"
+                      />
+                    </Col>
+                    <Col span={12}>
+                      <TimePicker
+                        onChange={handleTimeChange}
+                        value={selectedTime}
+                        style={{ width: "100%" }}
+                        placeholder="Hora"
+                        format="HH:mm"
+                      />
+                    </Col>
+                  </Row>
+                  <Row justify="center" style={styles.buttonRow}>
+                    <Space size={20}>
+                      <Button type="primary" onClick={handleSave} className="button-save">
+                        Guardar
+                      </Button>
+                      <Button onClick={handleCancel} className="button-cancel">
+                        Cancelar
+                      </Button>
+                    </Space>
+                  </Row>
+                </div>
+              </div>
+            </>
           ) : (
             <p>No se ha encontrado información del usuario.</p>
           )}
-
-          <h3 style={styles.sectionTitle}>Agendar próxima cita</h3>
-          <div style={styles.scheduleContainer}>
-            <div style={styles.dateTimeSection}>
-              <Row style={styles.headerRow}>
-                <Col span={12} style={styles.headerCell}>
-                  Fecha
-                </Col>
-                <Col span={12} style={styles.headerCell}>
-                  Hora
-                </Col>
-              </Row>
-              <Row gutter={16} style={styles.inputRow}>
-                <Col span={12}>
-                  <DatePicker
-                    onChange={handleDateChange}
-                    value={selectedDate}
-                    style={{ width: "100%" }}
-                    placeholder="Fecha"
-                  />
-                </Col>
-                <Col span={12}>
-                  <TimePicker
-                    onChange={handleTimeChange}
-                    value={selectedTime}
-                    style={{ width: "100%" }}
-                    placeholder="Hora"
-                    format="HH:mm"
-                  />
-                </Col>
-              </Row>
-              <Row justify="center" style={styles.buttonRow}>
-                <Space size={20}>
-                  <Button
-                    type="primary"
-                    onClick={handleSave}
-                    className="button-save"
-                  >
-                    Guardar
-                  </Button>
-                  <Button onClick={handleCancel} className="button-cancel">
-                    Cancelar
-                  </Button>
-                </Space>
-              </Row>
-            </div>
-          </div>
 
           <h3 style={styles.tableTitle}>Tabla de citas solicitadas</h3>
           <TablePagination
@@ -284,15 +247,6 @@ const styles = {
   buttonRow: {
     paddingTop: "10px",
     textAlign: "center",
-  },
-  saveButton: {
-    backgroundColor: "#D32F2F",
-    borderColor: "#D32F2F",
-    color: "white",
-  },
-  cancelButton: {
-    color: "#D32F2F",
-    borderColor: "#D32F2F",
   },
   scheduleContainer: {
     marginTop: "20px",
