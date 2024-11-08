@@ -1,10 +1,11 @@
 import HeaderPsych from "../../components/psychology/HeaderPsych";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchInput from "../../components/global/SearchInput.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
-import { Card, Space, Button, Descriptions, DatePicker, TimePicker, Row, Col } from "antd";
+import { Card, Space, Button, Descriptions, DatePicker, TimePicker, Row, Col, message } from "antd";
 import api from "../../api.js";
+import moment from "moment";
 
 const AssistanceIcon = ({ attended }) => (
   <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -19,9 +20,46 @@ const Tracking = () => {
   const [selectedTime, setSelectedTime] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [searchUsername, setSearchUsername] = useState("");
+  const [availableAppointments, setAvailableAppointments] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
+
+  useEffect(() => {
+    fetchAvailableAppointments();
+  }, []);
+
+  const fetchAvailableAppointments = async () => {
+    try {
+      const response = await api.get("/appointment", { params: { type: "PSICOLOGIA" } });
+      const appointments = response.data.availableDates || [];
+      setAvailableAppointments(appointments);
+
+      const dates = [
+        ...new Set(
+          appointments
+            .map((appt) => moment(appt.dateTime).format("YYYY-MM-DD"))
+            .filter((date) => moment(date).isSameOrAfter(moment(), "day"))
+        ),
+      ];
+      setAvailableDates(dates);
+    } catch (error) {
+      console.error("Error fetching available appointments:", error);
+    }
+  };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
+    setSelectedTime(null);
+
+    if (date) {
+      const dateString = date.format("YYYY-MM-DD");
+      const times = availableAppointments
+        .filter((appt) => moment(appt.dateTime).format("YYYY-MM-DD") === dateString)
+        .map((appt) => moment(appt.dateTime));
+      setAvailableTimes(times);
+    } else {
+      setAvailableTimes([]);
+    }
   };
 
   const handleTimeChange = (time) => {
@@ -34,13 +72,32 @@ const Tracking = () => {
       setUserInfo(response.data);
     } catch (error) {
       console.error("Error fetching user data:", error);
-      setUserInfo(null); // Limpiar la información del usuario si hay un error
+      setUserInfo(null);
     }
   };
 
-  const handleSave = () => {
-    console.log("Fecha seleccionada:", selectedDate);
-    console.log("Hora seleccionada:", selectedTime);
+  const handleSave = async () => {
+    if (!selectedDate || !selectedTime) {
+      message.error("Por favor, selecciona una fecha y hora.");
+      return;
+    }
+
+    const dateTime = moment(
+      selectedDate.format("YYYY-MM-DD") + " " + selectedTime.format("HH:mm")
+    ).toISOString();
+
+    try {
+      await api.post("/appointment-reservation", {
+        username: userInfo.username,
+        dateTime,
+        type: "PSICOLOGIA",
+      });
+      message.success("Cita agendada exitosamente.");
+      handleSearch();
+    } catch (error) {
+      console.error("Error saving appointment:", error);
+      message.error("Error al agendar la cita.");
+    }
   };
 
   const handleCancel = () => {
@@ -48,28 +105,46 @@ const Tracking = () => {
     setSelectedTime(null);
   };
 
-  // Función para formatear fecha y hora en formato de 12 horas
-const formatDateTime12Hour = (dateTime) => {
-  const date = new Date(dateTime);
-  return date.toLocaleString("es-ES", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
+  const disabledDate = (current) => {
+    return (
+      current && current < moment().startOf("day") ||
+      !availableDates.includes(current.format("YYYY-MM-DD"))
+    );
+  };
 
-// Datos para la tabla de citas solicitadas
-const columns = ["Fecha y Hora", "Psicólogo(a)", "Asistencia"];
-const rows = userInfo?.listReservation?.content.map((reservation) => [
-  formatDateTime12Hour(reservation.dateTime),
-  reservation.namePycho,
-  <AssistanceIcon attended={reservation.assistant} />,
-]) || [];
+  const disabledTime = () => {
+    const availableHours = availableTimes.map((time) => time.hour());
+    const availableMinutes = availableTimes.map((time) => time.minute());
 
-  
+    return {
+      disabledHours: () =>
+        Array.from({ length: 24 }, (_, i) => i).filter((hour) => !availableHours.includes(hour)),
+      disabledMinutes: (selectedHour) =>
+        Array.from({ length: 60 }, (_, i) => i).filter(
+          (minute) => !availableMinutes.includes(minute) || !availableHours.includes(selectedHour)
+        ),
+    };
+  };
+
+  const formatDateTime12Hour = (dateTime) => {
+    const date = new Date(dateTime);
+    return date.toLocaleString("es-ES", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const columns = ["Fecha y Hora", "Psicólogo(a)", "Asistencia"];
+  const rows =
+    userInfo?.listReservation?.content.map((reservation) => [
+      formatDateTime12Hour(reservation.dateTime),
+      reservation.namePycho,
+      <AssistanceIcon attended={reservation.assistant} />,
+    ]) || [];
 
   return (
     <>
@@ -91,80 +166,66 @@ const rows = userInfo?.listReservation?.content.map((reservation) => [
           {userInfo ? (
             <>
               <Descriptions bordered column={1} style={styles.descriptions}>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Nombre</span>}>
-                  {userInfo.name}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Código/Cédula</span>}>
-                  {userInfo.username}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Programa</span>}>
-                  {userInfo.plan}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Semestre</span>}>
-                  {userInfo.semester}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Teléfono</span>}>
-                  {userInfo.phone}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Correo</span>}>
-                  {userInfo.email}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>EPS</span>}>
-                  {userInfo.eps || "No registrado"}
-                </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Beneficiario de Almuerzo</span>}>
+                <Descriptions.Item label="Nombre">{userInfo.name}</Descriptions.Item>
+                <Descriptions.Item label="Código/Cédula">{userInfo.username}</Descriptions.Item>
+                <Descriptions.Item label="Programa">{userInfo.plan}</Descriptions.Item>
+                <Descriptions.Item label="Semestre">{userInfo.semester}</Descriptions.Item>
+                <Descriptions.Item label="Teléfono">{userInfo.phone}</Descriptions.Item>
+                <Descriptions.Item label="Correo">{userInfo.email}</Descriptions.Item>
+                <Descriptions.Item label="EPS">{userInfo.eps || "No registrado"}</Descriptions.Item>
+                <Descriptions.Item label="Beneficiario de Almuerzo">
                   {userInfo.lunchBeneficiary ? "Sí" : "No"}
                 </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Beneficiario de Merienda</span>}>
+                <Descriptions.Item label="Beneficiario de Merienda">
                   {userInfo.snackBeneficiary ? "Sí" : "No"}
                 </Descriptions.Item>
-                <Descriptions.Item label={<span style={styles.boldLabel}>Estado Activo</span>}>
+                <Descriptions.Item label="Estado Activo">
                   {userInfo.isActive ? "Activo" : "Inactivo"}
                 </Descriptions.Item>
               </Descriptions>
 
-              {/* Sección para agendar próxima cita */}
               <h3 style={styles.sectionTitle}>Agendar próxima cita</h3>
               <div style={styles.scheduleContainer}>
-                <div style={styles.dateTimeSection}>
-                  <Row style={styles.headerRow}>
-                    <Col span={12} style={styles.headerCell}>
-                      Fecha
-                    </Col>
-                    <Col span={12} style={styles.headerCell}>
-                      Hora
-                    </Col>
-                  </Row>
-                  <Row gutter={16} style={styles.inputRow}>
-                    <Col span={12}>
-                      <DatePicker
-                        onChange={handleDateChange}
-                        value={selectedDate}
-                        style={{ width: "100%" }}
-                        placeholder="Fecha"
-                      />
-                    </Col>
-                    <Col span={12}>
-                      <TimePicker
-                        onChange={handleTimeChange}
-                        value={selectedTime}
-                        style={{ width: "100%" }}
-                        placeholder="Hora"
-                        format="HH:mm"
-                      />
-                    </Col>
-                  </Row>
-                  <Row justify="center" style={styles.buttonRow}>
-                    <Space size={20}>
-                      <Button type="primary" onClick={handleSave} className="button-save">
-                        Guardar
-                      </Button>
-                      <Button onClick={handleCancel} className="button-cancel">
-                        Cancelar
-                      </Button>
-                    </Space>
-                  </Row>
-                </div>
+                <Row style={styles.headerRow} gutter={16}>
+                  <Col span={12} style={styles.headerCell}>
+                    Fecha
+                  </Col>
+                  <Col span={12} style={styles.headerCell}>
+                    Hora
+                  </Col>
+                </Row>
+                <Row gutter={16} style={styles.inputRow}>
+                  <Col span={12}>
+                    <DatePicker
+                      onChange={handleDateChange}
+                      value={selectedDate}
+                      style={{ width: "100%" }}
+                      placeholder="Fecha"
+                      disabledDate={disabledDate}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <TimePicker
+                      onChange={handleTimeChange}
+                      value={selectedTime}
+                      style={{ width: "100%" }}
+                      placeholder="Hora"
+                      format="HH:mm"
+                      disabled={!selectedDate}
+                      disabledTime={disabledTime}
+                    />
+                  </Col>
+                </Row>
+                <Row justify="center" style={styles.buttonRow}>
+                  <Space size={20}>
+                    <Button type="primary" onClick={handleSave} className="button-save" style={styles.saveButton}>
+                      Guardar
+                    </Button>
+                    <Button onClick={handleCancel} className="button-cancel" style={styles.cancelButton}>
+                      Cancelar
+                    </Button>
+                  </Space>
+                </Row>
               </div>
             </>
           ) : (
@@ -186,79 +247,30 @@ const rows = userInfo?.listReservation?.content.map((reservation) => [
 };
 
 const styles = {
-  main: {
-    marginTop: "100px",
-    padding: "0 20px",
-    display: "flex",
-    justifyContent: "center",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "700px",
-    marginTop: "100px",
-    margin: "3px auto",
-    justifyContent: "center",
-  },
-  titleSpace: {
-    marginTop: "5px",
-    alignItems: "center",
-  },
-  descriptions: {
-    marginTop: "15px",
-    width: "100%",
-    margin: "auto",
-  },
-  boldLabel: {
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    marginTop: "20px",
-  },
-  sectionTitle: {
-    fontSize: "16px",
-    fontWeight: "bold",
-    marginTop: "15px",
-    marginBottom: "15px",
-    textAlign: "center",
-  },
-  dateTimeSection: {
-    border: "1px solid #d9d9d9",
-    borderRadius: "8px",
-    overflow: "hidden",
-    marginTop: "10px",
-    paddingBottom: "10px",
-  },
+  card: { width: "100%", maxWidth: "700px", margin: "3px auto", justifyContent: "center" },
+  searchContainer: { display: "flex", justifyContent: "center", marginTop: "20px" },
+  sectionTitle: { fontSize: "16px", fontWeight: "bold", margin: "15px 0", textAlign: "center" },
   headerRow: {
     backgroundColor: "#e0e0e0",
     padding: "10px",
     fontWeight: "bold",
-    color: "#666",
     textAlign: "center",
+    borderTopLeftRadius: "8px",
+    borderTopRightRadius: "8px",
   },
-  headerCell: {
-    textAlign: "center",
-  },
-  inputRow: {
-    padding: "10px",
-  },
-  buttonRow: {
-    paddingTop: "10px",
-    textAlign: "center",
-  },
+  headerCell: { textAlign: "center" },
+  inputRow: { marginTop: "0px", padding: "10px" },
+  buttonRow: { paddingTop: "10px", textAlign: "center" },
   scheduleContainer: {
     marginTop: "20px",
-    marginBottom: "20px",
+    border: "1px solid #d9d9d9",
+    borderRadius: "8px",
+    overflow: "hidden",
+    backgroundColor: "white",
   },
-  tableTitle: {
-    fontSize: "16px",
-    fontWeight: "bold",
-    marginTop: "20px",
-    marginBottom: "10px",
-    textAlign: "left",
-  },
+  tableTitle: { fontSize: "16px", fontWeight: "bold", margin: "20px 0", textAlign: "left" },
+  saveButton: { backgroundColor: "#D32F2F", borderColor: "#D32F2F", color: "white" },
+  cancelButton: { color: "#D32F2F", borderColor: "#D32F2F" },
 };
 
 export default Tracking;

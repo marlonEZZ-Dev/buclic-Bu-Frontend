@@ -18,7 +18,6 @@ import Settings from "./pages/student/Settings";
 import Psychologist from "./pages/student/Psychologist";
 import Nursing from "./pages/student/Nursing";
 import Dentist from "./pages/student/Dentist";
-import BecasAdmin from "./pages/admin/BecasAdmin";
 import NursingAdmin from "./pages/admin/NursingAdmin";
 import PsychologistAdmin from "./pages/admin/PsychologistAdmin";
 import DentistAdmin from "./pages/admin/DentistAdmin";
@@ -71,7 +70,8 @@ import PasswordStudent from "./pages/student/PasswordStudent";
 import PasswordWorker from "./pages/worker/PasswordWorker";
 import PasswordExternal from "./pages/external/PasswordExternal";
 import PasswordDentist from "./pages/dentist/PasswordDentist";
-
+import ExternosAdmin from "./pages/admin/ExternosAdm";
+import Externos from "./pages/monitor/Externos"
 
 
 function App() {
@@ -94,7 +94,7 @@ function App() {
         <Route path="informes" element={<Informs />} />
         <Route path="VerInforme/:id" element={<ViewInforms />} />
         <Route path="menu" element={<Menu />} />
-        <Route path="becaAdm" element={<BecasAdmin />} />
+        <Route path="externos" element={<ExternosAdmin />} />
         <Route path="citasAdm" element={<AppointmentsAdmin />} />
         <Route path="reservas" element={<Reservations />} />
         <Route path="enfermeriaAdmin" element={<NursingAdmin />} />
@@ -163,6 +163,7 @@ function App() {
         <Route path="reservas" element={<Reservation />} />
         <Route path="menu" element={<MenuMonitor />} />
         <Route path="ajustes" element={<SettingMonitor />} />
+        <Route path="externos" element={<Externos />} />
         <Route path="contrasena" element={<PasswordMonitor />} />
         </Route>
 

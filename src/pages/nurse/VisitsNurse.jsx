@@ -165,9 +165,9 @@ const VisitsNurse = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Nombre" labelAlign="left" required>
+                  <Form.Item label="Nombre y Apellido" labelAlign="left" required>
                     <Input
-                      placeholder="Ingrese el nombre"
+                      placeholder="Nombre y Apellido"
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
                     />
