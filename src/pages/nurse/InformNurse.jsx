@@ -56,28 +56,28 @@ export default function InformNurse() {
   const searchReports = async () => {
     const regex = /^(\d{4})-(\d)$/;
     const match = searchInput.match(regex);
-    
+
     if (!match) {
       message.warning('Por favor, ingrese el trimestre en el formato correcto (ej: 2024-2).');
       return;
     }
-    
+
     const year = parseInt(match[1], 10);
     const trimester = parseInt(match[2], 10);
-    
+
     try {
       // Llamar al endpoint de búsqueda con los parámetros
       const response = await api.get('/nursing-report/search', {
         params: { year, trimester, page: 0, size: itemsPerPage },
       });
-  
+
       const { content = [], totalElements = 0 } = response.data; // Ajustar según el formato de la respuesta
-  
+
       setReports(content); // Actualizar informes con resultados de búsqueda
       setTotalItems(totalElements); // Total de elementos de búsqueda
       setCurrentPage(1); // Reiniciar a la primera página
       setNoResults(content.length === 0); // Verificar si hay resultados
-  
+
       if (content.length > 0) {
         message.success('Resultados de búsqueda cargados.');
       } else {
@@ -88,7 +88,7 @@ export default function InformNurse() {
       message.error(`Error al realizar la búsqueda: ${error.response?.data?.message || error.message}`);
     }
   };
-  
+
 
   // Función general para obtener informes con paginación y búsqueda
   const fetchReports = useCallback(async (page = 1) => {
@@ -99,9 +99,9 @@ export default function InformNurse() {
           size: itemsPerPage,
         }
       });
-  
+
       const { content = [], totalElements = 0, number = 0 } = response.data;
-  
+
       setReports(content);
       setTotalItems(totalElements); // Total de elementos sin filtro
       setCurrentPage(number + 1); // Ajustar la página actual
@@ -112,7 +112,7 @@ export default function InformNurse() {
       setNoResults(true);
     }
   }, []);
-  
+
 
   useEffect(() => {
     fetchReports(currentPage);
@@ -126,7 +126,7 @@ export default function InformNurse() {
       fetchReports(page); // Si no, llama a fetchReports para obtener la página seleccionada sin filtro
     }
   };
-  
+
 
   const handleSearch = () => {
     if (!searchInput) {
@@ -135,15 +135,6 @@ export default function InformNurse() {
     }
     setCurrentPage(1); // Reinicia a la primera página
     searchReports(); // Llama a searchReports para aplicar el filtro de búsqueda
-  };
-  
-
-  const handleReloadTable = () => {
-    setTrimesterInput('');
-    setSearchInput('');
-    setCurrentPage(1);
-    setNoResults(false);
-    fetchReports(1); // Recargar todos los informes sin filtro
   };
 
   // Función para descargar un informe
@@ -211,6 +202,22 @@ export default function InformNurse() {
         style: { borderColor: '#C20E1A', color: '#C20E1A' },
       },
     });
+  };
+
+  const handleReloadTable = () => {
+    if (noResults) {
+      Modal.info({
+        title: 'Información',
+        content: 'No hay elementos en la tabla para recargar.',
+        okText: 'Aceptar',
+      });
+    } else {
+      setTrimesterInput('');
+      setSearchInput('');
+      setCurrentPage(1);
+      setNoResults(false);
+      fetchReports(1); // Recargar todos los informes sin filtro
+    }
   };
 
   const rows = reports.map(report => [
