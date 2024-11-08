@@ -9,4 +9,4 @@ const Externos = () => {
     );
 };
 
-export default BecasAdmin;
+export default Externos;

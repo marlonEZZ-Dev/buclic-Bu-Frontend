@@ -90,6 +90,12 @@ export default function HeaderMonitor(props) {
                 Citas
               </li>
               <li
+                onClick={() => handleButtonClick("/monitor/menu")}
+                className={location.pathname === "/monitor/menu" ? "active" : ""}
+              >
+                Menú  
+              </li>
+              <li
                 onClick={() => handleButtonClick("/monitor/reservas")}
                 className={
                   location.pathname === "/monitor/reservas" ? "active" : ""
@@ -98,11 +104,13 @@ export default function HeaderMonitor(props) {
                 Reservas
               </li>
               <li
-                onClick={() => handleButtonClick("/monitor/menu")}
-                className={location.pathname === "/monitor/menu" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/externos")}
+                className={location.pathname === "/monitor/externos" ? "active" : ""}
               >
-                Menú  del día
+                Externos
               </li>
+             
+              
               <li
                 onClick={() => handleButtonClick("/monitor/ajustes")}
                 className={location.pathname === "/monitor/ajustes" ? "active" : ""}
@@ -135,6 +143,12 @@ export default function HeaderMonitor(props) {
                 Citas
               </li>
               <li
+                onClick={() => handleButtonClick("/monitor/menu")}
+                className={location.pathname === "/monitor/menu" ? "active" : ""}
+              >
+                Menú  
+              </li>
+              <li
                 onClick={() => handleButtonClick("/monitor/reservas")}
                 className={
                   location.pathname === "/monitor/reservas" ? "active" : ""
@@ -143,11 +157,12 @@ export default function HeaderMonitor(props) {
                 Reservas
               </li>
               <li
-                onClick={() => handleButtonClick("/monitor/menu")}
-                className={location.pathname === "/monitor/menu" ? "active" : ""}
+                onClick={() => handleButtonClick("/monitor/externos")}
+                className={location.pathname === "/monitor/externos" ? "active" : ""}
               >
-                Menú  del día
+                Externos
               </li>
+              
               <li
                 onClick={() => handleButtonClick("/monitor/ajustes")}
                 className={location.pathname === "/monitor/ajustes" ? "active" : ""}

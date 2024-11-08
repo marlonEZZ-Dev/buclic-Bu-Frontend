@@ -5,7 +5,7 @@ import { Button, Col, Form, Card, Space, Row, Input, message } from 'antd';
 import api from '../../api';
 import SearchInputR from '../../components/global/SearchInputR';
 
-const BecasAdmin = () => {
+const ExternosAdmin = () => {
 
 
   return (
@@ -95,4 +95,4 @@ const BecasAdmin = () => {
   );
 };
 
-export default BecasAdmin;
+export default ExternosAdmin;
