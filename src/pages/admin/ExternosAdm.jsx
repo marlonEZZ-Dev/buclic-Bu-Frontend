@@ -58,7 +58,8 @@ const ExternosAdmin = () => {
 
   const handleSearch = async (cedula) => {
     try {
-      const response = await api.get(`/extern/${cedula}`);
+      const response = await api.get(`/reservations/extern/${cedula}`);
+      
       setExternoData(response.data);
       message.success('Usuario encontrado');
     } catch (error) {
