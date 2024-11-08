@@ -33,7 +33,6 @@ export default function InformNurse() {
   // Función para generar el informe
   const generateReport = async () => {
     const parsedData = parseTrimesterInput(trimesterInput);
-
     if (!parsedData) {
       message.warning('Por favor, ingrese un trimestre en el formato correcto (ej: 2024-2).');
       return;
@@ -41,7 +40,6 @@ export default function InformNurse() {
 
     try {
       const response = await api.post('/nursing-report', parsedData);
-
       if (response.status === 201 || response.status === 200) {
         message.success('Informe generado exitosamente');
         setTrimesterInput('');
@@ -55,44 +53,58 @@ export default function InformNurse() {
     }
   };
 
-
   const searchReports = async () => {
-    const regex = /^(\d{4})-(\d)$/; // Regex para validar y capturar el año y trimestre
+    const regex = /^(\d{4})-(\d)$/;
     const match = searchInput.match(regex);
-
+    
     if (!match) {
       message.warning('Por favor, ingrese el trimestre en el formato correcto (ej: 2024-2).');
       return;
     }
-
+    
     const year = parseInt(match[1], 10);
     const trimester = parseInt(match[2], 10);
-
+    
     try {
+      // Llamar al endpoint de búsqueda con los parámetros
       const response = await api.get('/nursing-report/search', {
-        params: { year, trimester },
+        params: { year, trimester, page: 0, size: itemsPerPage },
       });
-
-      setReports(response.data); // Actualiza los informes con los resultados de la búsqueda
-      setTotalItems(response.data.length); // Actualiza el número total de elementos para la paginación si es necesario
-      setCurrentPage(1); // Reinicia la paginación a la primera página en caso de búsqueda
-      message.success('Resultados de búsqueda cargados.');
+  
+      const { content = [], totalElements = 0 } = response.data; // Ajustar según el formato de la respuesta
+  
+      setReports(content); // Actualizar informes con resultados de búsqueda
+      setTotalItems(totalElements); // Total de elementos de búsqueda
+      setCurrentPage(1); // Reiniciar a la primera página
+      setNoResults(content.length === 0); // Verificar si hay resultados
+  
+      if (content.length > 0) {
+        message.success('Resultados de búsqueda cargados.');
+      } else {
+        message.info('No se encontraron resultados para el trimestre especificado.');
+      }
     } catch (error) {
       console.error('Error al buscar informes:', error);
-      message.error('No se pudo realizar la búsqueda.');
+      message.error(`Error al realizar la búsqueda: ${error.response?.data?.message || error.message}`);
     }
   };
+  
 
-
-  // Función para obtener la lista de informes de enfermería
-  const fetchReports = useCallback(async (page = 1, search = '') => {
+  // Función general para obtener informes con paginación y búsqueda
+  const fetchReports = useCallback(async (page = 1) => {
     try {
-      const response = await api.get(`/nursing-report/list?page=${page - 1}&size=${itemsPerPage}&search=${search}`);
-      const { content, totalElements, number } = response.data;
-
+      const response = await api.get(`/nursing-report/list`, {
+        params: {
+          page: page - 1,
+          size: itemsPerPage,
+        }
+      });
+  
+      const { content = [], totalElements = 0, number = 0 } = response.data;
+  
       setReports(content);
-      setTotalItems(totalElements);
-      setCurrentPage(number + 1);
+      setTotalItems(totalElements); // Total de elementos sin filtro
+      setCurrentPage(number + 1); // Ajustar la página actual
       setNoResults(content.length === 0);
     } catch (error) {
       console.error('Error al obtener informes:', error);
@@ -100,23 +112,31 @@ export default function InformNurse() {
       setNoResults(true);
     }
   }, []);
+  
 
   useEffect(() => {
-    fetchReports(currentPage, searchInput);
-  }, [fetchReports, currentPage, searchInput]);
+    fetchReports(currentPage);
+  }, [fetchReports, currentPage]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    if (searchInput) {
+      searchReports(page); // Si hay búsqueda, llama a searchReports en la página seleccionada
+    } else {
+      fetchReports(page); // Si no, llama a fetchReports para obtener la página seleccionada sin filtro
+    }
   };
+  
 
   const handleSearch = () => {
     if (!searchInput) {
       message.warning('Por favor, ingrese un trimestre para buscar.');
       return;
     }
-    setCurrentPage(1);
-    fetchReports(1, searchInput);
+    setCurrentPage(1); // Reinicia a la primera página
+    searchReports(); // Llama a searchReports para aplicar el filtro de búsqueda
   };
+  
 
   const handleReloadTable = () => {
     setTrimesterInput('');
