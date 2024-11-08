@@ -1,5 +1,5 @@
 import HeaderPsych from "../../components/psychology/HeaderPsych";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import SearchInput from "../../components/global/SearchInput.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
@@ -20,60 +20,36 @@ const Tracking = () => {
   const [selectedTime, setSelectedTime] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [searchUsername, setSearchUsername] = useState("");
-  const [availableAppointments, setAvailableAppointments] = useState([]);
-  const [availableDates, setAvailableDates] = useState([]);
-  const [availableTimes, setAvailableTimes] = useState([]);
-
-  useEffect(() => {
-    fetchAvailableAppointments();
-  }, []);
-
-  const fetchAvailableAppointments = async () => {
-    try {
-      const response = await api.get("/appointment", { params: { type: "PSICOLOGIA" } });
-      const appointments = response.data.availableDates || [];
-      setAvailableAppointments(appointments);
-
-      const dates = [
-        ...new Set(
-          appointments
-            .map((appt) => moment(appt.dateTime).format("YYYY-MM-DD"))
-            .filter((date) => moment(date).isSameOrAfter(moment(), "day"))
-        ),
-      ];
-      setAvailableDates(dates);
-    } catch (error) {
-      console.error("Error fetching available appointments:", error);
-    }
-  };
+  const [totalItems, setTotalItems] = useState(0);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    setSelectedTime(null);
-
-    if (date) {
-      const dateString = date.format("YYYY-MM-DD");
-      const times = availableAppointments
-        .filter((appt) => moment(appt.dateTime).format("YYYY-MM-DD") === dateString)
-        .map((appt) => moment(appt.dateTime));
-      setAvailableTimes(times);
-    } else {
-      setAvailableTimes([]);
-    }
   };
 
   const handleTimeChange = (time) => {
     setSelectedTime(time);
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (page = 1) => {
     try {
-      const response = await api.get(`/appointment-reservation/by-username/${searchUsername}`);
+      const response = await api.get(`/appointment-reservation/by-username/${searchUsername}`, {
+        params: {
+          page: page - 1, // Para asegurarse de que el backend reciba el índice de página correcto
+          size: itemsPerPage,
+        },
+      });
+
       setUserInfo(response.data);
+      setTotalItems(response.data.listReservation.page.totalElements);
+      setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching user data:", error);
       setUserInfo(null);
     }
+  };
+
+  const handlePageChange = (page) => {
+    handleSearch(page); // Solicitar la página actualizada
   };
 
   const handleSave = async () => {
@@ -86,17 +62,25 @@ const Tracking = () => {
       selectedDate.format("YYYY-MM-DD") + " " + selectedTime.format("HH:mm")
     ).toISOString();
 
+    const pacientId = userInfo?.id;
+    const professionalId = localStorage.getItem("userId");
+
+    if (!pacientId || !professionalId) {
+      message.error("No se pudo agendar la cita debido a falta de información.");
+      return;
+    }
+
     try {
-      await api.post("/appointment-reservation", {
-        username: userInfo.username,
+      const response = await api.post("/appointment-reservation/follow-up", {
+        pacientId,
+        professionalId,
         dateTime,
-        type: "PSICOLOGIA",
       });
-      message.success("Cita agendada exitosamente.");
-      handleSearch();
+      message.success(response.data.message);
+      handleSearch(); // Refrescar la información después de agendar
     } catch (error) {
       console.error("Error saving appointment:", error);
-      message.error("Error al agendar la cita.");
+      message.error(error.response?.data?.message || "Error al agendar la cita.");
     }
   };
 
@@ -106,24 +90,7 @@ const Tracking = () => {
   };
 
   const disabledDate = (current) => {
-    return (
-      current && current < moment().startOf("day") ||
-      !availableDates.includes(current.format("YYYY-MM-DD"))
-    );
-  };
-
-  const disabledTime = () => {
-    const availableHours = availableTimes.map((time) => time.hour());
-    const availableMinutes = availableTimes.map((time) => time.minute());
-
-    return {
-      disabledHours: () =>
-        Array.from({ length: 24 }, (_, i) => i).filter((hour) => !availableHours.includes(hour)),
-      disabledMinutes: (selectedHour) =>
-        Array.from({ length: 60 }, (_, i) => i).filter(
-          (minute) => !availableMinutes.includes(minute) || !availableHours.includes(selectedHour)
-        ),
-    };
+    return current && current < moment().startOf("day");
   };
 
   const formatDateTime12Hour = (dateTime) => {
@@ -158,7 +125,7 @@ const Tracking = () => {
             <SearchInput
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
-              onClick={handleSearch}
+              onClick={() => handleSearch(1)}
             />
           </div>
 
@@ -172,27 +139,13 @@ const Tracking = () => {
                 <Descriptions.Item label="Semestre">{userInfo.semester}</Descriptions.Item>
                 <Descriptions.Item label="Teléfono">{userInfo.phone}</Descriptions.Item>
                 <Descriptions.Item label="Correo">{userInfo.email}</Descriptions.Item>
-                <Descriptions.Item label="EPS">{userInfo.eps || "No registrado"}</Descriptions.Item>
-                <Descriptions.Item label="Beneficiario de Almuerzo">
-                  {userInfo.lunchBeneficiary ? "Sí" : "No"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Beneficiario de Merienda">
-                  {userInfo.snackBeneficiary ? "Sí" : "No"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Estado Activo">
-                  {userInfo.isActive ? "Activo" : "Inactivo"}
-                </Descriptions.Item>
               </Descriptions>
 
               <h3 style={styles.sectionTitle}>Agendar próxima cita</h3>
               <div style={styles.scheduleContainer}>
                 <Row style={styles.headerRow} gutter={16}>
-                  <Col span={12} style={styles.headerCell}>
-                    Fecha
-                  </Col>
-                  <Col span={12} style={styles.headerCell}>
-                    Hora
-                  </Col>
+                  <Col span={12} style={styles.headerCell}>Fecha</Col>
+                  <Col span={12} style={styles.headerCell}>Hora</Col>
                 </Row>
                 <Row gutter={16} style={styles.inputRow}>
                   <Col span={12}>
@@ -212,18 +165,13 @@ const Tracking = () => {
                       placeholder="Hora"
                       format="HH:mm"
                       disabled={!selectedDate}
-                      disabledTime={disabledTime}
                     />
                   </Col>
                 </Row>
                 <Row justify="center" style={styles.buttonRow}>
                   <Space size={20}>
-                    <Button type="primary" onClick={handleSave} className="button-save" style={styles.saveButton}>
-                      Guardar
-                    </Button>
-                    <Button onClick={handleCancel} className="button-cancel" style={styles.cancelButton}>
-                      Cancelar
-                    </Button>
+                    <Button type="primary" onClick={handleSave} className="button-save">Guardar</Button>
+                    <Button onClick={handleCancel} className="button-cancel">Cancelar</Button>
                   </Space>
                 </Row>
               </div>
@@ -238,7 +186,8 @@ const Tracking = () => {
             columns={columns}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
+            totalItems={totalItems}
+            onPageChange={handlePageChange}
           />
         </Card>
       </main>
@@ -269,8 +218,7 @@ const styles = {
     backgroundColor: "white",
   },
   tableTitle: { fontSize: "16px", fontWeight: "bold", margin: "20px 0", textAlign: "left" },
-  saveButton: { backgroundColor: "#D32F2F", borderColor: "#D32F2F", color: "white" },
-  cancelButton: { color: "#D32F2F", borderColor: "#D32F2F" },
+  
 };
 
 export default Tracking;
