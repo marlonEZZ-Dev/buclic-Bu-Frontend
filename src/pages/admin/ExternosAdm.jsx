@@ -27,7 +27,7 @@ const ExternosAdmin = () => {
       const values = await form.validateFields();
 
       const requestPayload = {
-        username: 'externo',
+        username: values.cedula,
         name: values.name,
         lastname: values.lastname,
         plan: values.dependencia,
@@ -92,7 +92,12 @@ const ExternosAdmin = () => {
                     { required: true, message: 'Por favor ingrese su número de cédula' },
                     { pattern: /^[1-9]\d*$/, message: 'Solo se permiten números positivos' },
                   ]}>
-                    <SearchInputR onSearch={handleSearch} placeholder="Ingrese la cédula" />
+                    <SearchInputR
+                      onSearch={handleSearch}
+                      value={cedula}
+                      onChange={handleCedulaChange}
+                      placeholder="Ingrese la cédula"
+                    />
                   </Form.Item>
                 </Col>
 
