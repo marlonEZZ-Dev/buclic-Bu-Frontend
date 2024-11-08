@@ -85,15 +85,17 @@ export default function InformNurse() {
         setReports(response.data.content);
         setTotalItems(response.data.page.totalElements);
         setNoResults(response.data.content.length === 0);
-        setIsSearchMode(false); // Reinicia el modo de búsqueda al cargar informes totales
+        return response; // Retornar la respuesta completa
       } else {
         console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
+        return null; // Retornar null en caso de error
       }
     } catch (error) {
       console.error('Error al obtener informes:', error);
       message.error('No se pudieron cargar los informes');
       setNoResults(true);
+      return null; // Retornar null en caso de error
     }
   }, []);
 
@@ -115,12 +117,23 @@ export default function InformNurse() {
     searchReportById();
   };
 
-  const handleReloadTable = () => {
+  const handleReloadTable = async () => {
     setTrimesterInput('');
     setSearchInput('');
     setCurrentPage(1);
     setNoResults(false);
-    fetchReports(1);
+
+    // Llamada para recargar todos los informes
+    const response = await fetchReports(1);
+
+    // Verificar si no hay elementos en la respuesta
+    if (response && response.data.content.length === 0) {
+      Modal.info({
+        title: 'Sin elementos creados',
+        content: 'No hay elementos creados en este momento.',
+        okText: 'Aceptar',
+      });
+    }
   };
 
   // Función para descargar un informe
@@ -210,71 +223,71 @@ export default function InformNurse() {
 
   return (
     <>
-    <HeaderNurse />
-    <main className="informes-section" style={{ marginTop: '100px', padding: '0 20px' }}>
-      <h1 style={{ color: '#C20E1A', textAlign: 'center', marginBottom: 20 }}>Informes</h1>
-      <p style={{ textAlign: 'center' }}>Para generar los informes debes ingresar el trimestre.</p>
+      <HeaderNurse />
+      <main className="informes-section" style={{ marginTop: '100px', padding: '0 20px' }}>
+        <h1 style={{ color: '#C20E1A', textAlign: 'center', marginBottom: 20 }}>Informes</h1>
+        <p style={{ textAlign: 'center' }}>Para generar los informes debes ingresar el trimestre.</p>
 
-      <Card bordered={true} style={{ width: '100%', maxWidth: '700px', margin: '20px auto', padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-          <Input
-            placeholder="Trimestre informe ej: 2024-2"
-            style={{ width: '70%', marginRight: '10px' }}
-            value={trimesterInput}
-            onChange={(e) => setTrimesterInput(e.target.value)}
-          />
-          <Button
-            style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
-            onClick={generateReport}
-          >
-            Generar
-          </Button>
-        </div>
-
-        <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '20px 0' }} />
-        <p style={{ textAlign: 'center', marginBottom: '20px', color: '#555' }}>
-          Aquí puedes buscar los informes generados por ID de informe.
-        </p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-          <Input
-            placeholder="ID informe"
-            style={{ width: '70%', marginRight: '10px' }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            prefix={<SearchOutlined />}
-          />
-          <Button
-            style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
-            onClick={handleSearch}
-          >
-            <SearchOutlined />
-          </Button>
-        </div>
-
-        {noResults ? (
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'red' }}>No se encontró ningún informe con el ID especificado.</p>
+        <Card bordered={true} style={{ width: '100%', maxWidth: '700px', margin: '20px auto', padding: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <Input
+              placeholder="Trimestre informe ej: 2024-2"
+              style={{ width: '70%', marginRight: '10px' }}
+              value={trimesterInput}
+              onChange={(e) => setTrimesterInput(e.target.value)}
+            />
             <Button
-              icon={<ReloadOutlined />}
-              onClick={handleReloadTable}
-              style={{ backgroundColor: '#C20E1A', color: 'white' }}
+              style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
+              onClick={generateReport}
             >
-              Recargar Tabla
+              Generar
             </Button>
           </div>
-        ) : (
-          <TablePaginationR
-            columns={['Trimestre', 'Acciones']}
-            rows={rows}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
-            onPageChange={handlePageChange}
-          />
-        )}
-      </Card>
-    </main>
-  </>
+
+          <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '20px 0' }} />
+          <p style={{ textAlign: 'center', marginBottom: '20px', color: '#555' }}>
+            Aquí puedes buscar los informes generados por ID de informe.
+          </p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <Input
+              placeholder="ID informe"
+              style={{ width: '70%', marginRight: '10px' }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              prefix={<SearchOutlined />}
+            />
+            <Button
+              style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
+              onClick={handleSearch}
+            >
+              <SearchOutlined />
+            </Button>
+          </div>
+
+          {noResults ? (
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: 'red' }}>No se encontró ningún informe con el ID especificado.</p>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleReloadTable}
+                style={{ backgroundColor: '#C20E1A', color: 'white' }}
+              >
+                Recargar Tabla
+              </Button>
+            </div>
+          ) : (
+            <TablePaginationR
+              columns={['Trimestre', 'Acciones']}
+              rows={rows}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={totalItems}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </Card>
+      </main>
+    </>
   );
 }
