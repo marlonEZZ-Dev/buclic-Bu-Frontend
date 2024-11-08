@@ -4,61 +4,60 @@ import PropTypes from 'prop-types';
 const TablePagination = ({
     rows = [],
     columns = [],
-    currentPage = 0,
-    itemsPerPage = 0,
+    currentPage = 1,
+    itemsPerPage = 10,
+    totalItems = 0,
     onPageChange = () => { },
     onRowClick = () => { },
 }) => {
-    let isRowNull = rows === null
+    const totalPages = Math.ceil(totalItems / itemsPerPage); // Calculamos el número total de páginas
+
+    // Estilos para el encabezado de la tabla
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
-        fontSize: '1.125rem',
-        padding: '8px',
+        fontSize: '1.1rem', // Tamaño de fuente un poco más pequeño
+        padding: '0.8rem', // Usar rem para un mejor ajuste
         textAlign: 'center',
     };
 
+    // Estilos para las celdas
     const cellStyle = {
         border: '1px solid #ddd',
-        padding: '8px',
+        padding: '0.8rem', // Usar rem para un mejor ajuste
         textAlign: 'center',
+        fontSize: '1rem', // Tamaño de fuente base
     };
 
-    // Calcular el índice de inicio y fin para la paginación
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = isRowNull ? [] : rows.slice(indexOfFirstItem, indexOfLastItem); // Obtener los elementos actuales
-
-    // Estilo para los botones
+    // Estilo de los botones de paginación
     const buttonStyle = {
         backgroundColor: '#FFFFFF',
         color: '#B3B3B3',
         border: 'none',
-        height: '30px',
-        flex: 1, // Permitir que el botón crezca
-        margin: '0 5px', // Margen entre botones
+        height: '2rem', // Usar rem
+        flex: 1,
+        margin: '0 0.5rem', // Usar rem
         borderRadius: '8px',
         transition: 'background-color 0.3s',
         cursor: 'pointer',
     };
 
-    // Estilo para el hover
+    // Estilo para hover en los botones
     const buttonHoverStyle = {
         backgroundColor: '#E3DEDE',
     };
 
-    // Estilo para la página actual
+    // Estilo del indicador de página
     const pageIndicatorStyle = {
         backgroundColor: '#C20E1A',
         color: '#FFFFFF',
-        padding: '5px 10px',
+        padding: '0.5rem 1rem', // Usar rem
         borderRadius: '8px',
         display: 'inline-block',
     };
 
     return (
-        <div
-            style={{ textAlign: 'center', margin: '20px 0' }}>
+        <div style={{ textAlign: 'center', margin: '20px 0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
@@ -70,17 +69,23 @@ const TablePagination = ({
                     </tr>
                 </thead>
                 <tbody>
-                    {currentItems.map((row, rowIndex) => (
-                        <tr
-                            key={rowIndex}
-                            onClick={() => onRowClick(row)}>
-                            {row.map((cell, cellIndex) => (
-                                <td key={cellIndex} style={cellStyle}>
-                                    {cell}
-                                </td>
-                            ))}
+                    {rows.length > 0 ? (
+                        rows.map((row, rowIndex) => (
+                            <tr key={rowIndex} onClick={() => onRowClick(row)}>
+                                {row.map((cell, cellIndex) => (
+                                    <td key={cellIndex} style={cellStyle}>
+                                        {cell}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={columns.length} style={cellStyle}>
+                                No hay datos disponibles
+                            </td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
 
@@ -89,19 +94,25 @@ const TablePagination = ({
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    style={{ ...buttonStyle, ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si está en la primera página
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
+                    style={{
+                        ...buttonStyle,
+                        ...(currentPage === 1 ? { pointerEvents: 'none', opacity: 0.5 } : {}),
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                <div style={pageIndicatorStyle}> {currentPage}</div>
+                <div style={pageIndicatorStyle}> Página {currentPage} de {totalPages} </div>
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
-                    disabled={indexOfLastItem >= (isRowNull ? 0 : rows.length)}
-                    style={{ ...buttonStyle, ...(indexOfLastItem >= (isRowNull ? 0 : rows.length) ? { pointerEvents: 'none', opacity: 0.5 } : {}) }} // Desactiva el botón si no hay más elementos
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor} // Cambiar color al entrar
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor} // Revertir color al salir
+                    disabled={currentPage === totalPages}
+                    style={{
+                        ...buttonStyle,
+                        ...(currentPage === totalPages ? { pointerEvents: 'none', opacity: 0.5 } : {}),
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
                 >
                     Siguiente <RightOutlined />
                 </button>
@@ -111,12 +122,13 @@ const TablePagination = ({
 };
 
 TablePagination.propTypes = {
-    rows: PropTypes.array,
-    columns: PropTypes.array,
-    currentPage: PropTypes.number,
-    itemsPerPage: PropTypes.number,
-    onPageChange: PropTypes.func,
-    onRowClick: PropTypes.func
-}
+    rows: PropTypes.array,         // Filas de datos
+    columns: PropTypes.array,      // Encabezados de columna
+    currentPage: PropTypes.number, // Página actual
+    itemsPerPage: PropTypes.number, // Cantidad de elementos por página
+    totalItems: PropTypes.number,  // Total de elementos
+    onPageChange: PropTypes.func,  // Función para manejar el cambio de página
+    onRowClick: PropTypes.func     // Función opcional al hacer click en una fila
+};
 
 export default TablePagination;
