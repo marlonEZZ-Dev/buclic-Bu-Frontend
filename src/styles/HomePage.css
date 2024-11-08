@@ -1,0 +1,53 @@
+.background-image {
+    display: grid;
+    align-items: center; /* Centra verticalmente */
+    justify-items: center; /* Centra horizontalmente */
+    background-image: url('../assets/fondo_landing.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  .welcome-box {
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    max-width: 420px;
+    text-align: center;
+  }
+  
+  .welcome-title {
+    color: #d32f2f;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .welcome-text {
+    color: #555;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .welcome-button {
+    background-color: #d32f2f;
+    color: white;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .welcome-button:hover {
+    background-color: #b71c1c;
+  }
+  
