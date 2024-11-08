@@ -51,3 +51,45 @@
     background-color: #b71c1c;
   }
   
+  /* Responsividad mínima para pantallas pequeñas */
+  @media (max-width: 768px) {
+    .welcome-box {
+      padding: 1.5rem;
+      max-width: 90%; /* Ocupa más del ancho sin exceder */
+    }
+  
+    .welcome-title {
+      font-size: 1.6rem; /* Ligeramente más pequeño */
+    }
+  
+    .welcome-text {
+      font-size: 0.95rem;
+    }
+  
+    .welcome-button {
+      padding: 0.5rem 1.8rem; /* Ajuste leve en padding */
+      font-size: 0.95rem;
+    }
+  }
+  
+  /* Ajustes adicionales para pantallas muy pequeñas (teléfonos en modo vertical) */
+  @media (max-width: 480px) {
+    .welcome-box {
+      padding: 1rem;
+      max-width: 95%; /* Ocupa casi todo el ancho */
+    }
+  
+    .welcome-title {
+      font-size: 1.4rem; /* Título más pequeño para pantallas muy pequeñas */
+    }
+  
+    .welcome-text {
+      font-size: 0.9rem;
+    }
+  
+    .welcome-button {
+      padding: 0.4rem 1.5rem;
+      font-size: 0.9rem;
+    }
+  }
+  
