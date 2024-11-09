@@ -15,8 +15,7 @@ export default function TablePaginationUsers({
     enableDelete = false,
     enableEdit = false,
     nameActionsButtons = "Acciones",
-    onNext = () => {},
-    onPrev = () => {},
+    onPageChange = () => {},
     onDelete = () => {},
     onEdit = () => {}
 }){
@@ -71,13 +70,13 @@ export default function TablePaginationUsers({
 
     const goToNextPage = () => {
         if (currentPage < totalPages - 1) {
-            onNext(currentPage + 1);
+            onPageChange(currentPage + 1);
         }
     };
 
     const goToPreviousPage = () => {
         if (currentPage > 0) {
-            onPrev(currentPage - 1);
+            onPageChange(currentPage - 1);
         }
     };
 
@@ -181,7 +180,5 @@ TablePaginationUsers.propTypes = {
     onPageChange: PropTypes.func,
     onCellClick: PropTypes.func,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func,
-    onNext: PropTypes.func,
-    onPrev: PropTypes.func,
+    onEdit: PropTypes.func
 }

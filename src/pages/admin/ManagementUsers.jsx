@@ -1096,8 +1096,7 @@ useEffect(() => {
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={currentPage}
               totalItems={totalItems}
-              onNext={handlePageChange}
-              onPrev={handlePageChange}
+              onPageChange={handlePageChange}
               onEdit={handlerOpenModalEdit}
               onDelete={isBeneficiary ? handlerOpenModalDelete:undefined}
               />
