@@ -23,10 +23,10 @@ export default function LoginPage() {
     ADMINISTRADOR: "/admin/usuarios",
     MONITOR: "/monitor/becas",
     ESTUDIANTE: "/estudiante/citas",
-    PSICOLOGO: "/psicologo/beca",
-    ENFERMERO: "/enfermeria/becas",
-    ODONTOLOGO: "/odontologia/becas",
-    FUNCIONARIO: "/funcionario/becas",
+    PSICOLOGO: "/psicologo/cita",
+    ENFERMERO: "/enfermeria/citas",
+    ODONTOLOGO: "/odontologia/citas",
+    FUNCIONARIO: "/funcionario/citas",
   };
 
   const manejarClick = (e) => {
