@@ -6,8 +6,12 @@ import SearchInput from "../../components/global/SearchInput.jsx"
 import StateUser from "../../components/global/StateUser.jsx"
 import TablePagination from "../../components/global/TablePagination.jsx"
 import Tables from "../../components/global/Tables.jsx"
+import axios from 'axios';
+import AssistanceButtons from "../../components/global/AssistanceButtons.jsx"
 
-import { Card, Flex } from "antd"
+import { appointmentsProfessionals } from "../../services/professionals/agenda.js"
+
+import { Card, Flex, message } from "antd"
 import {ExclamationCircleOutlined} from "@ant-design/icons"
 import dayjs from "dayjs"
 import 'dayjs/locale/es'
@@ -15,7 +19,7 @@ import 'dayjs/locale/es'
 import styles from "../../styles/psychology/agendaPsych.module.css"
 import cssButtonsModal from "../../styles/admin/managementUsers.module.css"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 function AssistanceCell(key){
 	const [selectedAssistance, setSelectedAssistance] = useState("nothing")
@@ -100,16 +104,140 @@ export default function AgendaPsych(){
 	
 	const appointmentDoneColums = ["Horario cita","Paciente", "Télefono", "Asistencia"]
 
-	const rowsAppoinmentPending = [
-		[
-			"2 PM","Carolina Perez",123456789, <AssistanceCell key={1}/>],
-		[
-			"3 PM","José Casanova",123456789, <AssistanceCell key={2}/>]
-	]
+	const [appointmentDone, setAppointmentDone] = useState([])
 
-	const rowsAppointmentDone = [
-		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez",123456789,<StateUser key={1} active={false}/>]
-	]
+	const [pendingAppointments, setPendingAppointments] = useState([]);
+	const [id, setId] = useState(null);
+	const [searchDate, setSearchDate] = useState(""); // Estado para almacenar la fecha de búsqueda
+	const [currentPage, setCurrentPage] = useState(1); // Página actual
+	const [totalItems, setTotalItems] = useState(0); // Total de elementos
+	const [itemsPerPage] = useState(5);
+
+	const removePendingAppointment = (reservationId) => {
+		setPendingAppointments((prev) => {
+			const updatedAppointments = prev.filter((row) => {
+				const buttonComponent = row[3]; // El componente AssistanceButtons está en la 4ª columna
+				return buttonComponent.key !== reservationId;
+			});
+	
+			// Si la tabla se queda vacía, forzar un nuevo array para desencadenar renderizado
+			return updatedAppointments.length === 0 ? [] : updatedAppointments;
+		});
+	};
+
+useEffect(() => {
+  const userId = localStorage.getItem("userId");
+  if (userId) {
+    setId(userId); // Establece el id sólo si existe
+  } else {
+    console.error("ID de usuario no encontrado en localStorage");
+  }
+}, []); 
+const token = localStorage.getItem('access');// Este efecto se ejecuta al montar
+
+const fetchPendingAppointments = async () => {
+	try {
+	  const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/pending/${id}`, {
+		  headers: {
+			Authorization: `Bearer ${token}` // Pasa el token en el encabezado
+		  }
+		});
+	  const data = response.data.appointments; // Ajusta esto según los datos correctos
+
+	  // Transforma los datos para tu tabla
+	  const formattedRows = data.map(appointment => [
+		  dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+		  appointment.patient || 'Anónimo',
+		  appointment.phone || 'Sin Teléfono',
+		  <AssistanceButtons
+				key={appointment.reservationId}
+				appointmentId={appointment.reservationId}
+				onReload={()=>{
+					fetchPendingAppointments();
+					fetchAttendedAppointments();
+					removePendingAppointment(appointment.reservationId);}
+				} // Recargar datos después de una acción
+		  />
+		]);
+
+	  console.log("Formatted Rows: ", formattedRows); // Ahora se ejecutará
+	  setPendingAppointments(formattedRows);
+	} catch (error) {
+	  console.error("Error al obtener citas pendientes:", error);
+	}
+  };
+
+
+useEffect(() => {
+  if (id) { // Espera a que id esté definido
+    
+    fetchPendingAppointments();
+	fetchAttendedAppointments();
+  }
+}, [id]);  
+
+const fetchAttendedAppointments = async (page = 1) => {
+    try {
+        const response = await axios.get(
+            `http://localhost:8080/appointment-reservation/professional/attended/${id}`,
+            {
+                params: {
+                    page: page - 1, // El backend espera que las páginas comiencen en 0
+                    size: itemsPerPage, // Tamaño de página enviado correctamente
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const { appointments, totalElements } = response.data;
+
+        const formattedAttendedRows = appointments.map(appointment => [
+            dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+            appointment.patient || 'Anónimo',
+            appointment.phone || 'Sin Teléfono',
+            <StateUser key={appointment.reservationId} active={appointment.assitant} />
+        ]);
+
+        setAppointmentDone(formattedAttendedRows);
+        setTotalItems(totalElements); // Actualiza el total de elementos
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || 'Error desconocido';
+        message.error(errorMessage);
+    }
+};
+  const fetchAttendedAppointmentsByDate = async (date) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/attended/search/${id}?fecha=${date}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = response.data.appointments;
+
+      const formattedAttendedRows = data.map(appointment => [
+        dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+        appointment.patient || 'Anónimo',
+        appointment.phone || 'Sin Teléfono',
+        <StateUser key={appointment.reservationId} active={appointment.assitant} />
+      ]);
+
+      setAppointmentDone(formattedAttendedRows);
+    } catch (error) {
+		const errorMessage = error.response?.data?.message || 'Error desconocido';
+    	message.error(errorMessage);
+    }
+};
+
+const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    fetchAttendedAppointments(newPage);
+};
+
+
+  
+	 
 		return(	
 		<>
       <HeaderPsych/>
@@ -135,23 +263,28 @@ export default function AgendaPsych(){
     				: palabra).join(' ')}`}
 					</p>
 					<Tables
-					enableClassname
-					classNameContainer={styles.table}
 					columns={appointmentPendingColums}
-					rows={rowsAppoinmentPending}/>
+					rows={pendingAppointments} 
+					/>
 					<SearchInput
-					className={styles.searchInput}
-					placeholder="Fecha de consulta"
+  						className={styles.searchInput}
+  						placeholder="Fecha de consulta (dd/MM/yyyy)"
+  						onChange={(e) => setSearchDate(e.target.value)}
+  						onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Realiza la búsqueda
+  						onRefresh={()=>{setCurrentPage(1); // Resetea la página al refrescar
+							fetchAttendedAppointments(1);} }// Refresca la tabla
 					/>
 				</Flex>
 				<Flex vertical>
 					<p className="text-left">Tabla historial de citas realizadas</p>
 					<TablePagination
-					columns={appointmentDoneColums}
-					rows={rowsAppointmentDone}
-					currentPage={1}
-					itemsPerPage={1}
-					/>
+  						columns={appointmentDoneColums}
+  						rows={appointmentDone}
+  						currentPage={currentPage}
+  						itemsPerPage={itemsPerPage}
+  						totalItems={totalItems}
+  						onPageChange={handlePageChange}
+					/>						
 				</Flex>
 			</Card>
 			</Flex>

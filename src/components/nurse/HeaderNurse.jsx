@@ -78,12 +78,7 @@ export default function HeaderNurse(props) {
           >
             <ul className="drawer-menu">
             
-              <li
-                onClick={() => handleButtonClick("/enfermeria/becas")}
-                className={location.pathname === "/enfermeria/becas" ? "active" : ""}
-              >
-                Becas
-              </li>
+              
               <li
                 onClick={() => handleButtonClick("/enfermeria/citas")}
                 className={location.pathname === "/enfermeria/citas" ? "active" : ""}
@@ -139,12 +134,7 @@ export default function HeaderNurse(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
-              <li
-                onClick={() => handleButtonClick("/enfermeria/becas")}
-                className={location.pathname === "/enfermeria/becas" ? "active" : ""}
-              >
-                Becas
-              </li>
+              
               <li
                 onClick={() => handleButtonClick("/enfermeria/citas")}
                 className={location.pathname === "/enfermeria/citas" ? "active" : ""}
