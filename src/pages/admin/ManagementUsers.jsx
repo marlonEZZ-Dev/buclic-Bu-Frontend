@@ -124,7 +124,15 @@ export default function ManagementUsers(){
     {value:"Beneficiario refrigerio", label:"Beneficiario refrigerio"}
   ]
   
-  const cbxFuncionary = [
+  const cbxFuncionary = isModalEdit ? [
+    {value:"ADMINISTRADOR", label:"Administrador (a)"},
+    {value:"ENFERMERO", label:"Enfermero (a)"},
+    {value:"MONITOR", label:"Monitor (a)"},
+    {value:"ODONTOLOGO", label:"Odontólogo (a)"},
+    {value:"PSICOLOGO", label:"Psicólogo (a)"},
+    {value:"FUNCIONARIO", label:"Funcionario (a)"},
+    {value:"EXTERNO", label:"Externo (a)"}
+  ] : [
     {value:"ADMINISTRADOR", label:"Administrador (a)"},
     {value:"ENFERMERO", label:"Enfermero (a)"},
     {value:"MONITOR", label:"Monitor (a)"},
@@ -149,6 +157,9 @@ export default function ManagementUsers(){
     {key: "name", label: "Nombre"},
     {key: "email", label: "Correo"},
     {key: "isActive", label: "Activo"}
+  ] : isBeneficiary ? [
+    {key: "username", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "name", label: "Nombre"}
   ] : [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
@@ -189,7 +200,6 @@ export default function ManagementUsers(){
 
 const handlePageChange = page => {
   setCurrentPage(page)
-  loadUsers()
 }
 
   const notifyError = message => {
@@ -389,6 +399,7 @@ const handlePageChange = page => {
       return
     }
     setFile(fileSelected)
+    console.log(file)
     setUploadStatus("exitoso")     
   }
 
@@ -506,7 +517,11 @@ const handlePageChange = page => {
     setStatusEstadoRolTipoBecaSelect(undefined)
     setStatusRolesGrantSelect(undefined)    
   }
-
+  
+  useEffect(() => {
+    loadUsers();
+  }, [currentPage]);
+  
   useEffect(() => {
     handleResize();
 
@@ -682,7 +697,7 @@ useEffect(() => {
         onClose={handlerCloseModalImport}>
         <Flex vertical align='center' justify='center'>
           <span style={fontSizeTitleModal}>Importar {isStudent ? "estudiantes" : isFuncionary ? "funcionarios" : "beneficiarios"}</span>
-          <p>Descarga la plantilla <a href="../../../public/importar_beneficiarios.csv">aquí</a> y selecciona el archivo modificado</p>
+          <p>Descarga la plantilla <a href={`../../../public/importar_${getTypeUserCurrent()}.csv`}>aquí</a> y selecciona el archivo modificado</p>
         <Flex align="flex-start" justify='space-around'>
           <button 
           className={styles.buttonLoad}
@@ -696,7 +711,7 @@ useEffect(() => {
           onChange={handlerLoadFile}
           />
           {uploadStatus === "fallido" ? <span>Error al cargar el archivo</span> : 
-          uploadStatus === "exitoso" ?  console.log(file): 
+          uploadStatus === "exitoso" ?  <span>{file.name}</span>: 
           uploadStatus === "fallaFormato" ? <p>    La extensión del archivo no es correcta debe ser un archivo con extensión csv</p> :
           uploadStatus === "ninguno" ? <span>    Cargue un archivo csv</span> : ""}
         </Flex>
@@ -712,6 +727,8 @@ useEffect(() => {
             if(uploadStatus === "exitoso"){
               handlerSendFile()
               handlerCloseModalImport()
+              setFile(null)
+              setUploadStatus("ninguno")
             }}}
           >
             Enviar
@@ -791,11 +808,11 @@ useEffect(() => {
           <SelectWithError title={isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
-            isRenderAsteric={isBeneficiary}
+            isRenderAsteric={!isModalEdit}
+            style={{width:"11.5rem"}}
             errorMessage={isStudent ? okValidationEdit.status : isFuncionary ? okValidationEdit.roles : okValidationEdit.grant} 
             value={getValueComplexSelectInModal()}
             status={statusEstadoRolTipoBecaSelect}
-            classContainer={styles.inputWidthModal}
             options={getOptionsComplexSelectInModal()}
             onSelect={ (value, option) => {
               const selected = option.value
@@ -818,7 +835,7 @@ useEffect(() => {
           errorMessage={okValidationEdit.status}
           placeholder="Selecciona"
           value={getStatusValue(objectSelected.isActive)}
-          classContainer={styles.inputWidthModal}
+          style={{width:"11.5rem"}}
           options={cbxStatus}
           onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
           onChange={value => handlerBlurSelect(validStatus(value), setStatusEstadoRolTipoBecaSelect)}
@@ -866,7 +883,7 @@ useEffect(() => {
         onCancel={handlerCloseModalAllDelete}
         onConfirm={() => {
           handlerDeleteUsers()
-          .then(() => handlerCloseModalAllDelete)
+          .then(() => handlerCloseModalAllDelete())
           .catch( error => console.log(error))
         }}/>)}
       {isModalDelete && (
@@ -1082,8 +1099,7 @@ useEffect(() => {
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={currentPage}
               totalItems={totalItems}
-              onNext={handlePageChange}
-              onPrev={handlePageChange}
+              onPageChange={handlePageChange}
               onEdit={handlerOpenModalEdit}
               onDelete={isBeneficiary ? handlerOpenModalDelete:undefined}
               />

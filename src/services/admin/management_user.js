@@ -160,7 +160,7 @@ export const deleteBeneficiary = async (username) => {
     if(response.status === 200 || response.status === 201){
       return {
         success:true,
-        message:`beneficiario con cédula ${username} fue eliminado exitosamente`
+        message:`Beneficiario con código ${username} fue eliminado exitosamente`
       }
     }
   } catch (error) {
