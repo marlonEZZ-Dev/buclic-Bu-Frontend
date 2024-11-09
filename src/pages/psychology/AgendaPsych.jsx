@@ -213,9 +213,13 @@ const fetchAttendedAppointments = async (page = 1) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+		params:{
+			page: 0,
+            size:1
+		}
       });
       const data = response.data.appointments;
-
+	  console.log(data)
       const formattedAttendedRows = data.map(appointment => [
         dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
         appointment.patient || 'Anónimo',
@@ -224,6 +228,7 @@ const fetchAttendedAppointments = async (page = 1) => {
       ]);
 
       setAppointmentDone(formattedAttendedRows);
+	  setTotalItems(1)
     } catch (error) {
 		const errorMessage = error.response?.data?.message || 'Error desconocido';
     	message.error(errorMessage);
