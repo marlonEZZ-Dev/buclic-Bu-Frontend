@@ -11,7 +11,7 @@ import AssistanceButtons from "../../components/global/AssistanceButtons.jsx"
 
 import { appointmentsProfessionals } from "../../services/professionals/agenda.js"
 
-import { Card, Flex } from "antd"
+import { Card, Flex, message } from "antd"
 import {ExclamationCircleOutlined} from "@ant-design/icons"
 import dayjs from "dayjs"
 import 'dayjs/locale/es'
@@ -200,7 +200,9 @@ const fetchAttendedAppointments = async () => {
 
       setAppointmentDone(formattedAttendedRows);
     } catch (error) {
-      console.error("Error al buscar citas atendidas por fecha:", error);
+		const errorMessage = error.response?.data?.message || 'Error desconocido';
+    	message.error(errorMessage);
+    	
     }
   };
 
@@ -235,11 +237,12 @@ const fetchAttendedAppointments = async () => {
 					rows={pendingAppointments} 
 					/>
 					<SearchInput
-              		className={styles.searchInput}
-              		placeholder="Fecha de consulta (dd/MM/yyyy)"
-              		onChange={(e) => setSearchDate(e.target.value)} // Actualiza la fecha de búsqueda
-              		onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Busca citas por fecha
-            		/>
+  						className={styles.searchInput}
+  						placeholder="Fecha de consulta (dd/MM/yyyy)"
+  						onChange={(e) => setSearchDate(e.target.value)}
+  						onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Realiza la búsqueda
+  						onRefresh={fetchAttendedAppointments} // Refresca la tabla
+					/>
 				</Flex>
 				<Flex vertical>
 					<p className="text-left">Tabla historial de citas realizadas</p>

@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { Button, Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import PropTypes from "prop-types";
 
-const SearchInput = ({ placeholder = "Buscar", onClick = () => { }, onChange = () => { }, ...props }) => {
+const SearchInput = ({ 
+  placeholder = "Buscar", 
+  onClick = () => {}, 
+  onChange = () => {}, 
+  onRefresh = () => {},  // Nueva prop para manejar el refresco
+  ...props 
+}) => {
   const [hover, setHover] = useState(false);
+  
 
   const handleInputChange = (e) => {
     onChange(e);
@@ -29,13 +36,26 @@ const SearchInput = ({ placeholder = "Buscar", onClick = () => { }, onChange = (
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onClick={onClick}
+      />
+      <Button
+        type="default"
+        icon={<ReloadOutlined />}
+        style={{
+          ...styles.button,
+          backgroundColor: hover ? '#841F1C' : '#C20E1A',
+          borderColor: hover ? '#841F1C' : '#C20E1A',
+          marginLeft: '10px',
+        }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={onRefresh} // Llama a la función onRefresh al hacer clic
       >
+
       </Button>
     </div>
   );
 };
 
-// Estilos en línea originales
 const styles = {
   container: {
     display: 'flex',
@@ -56,7 +76,8 @@ const styles = {
 SearchInput.propTypes = {
   placeholder: PropTypes.string,
   onClick: PropTypes.func,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  onRefresh: PropTypes.func, // Nueva prop para manejar la función de refresco
 };
 
 export default SearchInput;
