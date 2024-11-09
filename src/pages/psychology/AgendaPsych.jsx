@@ -197,7 +197,7 @@ const fetchAttendedAppointments = async (page = 1) => {
             dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
             appointment.patient || 'Anónimo',
             appointment.phone || 'Sin Teléfono',
-            <StateUser key={appointment.reservationId} active={appointment.assistant} />
+            <StateUser key={appointment.reservationId} active={appointment.assitant} />
         ]);
 
         setAppointmentDone(formattedAttendedRows);
@@ -220,7 +220,7 @@ const fetchAttendedAppointments = async (page = 1) => {
         dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
         appointment.patient || 'Anónimo',
         appointment.phone || 'Sin Teléfono',
-        <StateUser key={appointment.reservationId} active={appointment.assistant} />
+        <StateUser key={appointment.reservationId} active={appointment.assitant} />
       ]);
 
       setAppointmentDone(formattedAttendedRows);
