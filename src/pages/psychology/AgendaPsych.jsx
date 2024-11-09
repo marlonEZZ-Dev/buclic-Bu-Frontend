@@ -135,8 +135,8 @@ const fetchPendingAppointments = async () => {
 	  // Transforma los datos para tu tabla
 	  const formattedRows = data.map(appointment => [
 		  dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
-		  appointment.professional?.name || 'Anónimo',
-		  appointment.professional?.phone || 'Sin Teléfono',
+		  appointment.patient || 'Anónimo',
+		  appointment.phone || 'Sin Teléfono',
 		  <AssistanceButtons
 				key={appointment.reservationId}
 				appointmentId={appointment.reservationId}
