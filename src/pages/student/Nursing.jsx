@@ -285,14 +285,19 @@ const Nursing = () => {
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
+
+    // Evitar que el primer dígito sea 0
+    if (value.startsWith("0")) {
+      value = value.substring(1);
+    }
+
     setPhone(value);
     setIsPhoneError(value.length !== 10);
-    localStorage.setItem("userPhone", value);
   };
 
   const handleEpsChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo permite letras y espacios
+    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras y espacios
     setEps(value);
     setIsEpsError(value === "");
     localStorage.setItem("userEPS", value);
@@ -448,6 +453,7 @@ const Nursing = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
+                salon="Salón 102 bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>

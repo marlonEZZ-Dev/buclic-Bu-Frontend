@@ -191,10 +191,7 @@ const Psychologist = () => {
       })
       .then((response) => {
         setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(
-          selectedDate,
-          response.data.availableDates
-        );
+        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
@@ -276,20 +273,26 @@ const Psychologist = () => {
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
+
+    // Evitar que el primer dígito sea 0
+    if (value.startsWith("0")) {
+      value = value.substring(1);
+    }
+
     setPhone(value);
     setIsPhoneError(value.length !== 10);
   };
 
   const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo permite letras y espacios
+    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras, letras con tildes y espacios
     setSemester(value);
     setIsSemesterError(value.trim() === ""); // Error si está vacío
-};
+  };
 
-const handleBack = () => {
-  navigate("/estudiante/citas");
-};
+  const handleBack = () => {
+    navigate("/estudiante/citas");
+  };
 
   return (
     <>
@@ -354,7 +357,7 @@ const handleBack = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-              
+
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
@@ -430,6 +433,7 @@ const handleBack = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
+                salon="Salón 312 bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
