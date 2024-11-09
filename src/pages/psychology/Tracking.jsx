@@ -6,6 +6,7 @@ import StateUser from "../../components/global/StateUser.jsx";
 import { Card, Space, Button, Descriptions, DatePicker, TimePicker, Row, Col, message } from "antd";
 import api from "../../api.js";
 import moment from "moment";
+import TablePaginationR from "../../components/global/TablePaginationR.jsx";
 
 const AssistanceIcon = ({ attended }) => (
   <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -38,15 +39,22 @@ const Tracking = () => {
           size: itemsPerPage,
         },
       });
-
+  
       setUserInfo(response.data);
       setTotalItems(response.data.listReservation.page.totalElements);
       setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching user data:", error);
-      setUserInfo(null);
+      console.log("Error response:", error.response); // Para inspeccionar la estructura del error en la consola
+  
+      // Extrae el mensaje de error del backend si está disponible
+      const errorMessage = error.response?.data?.message || "Error al buscar la información del usuario.";
+      message.error(errorMessage);
+  
+      setUserInfo(null); // Limpiar la información del usuario si ocurre un error
     }
   };
+  
 
   const handlePageChange = (page) => {
     handleSearch(page); // Solicitar la página actualizada
@@ -57,32 +65,44 @@ const Tracking = () => {
       message.error("Por favor, selecciona una fecha y hora.");
       return;
     }
-
-    const dateTime = moment(
-      selectedDate.format("YYYY-MM-DD") + " " + selectedTime.format("HH:mm")
-    ).toISOString();
-
+  
+    // Combinar la fecha y la hora seleccionadas en el formato exacto requerido por el backend
+    const dateTime = selectedDate.format("YYYY-MM-DD") + "T" + selectedTime.format("HH:mm");
+  
+    // Obtener el `pacientId` del objeto `userInfo` (establecido en `handleSearch`)
     const pacientId = userInfo?.id;
     const professionalId = localStorage.getItem("userId");
-
+  
+    
     if (!pacientId || !professionalId) {
       message.error("No se pudo agendar la cita debido a falta de información.");
       return;
     }
-
+  
     try {
+      // Realizar la solicitud POST al backend con los datos necesarios
       const response = await api.post("/appointment-reservation/follow-up", {
         pacientId,
         professionalId,
         dateTime,
       });
+  
+      // Mostrar el mensaje de éxito devuelto por el backend
       message.success(response.data.message);
-      handleSearch(); // Refrescar la información después de agendar
+  
+      // Refrescar la información después de agendar
+      handleSearch(); 
     } catch (error) {
       console.error("Error saving appointment:", error);
-      message.error(error.response?.data?.message || "Error al agendar la cita.");
+      console.log("Error response:", error.response); // Imprime los detalles de la respuesta de error para depuración
+  
+      // Obtener el mensaje de error específico del backend o mostrar un mensaje genérico
+      const errorMessage = error.response?.data?.message || "Error al agendar la cita.";
+      message.error(errorMessage);
     }
   };
+  
+  
 
   const handleCancel = () => {
     setSelectedDate(null);
@@ -181,7 +201,7 @@ const Tracking = () => {
           )}
 
           <h3 style={styles.tableTitle}>Tabla de citas solicitadas</h3>
-          <TablePagination
+          <TablePaginationR
             rows={rows}
             columns={columns}
             currentPage={currentPage}
