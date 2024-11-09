@@ -4,8 +4,6 @@ import ConfirmationPassword from "./pages/auth/ConfirmationPassword";
 import HomePage from "./pages/HomePage";
 import "antd/dist/reset.css";
 import LoginPage from "./pages/auth/LoginPage";
-import AdminPage from "./pages/AdminPage";
-import StudentPage from "./pages/StudentPage";
 import Becas from "./pages/student/Becas";
 import Appointments from "./pages/student/Appointments";
 import MainStudentView from "./pages/student/MainStudentView";
@@ -24,7 +22,6 @@ import DentistAdmin from "./pages/admin/DentistAdmin";
 import AppointmentsAdmin from "./pages/admin/AppointmentsAdmin";
 import SettingsAdmin from "./pages/admin/SettingsAdmin";
 import PasswordAdmin from "./pages/admin/PasswordAdmin";
-import BecasPsych from "./pages/psychology/BecasPsych";
 import AppointmentsPsych from "./pages/psychology/AppointmentsPsych";
 import SchedulesPsych from "./pages/psychology/SchedulesPsych";
 import AgendaPsych from "./pages/psychology/AgendaPsych";
@@ -36,14 +33,12 @@ import { SettingsProvider } from "./utils/SettingsContext";
 import AgendaNurse from "./pages/nurse/AgendaNurse";
 import SettingNurse from "./pages/nurse/SettingNurse";
 import AppointmentsNurse from "./pages/nurse/AppointmentsNurse";
-import BecasNurse from "./pages/nurse/BecasNurse";
 import HistoryNurse from "./pages/nurse/HistoryNurse";
 import InformNurse from "./pages/nurse/InformNurse";
 import ViewNursingReport from "./pages/nurse/ViewInformsNurse";
 import SchedulesNurse from "./pages/nurse/SchedulesNurse";
 import VisitsNurse from "./pages/nurse/VisitsNurse";
 import PasswordNurse from "./pages/nurse/PasswordNurse";
-import BecasDentist from "./pages/dentist/BecasDentist";
 import AppointmentDentist from "./pages/dentist/AppointmentDentist";
 import SchedulesDentist from "./pages/dentist/SchedulesDentist";
 import AgendaDentist from "./pages/dentist/AgendaDentist";
@@ -57,18 +52,14 @@ import MenuMonitor from "./pages/monitor/MenuMonitor";
 import SettingMonitor from "./pages/monitor/SettingMonitor";
 import PasswordMonitor from "./pages/monitor/PasswordMonitor";
 import AppointmentsWorker from "./pages/worker/AppointmentsWorker"
-import BecasWorker from "./pages/worker/BecasWorker"
 import DentistWorker from "./pages/worker/DentistWorker"
 import NursingWorker from "./pages/worker/NursingWorker"
 import PsychologistWorker from "./pages/worker/PsychologistWorker"
 import SettingWorker from "./pages/worker/SettingWorker"
-import BecasExternal from "./pages/external/BecasExternal";
-import SettingExternal from "./pages/external/SettingExternal";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { Outlet } from "react-router-dom";
 import PasswordStudent from "./pages/student/PasswordStudent";
 import PasswordWorker from "./pages/worker/PasswordWorker";
-import PasswordExternal from "./pages/external/PasswordExternal";
 import PasswordDentist from "./pages/dentist/PasswordDentist";
 import ExternosAdmin from "./pages/admin/ExternosAdm";
 import Externos from "./pages/monitor/Externos"
