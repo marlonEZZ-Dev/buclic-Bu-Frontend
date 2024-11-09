@@ -30,7 +30,7 @@ const Dentist = () => {
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [pendingAppointment, setPendingAppointment] = useState(null);
-  
+
   const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -42,8 +42,6 @@ const Dentist = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
-
-
 
   useEffect(() => {
     fetchPendingAppointment();
@@ -121,7 +119,6 @@ const Dentist = () => {
     }
   };
 
-  
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
@@ -144,7 +141,7 @@ const Dentist = () => {
 
           // Actualiza la lista de citas disponibles después de la cancelación
           fetchAvailableDates();
-          
+
           // Filtra las citas disponibles para la fecha seleccionada
           filterDatesBySelectedDay(selectedDate);
         })
@@ -171,17 +168,12 @@ const Dentist = () => {
       })
       .then((response) => {
         setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(
-          selectedDate,
-          response.data.availableDates
-        );
+        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
-
-  
 
   const handleConfirmReserve = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
@@ -249,7 +241,6 @@ const Dentist = () => {
   const handleBack = () => {
     navigate("/estudiante/citas");
   };
-  
 
   return (
     <>
@@ -315,7 +306,7 @@ const Dentist = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-              
+
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Código">
                   <Input value={username || ""} disabled />
@@ -326,10 +317,6 @@ const Dentist = () => {
                   <Input value={userPlan || ""} disabled />
                 </Form.Item>
               </Col>
-              
-                
-                  
-              
             </Row>
           </Form>
         )}
@@ -365,6 +352,7 @@ const Dentist = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
+                salon="Salón 201 bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
