@@ -119,7 +119,6 @@ function App() {
 
         <Route path="/psicologo" element={<ProtectedRoute allowedRoles={["PSICOLOGO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de psicólogo */}
-        <Route path="beca" element={<BecasPsych />} />
         <Route path="cita" element={<AppointmentsPsych />} />
         <Route path="horario" element={<SchedulesPsych />} />
         <Route path="agenda" element={<AgendaPsych />} />
@@ -131,7 +130,6 @@ function App() {
 
         <Route path="/enfermeria" element={<ProtectedRoute allowedRoles={["ENFERMERO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de enfermería */}
-        <Route path="becas" element={<BecasNurse />} />
         <Route path="citas" element={<AppointmentsNurse />} />
         <Route path="horarios" element={<SchedulesNurse />} />
         <Route path="agendas" element={<AgendaNurse />} />
@@ -146,7 +144,6 @@ function App() {
 
         <Route path="/odontologia" element={<ProtectedRoute allowedRoles={["ODONTOLOGO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de odontología */}
-        <Route path="becas" element={<BecasDentist />} />
         <Route path="citas" element={<AppointmentDentist />} />
         <Route path="horarios" element={<SchedulesDentist />} />
         <Route path="agenda" element={<AgendaDentist />} />
@@ -169,7 +166,6 @@ function App() {
 
         <Route path="/funcionario" element={<ProtectedRoute allowedRoles={["FUNCIONARIO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de funcionario */}
-        <Route path="becas" element={<BecasWorker />} />
         <Route path="citas" element={<AppointmentsWorker />} />
         <Route path="ajustes" element={<SettingWorker />} />
         <Route path="contrasena" element={<PasswordWorker />} />
@@ -178,12 +174,7 @@ function App() {
         <Route path="odontologia" element={<DentistWorker />} />
         </Route>
 
-        <Route path="/externo" element={<ProtectedRoute allowedRoles={["EXTERNO"]}><Outlet /></ProtectedRoute>}>
-        {/* Rutas hijas de externo */}
-        <Route path="becas" element={<BecasExternal />} />
-        <Route path="ajuste" element={<SettingExternal />} />
-        <Route path="contrasena" element={<PasswordExternal />} />
-        </Route>
+        
 
         </Routes>
       </SettingsProvider>

@@ -77,12 +77,7 @@ export default function HeaderDentist(props) {
             styles={{ body: { paddingBottom: 80 } }}
           >
             <ul className="drawer-menu">
-              <li
-                onClick={() => handleButtonClick("/odontologia/becas")}
-                className={location.pathname === "/odontologia/becas" ? "active" : ""}
-              >
-                Becas
-              </li>
+              
               <li
                 onClick={() => handleButtonClick("/odontologia/citas")}
                 className={location.pathname === "/odontologia/citas" ? "active" : ""}
@@ -136,12 +131,7 @@ export default function HeaderDentist(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu ${menuOpen ? "open" : ""}`}>
             <ul>
-              <li
-                onClick={() => handleButtonClick("/odontologia/becas")}
-                className={location.pathname === "/odontologia/becas" ? "active" : ""}
-              >
-                Becas
-              </li>
+              
               <li
                 onClick={() => handleButtonClick("/odontologia/citas")}
                 className={location.pathname === "/odontologia/citas" ? "active" : ""}
