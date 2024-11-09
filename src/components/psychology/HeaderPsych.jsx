@@ -81,7 +81,7 @@ export default function HeaderPsych(props) {
             styles={{ body: { paddingBottom: 80 } }} // Cambiado de "bodyStyle" a "styles.body"
           >
             <ul className="drawer-menu">
-              <li onClick={() => handleButtonClick("/psicologo/beca")} className={location.pathname === "/psicologo/beca" ? "active" : ""}>Becas</li>
+             
               <li onClick={() => handleButtonClick("/psicologo/cita")} className={location.pathname === "/psicologo/cita" ? "active" : ""}>Citas</li>
               <li onClick={() => handleButtonClick("/psicologo/horario")} className={location.pathname === "/psicologo/horario" ? "active" : ""}>Horarios</li>
               <li onClick={() => handleButtonClick("/psicologo/agenda")} className={location.pathname === "/psicologo/agenda" ? "active" : ""}>Agenda</li>
@@ -100,7 +100,7 @@ export default function HeaderPsych(props) {
           {/* Menú normal para pantallas grandes */}
           <nav className={`menu`}>
             <ul>
-              <li onClick={() => handleButtonClick("/psicologo/beca")} className={location.pathname === "/psicologo/beca" ? "active" : ""}>Becas</li>
+
               <li onClick={() => handleButtonClick("/psicologo/cita")} className={location.pathname === "/psicologo/cita" ? "active" : ""}>Citas</li>
               <li onClick={() => handleButtonClick("/psicologo/horario")} className={location.pathname === "/psicologo/horario" ? "active" : ""}>Horarios</li>
               <li onClick={() => handleButtonClick("/psicologo/agenda")} className={location.pathname === "/psicologo/agenda" ? "active" : ""}>Agenda</li>
