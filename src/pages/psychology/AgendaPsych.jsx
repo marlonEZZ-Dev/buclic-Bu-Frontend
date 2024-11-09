@@ -6,6 +6,8 @@ import SearchInput from "../../components/global/SearchInput.jsx"
 import StateUser from "../../components/global/StateUser.jsx"
 import TablePagination from "../../components/global/TablePagination.jsx"
 import Tables from "../../components/global/Tables.jsx"
+import axios from 'axios';
+import AssistanceButtons from "../../components/global/AssistanceButtons.jsx"
 
 import { appointmentsProfessionals } from "../../services/professionals/agenda.js"
 
@@ -102,25 +104,61 @@ export default function AgendaPsych(){
 	
 	const appointmentDoneColums = ["Horario cita","Paciente", "Télefono", "Asistencia"]
 
-	const rowsAppoinmentPending = [
-		[
-			"2 PM","Carolina Perez",123456789, <AssistanceCell key={1}/>],
-		[
-			"3 PM","José Casanova",123456789, <AssistanceCell key={2}/>]
-	]
+	
 
 	const rowsAppointmentDone = [
 		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez",123456789,<StateUser key={1} active={false}/>]
 	]
 
-	useEffect(() => {
-		const ID = localStorage.getItem("userId")	
-		
-		appointmentsProfessionals(ID)
-		.then( res => console.log(res))
-		.catch(err => console.error(err))
-	}, [])
+	const [pendingAppointments, setPendingAppointments] = useState([]);
+	const [id, setId] = useState(null);
 
+useEffect(() => {
+  const userId = localStorage.getItem("userId");
+  if (userId) {
+    setId(userId); // Establece el id sólo si existe
+  } else {
+    console.error("ID de usuario no encontrado en localStorage");
+  }
+}, []); 
+const token = localStorage.getItem('access');// Este efecto se ejecuta al montar
+
+const fetchPendingAppointments = async () => {
+	try {
+	  const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/pending/${id}`, {
+		  headers: {
+			Authorization: `Bearer ${token}` // Pasa el token en el encabezado
+		  }
+		});
+	  const data = response.data.appointments; // Ajusta esto según los datos correctos
+
+	  // Transforma los datos para tu tabla
+	  const formattedRows = data.map(appointment => [
+		  dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+		  appointment.professional?.name || 'Anónimo',
+		  appointment.professional?.phone || 'Sin Teléfono',
+		  <AssistanceButtons
+				key={appointment.reservationId}
+				appointmentId={appointment.reservationId}
+				onReload={fetchPendingAppointments} // Recargar datos después de una acción
+		  />
+		]);
+
+	  console.log("Formatted Rows: ", formattedRows); // Ahora se ejecutará
+	  setPendingAppointments(formattedRows);
+	} catch (error) {
+	  console.error("Error al obtener citas pendientes:", error);
+	}
+  };
+
+
+useEffect(() => {
+  if (id) { // Espera a que id esté definido
+    
+    fetchPendingAppointments();
+  }
+}, [id]);  
+	 
 		return(	
 		<>
       <HeaderPsych/>
@@ -147,7 +185,8 @@ export default function AgendaPsych(){
 					</p>
 					<Tables
 					columns={appointmentPendingColums}
-					rows={rowsAppoinmentPending}/>
+					rows={pendingAppointments} 
+					/>
 					<SearchInput
 					className={styles.searchInput}
 					placeholder="Fecha de consulta"
