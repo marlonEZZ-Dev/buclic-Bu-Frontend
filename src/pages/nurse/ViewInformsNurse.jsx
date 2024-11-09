@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, message, Spin, Card, Table } from 'antd';
 import { LeftOutlined, DownloadOutlined } from '@ant-design/icons';
@@ -18,13 +18,23 @@ const ViewNursingReport = () => {
         setLoading(true);
         const response = await api.get(`/nursing-report/${id}`);
         const reportData = response.data;
-        
+
         // Transformar diagnosticCount en un array de objetos para la tabla
         const details = Object.entries(reportData.diagnosticCount || {}).map(([reason, count]) => ({
           reason,
           count,
         }));
-        
+
+        // Calcular el total de todas las cantidades
+        const totalCount = details.reduce((sum, item) => sum + item.count, 0);
+
+        // Agregar la fila de total al final de los detalles
+        details.push({
+          reason: 'Total', // Título de la fila de total
+          count: totalCount,
+          isTotal: true, // Marcar la fila como total para aplicar estilos
+        });
+
         setReport({ ...reportData, details }); // Agregar details al reporte
       } catch (error) {
         console.error('Error al cargar informe:', error);
@@ -127,9 +137,17 @@ const ViewNursingReport = () => {
             rowKey="reason"
             bordered
             style={{ marginTop: '20px' }}
+            rowClassName={(record) => record.isTotal ? 'total-row' : ''} // Estilo para la fila de total
           />
         </Card>
       </div>
+
+      <style>{`
+  .total-row {
+    font-weight: bold;
+    background-color: #f0f0f0;
+  }
+`}</style>
     </div>
   );
 };
