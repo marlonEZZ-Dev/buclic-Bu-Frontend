@@ -1,4 +1,4 @@
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'; 
 import { Flex } from "antd"
 
 import ButtonEdit from './ButtonEdit.jsx';
@@ -65,15 +65,15 @@ export default function TablePaginationUsers({
         display: 'inline-block',
     };
 
-    const handlerGetRowEdit = row => onEdit(row)
-    const handlerGetRowDelete = row => onDelete(row)
+    const handlerGetRowEdit = row => onEdit(row);
+    const handlerGetRowDelete = row => onDelete(row);
 
     const goToNextPage = () => {
         if (currentPage < totalPages - 1) {
             onPageChange(currentPage + 1);
         }
     };
-
+    
     const goToPreviousPage = () => {
         if (currentPage > 0) {
             onPageChange(currentPage - 1);
@@ -149,10 +149,10 @@ export default function TablePaginationUsers({
                 <div style={pageIndicatorStyle}>Página {currentPage + 1} de {totalPages}</div>
                 <button
                     onClick={goToNextPage}
-                    disabled={currentPage === (totalPages - 1)}
+                    disabled={currentPage >= (totalPages - 1)}
                     style={{
                         ...buttonStyle,
-                        ...(currentPage === (totalPages - 1) ? { pointerEvents: 'none', opacity: 0.5 } : {}),
+                        ...(currentPage >= (totalPages - 1) ? { pointerEvents: 'none', opacity: 0.5 } : {}),
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
@@ -180,5 +180,5 @@ TablePaginationUsers.propTypes = {
     onPageChange: PropTypes.func,
     onCellClick: PropTypes.func,
     onDelete: PropTypes.func,
-    onEdit: PropTypes.func
-}
+    onEdit: PropTypes.func,
+};
