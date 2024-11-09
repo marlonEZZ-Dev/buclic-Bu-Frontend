@@ -109,7 +109,21 @@ export default function AgendaPsych(){
 	const [pendingAppointments, setPendingAppointments] = useState([]);
 	const [id, setId] = useState(null);
 	const [searchDate, setSearchDate] = useState(""); // Estado para almacenar la fecha de búsqueda
+	const [currentPage, setCurrentPage] = useState(1); // Página actual
+	const [totalItems, setTotalItems] = useState(0); // Total de elementos
+	const [itemsPerPage] = useState(5);
 
+	const removePendingAppointment = (reservationId) => {
+		setPendingAppointments((prev) => {
+			const updatedAppointments = prev.filter((row) => {
+				const buttonComponent = row[3]; // El componente AssistanceButtons está en la 4ª columna
+				return buttonComponent.key !== reservationId;
+			});
+	
+			// Si la tabla se queda vacía, forzar un nuevo array para desencadenar renderizado
+			return updatedAppointments.length === 0 ? [] : updatedAppointments;
+		});
+	};
 
 useEffect(() => {
   const userId = localStorage.getItem("userId");
@@ -138,8 +152,10 @@ const fetchPendingAppointments = async () => {
 		  <AssistanceButtons
 				key={appointment.reservationId}
 				appointmentId={appointment.reservationId}
-				onReload={()=>{fetchPendingAppointments();
-					fetchAttendedAppointments();}
+				onReload={()=>{
+					fetchPendingAppointments();
+					fetchAttendedAppointments();
+					removePendingAppointment(appointment.reservationId);}
 				} // Recargar datos después de una acción
 		  />
 		]);
@@ -160,28 +176,37 @@ useEffect(() => {
   }
 }, [id]);  
 
-const fetchAttendedAppointments = async () => {
-	try {
-	  const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/attended/${id}`, {
-		headers: {
-		  Authorization: `Bearer ${token}`, // Pasa el token en el encabezado
-		},
-	  });
-	  const data = response.data.appointments; // Ajusta según tu respuesta de backend
-  
-	  // Transforma los datos para tu tabla de citas atendidas
-	  const formattedAttendedRows = data.map(appointment => [
-		dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
-		appointment.patient || 'Anónimo',
-		appointment.phone || 'Sin Teléfono',
-		<StateUser key={appointment.reservationId} active={appointment.assitant} />, // Ajusta según el estado de asistencia
-	  ]);
-  
-	  setAppointmentDone(formattedAttendedRows);
-	} catch (error) {
-	  console.error("Error al obtener citas atendidas:", error);
-	}
-  };
+const fetchAttendedAppointments = async (page = 1) => {
+    try {
+        const response = await axios.get(
+            `http://localhost:8080/appointment-reservation/professional/attended/${id}`,
+            {
+                params: {
+                    page: page - 1, // El backend espera que las páginas comiencen en 0
+                    size: itemsPerPage, // Tamaño de página enviado correctamente
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const { appointments, totalElements } = response.data;
+
+        const formattedAttendedRows = appointments.map(appointment => [
+            dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+            appointment.patient || 'Anónimo',
+            appointment.phone || 'Sin Teléfono',
+            <StateUser key={appointment.reservationId} active={appointment.assistant} />
+        ]);
+
+        setAppointmentDone(formattedAttendedRows);
+        setTotalItems(totalElements); // Actualiza el total de elementos
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || 'Error desconocido';
+        message.error(errorMessage);
+    }
+};
   const fetchAttendedAppointmentsByDate = async (date) => {
     try {
       const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/attended/search/${id}?fecha=${date}`, {
@@ -202,9 +227,14 @@ const fetchAttendedAppointments = async () => {
     } catch (error) {
 		const errorMessage = error.response?.data?.message || 'Error desconocido';
     	message.error(errorMessage);
-    	
     }
-  };
+};
+
+const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    fetchAttendedAppointments(newPage);
+};
+
 
   
 	 
@@ -241,17 +271,20 @@ const fetchAttendedAppointments = async () => {
   						placeholder="Fecha de consulta (dd/MM/yyyy)"
   						onChange={(e) => setSearchDate(e.target.value)}
   						onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Realiza la búsqueda
-  						onRefresh={fetchAttendedAppointments} // Refresca la tabla
+  						onRefresh={()=>{setCurrentPage(1); // Resetea la página al refrescar
+							fetchAttendedAppointments(1);} }// Refresca la tabla
 					/>
 				</Flex>
 				<Flex vertical>
 					<p className="text-left">Tabla historial de citas realizadas</p>
 					<TablePagination
-					columns={appointmentDoneColums}
-					rows={appointmentDone}
-					currentPage={1}
-					itemsPerPage={1}
-					/>
+  						columns={appointmentDoneColums}
+  						rows={appointmentDone}
+  						currentPage={currentPage}
+  						itemsPerPage={itemsPerPage}
+  						totalItems={totalItems}
+  						onPageChange={handlePageChange}
+					/>						
 				</Flex>
 			</Card>
 			</Flex>
