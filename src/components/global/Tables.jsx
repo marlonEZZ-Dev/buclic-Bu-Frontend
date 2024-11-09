@@ -40,15 +40,23 @@ const Tables = ({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {columns.map((_, cellIndex) => (
-                <td key={cellIndex} style={cellStyle}>
-                  {row[cellIndex]}
-                </td>
-              ))}
+          {rows.length > 0 ? (
+            rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {columns.map((_, cellIndex) => (
+                  <td key={cellIndex} style={cellStyle}>
+                    {row[cellIndex]}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length} style={cellStyle}>
+                No hay citas pendientes
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
