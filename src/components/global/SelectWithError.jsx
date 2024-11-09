@@ -38,7 +38,8 @@ export default function SelectWithError({
                         borderColor: hasError ? 'red' : '', // Aplica borde rojo si hay error
                         borderWidth: hasError ? '1px' : '',
                         borderStyle: hasError ? 'solid' : '',
-                        borderRadius: '.5rem'
+                        borderRadius: '.5rem',
+                        ...props.style
                     }}
                 />
             </label>
