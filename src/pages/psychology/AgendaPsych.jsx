@@ -7,6 +7,8 @@ import StateUser from "../../components/global/StateUser.jsx"
 import TablePagination from "../../components/global/TablePagination.jsx"
 import Tables from "../../components/global/Tables.jsx"
 
+import { appointmentsProfessionals } from "../../services/professionals/agenda.js"
+
 import { Card, Flex } from "antd"
 import {ExclamationCircleOutlined} from "@ant-design/icons"
 import dayjs from "dayjs"
@@ -15,7 +17,7 @@ import 'dayjs/locale/es'
 import styles from "../../styles/psychology/agendaPsych.module.css"
 import cssButtonsModal from "../../styles/admin/managementUsers.module.css"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 function AssistanceCell(key){
 	const [selectedAssistance, setSelectedAssistance] = useState("nothing")
@@ -110,6 +112,15 @@ export default function AgendaPsych(){
 	const rowsAppointmentDone = [
 		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez",123456789,<StateUser key={1} active={false}/>]
 	]
+
+	useEffect(() => {
+		const ID = localStorage.getItem("userId")	
+		
+		appointmentsProfessionals(ID)
+		.then( res => console.log(res))
+		.catch(err => console.error(err))
+	}, [])
+
 		return(	
 		<>
       <HeaderPsych/>
@@ -135,8 +146,6 @@ export default function AgendaPsych(){
     				: palabra).join(' ')}`}
 					</p>
 					<Tables
-					enableClassname
-					classNameContainer={styles.table}
 					columns={appointmentPendingColums}
 					rows={rowsAppoinmentPending}/>
 					<SearchInput
