@@ -200,7 +200,6 @@ export default function ManagementUsers(){
 
 const handlePageChange = page => {
   setCurrentPage(page)
-  loadUsers()
 }
 
   const notifyError = message => {
@@ -518,7 +517,11 @@ const handlePageChange = page => {
     setStatusEstadoRolTipoBecaSelect(undefined)
     setStatusRolesGrantSelect(undefined)    
   }
-
+  
+  useEffect(() => {
+    loadUsers();
+  }, [currentPage]);
+  
   useEffect(() => {
     handleResize();
 
@@ -1096,8 +1099,7 @@ useEffect(() => {
               nameActionsButtons={isBeneficiary ? "Acciones":"Editar"}
               currentPage={currentPage}
               totalItems={totalItems}
-              onNext={handlePageChange}
-              onPrev={handlePageChange}
+              onPageChange={handlePageChange}
               onEdit={handlerOpenModalEdit}
               onDelete={isBeneficiary ? handlerOpenModalDelete:undefined}
               />
