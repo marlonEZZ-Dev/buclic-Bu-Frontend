@@ -104,11 +104,7 @@ export default function AgendaPsych(){
 	
 	const appointmentDoneColums = ["Horario cita","Paciente", "Télefono", "Asistencia"]
 
-	
-
-	const rowsAppointmentDone = [
-		[dayjs("2024-09-30T13:00:00").format("DD/MM/YYYY h:mm A"), "Mario Sánchez",123456789,<StateUser key={1} active={false}/>]
-	]
+	const [appointmentDone, setAppointmentDone] = useState([])
 
 	const [pendingAppointments, setPendingAppointments] = useState([]);
 	const [id, setId] = useState(null);
@@ -140,7 +136,9 @@ const fetchPendingAppointments = async () => {
 		  <AssistanceButtons
 				key={appointment.reservationId}
 				appointmentId={appointment.reservationId}
-				onReload={fetchPendingAppointments} // Recargar datos después de una acción
+				onReload={()=>{fetchPendingAppointments();
+					fetchAttendedAppointments();}
+				} // Recargar datos después de una acción
 		  />
 		]);
 
@@ -156,8 +154,33 @@ useEffect(() => {
   if (id) { // Espera a que id esté definido
     
     fetchPendingAppointments();
+	fetchAttendedAppointments();
   }
 }, [id]);  
+
+const fetchAttendedAppointments = async () => {
+	try {
+	  const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/attended/${id}`, {
+		headers: {
+		  Authorization: `Bearer ${token}`, // Pasa el token en el encabezado
+		},
+	  });
+	  const data = response.data.appointments; // Ajusta según tu respuesta de backend
+  
+	  // Transforma los datos para tu tabla de citas atendidas
+	  const formattedAttendedRows = data.map(appointment => [
+		dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+		appointment.patient || 'Anónimo',
+		appointment.phone || 'Sin Teléfono',
+		<StateUser key={appointment.reservationId} active={appointment.assitant} />, // Ajusta según el estado de asistencia
+	  ]);
+  
+	  setAppointmentDone(formattedAttendedRows);
+	} catch (error) {
+	  console.error("Error al obtener citas atendidas:", error);
+	}
+  };
+  
 	 
 		return(	
 		<>
@@ -196,7 +219,7 @@ useEffect(() => {
 					<p className="text-left">Tabla historial de citas realizadas</p>
 					<TablePagination
 					columns={appointmentDoneColums}
-					rows={rowsAppointmentDone}
+					rows={appointmentDone}
 					currentPage={1}
 					itemsPerPage={1}
 					/>
