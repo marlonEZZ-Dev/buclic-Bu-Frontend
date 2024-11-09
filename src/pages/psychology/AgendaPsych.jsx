@@ -108,6 +108,8 @@ export default function AgendaPsych(){
 
 	const [pendingAppointments, setPendingAppointments] = useState([]);
 	const [id, setId] = useState(null);
+	const [searchDate, setSearchDate] = useState(""); // Estado para almacenar la fecha de búsqueda
+
 
 useEffect(() => {
   const userId = localStorage.getItem("userId");
@@ -180,6 +182,28 @@ const fetchAttendedAppointments = async () => {
 	  console.error("Error al obtener citas atendidas:", error);
 	}
   };
+  const fetchAttendedAppointmentsByDate = async (date) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/appointment-reservation/professional/attended/search/${id}?fecha=${date}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = response.data.appointments;
+
+      const formattedAttendedRows = data.map(appointment => [
+        dayjs(appointment.availableDate?.dateTime).format("DD/MM/YYYY h:mm A") || 'Sin Fecha',
+        appointment.patient || 'Anónimo',
+        appointment.phone || 'Sin Teléfono',
+        <StateUser key={appointment.reservationId} active={appointment.assistant} />
+      ]);
+
+      setAppointmentDone(formattedAttendedRows);
+    } catch (error) {
+      console.error("Error al buscar citas atendidas por fecha:", error);
+    }
+  };
+
   
 	 
 		return(	
@@ -211,9 +235,11 @@ const fetchAttendedAppointments = async () => {
 					rows={pendingAppointments} 
 					/>
 					<SearchInput
-					className={styles.searchInput}
-					placeholder="Fecha de consulta"
-					/>
+              		className={styles.searchInput}
+              		placeholder="Fecha de consulta (dd/MM/yyyy)"
+              		onChange={(e) => setSearchDate(e.target.value)} // Actualiza la fecha de búsqueda
+              		onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Busca citas por fecha
+            		/>
 				</Flex>
 				<Flex vertical>
 					<p className="text-left">Tabla historial de citas realizadas</p>
