@@ -106,7 +106,7 @@ export default function ManagementUsers(){
   const descriptions = [
     {
       title:"Beneficiarios del sistema",
-      description:"Aquí puedes agregar estudiantes beneficiarios de la beca"
+      description:"Aquí puedes agregar los estudiantes beneficiarios de las becas"
     },
     {
       title:"Estudiantes del sistema",
@@ -130,8 +130,7 @@ export default function ManagementUsers(){
     {value:"MONITOR", label:"Monitor (a)"},
     {value:"ODONTOLOGO", label:"Odontólogo (a)"},
     {value:"PSICOLOGO", label:"Psicólogo (a)"},
-    {value:"FUNCIONARIO", label:"Funcionario (a)"},
-    {value:"EXTERNO", label:"Externo (a)"}
+    {value:"FUNCIONARIO", label:"Funcionario (a)"}
   ]
 
   const cbxStatus = [
@@ -697,7 +696,7 @@ useEffect(() => {
           onChange={handlerLoadFile}
           />
           {uploadStatus === "fallido" ? <span>Error al cargar el archivo</span> : 
-          uploadStatus === "exitoso" ? <img src='../../assets/icons/csv.svg' width={40} height={40}/> : 
+          uploadStatus === "exitoso" ?  console.log(file): 
           uploadStatus === "fallaFormato" ? <p>    La extensión del archivo no es correcta debe ser un archivo con extensión csv</p> :
           uploadStatus === "ninguno" ? <span>    Cargue un archivo csv</span> : ""}
         </Flex>
@@ -792,6 +791,7 @@ useEffect(() => {
           <SelectWithError title={isStudent ? "Estado" 
             : isFuncionary ? "Rol" 
             : "Tipo de Beca"}
+            isRenderAsteric={isBeneficiary}
             errorMessage={isStudent ? okValidationEdit.status : isFuncionary ? okValidationEdit.roles : okValidationEdit.grant} 
             value={getValueComplexSelectInModal()}
             status={statusEstadoRolTipoBecaSelect}
@@ -983,6 +983,7 @@ useEffect(() => {
             />
           {(!isStudent || !enableResponsive) && 
             <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beca"}
+              isRenderAsteric={isBeneficiary}
               name={isBeneficiary ? "grant" : ""}
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"

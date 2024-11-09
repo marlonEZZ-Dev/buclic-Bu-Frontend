@@ -1,10 +1,8 @@
-import PropTypes from "prop-types"
+import PropTypes from "prop-types";
 
 const Tables = ({ 
   rows = [[]], 
-  columns = [],
-  enableClassname = false,
-  classNameContainer = ""
+  columns = []
 }) => {
   const headerStyle = {
     backgroundColor: '#CFCFCF', // Fondo gris oscuro
@@ -18,46 +16,41 @@ const Tables = ({
     border: '1px solid #ddd',
     padding: '8px',
     textAlign: 'center',
-  };
-
-  const tableContainerStyle = {
-    overflowX: 'auto', // Scroll horizontal para pantallas pequeñas
+    whiteSpace: 'nowrap', // Evita que el contenido se divida en varias líneas
+    overflow: 'hidden',
+    textOverflow: 'ellipsis', // Añade "..." si el contenido es muy largo
   };
 
   const tableStyle = {
-    minWidth: '100%', // Para que ocupe todo el ancho disponible
+    width: '100%',
     borderCollapse: 'collapse',
+    tableLayout: 'fixed', // Distribuye el ancho de manera uniforme sin desbordar
   };
 
   return (
-    <div 
-    style={ enableClassname ? {} : { textAlign: 'center' }}
-    className={classNameContainer}>
-      {/* Contenedor con scroll horizontal en pantallas pequeñas */}
-      <div style={tableContainerStyle}>
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              {columns.map((column, index) => (
-                <th key={index} style={headerStyle}>
-                  {column}
-                </th>
+    <div style={{ textAlign: 'center', margin: '0', width: '100%' }}>
+      <table style={tableStyle}>
+        <thead>
+          <tr>
+            {columns.map((column, index) => (
+              <th key={index} style={headerStyle}>
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {columns.map((_, cellIndex) => (
+                <td key={cellIndex} style={cellStyle}>
+                  {row[cellIndex]}
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} style={cellStyle}>
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
@@ -65,9 +58,6 @@ const Tables = ({
 Tables.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.array),
   columns: PropTypes.array,
-  enableClassname: PropTypes.bool,
-  classNameContainer: PropTypes.string
-}
+};
 
 export default Tables;
-

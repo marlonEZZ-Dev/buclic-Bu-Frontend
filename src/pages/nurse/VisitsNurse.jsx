@@ -9,6 +9,7 @@ import api from '../../api';
 const VisitsNurse = () => {
   const [fecha, setFecha] = useState(null);
   const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
   const [telefono, setTelefono] = useState('');
   const [planDependencia, setPlanDependencia] = useState('');
   const [semestre, setSemestre] = useState('');
@@ -75,6 +76,7 @@ const VisitsNurse = () => {
       // Limpia los campos antes de la búsqueda
 
       setNombre('');
+      setApellido('');
       setTelefono('');
       setPlanDependencia('');
       setSemestre('');
@@ -92,6 +94,7 @@ const VisitsNurse = () => {
 
       // Actualiza los estados con los datos obtenidos del backend
       setNombre(userData.name);
+      setApellido(userData.lastname);
       setTelefono(userData.phone);
       setPlanDependencia(userData.plan);
       setSemestre(userData.semester);
@@ -165,11 +168,22 @@ const VisitsNurse = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Nombre y Apellido" labelAlign="left" required>
+                  <Form.Item label="Nombre" labelAlign="left" required>
                     <Input
-                      placeholder="Nombre y Apellido"
+                      placeholder="Nombre"
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item label="Apellido" labelAlign="left" required>
+                    <Input
+                      placeholder="Ingrese el apellido"
+                      value={apellido}
+                      onChange={(e) => setApellido(e.target.value)}
+                      
                     />
                   </Form.Item>
                 </Col>

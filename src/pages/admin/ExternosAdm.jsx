@@ -18,8 +18,7 @@ const ExternosAdmin = () => {
   ];
 
   const handleCedulaChange = (e) => {
-    const onlyNums = e.target.value.replace(/\D/g, ''); // Permitir solo números
-    setCedula(onlyNums); // Actualizar el estado solo con números
+    setCedula(e.target.value);
   };
 
   const handleSave = async () => {
@@ -56,17 +55,29 @@ const ExternosAdmin = () => {
   };
 
 
-  const handleSearch = async (cedula) => {
+  const handleSearch = async () => {
     try {
       const response = await api.get(`/reservations/extern/${cedula}`);
-      
-      setExternoData(response.data);
+      const externoData = response.data;
+
+      // Rellenar los campos del formulario con los datos obtenidos
+      form.setFieldsValue({
+        username: externoData.cedula,
+        name: externoData.name,
+        lastname: externoData.lastname,
+        dependencia: externoData.plan,
+        email: externoData.email,
+      });
+
       message.success('Usuario encontrado');
     } catch (error) {
       console.error("Error al buscar el usuario externo:", error);
       message.error('Usuario no encontrado');
     }
   };
+
+
+
   return (
     <>
       <HeaderAdmin />
