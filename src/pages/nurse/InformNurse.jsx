@@ -17,7 +17,6 @@ export default function InformNurse() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
-  // Función para extraer el año y el trimestre del input y construir el JSON
   const parseTrimesterInput = (input) => {
     const regex = /^(\d{4})-(\d)$/;
     const match = input.match(regex);
@@ -47,32 +46,46 @@ export default function InformNurse() {
     }
   };
 
-  const searchReportById = async () => {
-    const reportId = parseInt(searchInput, 10);
-    if (isNaN(reportId)) {
-      message.warning('Por favor, ingrese un ID de informe válido.');
+  const searchReportByTrimester = async () => {
+    const parsedData = parseTrimesterInput(searchInput);
+    if (!parsedData) {
+      message.warning('Por favor, ingrese el trimestre en el formato correcto (ej: 2024-1).');
       return;
     }
-
+  
+    setIsLoading(true);
     try {
-      const response = await api.get(`/nursing-report/${reportId}`);
-      setReports(response.data ? [response.data] : []);
-      setTotalItems(response.data ? 1 : 0);
-      setNoResults(!response.data);
-
-      if (response.data) {
-        message.success('Informe cargado exitosamente.');
+      // Cambia la URL a `/nursing-report/search`
+      const response = await api.get('/nursing-report/search', {
+        params: {
+          year: parsedData.year,
+          trimester: parsedData.trimester,
+        },
+      });
+  
+      if (response.data && response.data.length > 0) {
+        setReports(response.data);
+        setTotalItems(response.data.length);
+        setNoResults(false);
+        message.success('Informe(s) cargado(s) exitosamente.');
       } else {
-        message.info('No se encontró un informe con el ID especificado.');
+        setReports([]);
+        setTotalItems(0);
+        setNoResults(true);
+        message.info('No se encontró ningún informe para el trimestre especificado.');
       }
     } catch (error) {
       console.error('Error al buscar el informe:', error);
       message.error(`Error al realizar la búsqueda: ${error.response?.data?.message || error.message}`);
       setNoResults(true);
+    } finally {
+      setIsLoading(false);
     }
   };
+  
 
   const fetchReports = useCallback(async (page = 1) => {
+    setIsLoading(true);
     try {
       const response = await api.get('/nursing-report/list', {
         params: {
@@ -85,17 +98,19 @@ export default function InformNurse() {
         setReports(response.data.content);
         setTotalItems(response.data.page.totalElements);
         setNoResults(response.data.content.length === 0);
-        return response; // Retornar la respuesta completa
+        return response;
       } else {
         console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
-        return null; // Retornar null en caso de error
+        return null;
       }
     } catch (error) {
       console.error('Error al obtener informes:', error);
       message.error('No se pudieron cargar los informes');
       setNoResults(true);
-      return null; // Retornar null en caso de error
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -110,12 +125,13 @@ export default function InformNurse() {
 
   const handleSearch = () => {
     if (!searchInput) {
-      message.warning('Por favor, ingrese un trimestre para buscar.');
+      message.warning('Por favor, ingrese el trimestre para buscar en el formato correcto (ej: 2024-1).');
       return;
     }
     setCurrentPage(1);
-    searchReportById();
+    searchReportByTrimester();
   };
+  
 
   const handleReloadTable = async () => {
     setTrimesterInput('');
@@ -123,10 +139,8 @@ export default function InformNurse() {
     setCurrentPage(1);
     setNoResults(false);
 
-    // Llamada para recargar todos los informes
     const response = await fetchReports(1);
 
-    // Verificar si no hay elementos en la respuesta
     if (response && response.data.content.length === 0) {
       Modal.info({
         title: 'Sin elementos creados',
@@ -136,7 +150,6 @@ export default function InformNurse() {
     }
   };
 
-  // Función para descargar un informe
   const downloadReport = async (id) => {
     try {
       const response = await api.get(`/nursing-report/download/${id}`, {
@@ -163,7 +176,6 @@ export default function InformNurse() {
     }
   };
 
-  // Función para eliminar un informe
   const deleteReport = async (id) => {
     try {
       const response = await api.delete(`/nursing-report/delete/${id}`);
