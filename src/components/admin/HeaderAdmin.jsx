@@ -95,17 +95,18 @@ export default function HeaderAdmin(props) {
               >
                 Menú del día
               </li>
-              <li
-                onClick={() => handleButtonClick("/admin/becaAdm")}
-                className={location.pathname === "/admin/becaAdm" ? "active" : ""}
-              >
-                Becas
-              </li>
+              
               <li
                 onClick={() => handleButtonClick("/admin/reservas")}
                 className={location.pathname === "/admin/reservas" ? "active" : ""}
               >
                 Reservas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/admin/externos")}
+                className={location.pathname === "/admin/externos" ? "active" : ""}
+              >
+                Externos
               </li>
               <li
                 onClick={() => handleButtonClick("/admin/perfilAdmin")}
@@ -144,17 +145,18 @@ export default function HeaderAdmin(props) {
               >
                 Menú
               </li>
-              <li
-                onClick={() => handleButtonClick("/admin/becaAdm")}
-                className={location.pathname === "/admin/becaAdm" ? "active" : ""}
-              >
-                Becas
-              </li>
+              
               <li
                 onClick={() => handleButtonClick("/admin/reservas")}
                 className={location.pathname === "/admin/reservas" ? "active" : ""}
               >
                 Reservas
+              </li>
+              <li
+                onClick={() => handleButtonClick("/admin/externos")}
+                className={location.pathname === "/admin/externos" ? "active" : ""}
+              >
+                Externos
               </li>
               <li
                 onClick={() => handleButtonClick("/admin/perfilAdmin")}

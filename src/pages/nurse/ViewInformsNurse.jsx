@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, message, Spin, Card, Table } from 'antd';
 import { LeftOutlined, DownloadOutlined } from '@ant-design/icons';
@@ -17,7 +17,15 @@ const ViewNursingReport = () => {
       try {
         setLoading(true);
         const response = await api.get(`/nursing-report/${id}`);
-        setReport(response.data);
+        const reportData = response.data;
+        
+        // Transformar diagnosticCount en un array de objetos para la tabla
+        const details = Object.entries(reportData.diagnosticCount || {}).map(([reason, count]) => ({
+          reason,
+          count,
+        }));
+        
+        setReport({ ...reportData, details }); // Agregar details al reporte
       } catch (error) {
         console.error('Error al cargar informe:', error);
         message.error('No se pudo cargar el informe.');
@@ -109,7 +117,7 @@ const ViewNursingReport = () => {
           style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden' }}
         >
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <p style={{ fontSize: '16px' }}><strong>Semestre:</strong> {report.semester}</p>
+            <p style={{ fontSize: '16px' }}><strong>Trimestre:</strong> {report.year}-{report.trimester}</p>
           </div>
 
           <Table
