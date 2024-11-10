@@ -10,8 +10,6 @@ const { RangePicker } = DatePicker;
 export default function SearchPicker({ placeholder = "Buscar", queryValue, dateRangeValue, onSearch, onQueryChange, onDateRangeChange, ...props }) {
     const [hover, setHover] = useState(false);
     
-    
-
     const handleSearch = () => {
         if (onSearch) {
             onSearch({ query: queryValue, dateRange: dateRangeValue });
@@ -30,15 +28,24 @@ export default function SearchPicker({ placeholder = "Buscar", queryValue, dateR
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === '.' || e.key === ',' || e.key === '-') {
+            e.preventDefault();
+        }
+    };
+    
+
     return (
         <ConfigProvider locale={esES}>
             <div style={styles.container}>
                 <Input
                     placeholder={placeholder}
                     style={styles.input}
+                    type='number'
                     value={queryValue}
                     onChange={handleInputChange}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    onKeyDown={handleKeyDown}
                     {...props}
                 />
                 <RangePicker
