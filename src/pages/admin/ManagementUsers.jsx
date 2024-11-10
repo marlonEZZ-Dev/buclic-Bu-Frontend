@@ -457,34 +457,16 @@ const handlePageChange = page => {
 
   const handlerSearchUser = async () => {
     try{
-      console.log("Objeto seleccionado")
-      console.dir(objectSelected)
       const userFound = await searchUser(codeUser)
       if((userFound !== undefined) && ("success" in userFound)){
         notifyError(userFound.message)
         return
       }
-      console.log("Objeto seleccionado")
-      console.dir(objectSelected)
       const arrayUserFound = []
-      
-      console.log("Objeto seleccionado")
-      console.dir(objectSelected)
-
       userFound.isActive = tranformToStateUser(userFound.isActive)
-
-      console.log("Objeto seleccionado")
-      console.dir(objectSelected)
-
+      userFound.roles = getArrObjInArrStr(userFound.roles)
       arrayUserFound.push(userFound)
-      
-      console.log("Objeto seleccionado")
-      console.dir(objectSelected)
-
       setRows(arrayUserFound)
-
-      console.log("Objeto seleccionado")
-      console.dir(objectSelected)
     }catch(error){
       console.error(`Esto ocurre en handlerSearchUser ${error}`)
     }
@@ -494,9 +476,6 @@ const handlePageChange = page => {
   const handlerSendUserEdited = async () => {
     try {
       objectSelected.isActive = getStatusValue(objectSelected.isActive)
-      objectSelected.roles = getArrObjInArrStr(objectSelected.roles)
-      console.log("Antes de que se envie")
-      console.dir(objectSelected)
 
       const responseEdit = await editUser(objectSelected)
       
@@ -1133,7 +1112,7 @@ useEffect(() => {
           <Flex 
           justify='space-between'
           >
-            <p style={{fontWeight:"bold", fontSize:"20px", alignSelf:"flex-end"}} className={styles.marginTable}>
+            <p style={{fontWeight:"bold", fontSize:"20px"}} className={styles.marginTable}>
             {`Tabla de ${
             isFuncionary ? "funcionarios y externos registrados": 
               isStudent ? "estudiantes registrados" : 
