@@ -88,12 +88,12 @@ export default function TablePaginationUsers({
                         {columns.map((column, index) => (
                             <th
                                 key={`header-${column.key || index}`}
-                                style={{ ...headerStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                style={{ ...headerStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal' }}
                             >
                                 {column.label}
                             </th>
                         ))}
-                        <th style={{ ...headerStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <th style={{ ...headerStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal' }}>
                             {nameActionsButtons}
                         </th>
                     </tr>
@@ -109,13 +109,13 @@ export default function TablePaginationUsers({
                                             ...cellStyle,
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
+                                            whiteSpace: 'normal'
                                         }}
                                     >
                                         {row[column.key]}
                                     </td>
                                 ))}
-                                <td style={{ ...cellStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <td style={{ ...cellStyle, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal' }}>
                                     <Flex justify='center' align='center'>
                                         {enableDelete && <ButtonDelete key={`delete${rowIndex}`} onClick={() => handlerGetRowDelete(row)} />}
                                         {enableEdit && <ButtonEdit key={`edit${rowIndex}`} onClick={() => handlerGetRowEdit(row)} />}
