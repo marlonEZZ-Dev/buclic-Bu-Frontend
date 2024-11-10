@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Card, Input, Button, message } from "antd";
 import {
   UserOutlined,
@@ -10,14 +10,17 @@ import "../../styles/background.css";
 import Header from "../../components/auth/Header";
 import api from "../../api";
 import { ACCESS_TOKEN } from "../../constants";
-import "../../styles/HomePage.css"
-
+import "../../styles/HomePage.css";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   const roleToRouteMap = {
     ADMINISTRADOR: "/admin/usuarios",
@@ -37,17 +40,17 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const response = await api.post("/auth/login", { username, password });
-  
+
       if (response.data && response.data.token) {
         const token = response.data.token;
         const userResponse = response.data.userResponse;
         const roles = userResponse.roles.map((role) => role.name);
-  
-        console.log("Roles del usuario:", roles);
-  
+
+        console.log("Rol del usuario:", roles);
+
         // Guardar token y datos en localStorage
         localStorage.setItem(ACCESS_TOKEN, token);
         localStorage.setItem("username", username);
@@ -55,45 +58,47 @@ export default function LoginPage() {
         localStorage.setItem("userName", userResponse.name);
         localStorage.setItem("userEmail", userResponse.email);
         localStorage.setItem("userPlan", userResponse.plan);
-        localStorage.setItem("userEPS", userResponse.eps); 
-        localStorage.setItem("userPhone", userResponse.phone); 
-        localStorage.setItem("userSemester", userResponse.semester); 
-  
+        localStorage.setItem("userEPS", userResponse.eps);
+        localStorage.setItem("userPhone", userResponse.phone);
+        localStorage.setItem("userSemester", userResponse.semester);
+
         // Redireccionar basado en el rol
         const userRole = roles[0];
         localStorage.setItem("userRole", userRole);
         const route = roleToRouteMap[userRole];
-  
+
         if (route) {
           navigate(route);
         } else {
-          message.error("No se encontró una ruta correspondiente al rol del usuario");
+          message.error(
+            "No se encontró una ruta correspondiente al rol del usuario"
+          );
         }
       } else {
         throw new Error("Token no recibido");
       }
     } catch (error) {
       console.error("Error durante el inicio de sesión:", error);
-  
+
       if (error.response?.status === 400) {
         message.error("Usuario o contraseña incorrectos.");
       } else {
-        const errorMessage = error.response?.data?.message || "Error en el inicio de sesión. Por favor, intente de nuevo.";
+        const errorMessage =
+          error.response?.data?.message ||
+          "Error en el inicio de sesión. Por favor, intente de nuevo.";
         message.error(errorMessage);
       }
     } finally {
       setLoading(false);
     }
   };
-  
-  
+
   const isFormValid = username !== "" && password !== "";
-  
 
   return (
     <Fragment>
       <Header />
-  
+
       <div
         style={{
           display: "flex",
@@ -114,7 +119,10 @@ export default function LoginPage() {
                 padding: "5px 0", // Reduce el padding superior e inferior del encabezado
               }}
             >
-              <h1 className="welcome-title" style={{ margin: 0, textAlign: "center" }}>
+              <h1
+                className="welcome-title"
+                style={{ margin: 0, textAlign: "center" }}
+              >
                 BuClick
               </h1>
             </div>
@@ -134,7 +142,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-  
+
             <Input.Password
               placeholder="Contraseña"
               iconRender={(visible) =>
@@ -144,7 +152,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-  
+
             <Button
               type="primary"
               htmlType="submit"
@@ -159,7 +167,7 @@ export default function LoginPage() {
             >
               Iniciar sesión
             </Button>
-  
+
             <div style={{ textAlign: "center", marginTop: 16 }}>
               <a onClick={manejarClick} style={{ color: "#C20E1A" }}>
                 ¿Olvidó su nombre de usuario o contraseña?
@@ -170,4 +178,4 @@ export default function LoginPage() {
       </div>
     </Fragment>
   );
-}  
+}

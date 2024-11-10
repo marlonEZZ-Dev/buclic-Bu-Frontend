@@ -3,11 +3,10 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import Modal from "../../components/global/Modal.jsx";
 import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
-import { Flex, Button, message } from "antd";
+import { Flex, Button, message, Modal } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
 const styles = {
@@ -131,38 +130,44 @@ export default function SchedulesNurse() {
     setSelectedTimeIndex(null);
   };
 
-  /*   const handleDeleteDate = async (dateIndex) => {
-      const dateToDelete = scheduleData[dateIndex];
+  const handleDeleteDate = async (date) => {
+    // Mostrar un modal de confirmación para que el usuario confirme la eliminación
+    Modal.confirm({
+      title: "Confirmar Eliminación",
+      content: "¿Está seguro de que desea eliminar todos los horarios de este día? Esta acción no se puede deshacer.",
+      okText: "Sí, eliminar",
+      cancelText: "Cancelar",
+      onOk: async () => {
+        // El usuario ha confirmado, procedemos a eliminar
+        const formattedDate = dayjs(date).format('DD/MM/YYYY');
+        try {
+          const response = await api.delete("/appointment/delete-dates", {
+            data: { date: formattedDate }
+          });
   
-      if (!dateToDelete || !dateToDelete.times || dateToDelete.times.length === 0) {
-        return;
-      }
+          if (response.status === 204) {
+            showNotification("success", "Todos los horarios de la fecha han sido eliminados correctamente.");
+            
+            // Recargar los datos desde el servidor después de eliminar la fecha completa
+            await fetchAvailableDates();
+          } else {
+            showNotification("error", "Error al eliminar los horarios. Intente nuevamente.");
+          }
+        } catch (error) {
+          console.error("Error al eliminar la fecha:", error);
+          showNotification("error", "Error al eliminar la fecha y sus horas. Intente nuevamente.");
+        }
+      },
+      onCancel: () => {
+        // El usuario ha cancelado la acción, no se hace nada
+        showNotification("info", "Eliminación cancelada.");
+      },
+    });
+  };
   
-      try {
-        // Crear una lista de promesas de eliminación para cada hora
-        const deletePromises = dateToDelete.times.map(async ({ time }) => {
-          const dateTimeToDelete = `${dateToDelete.date}T${time}`;
-          const response = await api.delete(`/appointment/${dateTimeToDelete}`);
-          return response;
-        });
-  
-        // Esperar a que todas las promesas se resuelvan
-        await Promise.all(deletePromises);
-  
-        // Si todas las peticiones fueron exitosas, eliminamos la fecha del estado
-        setScheduleData(scheduleData.filter((_, index) => index !== dateIndex));
-        setModifiedScheduleData(modifiedScheduleData.filter(mod => mod.id !== dateToDelete.id));
-  
-        showNotification('success', 'Fecha y todas sus horas eliminadas correctamente.');
-      } catch (error) {
-        console.error("Error al eliminar la fecha:", error);
-        showNotification('error', 'Error al eliminar la fecha y sus horas. Intente nuevamente.');
-      }
-    }; */
 
-
+  // Función de eliminar una hora
   const handleDeleteTime = async () => {
-    // Verificar si los índices están definidos y evitar errores
     if (selectedDateIndex === null || selectedTimeIndex === null) {
       showNotification('error', 'Índices de fecha u hora no definidos.');
       return;
@@ -170,39 +175,33 @@ export default function SchedulesNurse() {
 
     const updatedSchedule = [...scheduleData];
     const updatedDate = updatedSchedule[selectedDateIndex];
-
-    // Asegurarse de que la hora y el ID existen
     const timeIdToDelete = updatedDate.times[selectedTimeIndex]?.id;
+
     if (!timeIdToDelete) {
       showNotification('error', 'ID de hora no encontrado.');
       handleCloseDeleteTimeModal();
       return;
     }
 
-    // Proceder con la eliminación si el ID es válido
-    updatedDate.times.splice(selectedTimeIndex, 1);
-
-    if (updatedDate.times.length === 0) {
-      updatedSchedule.splice(selectedDateIndex, 1);
-    }
-
-    setScheduleData(updatedSchedule);
-
     try {
       await api.delete(`/appointment/${timeIdToDelete}`);
       showNotification('success', 'Hora eliminada correctamente.');
+
+      // Recargar los datos desde el servidor después de eliminar una hora
+      await fetchAvailableDates();
     } catch (error) {
       console.error("Error al eliminar la hora:", error);
       showNotification('error', 'Error al eliminar la hora. Intente nuevamente.');
+    } finally {
+      handleCloseDeleteTimeModal();
     }
-
-    handleCloseDeleteTimeModal();
   };
 
   const handleCloseSaveChangesModal = () => {
     setIsSaveChangesModalVisible(false);
   };
 
+  // Llamar a `fetchAvailableDates` después de cada operación para actualizar el estado.
   const confirmSaveChanges = async () => {
     setIsLoading(true);
 
@@ -212,6 +211,9 @@ export default function SchedulesNurse() {
         showNotification('success', 'El horario fue asignado con éxito.');
         setIsEditing(false);
         handleCloseSaveChangesModal();
+
+        // Recargar los datos desde el servidor para evitar inconsistencias
+        await fetchAvailableDates();
       } else {
         showNotification('error', 'No se pudo guardar el horario. Intente de nuevo.');
       }
@@ -221,6 +223,7 @@ export default function SchedulesNurse() {
       setIsLoading(false);
     }
   };
+
 
   const handlerEdit = () => setIsEditing(true);
 
@@ -301,10 +304,10 @@ export default function SchedulesNurse() {
         return false;
       }
 
-      // Filtra solo los horarios nuevos o modificados
+      // Filtra solo los horarios nuevos (isNew: true)
       const availableDates = modifiedScheduleData.flatMap(schedule =>
         schedule.times
-          .filter(({ isNew }) => isNew)
+          .filter(({ isNew }) => isNew)  // Solo tiempos nuevos
           .map(({ time }) => ({
             dateTime: `${schedule.date}T${time}`,
             professionalId: Number(userId),
@@ -313,7 +316,7 @@ export default function SchedulesNurse() {
       );
 
       if (availableDates.length === 0) {
-        showNotification('warning', 'No hay horarios válidos para guardar. Por favor, ingrese al menos una fecha y hora.');
+        showNotification('warning', 'No hay horarios nuevos para guardar.');
         return false;
       }
 
@@ -322,15 +325,18 @@ export default function SchedulesNurse() {
       const response = await api.post("/appointment/create-date", { availableDates, professionalId: Number(userId) });
 
       if (response?.status === 200 || response?.status === 201) {
-        // Actualizar los horarios para que no intenten guardarse nuevamente
+        // Marcar todos los horarios como guardados (isNew: false) después de guardarlos
         const updatedScheduleData = scheduleData.map(schedule => ({
           ...schedule,
           times: schedule.times.map(time => ({ ...time, isNew: false }))
         }));
 
         setScheduleData(updatedScheduleData);
-        setOriginalScheduleData(updatedScheduleData);
-        setModifiedScheduleData([]); // Limpia los datos modificados
+        setOriginalScheduleData(updatedScheduleData); // Actualizar el original
+        setModifiedScheduleData([]); // Limpiar el array de modificaciones
+
+        // Recargar los datos desde el servidor para asegurarse de que el estado es consistente
+        await fetchAvailableDates();
         return true;
       } else {
         throw new Error('Error al guardar los horarios.');
@@ -347,7 +353,6 @@ export default function SchedulesNurse() {
       setIsLoading(false);
     }
   };
-
 
   const handlerBtnSave = () => {
     if (modifiedScheduleData.length === 0) {
@@ -458,19 +463,20 @@ export default function SchedulesNurse() {
                               disabled={!isEditing || !schedule.times.some(time => time.isNew)}
                               style={{ width: '100%' }}
                             />
-                            {/* <Button
+                            <Button
                               type="link"
-                              onClick={() => handleDeleteDate(schedule.id)}
+                              onClick={() => handleDeleteDate(schedule.date)} // Llamada a `handleDeleteDate`
                               style={{ color: 'red', marginLeft: '5px' }}
                               disabled={isLoading}
                             >
                               Eliminar
-                            </Button> */}
+                            </Button>
                           </div>
                         ) : (
                           <span>{schedule.date}</span>
                         )}
                       </td>
+
                       <td style={styles.tableCell}>
                         {schedule.times.map((time, timeIndex) => (
                           <div key={`time-${dateIndex}-${timeIndex}`} style={{ display: 'flex', alignItems: 'center' }}>
