@@ -101,7 +101,7 @@ const ExternosAdmin = () => {
               <Row gutter={40}>
                 <Col span={12}>
                   <Form.Item label="Cédula" labelAlign="left" name="cedula" rules={[
-                    { required: true, message: 'Por favor ingrese su número de cédula' },
+                    { required: true, message: 'Por favor ingrese el número de cédula' },
                     { pattern: /^[1-9]\d*$/, message: 'Solo se permiten números positivos' },
                   ]}>
                     <SearchInputR
@@ -114,19 +114,24 @@ const ExternosAdmin = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Nombre" labelAlign="left" name="name" required>
+                  <Form.Item label="Nombre" labelAlign="left" name="name" rules={[
+                    { required: true, message: 'Por favor ingrese el nombre' },]}>
                     <Input placeholder="Ingrese el nombre" />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Apellido" labelAlign="left" name="lastname" required>
+                  <Form.Item label="Apellido" labelAlign="left" name="lastname" rules={[
+                    { required: true, message: 'Por favor ingrese el apellido' },
+                  ]}>
                     <Input placeholder="Ingrese el apellido" />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" required>
+                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
+                    { required: true, message: 'Por favor ingrese el área de dependencia' },
+                  ]}>
                     <Input placeholder="Ingrese el área de dependencia" />
                   </Form.Item>
                 </Col>
@@ -138,7 +143,7 @@ const ExternosAdmin = () => {
                     name="email"
                     required
                     rules={[
-                      { required: true, message: 'Por favor ingrese su correo electrónico' },
+                      { required: true, message: 'Por favor ingrese el correo electrónico' },
                       { type: 'email', message: 'Por favor ingrese un correo electrónico válido' }
                     ]}
                   >
@@ -147,7 +152,12 @@ const ExternosAdmin = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Tipo de beca" labelAlign="left" required>
+                  <Form.Item label={<span>Tipo de beca</span>}
+                    name="becas" labelAlign="left"
+                    rules={[
+                      { required: true, message: 'Por favor ingrese el tipo de beca' },
+                    ]}
+                  >
                     <Select
                       value={becas}
                       options={becasOptions}
