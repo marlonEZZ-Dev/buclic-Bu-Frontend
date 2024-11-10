@@ -234,46 +234,54 @@ export default function AgendaPsych() {
       message.error(errorMessage);
     }
   };
-  const fetchAttendedAppointmentsByDate = async (date) => {
-    try {
-		const response = await api.get(
-			`/appointment-reservation/professional/attended/search/${id}?fecha=${date}`,
-			{
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            page: 0,
-            size: 1000,
-          },
-        }
-      );
-      const data = response.data.appointments;
-      console.log(data);
-      const formattedAttendedRows = data.map((appointment) => [
-        dayjs(appointment.availableDate?.dateTime).format(
-          "DD/MM/YYYY h:mm A"
-        ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
-        appointment.phone || "Sin Teléfono",
-        <StateUser
-          key={appointment.reservationId}
-          active={appointment.assitant}
-        />,
-      ]);
-
-      setAppointmentDone(formattedAttendedRows);
-      setTotalItems(data.length);
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error desconocido";
-      message.error(errorMessage);
-    }
+  const fetchAttendedAppointmentsByDate = async (date, page = 1) => {
+	try {
+	  const response = await api.get(
+		`/appointment-reservation/professional/attended/search/${id}`,
+		{
+		  headers: {
+			Authorization: `Bearer ${token}`,
+		  },
+		  params: {
+			fecha: date,
+			page: page - 1, // Backend espera la página comenzando en 0
+			size: itemsPerPage,
+		  },
+		}
+	  );
+	  
+	  const { appointments, totalElements } = response.data; // Asegúrate de que el backend devuelva estos campos
+  
+	  const formattedAttendedRows = appointments.map((appointment) => [
+		dayjs(appointment.availableDate?.dateTime).format(
+		  "DD/MM/YYYY h:mm A"
+		) || "Sin Fecha",
+		appointment.patient || "Anónimo",
+		appointment.phone || "Sin Teléfono",
+		<StateUser
+		  key={appointment.reservationId}
+		  active={appointment.assitant}
+		/>,
+	  ]);
+  
+	  setAppointmentDone(formattedAttendedRows);
+	  setTotalItems(totalElements); // Actualiza el total de elementos
+	} catch (error) {
+	  const errorMessage = error.response?.data?.message || "Error desconocido";
+	  message.error(errorMessage);
+	}
   };
+  
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    fetchAttendedAppointments(newPage);
+	setCurrentPage(newPage);
+	if (searchDate) {
+	  fetchAttendedAppointmentsByDate(searchDate, newPage);
+	} else {
+	  fetchAttendedAppointments(newPage);
+	}
   };
+  
 
   return (
     <>
@@ -291,15 +299,19 @@ export default function AgendaPsych() {
               rows={pendingAppointments}
             />
             <SearchInput
-              className={styles.searchInput}
-              placeholder="Fecha de consulta (dd/MM/yyyy)"
-              onChange={(e) => setSearchDate(e.target.value)}
-              onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Realiza la búsqueda
-              onRefresh={() => {
-                setCurrentPage(1); // Resetea la página al refrescar
-                fetchAttendedAppointments(1);
-              }} // Refresca la tabla
-            />
+ 				className={styles.searchInput}
+ 				placeholder="Fecha de consulta (dd/MM/yyyy)"
+ 				onChange={(e) => setSearchDate(e.target.value)}
+ 				onClick={() => {
+ 				  setCurrentPage(1); // Resetea la paginación
+ 				  fetchAttendedAppointmentsByDate(searchDate, 1);
+ 				}}
+ 				onRefresh={() => {
+ 				  setSearchDate(""); // Limpia la búsqueda
+ 				  setCurrentPage(1); // Resetea la página al refrescar
+ 				  fetchAttendedAppointments(1);
+ 				}}
+			/>
           </Flex>
           <Flex vertical>
             <p className="text-left">Tabla historial de citas realizadas</p>

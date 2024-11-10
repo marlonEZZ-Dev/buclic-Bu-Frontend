@@ -11,15 +11,22 @@ const SearchInput = ({
   ...props 
 }) => {
   const [hover, setHover] = useState(false);
-  
+  const [inputValue, setInputValue] = useState(""); // Estado local para controlar el valor del input
 
   const handleInputChange = (e) => {
-    onChange(e);
+    setInputValue(e.target.value); // Actualiza el estado local
+    onChange(e); // Llama a la función onChange proporcionada
+  };
+
+  const handleRefresh = () => {
+    setInputValue(""); // Limpia el input
+    onRefresh(); // Llama a la función onRefresh proporcionada
   };
 
   return (
     <div style={styles.container}>
       <Input
+        value={inputValue} // El valor está controlado por el estado local
         placeholder={placeholder}
         style={styles.input}
         onChange={handleInputChange}
@@ -48,10 +55,8 @@ const SearchInput = ({
         }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        onClick={onRefresh} // Llama a la función onRefresh al hacer clic
-      >
-
-      </Button>
+        onClick={handleRefresh} // Llama a handleRefresh en lugar de onRefresh directamente
+      />
     </div>
   );
 };
