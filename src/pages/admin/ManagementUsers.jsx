@@ -347,6 +347,7 @@ const handlePageChange = page => {
   const handlerCloseModalEdit = () => {
     setIsModalEdit(false)
     handlerOkValidation({clear: true})
+    setObjectSelected(null)
   }
   const handlerVerify = (user, isEdit = false) => {
     const fnState = isEdit ? setOkValidationEdit : setOkValidation;
@@ -443,15 +444,34 @@ const handlePageChange = page => {
 
   const handlerSearchUser = async () => {
     try{
+      console.log("Objeto seleccionado")
+      console.dir(objectSelected)
       const userFound = await searchUser(codeUser)
       if((userFound !== undefined) && ("success" in userFound)){
         notifyError(userFound.message)
         return
       }
+      console.log("Objeto seleccionado")
+      console.dir(objectSelected)
       const arrayUserFound = []
+      
+      console.log("Objeto seleccionado")
+      console.dir(objectSelected)
+
       userFound.isActive = tranformToStateUser(userFound.isActive)
+
+      console.log("Objeto seleccionado")
+      console.dir(objectSelected)
+
       arrayUserFound.push(userFound)
+      
+      console.log("Objeto seleccionado")
+      console.dir(objectSelected)
+
       setRows(arrayUserFound)
+
+      console.log("Objeto seleccionado")
+      console.dir(objectSelected)
     }catch(error){
       console.error(`Esto ocurre en handlerSearchUser ${error}`)
     }
@@ -461,6 +481,9 @@ const handlePageChange = page => {
   const handlerSendUserEdited = async () => {
     try {
       objectSelected.isActive = getStatusValue(objectSelected.isActive)
+      objectSelected.roles = getArrObjInArrStr(objectSelected.roles)
+      console.log("Antes de que se envie")
+      console.dir(objectSelected)
 
       const responseEdit = await editUser(objectSelected)
       
@@ -859,9 +882,17 @@ useEffect(() => {
               setPressedEdit(true)
               if(handlerVerify(objectSelected, isModalEdit)){
                 if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
-                handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
-                setObjectSelectedClone(null)
-                handlerCloseModalEdit(false)
+                // handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
+                // setObjectSelectedClone(null)
+                // handlerCloseModalEdit(false)
+                handlerSendUserEdited()
+                .then( () => {
+                  console.dir(objectSelected)
+                  setObjectSelectedClone(null)
+                  handlerCloseModalEdit(false)
+                  setObjectSelected(null)
+                  console.dir(objectSelected)
+                })
               }
             }
             }}>
