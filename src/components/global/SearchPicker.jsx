@@ -1,59 +1,62 @@
-import React, { useState } from 'react';
-import { Button, Input, DatePicker } from 'antd';
+import { useState } from 'react';
+import { Button, Input, DatePicker, ConfigProvider } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import PropTypes from "prop-types";
 import dayjs from 'dayjs';
+import esES from 'antd/es/locale/es_ES';
 
 const { RangePicker } = DatePicker;
 
-const SearchPicker = ({ placeholder = "Buscar", onSearch, ...props }) => {
+export default function SearchPicker({ placeholder = "Buscar", queryValue, dateRangeValue, onSearch, onQueryChange, onDateRangeChange, ...props }) {
     const [hover, setHover] = useState(false);
-    const [value, setValue] = useState('');
-    const [dateRange, setDateRange] = useState(null);
+    
+    
 
     const handleSearch = () => {
         if (onSearch) {
-            onSearch({ query: value, dateRange });
+            onSearch({ query: queryValue, dateRange: dateRangeValue });
         }
     };
 
     const handleInputChange = (e) => {
-        setValue(e.target.value);
+        if (onQueryChange) {
+            onQueryChange(e.target.value);
+        }
     };
 
     const handleDateChange = (dates) => {
-        setDateRange(dates ? [dayjs(dates[0]), dayjs(dates[1])] : null);
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
+        if (onDateRangeChange) {
+            onDateRangeChange(dates ? [dayjs(dates[0]), dayjs(dates[1])] : null);
         }
     };
 
     return (
-        <div style={styles.container}>
-            <Input
-                placeholder={placeholder}
-                style={styles.input}
-                value={value}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                {...props}
-            />
-            <RangePicker
-                style={styles.datePicker}
-                onChange={handleDateChange}
-            />
-            <Button
-                type="primary"
-                icon={<SearchOutlined style={{ color: 'white' }} />}
-                style={{ ...styles.button, backgroundColor: hover ? '#841F1C' : '#C20E1A', borderColor: hover ? '#841F1C' : '#C20E1A' }}
-                onMouseEnter={() => setHover(true)}
-                onMouseLeave={() => setHover(false)}
-                onClick={handleSearch}
-            />
-        </div>
+        <ConfigProvider locale={esES}>
+            <div style={styles.container}>
+                <Input
+                    placeholder={placeholder}
+                    style={styles.input}
+                    value={queryValue}
+                    onChange={handleInputChange}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    {...props}
+                />
+                <RangePicker
+                    placeholder={['Fecha inicial', 'Fecha final']}
+                    style={styles.datePicker}
+                    onChange={handleDateChange}
+                    value={dateRangeValue && dateRangeValue.length === 2 ? dateRangeValue : null}
+                />
+                <Button
+                    type="primary"
+                    icon={<SearchOutlined style={{ color: 'white' }} />}
+                    style={{ ...styles.button, backgroundColor: hover ? '#841F1C' : '#C20E1A', borderColor: hover ? '#841F1C' : '#C20E1A' }}
+                    onMouseEnter={() => setHover(true)}
+                    onMouseLeave={() => setHover(false)}
+                    onClick={handleSearch}
+                />
+            </div>
+        </ConfigProvider>
     );
 };
 
@@ -80,7 +83,10 @@ const styles = {
 
 SearchPicker.propTypes = {
     placeholder: PropTypes.string,
+    queryValue: PropTypes.string,
+    dateRangeValue: PropTypes.array,
     onSearch: PropTypes.func,
+    onQueryChange: PropTypes.func,
+    onDateRangeChange: PropTypes.func,
+    onHoverChange: PropTypes.func,
 };
-
-export default SearchPicker;
