@@ -338,6 +338,30 @@ const BecasReservation = () => {
     setIsCancelModalVisible(false); // Cierra el modal después de confirmar
   };
 
+  const formatTime = (timeString) => {
+    const currentDate = new Date().toISOString().split('T')[0]; // Solo la fecha actual (YYYY-MM-DD)
+    const formattedTimeString = `${currentDate}T${timeString}`;
+
+    const date = new Date(formattedTimeString);
+
+    if (isNaN(date)) {
+      console.error('Fecha inválida:', formattedTimeString);
+      return 'Hora inválida';
+    }
+
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    const formattedTime = `${hour12}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+    return formattedTime;
+  };
+
+
+
   return (
     <>
       <main className="becas-section" style={{ marginTop: '100px' }}>
@@ -365,38 +389,38 @@ const BecasReservation = () => {
                 ? (benefitType === 'venta libre' // Si el usuario tiene 'venta libre'
                   ? (
                     <>
-                      Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starLunch}</strong> y <strong>{settings.endLunch}</strong>
+                      Puede reservar <strong>almuerzo</strong> entre <strong>{formatTime(settings.starLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
                     </>
                   )
                   : benefitType === 'Almuerzo' // Beneficiario de almuerzo
                     ? (
                       <>
-                        Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starBeneficiaryLunch}</strong> y <strong>{settings.endLunch}</strong>
+                        Puede reservar <strong>almuerzo</strong> entre <strong>{formatTime(settings.starBeneficiaryLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
                       </>
                     )
                     : benefitType === 'Refrigerio' // Beneficiario de refrigerio
                       ? (
                         <>
-                          Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starLunch}</strong> y <strong>{settings.endLunch}</strong>
+                          Puede reservar <strong>almuerzo</strong> entre <strong>{formatTime(settings.starLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
                         </>
                       )
                       : 'Tipo de beneficio no reconocido')
                 : (benefitType === 'venta libre' // Si está en la sección de refrigerio
                   ? (
                     <>
-                      Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starSnack}</strong> y <strong>{settings.endSnack}</strong>
+                      Puede reservar <strong>refrigerio</strong> entre <strong>{formatTime(settings.starSnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
                     </>
                   )
                   : benefitType === 'Almuerzo' // Beneficiario de almuerzo
                     ? (
                       <>
-                        Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starSnack}</strong> y <strong>{settings.endSnack}</strong>
+                        Puede reservar <strong>refrigerio</strong> entre <strong>{formatTime(settings.starSnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
                       </>
                     )
                     : benefitType === 'Refrigerio' // Beneficiario de refrigerio
                       ? (
                         <>
-                          Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starBeneficiarySnack}</strong> y <strong>{settings.endSnack}</strong>
+                          Puede reservar <strong>refrigerio</strong> entre <strong>{formatTime(settings.starBeneficiarySnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
                         </>
                       )
                       : 'Tipo de beneficio no reconocido')}
