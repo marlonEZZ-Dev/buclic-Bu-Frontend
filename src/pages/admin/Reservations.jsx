@@ -39,10 +39,10 @@ const Reservations = () => {
         try {
             // Verifica el ID de la reserva y el username
             console.log("Datos de reserva:", reservationData);
-            console.log("Intentando registrar pago para el usuario:", reservationData.userName);
+            console.log("Intentando registrar pago para el usuario:", reservationData.username);
 
             const paymentRequest = {
-                username: reservationData.userName, // Enviar el nombre de usuario
+                username: reservationData.username, // Enviar el nombre de usuario
                 paid: true, // Indicar que se ha pagado
             };
 
@@ -242,11 +242,11 @@ const Reservations = () => {
                                 }}
                             >
                                 <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Nombre</span>} className="descriptions-item">
-                                    {`${reservationData.name} ${reservationData.lastname}`}
+                                    {`${reservationData.name} ${reservationData.lastName}`}
                                 </Descriptions.Item>
 
                                 <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Código</span>} className="descriptions-item">
-                                    {reservationData.userName}
+                                    {reservationData.username}
                                 </Descriptions.Item>
 
                                 <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Fecha y hora de la reserva</span>} className="descriptions-item">
@@ -277,7 +277,7 @@ const Reservations = () => {
                             {/* Modal de confirmación de pago */}
                             <ReusableModal
                                 title="Confirmación de pago"
-                                content={`¿Está seguro de realizar el pago a ${reservationData.name} ${reservationData.lastname}?`}
+                                content={`¿Está seguro de realizar el pago a ${reservationData.name} ${reservationData.lastName}?`}
                                 cancelText="Cancelar"
                                 confirmText="Confirmar"
                                 onCancel={() => setModalVisible(false)}
@@ -287,7 +287,7 @@ const Reservations = () => {
                             {/* Modal de confirmación de cancelación */}
                             <ReusableModal
                                 title="Confirmación cancelación de reserva"
-                                content={`¿Está seguro de cancelar la reserva de ${reservationData.name} ${reservationData.lastname}?`}
+                                content={`¿Está seguro de cancelar la reserva de ${reservationData.name} ${reservationData.lastName}?`}
                                 cancelText="Cancelar"
                                 confirmText="Confirmar"
                                 onCancel={() => setCancelModalVisible(false)}
@@ -314,7 +314,7 @@ const Reservations = () => {
                             <span onClick={() => handleSearch(reservation.username)} style={{ cursor: 'pointer', color: 'blue' }}>
                                 {reservation.username}
                             </span>,
-                            `${reservation.name} ${reservation.lastname}`,
+                            `${reservation.name} ${reservation.lastName}`,
                             `${formatDate(reservation.data)} ${formatTime(reservation.time)}`
                         ])}
                         columns={['Código', 'Nombre', 'Fecha y Hora de Reserva']}

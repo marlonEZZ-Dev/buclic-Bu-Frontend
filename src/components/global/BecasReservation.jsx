@@ -126,7 +126,7 @@ const BecasReservation = () => {
       }
 
       const reservationData = {
-        userName: username,
+        username: username,
         lunch: selectedType === 'almuerzo',
         snack: selectedType === 'refrigerio',
       };

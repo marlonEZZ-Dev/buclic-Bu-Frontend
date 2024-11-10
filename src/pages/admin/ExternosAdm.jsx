@@ -28,7 +28,7 @@ const ExternosAdmin = () => {
       const requestPayload = {
         username: values.cedula,
         name: values.name,
-        lastname: values.lastname,
+        lastName: values.lastname,
         plan: values.dependencia,
         email: values.email,
         lunch: becas === 'Almuerzo',
@@ -64,7 +64,7 @@ const ExternosAdmin = () => {
       form.setFieldsValue({
         username: externoData.cedula,
         name: externoData.name,
-        lastname: externoData.lastname,
+        lastname: externoData.lastName,
         dependencia: externoData.plan,
         email: externoData.email,
       });
