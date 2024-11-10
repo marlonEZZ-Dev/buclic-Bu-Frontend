@@ -14,6 +14,8 @@ export default function InformNurse() {
   const [totalItems, setTotalItems] = useState(0);
   const [noResults, setNoResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false); // Nuevo estado para verificar si se está realizando una búsqueda
+
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
@@ -52,17 +54,17 @@ export default function InformNurse() {
       message.warning('Por favor, ingrese el trimestre en el formato correcto (ej: 2024-1).');
       return;
     }
-  
+
     setIsLoading(true);
+    setIsSearching(true); // Indica que se está realizando una búsqueda específica
     try {
-      // Cambia la URL a `/nursing-report/search`
       const response = await api.get('/nursing-report/search', {
         params: {
           year: parsedData.year,
           trimester: parsedData.trimester,
         },
       });
-  
+
       if (response.data && response.data.length > 0) {
         setReports(response.data);
         setTotalItems(response.data.length);
@@ -71,7 +73,7 @@ export default function InformNurse() {
       } else {
         setReports([]);
         setTotalItems(0);
-        setNoResults(true);
+        setNoResults(true); // Indica que no hubo resultados en la búsqueda
         message.info('No se encontró ningún informe para el trimestre especificado.');
       }
     } catch (error) {
@@ -82,10 +84,12 @@ export default function InformNurse() {
       setIsLoading(false);
     }
   };
-  
+
+
 
   const fetchReports = useCallback(async (page = 1) => {
     setIsLoading(true);
+    setIsSearching(false); // Resetea la búsqueda cuando se recargan todos los informes
     try {
       const response = await api.get('/nursing-report/list', {
         params: {
@@ -98,21 +102,19 @@ export default function InformNurse() {
         setReports(response.data.content);
         setTotalItems(response.data.page.totalElements);
         setNoResults(response.data.content.length === 0);
-        return response;
       } else {
         console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
-        return null;
       }
     } catch (error) {
       console.error('Error al obtener informes:', error);
       message.error('No se pudieron cargar los informes');
       setNoResults(true);
-      return null;
     } finally {
       setIsLoading(false);
     }
   }, []);
+
 
   useEffect(() => {
     fetchReports(currentPage);
@@ -131,7 +133,7 @@ export default function InformNurse() {
     setCurrentPage(1);
     searchReportByTrimester();
   };
-  
+
 
   const handleReloadTable = async () => {
     setTrimesterInput('');
@@ -277,7 +279,7 @@ export default function InformNurse() {
             </Button>
           </div>
 
-          {noResults ? (
+          {noResults && isSearching ? (
             <div style={{ textAlign: 'center' }}>
               <p style={{ color: 'red' }}>No se encontró ningún informe con el ID especificado.</p>
               <Button
@@ -287,6 +289,10 @@ export default function InformNurse() {
               >
                 Recargar Tabla
               </Button>
+            </div>
+          ) : noResults && !isSearching ? (
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: 'red' }}>No hay reportes creados actualmente.</p>
             </div>
           ) : (
             <TablePaginationR
