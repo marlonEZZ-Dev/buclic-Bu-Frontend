@@ -22,13 +22,13 @@ const Tables = ({
   };
 
   const tableStyle = {
-    width: '100%',
+    width:"100%",
     borderCollapse: 'collapse',
     tableLayout: 'fixed', // Distribuye el ancho de manera uniforme sin desbordar
   };
 
   return (
-    <div style={{ textAlign: 'center', margin: '0', width: '100%' }}>
+    <div style={{ margin: '0'}}>
       <table style={tableStyle}>
         <thead>
           <tr>
