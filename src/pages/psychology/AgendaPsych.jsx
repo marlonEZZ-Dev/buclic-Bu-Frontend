@@ -182,7 +182,7 @@ export default function AgendaPsych() {
         />,
       ]);
 
-      console.log("Formatted Rows: ", formattedRows); // Ahora se ejecutará
+      
       setPendingAppointments(formattedRows);
     } catch (error) {
       console.error("Error al obtener citas pendientes:", error);
