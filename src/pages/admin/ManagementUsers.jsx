@@ -248,12 +248,25 @@ const handlePageChange = page => {
 
   
   //Manejadores de estado de modals
-  const handlerKeyDown = (e) => {
+  const handlerOnlyIntegerPositive = (e) => {
     // Evita la entrada de signos negativos y puntos
     if (e.key === "-" || e.key === "." || e.key === ",") {
       e.preventDefault();
     }
   };
+
+  const handlerTextOnlyInput= e => {
+    const allowedKeys = [
+      'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
+    ];
+    if (
+      !allowedKeys.includes(e.key) && // Permitir teclas de navegación y edición
+      !/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]$/.test(e.key)     // Permitir letras y espacios
+    ) {
+      e.preventDefault();
+    }
+  };
+  
 
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
@@ -563,6 +576,7 @@ const handlePageChange = page => {
   useEffect(() => {
     loadUsers()
     setUser(initialUser)
+    setCodeUser("")
   }, [changesDescription])
 
   // Para cada campo en `user`, agrega un useEffect similar al siguiente
@@ -779,6 +793,7 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onKeyDown={handlerTextOnlyInput}
             />
           <SmallInput title='Apellidos'
             isRenderAsteric={false}
@@ -789,6 +804,7 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onKeyDown={handlerTextOnlyInput}
             />
         </Flex>
 
@@ -803,7 +819,7 @@ useEffect(() => {
             className={styles.inputWidthModal}
             value={objectSelected.username}
             onChange={e => handlerEditUser(e)}
-            onKeyDown={handlerKeyDown}
+            onKeyDown={handlerOnlyIntegerPositive}
             />
           <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
             isRenderAsteric={false}
@@ -816,7 +832,7 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
+            onKeyDown={isFuncionary ? () => {} : e => handlerOnlyIntegerPositive(e)}
             />
         </Flex>
           
@@ -972,7 +988,9 @@ useEffect(() => {
                 errorMessage={pressedSave ? okValidation.name : ""}
                 name="name"
                 required
-                onChange={e => handlerCreateUser(e)}/>
+                onChange={e => handlerCreateUser(e)}
+                onKeyDown={handlerTextOnlyInput}
+                />
               <SmallInput title='Apellidos'
                 key={`lastName${changesDescription}${refreshFields}`}
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}
@@ -982,6 +1000,7 @@ useEffect(() => {
                 required
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
+                onKeyDown={handlerTextOnlyInput}
                 />
             </Flex>
 
@@ -1000,7 +1019,7 @@ useEffect(() => {
               required
               name="username"
               onChange={handlerCreateUser}
-              onKeyDown={handlerKeyDown}
+              onKeyDown={handlerOnlyIntegerPositive}
               />
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
               isRenderAsteric={!isFuncionary}
@@ -1014,7 +1033,7 @@ useEffect(() => {
               autoComplete="off"
               name="plan"
               onChange={e => handlerCreateUser(e)}
-              onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
+              onKeyDown={isFuncionary ? () => {} : e => handlerOnlyIntegerPositive(e)}
               />
           </Flex>
 
@@ -1111,8 +1130,10 @@ useEffect(() => {
           </button>}
         </Flex>
         <Flex vertical>
-          <Flex justify='space-between'>
-            <p className={styles.marginTable}>
+          <Flex 
+          justify='space-between'
+          >
+            <p style={{fontWeight:"bold", fontSize:"20px", alignSelf:"flex-end"}} className={styles.marginTable}>
             {`Tabla de ${
             isFuncionary ? "funcionarios y externos registrados": 
               isStudent ? "estudiantes registrados" : 
