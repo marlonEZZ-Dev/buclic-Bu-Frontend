@@ -247,8 +247,8 @@ const Nursing = () => {
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Error al procesar la solicitud.");
+        console.error("Debes agendar tu cita con una hora de anticipación", error);
+        message.error("Debes agendar tu cita con una hora de anticipación.");
       })
       .finally(() => {
         setConfirmLoading(false);
