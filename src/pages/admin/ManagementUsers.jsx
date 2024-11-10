@@ -848,7 +848,7 @@ useEffect(() => {
         </Flex>
         <Flex
         align='center'
-        style={{gap: "1.8125rem"}}
+        style={{gap: "1.7rem"}}
         justify='center'>
           <button 
           className={`button-save ${styles.buttons}`}
@@ -1029,7 +1029,7 @@ useEffect(() => {
 
         <Flex
         align='center'
-        style={{gap: "1.8125rem"}}
+        style={{gap: "1.7rem"}}
         justify='center'
         
         >
