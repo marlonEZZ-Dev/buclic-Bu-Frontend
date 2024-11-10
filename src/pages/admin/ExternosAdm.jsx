@@ -45,8 +45,22 @@ const ExternosAdmin = () => {
         message.error('Error al realizar la reserva.');
       }
     } catch (error) {
-      message.error('Por favor complete todos los campos correctamente.');
-      console.error('Error al realizar la reserva:', error);
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 400 && data.message) {
+          // Mostrar mensaje de error específico del backend
+          message.error(data.message);
+        } else if (status === 500) {
+          // Error de servidor
+          message.error('Error del servidor. Inténtalo de nuevo más tarde.');
+        } else {
+          message.error('Ocurrió un error desconocido.');
+        }
+      } else {
+        // Error de red
+        message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+      }
     }
   };
 

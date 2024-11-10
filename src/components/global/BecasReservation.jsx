@@ -229,26 +229,60 @@ const BecasReservation = () => {
 
   // Mostrar el mensaje de la reserva dependiendo del tipo de menú
   const getReservationMessage = (type) => {
+
+    const formatTime = (timeString) => {
+      // Aseguramos que la hora esté en un formato correcto agregando una fecha actual si no existe
+      const currentDate = new Date().toISOString().split('T')[0]; // Solo la fecha actual (YYYY-MM-DD)
+      const formattedTimeString = `${currentDate}T${timeString}`;
+
+      // Intentamos crear el objeto Date con la fecha y hora completas
+      const date = new Date(formattedTimeString);
+
+      // Verificamos si el objeto Date es válido
+      if (isNaN(date)) {
+        console.error('Fecha inválida:', formattedTimeString); // Para depurar
+        return 'Hora inválida';
+      }
+
+      // Obtenemos las partes de la hora, minutos y segundos
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const seconds = date.getSeconds();
+
+      // Convertimos la hora a formato de 12 horas
+      const hour12 = hours % 12 || 12; // 12 horas (1-12)
+      const ampm = hours >= 12 ? 'PM' : 'AM'; // AM/PM
+
+      // Formateamos la hora, minutos y segundos
+      const formattedTime = `${hour12}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+
+      return formattedTime;
+    };
+
     if (type === 'almuerzo' && almuerzoReservation.hasReservation) {
       const reservationDateTime = almuerzoReservation.date;
 
       const [datePart, timePart] = reservationDateTime.split('T');
-      const timeWithoutMilliseconds = timePart.split('.')[0];
+
+      // Usar la función para formatear la hora
+      const timeFormatted = formatTime(timePart);
 
       return (
         <p style={{ color: '#3E9215', fontWeight: 'bold' }}>
-          Tu reserva de <strong>almuerzo</strong> ha sido realizada con éxito el <strong>{datePart}</strong> a las <strong>{timeWithoutMilliseconds}</strong>.
+          Tu reserva de <strong>almuerzo</strong> ha sido realizada el <strong>{datePart}</strong> a las <strong>{timeFormatted}</strong>
         </p>
       );
     } else if (type === 'refrigerio' && refrigerioReservation.hasReservation) {
       const reservationDateTime = refrigerioReservation.date;
 
       const [datePart, timePart] = reservationDateTime.split('T');
-      const timeWithoutMilliseconds = timePart.split('.')[0];
+
+      // Usar la función para formatear la hora
+      const timeFormatted = formatTime(timePart);
 
       return (
         <p style={{ color: '#3E9215', fontWeight: 'bold' }}>
-          Tu reserva de <strong>refrigerio</strong> ha sido realizada con éxito el <strong>{datePart}</strong> a las <strong>{timeWithoutMilliseconds}</strong>.
+          Tu reserva de <strong>refrigerio</strong> ha sido realizada el <strong>{datePart}</strong> a las <strong>{timeFormatted}</strong>
         </p>
       );
     } else {
