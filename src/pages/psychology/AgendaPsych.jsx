@@ -65,38 +65,39 @@ function AssistanceCell(key) {
           </button>
         </Flex>
       </Modal>
-      <Flex key={key} justify="space-around" align="center">
-        {initShow && (
-          <>
-            <button
-              name="active"
-              onClick={(e) => {
-                setSelectedAssistance(e.currentTarget.name);
-                setIsModalActive(true);
-              }}
-              className={styles.assistance}
-            >
-              <Attendance non={false} />
-            </button>
-            <button
-              name="inactive"
-              onClick={(e) => {
-                setSelectedAssistance(e.currentTarget.name);
-                setIsModalActive(true);
-              }}
-              className={styles.assistance}
-            >
-              <Attendance />
-            </button>
-          </>
-        )}
-        {selectedAssistance === "active" && yes && (
-          <StateUser key={`stateUser-${selectedAssistance}`} active={true} />
-        )}
-        {selectedAssistance === "inactive" && yes && (
-          <StateUser key={`stateUser-${selectedAssistance}`} active={false} />
-        )}
-      </Flex>
+      <Flex identifier={identifier} justify="space-around" align="center">
+  {initShow && (
+    <>
+      <button
+        name="active"
+        onClick={(e) => {
+          setSelectedAssistance(e.currentTarget.name);
+          setIsModalActive(true);
+        }}
+        className={styles.assistance}
+      >
+        <Attendance non={false} />
+      </button>
+      <button
+        name="inactive"
+        onClick={(e) => {
+          setSelectedAssistance(e.currentTarget.name);
+          setIsModalActive(true);
+        }}
+        className={styles.assistance}
+      >
+        <Attendance />
+      </button>
+    </>
+  )}
+  {selectedAssistance === "active" && yes && (
+    <StateUser identifier={`stateUser-${selectedAssistance}`} active={true} />
+  )}
+  {selectedAssistance === "inactive" && yes && (
+    <StateUser identifier={`stateUser-${selectedAssistance}`} active={false} />
+  )}
+</Flex>
+
     </>
   );
 }
