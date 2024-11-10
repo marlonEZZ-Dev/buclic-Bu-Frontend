@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import MenuBecas from '../../components/global/MenuBecas';
 import ReusableModal from '../../components/global/ReusableModal';
-import { Button, Form, Input, Space, DatePicker, TimePicker, message } from 'antd';
+import esES from 'antd/es/locale/es_ES';
+import { Button, Form, Input, Space, DatePicker, TimePicker, ConfigProvider, message } from 'antd';
 import api from '../../api';
 import dayjs from 'dayjs';
 
@@ -17,7 +18,27 @@ const SettingsAdmin = () => {
     const [profileData, setProfileData] = useState(null);  // Nuevo estado para el perfil
 
     const [settingId, setSettingId] = useState(null);
-    const [settingData, setSettingData] = useState({});
+    const [settingData, setSettingData] = useState({
+        startSemester: '',
+        endSemester: '',
+        numLunch: '',
+        numSnack: '',
+        starSnack: '',
+        endSnack: ''
+    });
+
+    // Cargar datos del localStorage si existen
+    useEffect(() => {
+        const savedSettings = JSON.parse(localStorage.getItem('becaSettings'));
+        if (savedSettings) {
+            setSettingData(savedSettings);
+        }
+    }, []);
+
+    // Guardar en localStorage cada vez que el settingData cambie
+    useEffect(() => {
+        localStorage.setItem('becaSettings', JSON.stringify(settingData));
+    }, [settingData]);
     const [initialSettingData, setInitialSettingData] = useState({}); // Estado para los datos originales
 
     const [confirmSettings, setConfirmSettings] = useState(false); // Estado para la carga del botón de confirmar
@@ -252,7 +273,8 @@ const SettingsAdmin = () => {
     ];
 
     return (
-        <>
+        <ConfigProvider locale={esES}> {/* Establece la localización en español */}
+
             <HeaderAdmin />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <MenuBecas onSelect={setSelectedType} buttons={buttons} selectedType={selectedType}>
@@ -618,7 +640,7 @@ const SettingsAdmin = () => {
                     )}
                 </MenuBecas>
             </main>
-        </>
+        </ConfigProvider>
     );
 };
 

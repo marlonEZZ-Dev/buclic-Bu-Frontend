@@ -229,26 +229,60 @@ const BecasReservation = () => {
 
   // Mostrar el mensaje de la reserva dependiendo del tipo de menú
   const getReservationMessage = (type) => {
+
+    const formatTime = (timeString) => {
+      // Aseguramos que la hora esté en un formato correcto agregando una fecha actual si no existe
+      const currentDate = new Date().toISOString().split('T')[0]; // Solo la fecha actual (YYYY-MM-DD)
+      const formattedTimeString = `${currentDate}T${timeString}`;
+
+      // Intentamos crear el objeto Date con la fecha y hora completas
+      const date = new Date(formattedTimeString);
+
+      // Verificamos si el objeto Date es válido
+      if (isNaN(date)) {
+        console.error('Fecha inválida:', formattedTimeString); // Para depurar
+        return 'Hora inválida';
+      }
+
+      // Obtenemos las partes de la hora, minutos y segundos
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const seconds = date.getSeconds();
+
+      // Convertimos la hora a formato de 12 horas
+      const hour12 = hours % 12 || 12; // 12 horas (1-12)
+      const ampm = hours >= 12 ? 'PM' : 'AM'; // AM/PM
+
+      // Formateamos la hora, minutos y segundos
+      const formattedTime = `${hour12}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+
+      return formattedTime;
+    };
+
     if (type === 'almuerzo' && almuerzoReservation.hasReservation) {
       const reservationDateTime = almuerzoReservation.date;
 
       const [datePart, timePart] = reservationDateTime.split('T');
-      const timeWithoutMilliseconds = timePart.split('.')[0];
+
+      // Usar la función para formatear la hora
+      const timeFormatted = formatTime(timePart);
 
       return (
         <p style={{ color: '#3E9215', fontWeight: 'bold' }}>
-          Tu reserva de <strong>almuerzo</strong> ha sido realizada con éxito el <strong>{datePart}</strong> a las <strong>{timeWithoutMilliseconds}</strong>.
+          Tu reserva de <strong>almuerzo</strong> ha sido realizada el <strong>{datePart}</strong> a las <strong>{timeFormatted}</strong>
         </p>
       );
     } else if (type === 'refrigerio' && refrigerioReservation.hasReservation) {
       const reservationDateTime = refrigerioReservation.date;
 
       const [datePart, timePart] = reservationDateTime.split('T');
-      const timeWithoutMilliseconds = timePart.split('.')[0];
+
+      // Usar la función para formatear la hora
+      const timeFormatted = formatTime(timePart);
 
       return (
         <p style={{ color: '#3E9215', fontWeight: 'bold' }}>
-          Tu reserva de <strong>refrigerio</strong> ha sido realizada con éxito el <strong>{datePart}</strong> a las <strong>{timeWithoutMilliseconds}</strong>.
+          Tu reserva de <strong>refrigerio</strong> ha sido realizada el <strong>{datePart}</strong> a las <strong>{timeFormatted}</strong>
         </p>
       );
     } else {
@@ -304,6 +338,33 @@ const BecasReservation = () => {
     setIsCancelModalVisible(false); // Cierra el modal después de confirmar
   };
 
+  const formatTime = (timeString) => {
+    const currentDate = new Date().toISOString().split('T')[0]; // Solo la fecha actual (YYYY-MM-DD)
+    const formattedTimeString = `${currentDate}T${timeString}`;
+
+    const date = new Date(formattedTimeString);
+
+    if (isNaN(date)) {
+      console.error('Fecha inválida:', formattedTimeString);
+      return 'Hora inválida';
+    }
+
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    const formattedTime = `${hour12}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+    return formattedTime;
+  };
+
+  const formatPrice = (value) => {
+    if (value === undefined || value === null) return ""; // Retorna una cadena vacía si el valor no está definido
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   return (
     <>
       <main className="becas-section" style={{ marginTop: '100px' }}>
@@ -331,38 +392,38 @@ const BecasReservation = () => {
                 ? (benefitType === 'venta libre' // Si el usuario tiene 'venta libre'
                   ? (
                     <>
-                      Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starLunch}</strong> y <strong>{settings.endLunch}</strong>
+                      Puede reservar <strong>almuerzo</strong> entre <strong>{formatTime(settings.starLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
                     </>
                   )
                   : benefitType === 'Almuerzo' // Beneficiario de almuerzo
                     ? (
                       <>
-                        Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starBeneficiaryLunch}</strong> y <strong>{settings.endLunch}</strong>
+                        Puede reservar <strong>almuerzo</strong> entre <strong>{formatTime(settings.starBeneficiaryLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
                       </>
                     )
                     : benefitType === 'Refrigerio' // Beneficiario de refrigerio
                       ? (
                         <>
-                          Puede reservar <strong>almuerzo</strong> entre <strong>{settings.starLunch}</strong> y <strong>{settings.endLunch}</strong>
+                          Puede reservar <strong>almuerzo</strong> entre <strong>{formatTime(settings.starLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
                         </>
                       )
                       : 'Tipo de beneficio no reconocido')
                 : (benefitType === 'venta libre' // Si está en la sección de refrigerio
                   ? (
                     <>
-                      Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starSnack}</strong> y <strong>{settings.endSnack}</strong>
+                      Puede reservar <strong>refrigerio</strong> entre <strong>{formatTime(settings.starSnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
                     </>
                   )
                   : benefitType === 'Almuerzo' // Beneficiario de almuerzo
                     ? (
                       <>
-                        Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starSnack}</strong> y <strong>{settings.endSnack}</strong>
+                        Puede reservar <strong>refrigerio</strong> entre <strong>{formatTime(settings.starSnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
                       </>
                     )
                     : benefitType === 'Refrigerio' // Beneficiario de refrigerio
                       ? (
                         <>
-                          Puede reservar <strong>refrigerio</strong> entre <strong>{settings.starBeneficiarySnack}</strong> y <strong>{settings.endSnack}</strong>
+                          Puede reservar <strong>refrigerio</strong> entre <strong>{formatTime(settings.starBeneficiarySnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
                         </>
                       )
                       : 'Tipo de beneficio no reconocido')}
@@ -375,8 +436,11 @@ const BecasReservation = () => {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-            <p>Reservas disponibles: {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
-            <p>Costo: $ {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
+            <p> <strong>Reservas disponibles:</strong> {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
+            <p> <strong>Precio:</strong> ${selectedType === 'almuerzo' ?
+              formatPrice(menuData.Almuerzo.price)
+              : formatPrice(menuData.Refrigerio.price)}
+            </p>
           </div>
 
           <Tables

@@ -89,16 +89,33 @@ const Reservations = () => {
             message.error('No se pudo cancelar la reserva.');
         }
     };
+    // Función para formatear la hora en formato 12 horas
+    const formatTime = (timeString) => {
+        const currentDate = new Date().toISOString().split('T')[0]; // Solo la fecha actual (YYYY-MM-DD)
+        const formattedTimeString = `${currentDate}T${timeString}`;
+
+        const date = new Date(formattedTimeString);
+
+        if (isNaN(date)) {
+            console.error('Fecha inválida:', formattedTimeString);
+            return 'Hora inválida';
+        }
+
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+
+        const hour12 = hours % 12 || 12;
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        const formattedTime = `${hour12}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+        return formattedTime;
+    };
 
     // Función para formatear la fecha
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD (ISO)
-    };
-
-    // Función para formatear la hora
-    const formatTime = (timeString) => {
-        return timeString.substring(0, 8); // Solo los primeros 8 caracteres "hh:mm:ss"
     };
 
 

@@ -45,8 +45,22 @@ const ExternosAdmin = () => {
         message.error('Error al realizar la reserva.');
       }
     } catch (error) {
-      message.error('Por favor complete todos los campos correctamente.');
-      console.error('Error al realizar la reserva:', error);
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 400 && data.message) {
+          // Mostrar mensaje de error específico del backend
+          message.error(data.message);
+        } else if (status === 500) {
+          // Error de servidor
+          message.error('Error del servidor. Inténtalo de nuevo más tarde.');
+        } else {
+          message.error('Ocurrió un error desconocido.');
+        }
+      } else {
+        // Error de red
+        message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+      }
     }
   };
 
@@ -101,7 +115,7 @@ const ExternosAdmin = () => {
               <Row gutter={40}>
                 <Col span={12}>
                   <Form.Item label="Cédula" labelAlign="left" name="cedula" rules={[
-                    { required: true, message: 'Por favor ingrese su número de cédula' },
+                    { required: true, message: 'Por favor ingrese el número de cédula' },
                     { pattern: /^[1-9]\d*$/, message: 'Solo se permiten números positivos' },
                   ]}>
                     <SearchInputR
@@ -114,19 +128,24 @@ const ExternosAdmin = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Nombre" labelAlign="left" name="name" required>
+                  <Form.Item label="Nombre" labelAlign="left" name="name" rules={[
+                    { required: true, message: 'Por favor ingrese el nombre' },]}>
                     <Input placeholder="Ingrese el nombre" />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Apellido" labelAlign="left" name="lastname" required>
+                  <Form.Item label="Apellido" labelAlign="left" name="lastname" rules={[
+                    { required: true, message: 'Por favor ingrese el apellido' },
+                  ]}>
                     <Input placeholder="Ingrese el apellido" />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" required>
+                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
+                    { required: true, message: 'Por favor ingrese el área de dependencia' },
+                  ]}>
                     <Input placeholder="Ingrese el área de dependencia" />
                   </Form.Item>
                 </Col>
@@ -138,7 +157,7 @@ const ExternosAdmin = () => {
                     name="email"
                     required
                     rules={[
-                      { required: true, message: 'Por favor ingrese su correo electrónico' },
+                      { required: true, message: 'Por favor ingrese el correo electrónico' },
                       { type: 'email', message: 'Por favor ingrese un correo electrónico válido' }
                     ]}
                   >
@@ -147,7 +166,12 @@ const ExternosAdmin = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Tipo de beca" labelAlign="left" required>
+                  <Form.Item label={<span>Tipo de beca</span>}
+                    name="becas" labelAlign="left"
+                    rules={[
+                      { required: true, message: 'Por favor ingrese el tipo de beca' },
+                    ]}
+                  >
                     <Select
                       value={becas}
                       options={becasOptions}
