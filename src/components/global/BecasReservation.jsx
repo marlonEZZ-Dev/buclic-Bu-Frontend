@@ -360,7 +360,10 @@ const BecasReservation = () => {
     return formattedTime;
   };
 
-
+  const formatPrice = (value) => {
+    if (value === undefined || value === null) return ""; // Retorna una cadena vacía si el valor no está definido
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   return (
     <>
@@ -433,8 +436,11 @@ const BecasReservation = () => {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-            <p>Reservas disponibles: {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
-            <p>Costo: $ {selectedType === 'almuerzo' ? menuData.Almuerzo.price : menuData.Refrigerio.price}</p>
+            <p> <strong>Reservas disponibles:</strong> {selectedType === 'almuerzo' ? availability.remainingSlotsLunch : availability.remainingSlotsSnack}</p>
+            <p> <strong>Precio:</strong> ${selectedType === 'almuerzo' ?
+              formatPrice(menuData.Almuerzo.price)
+              : formatPrice(menuData.Refrigerio.price)}
+            </p>
           </div>
 
           <Tables
