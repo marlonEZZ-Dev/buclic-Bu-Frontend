@@ -188,6 +188,7 @@ export default function ManagementUsers(){
         ...user,
         isActive: tranformToStateUser(user.isActive),
         roles: getArrObjInArrStr(user.roles),
+        name: `${user.name}  ${user.lastname}`
       })));
       setTotalItems(result.page.totalElements)
       console.log(result)
@@ -260,6 +261,8 @@ const handlePageChange = page => {
   const handlerOpenModalEdit = row => {
     //Debe seguir ese orden el código...
     //Si lo va a modificar tenga mucho cuidado
+    const [thisName,] = row.name.split("  ")
+    row.name = thisName
     row.isActive = getStatusValue(row.isActive)
     setObjectSelectedClone(structuredClone(row))
     row.isActive = tranformToStateUser(row.isActive)
