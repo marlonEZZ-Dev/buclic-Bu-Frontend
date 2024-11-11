@@ -114,7 +114,7 @@ export default function ManagementUsers(){
     },
     {
       title:"Funcionarios del sistema",
-      description:"Aquí puedes agregar personas con alguna dependencia en la universidad o externas"
+      description:"Aquí puedes agregar personas con alguna dependencia en la universidad"
     }
   ]
 
@@ -152,17 +152,22 @@ export default function ManagementUsers(){
   del objeto y luego esta relacionada con el nombre de la columna que es el label esto
   para filtrar las columnas que se debe mostrar
   */
-  const headerTb = !enableResponsive ? [
+  const headerTb = (!enableResponsive && !isBeneficiary) ? [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
     {key: "email", label: "Correo"},
     {key: "isActive", label: "Activo"}
-  ] : isBeneficiary ? [
+  ] : (enableResponsive && isBeneficiary) ? [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"}
+  ] : (!enableResponsive && isBeneficiary) ? [
+    {key: "username", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "name", label: "Nombre"},
+    {key: "email", label: "Correo"}
   ] : [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
+    {key: "email", label: "Correo"},
     {key: "isActive", label: "Activo"}
   ]
 
@@ -188,6 +193,7 @@ export default function ManagementUsers(){
         ...user,
         isActive: tranformToStateUser(user.isActive),
         roles: getArrObjInArrStr(user.roles),
+        name: `${user.name}  ${user.lastname}`
       })));
       setTotalItems(result.page.totalElements)
       console.log(result)
@@ -247,12 +253,25 @@ const handlePageChange = page => {
 
   
   //Manejadores de estado de modals
-  const handlerKeyDown = (e) => {
+  const handlerOnlyIntegerPositive = (e) => {
     // Evita la entrada de signos negativos y puntos
     if (e.key === "-" || e.key === "." || e.key === ",") {
       e.preventDefault();
     }
   };
+
+  const handlerTextOnlyInput= e => {
+    const allowedKeys = [
+      'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
+    ];
+    if (
+      !allowedKeys.includes(e.key) && // Permitir teclas de navegación y edición
+      !/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]$/.test(e.key)     // Permitir letras y espacios
+    ) {
+      e.preventDefault();
+    }
+  };
+  
 
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
@@ -260,6 +279,8 @@ const handlePageChange = page => {
   const handlerOpenModalEdit = row => {
     //Debe seguir ese orden el código...
     //Si lo va a modificar tenga mucho cuidado
+    const [thisName,] = row.name.split("  ")
+    row.name = thisName
     row.isActive = getStatusValue(row.isActive)
     setObjectSelectedClone(structuredClone(row))
     row.isActive = tranformToStateUser(row.isActive)
@@ -344,6 +365,7 @@ const handlePageChange = page => {
   const handlerCloseModalEdit = () => {
     setIsModalEdit(false)
     handlerOkValidation({clear: true})
+    setObjectSelected(null)
   }
   const handlerVerify = (user, isEdit = false) => {
     const fnState = isEdit ? setOkValidationEdit : setOkValidation;
@@ -447,6 +469,7 @@ const handlePageChange = page => {
       }
       const arrayUserFound = []
       userFound.isActive = tranformToStateUser(userFound.isActive)
+      userFound.roles = getArrObjInArrStr(userFound.roles)
       arrayUserFound.push(userFound)
       setRows(arrayUserFound)
     }catch(error){
@@ -537,6 +560,7 @@ const handlePageChange = page => {
   useEffect(() => {
     loadUsers()
     setUser(initialUser)
+    setCodeUser("")
   }, [changesDescription])
 
   // Para cada campo en `user`, agrega un useEffect similar al siguiente
@@ -753,6 +777,7 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onKeyDown={handlerTextOnlyInput}
             />
           <SmallInput title='Apellidos'
             isRenderAsteric={false}
@@ -763,6 +788,7 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
+            onKeyDown={handlerTextOnlyInput}
             />
         </Flex>
 
@@ -777,7 +803,7 @@ useEffect(() => {
             className={styles.inputWidthModal}
             value={objectSelected.username}
             onChange={e => handlerEditUser(e)}
-            onKeyDown={handlerKeyDown}
+            onKeyDown={handlerOnlyIntegerPositive}
             />
           <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
             isRenderAsteric={false}
@@ -790,7 +816,7 @@ useEffect(() => {
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
+            onKeyDown={isFuncionary ? () => {} : e => handlerOnlyIntegerPositive(e)}
             />
         </Flex>
           
@@ -845,8 +871,8 @@ useEffect(() => {
         </Flex>
         <Flex
         align='center'
-        gap='small'
-        justify='space-evenly'>
+        style={{gap: "1.7rem"}}
+        justify='center'>
           <button 
           className={`button-save ${styles.buttons}`}
           onClick={() => {
@@ -856,9 +882,17 @@ useEffect(() => {
               setPressedEdit(true)
               if(handlerVerify(objectSelected, isModalEdit)){
                 if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
-                handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
-                setObjectSelectedClone(null)
-                handlerCloseModalEdit(false)
+                // handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
+                // setObjectSelectedClone(null)
+                // handlerCloseModalEdit(false)
+                handlerSendUserEdited()
+                .then( () => {
+                  console.dir(objectSelected)
+                  setObjectSelectedClone(null)
+                  handlerCloseModalEdit(false)
+                  setObjectSelected(null)
+                  console.dir(objectSelected)
+                })
               }
             }
             }}>
@@ -938,7 +972,9 @@ useEffect(() => {
                 errorMessage={pressedSave ? okValidation.name : ""}
                 name="name"
                 required
-                onChange={e => handlerCreateUser(e)}/>
+                onChange={e => handlerCreateUser(e)}
+                onKeyDown={handlerTextOnlyInput}
+                />
               <SmallInput title='Apellidos'
                 key={`lastName${changesDescription}${refreshFields}`}
                 placeholder={`Apellidos ${isFuncionary ? "de la persona" : "del estudiante"}`}
@@ -948,6 +984,7 @@ useEffect(() => {
                 required
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
+                onKeyDown={handlerTextOnlyInput}
                 />
             </Flex>
 
@@ -966,7 +1003,7 @@ useEffect(() => {
               required
               name="username"
               onChange={handlerCreateUser}
-              onKeyDown={handlerKeyDown}
+              onKeyDown={handlerOnlyIntegerPositive}
               />
             <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
               isRenderAsteric={!isFuncionary}
@@ -980,7 +1017,7 @@ useEffect(() => {
               autoComplete="off"
               name="plan"
               onChange={e => handlerCreateUser(e)}
-              onKeyDown={isFuncionary ? () => {} : e => handlerKeyDown(e)}
+              onKeyDown={isFuncionary ? () => {} : e => handlerOnlyIntegerPositive(e)}
               />
           </Flex>
 
@@ -990,7 +1027,7 @@ useEffect(() => {
           >
             <SmallInput title='Correo electrónico'
               key={`email${changesDescription}${refreshFields}`}              
-              placeholder='Correo del estudiante'
+              placeholder={isFuncionary ? 'Correo de la persona':'Correo del estudiante'}
               errorMessage={pressedSave ? okValidation.email : ""}
               required
               autoComplete="off"
@@ -1026,8 +1063,9 @@ useEffect(() => {
 
         <Flex
         align='center'
-        gap='small'
-        justify='space-evenly'
+        style={{gap: "1.7rem"}}
+        justify='center'
+        
         >
           <button className={`button-save ${styles.buttons}`} 
           onClick={() => {
@@ -1076,8 +1114,10 @@ useEffect(() => {
           </button>}
         </Flex>
         <Flex vertical>
-          <Flex justify='space-between'>
-            <p className={styles.marginTable}>
+          <Flex 
+          justify='space-between'
+          >
+            <p style={{fontWeight:"bold", fontSize:"20px"}} className={styles.marginTable}>
             {`Tabla de ${
             isFuncionary ? "funcionarios y externos registrados": 
               isStudent ? "estudiantes registrados" : 

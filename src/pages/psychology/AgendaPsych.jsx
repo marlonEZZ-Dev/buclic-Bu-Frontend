@@ -293,7 +293,6 @@ export default function AgendaPsych() {
       <Flex align="center" justify="center">
         <Card className={styles.card} bordered>
           <Flex vertical align="center" justify="center">
-            
             <Tables
               columns={appointmentPendingColums}
               rows={pendingAppointments}
