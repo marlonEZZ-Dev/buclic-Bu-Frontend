@@ -390,7 +390,7 @@ const handlePageChange = page => {
         name: validName(user.name),
         lastName: validLastname(user.lastName),
         email: validEmail(user.email, isFuncionary),
-        plan: validPlan(user.plan, !isFuncionary, isFuncionary),
+        plan: validPlan(user.plan),
         roles: validRol(user.roles),
         grant: !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
     };
@@ -703,7 +703,7 @@ useEffect(() => {
   if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "plan",
-          value: validPlan(objectSelected.plan, !isFuncionary, isFuncionary),
+          value: validPlan(objectSelected.plan),
           fnState: setOkValidationEdit
       });
   }
