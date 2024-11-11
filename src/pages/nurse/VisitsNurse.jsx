@@ -3,7 +3,7 @@ import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import esLocale from 'antd/es/date-picker/locale/es_ES';
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import moment from 'moment';
-import { DatePicker, Form, Card, Space, Input, Select, Row, Col, Button, message } from "antd";
+import { DatePicker, Form, Card, Space, Input, InputNumber, Select, Row, Col, Button, message } from "antd";
 import api from '../../api';
 
 const VisitsNurse = () => {
@@ -162,7 +162,19 @@ const VisitsNurse = () => {
                     required
                     rules={[{ required: true, message: 'El teléfono es obligatorio' }]}
                   >
-                    <Input placeholder="Teléfono" value={telefono} onChange={(e) => setTelefono(e.target.value)} maxLength={10} type="tel" />
+                    <Input
+                      type="number"  // Mantienes el tipo número
+                      placeholder="Teléfono"
+                      value={telefono}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Verificamos que el valor sea un número positivo
+                        if (value >= 0) {
+                          setTelefono(value);  // Solo actualizamos si el valor es válido
+                        }
+                      }}
+                      maxLength={10}  // Limitar a 10 caracteres
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -207,7 +219,7 @@ const VisitsNurse = () => {
                 </Col>
                 <Col span={24}>
                   <Form.Item label="Conducta">
-                    <Input.TextArea placeholder="Descripción de la conducta" value={conducta} onChange={(e) => setConducta(e.target.value)} rows={4} />
+                    <Input.TextArea placeholder="Descripción de la conducta" value={conducta} onChange={(e) => setConducta(e.target.value)} rows={4} maxLength={200}  />
                   </Form.Item>
                 </Col>
               </Row>
