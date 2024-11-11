@@ -71,6 +71,7 @@
 .marginTable{
   margin-top: 1.625rem;
   text-align: left;
+  margin-bottom: 0 !important;
 }
 
 .buttonImport{
