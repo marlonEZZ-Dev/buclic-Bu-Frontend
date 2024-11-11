@@ -1027,7 +1027,7 @@ useEffect(() => {
           >
             <SmallInput title='Correo electrónico'
               key={`email${changesDescription}${refreshFields}`}              
-              placeholder='Correo del estudiante'
+              placeholder={isFuncionary ? 'Correo de la persona':'Correo del estudiante'}
               errorMessage={pressedSave ? okValidation.email : ""}
               required
               autoComplete="off"
