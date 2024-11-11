@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import esLocale from 'antd/es/date-picker/locale/es_ES';
 import SearchInputR from '../../components/global/SearchInputR.jsx';
@@ -17,6 +17,9 @@ const VisitsNurse = () => {
   const [conducta, setConducta] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [username, setUsername] = useState('');
+
+  // Referencia para el formulario
+  const formRef = useRef();
 
   const diagnosticOptions = [
     "COLICOS_MENSTRUALES",
@@ -50,8 +53,8 @@ const VisitsNurse = () => {
 
   const onChangeFecha = (date, dateString) => {
     if (date) {
-      // Formatea la fecha sin hora, solo "YYYY-MM-DD"
-      setFecha(moment(date).format('YYYY-MM-DD'));
+      // Solo usa el formato sin convertir a UTC
+      setFecha(dateString);  // dateString ya viene en el formato 'YYYY-MM-DD'
     } else {
       setFecha(null);
     }
@@ -60,7 +63,8 @@ const VisitsNurse = () => {
 
   const onChangeTelefono = (e) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) { // Solo permite números
+    // Asegura que solo se ingresen números y que no sobrepasen los 10 caracteres
+    if (/^\d{0,10}$/.test(value)) { // Solo números, hasta 10 caracteres
       setTelefono(value);
     }
   };
@@ -71,64 +75,77 @@ const VisitsNurse = () => {
 
 
   // Función para buscar y obtener los datos del usuario
-  const handleSearchUser = async (username) => {
+  const handleSearchUser = async () => {
     try {
-      // Limpia los campos antes de la búsqueda
-
-      setNombre('');
-      setApellido('');
-      setTelefono('');
-      setPlanDependencia('');
-      setSemestre('');
-      setGenero('');
-      setUsername('');
-
-
-
-      // Realiza la solicitud al backend
       const response = await api.get(`/nursing-activities/search/${username}`);
-      const userData = response.data;
-
-      // Verifica qué contiene `response.data` (por ejemplo, imprime en consola)
-      console.log('Respuesta del backend:', userData);
-
-      // Actualiza los estados con los datos obtenidos del backend
-      setNombre(userData.name);
-      setApellido(userData.lastname);
-      setTelefono(userData.phone);
-      setPlanDependencia(userData.plan);
-      setSemestre(userData.semester);
-      setGenero(userData.gender);
-      setUsername(userData.username);  // Agregar esta línea si no lo tiene
-
-      message.success('Datos del usuario cargados correctamente');
+      if (response.status === 200) {
+        // Si el usuario es encontrado, llenamos los campos con los datos
+        const userData = response.data;
+        setUsername(userData.username);
+        setNombre(userData.name);
+        setApellido(userData.lastname);
+        setTelefono(userData.phone);
+        setPlanDependencia(userData.plan);
+        setSemestre(userData.semester);
+        setGenero(userData.gender);
+        message.success('Usuario encontrado');
+      }
     } catch (error) {
-      console.error('Error al buscar el usuario:', error);
-      message.error('Usuario no encontrado');
+      // Si el usuario no es encontrado, mostramos un mensaje de error
+      message.error('Usuario no registrado. Realice el registro para crearlo');
     }
   };
 
+
   const handleRegisterActivity = async () => {
+
+    // Validar campos antes de proceder
+    const isValid = await formRef.current.validateFields();
+    if (!isValid) return; // Si la validación falla, no hace nada
+
     const payload = {
       date: fecha,
-      username: username, // Este es el identificador único
+      username: username.trim(), // Asegúrate de que username tenga el valor correcto
+      name: nombre,
+      lastname: apellido,
       phone: telefono,
+      plan: planDependencia,
       semester: semestre,
-      gender: genero.toUpperCase(), // Asegúrate de enviar en mayúsculas si el backend lo espera así
+      gender: genero.toUpperCase(),
       diagnostic: diagnostico,
       conduct: conducta,
     };
-    console.log('Payload:', payload);
 
     try {
       const response = await api.post('/nursing-activities/register', payload);
-      console.log('Respuesta del backend:', response.data);
       message.success('Actividad registrada exitosamente');
+
+      // Limpiar los campos después de guardar
+      resetFields();
     } catch (error) {
-      console.error('Error al registrar la actividad:', error.response ? error.response.data : error);
-      message.error('Error al registrar la actividad');
+      message.error('Ocurrió un error al registrar la actividad');
     }
   };
+
+  // Función para limpiar los campos
+  const resetFields = () => {
+    setFecha(null);
+    setNombre('');
+    setApellido('');
+    setTelefono('');
+    setPlanDependencia('');
+    setSemestre('');
+    setGenero('');
+    setConducta('');
+    setDiagnostico('');
+    setUsername('');
+  };
+
+  // Función para manejar el cancelar
+  const handleCancel = () => {
+    resetFields();  // Limpiar todos los campos
+  };
+
 
 
   return (
@@ -136,7 +153,7 @@ const VisitsNurse = () => {
       <HeaderNurse />
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Registro de Actividades</h1>
-        <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las actividades del usuario en el servicio</p>
+        <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las actividades de los usuarios en el servicio.</p>
 
         <Card
           bordered={true}
@@ -149,26 +166,34 @@ const VisitsNurse = () => {
           }}
         >
           <Space direction="vertical" size={16} style={{ width: '95%' }}>
-            <Form layout="vertical">
+            <Form ref={formRef} layout="vertical">
               <Row gutter={40}>
 
                 <Col span={12}>
                   <Form.Item label="Fecha" labelAlign="left" required>
-                    <DatePicker locale={esLocale} onChange={onChangeFecha} style={{ width: '100%' }} />
+                    <DatePicker locale={esLocale}
+                      onChange={onChangeFecha}
+                      value={fecha ? moment(fecha, 'YYYY-MM-DD') : null}
+                      style={{ width: '100%' }} />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
                   <Form.Item label="Código/Cédula" labelAlign="left" required>
-                    <SearchInputR onSearch={(value) => {
-                      setUsername(value); // Actualiza el username con el valor ingresado
-                      handleSearchUser(value); // Realiza la búsqueda con el código/cédula
-                    }} />
+                    <SearchInputR
+                      value={username} // Asegúrate de que el input tenga el valor del username
+                      onSearch={(value) => {
+                        setUsername(value); // Actualiza el username con el valor ingresado
+                        handleSearchUser(); // Realiza la búsqueda con el código/cédula
+                      }}
+                      onChange={(e) => setUsername(e.target.value)} // Asegúrate de actualizar el valor cuando se escriba
+                    />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Nombre" labelAlign="left" required>
+                  <Form.Item label="Nombre" labelAlign="left" required
+                  >
                     <Input
                       placeholder="Nombre"
                       value={nombre}
@@ -183,7 +208,7 @@ const VisitsNurse = () => {
                       placeholder="Ingrese el apellido"
                       value={apellido}
                       onChange={(e) => setApellido(e.target.value)}
-                      
+
                     />
                   </Form.Item>
                 </Col>
@@ -195,6 +220,7 @@ const VisitsNurse = () => {
                       value={telefono}
                       onChange={onChangeTelefono}
                       maxLength={10}
+                      type="tel"
                     />
                   </Form.Item>
                 </Col>
@@ -210,7 +236,7 @@ const VisitsNurse = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Semestre" labelAlign="left" required>
+                  <Form.Item label="Semestre" labelAlign="left">
                     <Input
                       placeholder="Ingrese el semestre"
                       value={semestre}
@@ -258,7 +284,7 @@ const VisitsNurse = () => {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
             <Button className="button-save" type="primary" onClick={handleRegisterActivity}>Guardar</Button>
-            <Button className="button-cancel">Cancelar</Button>
+            <Button className="button-cancel" onClick={handleCancel}>Cancelar</Button>
           </div>
         </Card>
       </main>
