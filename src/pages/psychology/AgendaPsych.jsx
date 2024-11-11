@@ -6,16 +6,12 @@ import SearchInput from "../../components/global/SearchInput.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import Tables from "../../components/global/Tables.jsx";
-import axios from "axios";
 import AssistanceButtons from "../../components/global/AssistanceButtons.jsx";
 import api from "../../api.js";
-import { appointmentsProfessionals } from "../../services/professionals/agenda.js";
-
 import { Card, Flex, message } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
-
 import styles from "../../styles/psychology/agendaPsych.module.css";
 import cssButtonsModal from "../../styles/admin/managementUsers.module.css";
 

@@ -20,6 +20,10 @@ const Reservations = () => {
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
 
     const handleSearch = async (username) => {
+        if (!username.trim()) {
+            message.warning("Ingrese un código de usuario para buscar.");
+            return;
+        }
         try {
             const response = await api.get(`/reservations/by-username/${username}`);
             setReservationData(response.data[0]); // Aquí traes la respuesta
