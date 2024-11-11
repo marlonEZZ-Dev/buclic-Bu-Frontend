@@ -1,6 +1,6 @@
-import HeaderNurse from "../../components/nurse/HeaderNurse";
 import Attendance from "../../components/global/Attendance.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
 import Modal from "../../components/global/Modal.jsx";
 import SearchInput from "../../components/global/SearchInput.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
@@ -16,6 +16,7 @@ import styles from "../../styles/psychology/agendaPsych.module.css";
 import cssButtonsModal from "../../styles/admin/managementUsers.module.css";
 
 import { useEffect, useState } from "react";
+import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 
 function AssistanceCell(key) {
   const [selectedAssistance, setSelectedAssistance] = useState("nothing");
@@ -62,38 +63,43 @@ function AssistanceCell(key) {
         </Flex>
       </Modal>
       <Flex identifier={identifier} justify="space-around" align="center">
-  {initShow && (
-    <>
-      <button
-        name="active"
-        onClick={(e) => {
-          setSelectedAssistance(e.currentTarget.name);
-          setIsModalActive(true);
-        }}
-        className={styles.assistance}
-      >
-        <Attendance non={false} />
-      </button>
-      <button
-        name="inactive"
-        onClick={(e) => {
-          setSelectedAssistance(e.currentTarget.name);
-          setIsModalActive(true);
-        }}
-        className={styles.assistance}
-      >
-        <Attendance />
-      </button>
-    </>
-  )}
-  {selectedAssistance === "active" && yes && (
-    <StateUser identifier={`stateUser-${selectedAssistance}`} active={true} />
-  )}
-  {selectedAssistance === "inactive" && yes && (
-    <StateUser identifier={`stateUser-${selectedAssistance}`} active={false} />
-  )}
-</Flex>
-
+        {initShow && (
+          <>
+            <button
+              name="active"
+              onClick={(e) => {
+                setSelectedAssistance(e.currentTarget.name);
+                setIsModalActive(true);
+              }}
+              className={styles.assistance}
+            >
+              <Attendance non={false} />
+            </button>
+            <button
+              name="inactive"
+              onClick={(e) => {
+                setSelectedAssistance(e.currentTarget.name);
+                setIsModalActive(true);
+              }}
+              className={styles.assistance}
+            >
+              <Attendance />
+            </button>
+          </>
+        )}
+        {selectedAssistance === "active" && yes && (
+          <StateUser
+            identifier={`stateUser-${selectedAssistance}`}
+            active={true}
+          />
+        )}
+        {selectedAssistance === "inactive" && yes && (
+          <StateUser
+            identifier={`stateUser-${selectedAssistance}`}
+            active={false}
+          />
+        )}
+      </Flex>
     </>
   );
 }
@@ -150,9 +156,9 @@ export default function AgendaNurse() {
 
   const fetchPendingAppointments = async () => {
     try {
-		const response = await api.get(
-			`/appointment-reservation/professional/pending/${id}`,
-			{
+      const response = await api.get(
+        `/appointment-reservation/professional/pending/${id}`,
+        {
           headers: {
             Authorization: `Bearer ${token}`, // Pasa el token en el encabezado
           },
@@ -178,7 +184,6 @@ export default function AgendaNurse() {
         />,
       ]);
 
-      console.log("Formatted Rows: ", formattedRows); // Ahora se ejecutará
       setPendingAppointments(formattedRows);
     } catch (error) {
       console.error("Error al obtener citas pendientes:", error);
@@ -196,9 +201,9 @@ export default function AgendaNurse() {
 
   const fetchAttendedAppointments = async (page = 1) => {
     try {
-		const response = await api.get(
-			`/appointment-reservation/professional/attended/${id}`,
-			{
+      const response = await api.get(
+        `/appointment-reservation/professional/attended/${id}`,
+        {
           params: {
             page: page - 1, // El backend espera que las páginas comiencen en 0
             size: itemsPerPage, // Tamaño de página enviado correctamente
@@ -230,23 +235,25 @@ export default function AgendaNurse() {
       message.error(errorMessage);
     }
   };
-  const fetchAttendedAppointmentsByDate = async (date) => {
+  const fetchAttendedAppointmentsByDate = async (date, page = 1) => {
     try {
-		const response = await api.get(
-			`/appointment-reservation/professional/attended/search/${id}?fecha=${date}`,
-			{
+      const response = await api.get(
+        `/appointment-reservation/professional/attended/search/${id}`,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            page: 0,
-            size: 1000,
+            fecha: date,
+            page: page - 1, // Backend espera la página comenzando en 0
+            size: itemsPerPage,
           },
         }
       );
-      const data = response.data.appointments;
-      console.log(data);
-      const formattedAttendedRows = data.map((appointment) => [
+
+      const { appointments, totalElements } = response.data; // Asegúrate de que el backend devuelva estos campos
+
+      const formattedAttendedRows = appointments.map((appointment) => [
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
@@ -259,7 +266,7 @@ export default function AgendaNurse() {
       ]);
 
       setAppointmentDone(formattedAttendedRows);
-      setTotalItems(data.length);
+      setTotalItems(totalElements); // Actualiza el total de elementos
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Error desconocido";
       message.error(errorMessage);
@@ -267,8 +274,16 @@ export default function AgendaNurse() {
   };
 
   const handlePageChange = (newPage) => {
+    // Si no hay datos en `appointmentDone`, no cambiar la página
+    if (appointmentDone.length === 0) {
+      return;
+    }
     setCurrentPage(newPage);
-    fetchAttendedAppointments(newPage);
+    if (searchDate) {
+      fetchAttendedAppointmentsByDate(searchDate, newPage);
+    } else {
+      fetchAttendedAppointments(newPage);
+    }
   };
 
   return (
@@ -281,7 +296,6 @@ export default function AgendaNurse() {
       <Flex align="center" justify="center">
         <Card className={styles.card} bordered>
           <Flex vertical align="center" justify="center">
-            
             <Tables
               columns={appointmentPendingColums}
               rows={pendingAppointments}
@@ -290,11 +304,19 @@ export default function AgendaNurse() {
               className={styles.searchInput}
               placeholder="Fecha de consulta (dd/MM/yyyy)"
               onChange={(e) => setSearchDate(e.target.value)}
-              onClick={() => fetchAttendedAppointmentsByDate(searchDate)} // Realiza la búsqueda
+              onClick={() => {
+                if (!searchDate.trim()) {
+                  message.warning("Ingrese una fecha de consulta para buscar.");
+                  return;
+                }
+                setCurrentPage(1); // Resetea la paginación
+                fetchAttendedAppointmentsByDate(searchDate, 1);
+              }}
               onRefresh={() => {
+                setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
                 fetchAttendedAppointments(1);
-              }} // Refresca la tabla
+              }}
             />
           </Flex>
           <Flex vertical>
