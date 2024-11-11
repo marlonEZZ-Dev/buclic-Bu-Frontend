@@ -172,8 +172,10 @@ const Tracking = () => {
       <HeaderPsych />
 
       <main className="becas-section" style={{ marginTop: "100px" }}>
-        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Seguimientos</h1>
-        <p style={{ marginBottom: '6px' }}>
+        <h1 className="text-xl font-bold" style={{ marginBottom: "12px" }}>
+          Seguimientos
+        </h1>
+        <p style={{ marginBottom: "6px" }}>
           Aquí puedes buscar a los pacientes con las citas que han solicitado
         </p>
         <Card bordered={true} style={styles.card}>
@@ -186,10 +188,7 @@ const Tracking = () => {
           </div>
           <h3 style={styles.sectionTitle}>Información del paciente</h3>
           {userInfo && (
-      <>
-          
-          
-            
+            <>
               <Descriptions bordered column={1} style={styles.descriptions}>
                 <Descriptions.Item label="Nombre">
                   {userInfo.name}
