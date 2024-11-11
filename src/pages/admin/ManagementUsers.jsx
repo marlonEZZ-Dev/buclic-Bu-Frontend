@@ -193,7 +193,7 @@ export default function ManagementUsers(){
         ...user,
         isActive: tranformToStateUser(user.isActive),
         roles: getArrObjInArrStr(user.roles),
-        name: `${user.name}  ${user.lastname}`
+        name: `${user.name}  ${ user.lastName === undefined || user.lastName === null ? "": user.lastName }`
       })));
       setTotalItems(result.page.totalElements)
       console.log(result)
