@@ -99,7 +99,7 @@ const VisitsNurse = () => {
     <>
       <HeaderNurse />
       <main className="becas-section" style={{ marginTop: '100px' }}>
-        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Registro de Actividades</h1>
+        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Registro de actividades</h1>
         <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las actividades de los usuarios en el servicio.</p>
         <Card bordered style={{ width: '100%', maxWidth: '700px', margin: '3px auto' }}>
           <Space direction="vertical" size={16} style={{ width: '95%' }}>

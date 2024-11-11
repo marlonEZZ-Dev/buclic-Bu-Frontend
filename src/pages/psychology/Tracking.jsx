@@ -172,8 +172,8 @@ const Tracking = () => {
       <HeaderPsych />
 
       <main className="becas-section" style={{ marginTop: "100px" }}>
-        <h1 className="text-xl font-bold">Seguimientos</h1>
-        <p>
+        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Seguimientos</h1>
+        <p style={{ marginBottom: '6px' }}>
           Aquí puedes buscar a los pacientes con las citas que han solicitado
         </p>
         <Card bordered={true} style={styles.card}>
