@@ -152,17 +152,22 @@ export default function ManagementUsers(){
   del objeto y luego esta relacionada con el nombre de la columna que es el label esto
   para filtrar las columnas que se debe mostrar
   */
-  const headerTb = !enableResponsive ? [
+  const headerTb = (!enableResponsive && !isBeneficiary) ? [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
     {key: "email", label: "Correo"},
     {key: "isActive", label: "Activo"}
-  ] : isBeneficiary ? [
+  ] : (enableResponsive && isBeneficiary) ? [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"}
+  ] : (!enableResponsive && isBeneficiary) ? [
+    {key: "username", label: isFuncionary ? "Cédula" : "Código"},
+    {key: "name", label: "Nombre"},
+    {key: "email", label: "Correo"}
   ] : [
     {key: "username", label: isFuncionary ? "Cédula" : "Código"},
     {key: "name", label: "Nombre"},
+    {key: "email", label: "Correo"},
     {key: "isActive", label: "Activo"}
   ]
 
