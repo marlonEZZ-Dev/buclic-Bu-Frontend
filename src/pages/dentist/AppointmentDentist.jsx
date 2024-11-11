@@ -30,8 +30,8 @@ const AppointmentDentist = () => {
         <section 
           style={{ 
             display: 'flex', 
-            justifyContent: 'space-between', 
-            gap: '20px', 
+            justifyContent: 'center', 
+            gap: '60px', 
             marginTop: '20px', 
             flexWrap: 'wrap'  // Permitir que las tarjetas se envuelvan
           }}
