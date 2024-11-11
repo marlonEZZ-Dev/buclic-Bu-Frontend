@@ -128,6 +128,7 @@ export default function ManagementUsers(){
     {value:"ADMINISTRADOR", label:"Administrador (a)"},
     {value:"ENFERMERO", label:"Enfermero (a)"},
     {value:"MONITOR", label:"Monitor (a)"},
+    {value:"ESTUDIANTE", label:"Estudiante"},
     {value:"ODONTOLOGO", label:"Odontólogo (a)"},
     {value:"PSICOLOGO", label:"Psicólogo (a)"},
     {value:"FUNCIONARIO", label:"Funcionario (a)"},
@@ -196,7 +197,6 @@ export default function ManagementUsers(){
         name: `${user.name}  ${ user.lastName === undefined || user.lastName === null ? "": user.lastName }`
       })));
       setTotalItems(result.page.totalElements)
-      console.log(result)
     } catch (error) {
         console.log(`Esto ocurre en loadUsers ${error}`);
         return { success: false, message: error.message };
@@ -253,7 +253,7 @@ const handlePageChange = page => {
 
   
   //Manejadores de estado de modals
-  const handlerOnlyIntegerPositive = (e) => {
+  const handlerOnlyIntegerPositive = e => {
     // Evita la entrada de signos negativos y puntos
     if (e.key === "-" || e.key === "." || e.key === ",") {
       e.preventDefault();
@@ -272,6 +272,21 @@ const handlePageChange = page => {
     }
   };
   
+  const handlerTextAndIntegerPositve = e => { 
+    const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
+    if (
+      // Evitar "-", "." y ","
+      e.key === "-" ||
+      e.key === "." ||
+      e.key === "," ||
+    
+      // Permitir solo teclas de navegación y edición, letras y espacios
+      (!allowedKeys.includes(e.key) &&
+        !/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s0-9]$/.test(e.key))
+    ) {
+      e.preventDefault();
+    }
+  }
 
   const handlerOpenModalImport = () => setIsModalImport(true)
   const handlerCloseModalImport = () => setIsModalImport(false)
@@ -371,11 +386,11 @@ const handlePageChange = page => {
     const fnState = isEdit ? setOkValidationEdit : setOkValidation;
 
     const validations = {
-        username: validCode(user.username, !isFuncionary),
+        username: validCode(user.username, !isFuncionary, isFuncionary),
         name: validName(user.name),
         lastName: validLastname(user.lastName),
         email: validEmail(user.email, isFuncionary),
-        plan: validPlan(user.plan, !isFuncionary),
+        plan: validPlan(user.plan, !isFuncionary, isFuncionary),
         roles: validRol(user.roles),
         grant: !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
     };
@@ -565,6 +580,7 @@ const handlePageChange = page => {
 
   // Para cada campo en `user`, agrega un useEffect similar al siguiente
 useEffect(() => {
+  if(user.name !== "") localStorage.setItem("name_ManagementUsers", user.name)
   if (pressedSave) {
       handlerOkValidation({
           name: "name",
@@ -575,6 +591,7 @@ useEffect(() => {
 }, [user.name, pressedSave]);
 
 useEffect(() => {
+  localStorage.setItem("lastName_ManagementUsers", user.lastName)
   if (pressedSave) {
       handlerOkValidation({
           name: "lastname",
@@ -585,6 +602,7 @@ useEffect(() => {
 }, [user.lastName, pressedSave]);
 
 useEffect(() => {
+  localStorage.setItem("email_ManagementUsers", user.email)
   if (pressedSave) {
       handlerOkValidation({
           name: "email",
@@ -595,26 +613,29 @@ useEffect(() => {
 }, [user.email, pressedSave]);
 
 useEffect(() => {
+  localStorage.setItem("username_ManagementUsers", user.username)
   if (pressedSave) {
       handlerOkValidation({
           name: "username",
-          value: validCode(user.username, !isFuncionary),
+          value: validCode(user.username, !isFuncionary, isFuncionary),
           fnState: setOkValidation
       });
   }
 }, [user.username, pressedSave]);
 
 useEffect(() => {
+  localStorage.setItem("plan_ManagementUsers", user.plan)
   if (pressedSave) {
       handlerOkValidation({
           name: "plan",
-          value: validPlan(user.plan, !isFuncionary),
+          value: validPlan(user.plan),
           fnState: setOkValidation
       });
   }
 }, [user.plan, pressedSave]);
 
 useEffect(() => {
+  localStorage.setItem("roles_ManagementUsers", JSON.stringify(user.roles))
   if (pressedSave) {
       handlerOkValidation({
           name: "roles",
@@ -671,7 +692,7 @@ useEffect(() => {
   if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "username",
-          value: validCode(objectSelected.username, !isFuncionary),
+          value: validCode(objectSelected.username, !isFuncionary, isFuncionary),
           fnState: setOkValidationEdit
       });
   }
@@ -682,7 +703,7 @@ useEffect(() => {
   if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "plan",
-          value: validPlan(objectSelected.plan, !isFuncionary),
+          value: validPlan(objectSelected.plan, !isFuncionary, isFuncionary),
           fnState: setOkValidationEdit
       });
   }
@@ -793,10 +814,10 @@ useEffect(() => {
         </Flex>
 
         <Flex gap={29} vertical={isMobile}>
-          <SmallInput title={isFuncionary ? "Cédula" : "Código estudiantil"}
+          <SmallInput title={isFuncionary ? "Cédula/código estudiantil" : "Código estudiantil"}
             name="username"
-            min={isFuncionary ? 10000000 : 200000000}
-            max={isFuncionary ? 9999999999 : 299999999}
+            min={10000000}
+            max={9999999999}
             errorMessage={okValidationEdit.username}
             required
             isRenderAsteric={false}
@@ -805,18 +826,16 @@ useEffect(() => {
             onChange={e => handlerEditUser(e)}
             onKeyDown={handlerOnlyIntegerPositive}
             />
-          <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
+          <SmallInput title={isFuncionary ? "Área dependiente/plan":"Plan"}
             isRenderAsteric={false}
             type={isFuncionary ? "text" : "number"}
             name="plan"
             value={objectSelected.plan}
             errorMessage={okValidationEdit.plan}
-            min={isFuncionary ? undefined : 1000}
-            max={isFuncionary ? undefined : 9999}
             required
             className={styles.inputWidthModal}
             onChange={e => handlerEditUser(e)}
-            onKeyDown={isFuncionary ? () => {} : e => handlerOnlyIntegerPositive(e)}
+            onKeyDown={e => isFuncionary ? handlerTextAndIntegerPositve(e) : handlerOnlyIntegerPositive(e)}
             />
         </Flex>
           
@@ -832,7 +851,7 @@ useEffect(() => {
             onChange={e => handlerEditUser(e)}
             />
           <SelectWithError title={isStudent ? "Estado" 
-            : isFuncionary ? "Rol" 
+            : isFuncionary ? "Rol"
             : "Tipo de Beca"}
             isRenderAsteric={!isModalEdit}
             style={{width:"11.5rem"}}
@@ -882,9 +901,6 @@ useEffect(() => {
               setPressedEdit(true)
               if(handlerVerify(objectSelected, isModalEdit)){
                 if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
-                // handlerSendUserEdited() //Sólo se envía sí realmente hubieron cambios
-                // setObjectSelectedClone(null)
-                // handlerCloseModalEdit(false)
                 handlerSendUserEdited()
                 .then( () => {
                   console.dir(objectSelected)
@@ -992,21 +1008,20 @@ useEffect(() => {
           gap={29}
           vertical={isMobile}
           >
-            <SmallInput title={isFuncionary ? "Cédula" : "Código estudiantil"}
+            <SmallInput title={isFuncionary ? "Cédula/código estudiantil" : "Código estudiantil"}
               key={`username${changesDescription}${refreshFields}`}              
               placeholder={isFuncionary ? "Cédula de la persona":"Ej: 202412345"}
               type="number"
               errorMessage={pressedSave ? okValidation.username : ""}
               autoComplete="off"
-              min={isFuncionary ? 10000000 : 200000000}
-              max={isFuncionary ? 99999999 : 299999999}
+              min={10000000}
+              max={99999999}
               required
               name="username"
               onChange={handlerCreateUser}
               onKeyDown={handlerOnlyIntegerPositive}
               />
-            <SmallInput title={isFuncionary ? "Área dependiente":"Plan"}
-              isRenderAsteric={!isFuncionary}
+            <SmallInput title={isFuncionary ? "Área dependiente/plan":"Plan"}
               key={`plan${changesDescription}${refreshFields}`}
               type={isFuncionary ? "text" : "number"} 
               placeholder={ isFuncionary ? "Área de la persona":"Ej: 1234"}
@@ -1017,7 +1032,7 @@ useEffect(() => {
               autoComplete="off"
               name="plan"
               onChange={e => handlerCreateUser(e)}
-              onKeyDown={isFuncionary ? () => {} : e => handlerOnlyIntegerPositive(e)}
+              onKeyDown={e =>  isFuncionary ? handlerTextAndIntegerPositve(e) : handlerOnlyIntegerPositive(e)}
               />
           </Flex>
 
@@ -1037,7 +1052,7 @@ useEffect(() => {
             />
           {(!isStudent || !enableResponsive) && 
             <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beca"}
-              isRenderAsteric={isBeneficiary}
+              isRenderAsteric={isBeneficiary || isFuncionary}
               name={isBeneficiary ? "grant" : ""}
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
