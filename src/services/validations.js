@@ -50,30 +50,34 @@ const forCode = code => {
     : `El código no es válido, debe ser máximo ${limitTop}`
 };
 
-const forNuip = nuip => (nuip.length >= 8) ? true : "Debe tener mínimo 8 digitos"
+const forNuip = nuip => (nuip !== undefined) && (nuip.length >= 8) ? true : "Debe tener mínimo 8 digitos"
 
 const forPlan = plan => /^\d{4}$/.test(plan) ? true : "Debe ingresar sólo 4 digitos"
 
-const forArea = area => /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]+$/.test(area) ? true : "El área debe por ejemplo ser administrativa, psicología, etc"
+const forArea = area => /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+$/.test(area) ? true : "El área debe por ejemplo ser administrativa, psicología, etc"
 
 const forEmailFuncionary = email => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim()) ? true : "Dirección de correo inválida"
 
 const forEmailStudent = email => /^[a-zA-Z]+(\.[a-zA-Z]+){1,2}@correounivalle\.edu\.co$/.test(email.trim()) ? true : "La dirección de correo electrónico no corresponde a ningún estudiante"
 
 export const validCode = (code, isCode) => {
-  //Si es estudiante o beneficiario
   if(isCode){
     return forCode(code)
   }
   return forNuip(code)
 }
 
-export const validPlan = (plan, isPlan) => {
-  if(isPlan){
-    return forPlan(plan)
-  }
-  //Área dependiente es un string
-  return forArea(plan)
+export const validPlan = plan => {
+  const hasLetters = /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+/.test(plan)
+  const hasNumbers = /\d+/.test(plan)
+
+  if( hasLetters && hasNumbers) return "No mezcle letras y números por favor"
+  
+  if(hasNumbers) return forPlan(plan)
+  
+  if(hasLetters) return forArea(plan)
+
+  return EMPTY_FIELD
 }
 
 export const validEmail = (email, funcionary) => {
