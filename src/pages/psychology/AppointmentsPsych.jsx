@@ -1,6 +1,7 @@
 import HeaderPsych from "../../components/psychology/HeaderPsych";
 import { useNavigate } from 'react-router-dom';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const AppointmentsPsych = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
@@ -74,6 +75,7 @@ const AppointmentsPsych = () => {
           
         </section>
       </main>
+      <FooterProfessionals />
     </>
   );
 };

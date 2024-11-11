@@ -11,6 +11,7 @@ import Header from "../../components/auth/Header";
 import api from "../../api";
 import { ACCESS_TOKEN } from "../../constants";
 import "../../styles/HomePage.css";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -176,6 +177,8 @@ export default function LoginPage() {
           </form>
         </Card>
       </div>
+      <FooterProfessionals />
     </Fragment>
+    
   );
 }
