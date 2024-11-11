@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
+import FooterProfessionals from '../../components/global/FooterProfessionals';
 
 const Appointments = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
@@ -91,6 +92,7 @@ const Appointments = () => {
           
         </section>
       </main>
+      <FooterProfessionals/>
     </>
   );
 };
