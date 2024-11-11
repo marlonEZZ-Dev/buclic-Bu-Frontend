@@ -3,7 +3,7 @@ import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import esLocale from 'antd/es/date-picker/locale/es_ES';
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import moment from 'moment';
-import { DatePicker, Form, Card, Space, Input, Select, Row, Col, Button, message } from "antd";
+import { DatePicker, Form, Card, Space, Input, InputNumber, Select, Row, Col, Button, message } from "antd";
 import api from '../../api';
 
 const VisitsNurse = () => {
@@ -23,6 +23,23 @@ const VisitsNurse = () => {
 
   const diagnosticOptions = ["COLICOS_MENSTRUALES", "CURACION", "DOLOR_DE_CABEZA", "DOLOR_ESTOMACAL", "DOLOR_MUSCULAR", "MALESTAR_GENERAL", "MAREOS_DESMAYOS", "PRESERVATIVOS", "OTRO"];
   const genderOptions = ["MASCULINO", "FEMENINO", "OTRO", "NO_RESPONDE"];
+
+
+  // Función para transformar las opciones
+  const formatOptions = (options) => {
+    return options.map(option => {
+      // Reemplazar guiones bajos por espacios y hacer la primera letra mayúscula
+      return option
+        .replace(/_/g, ' ')  // Reemplaza el guión bajo por espacio
+        .toLowerCase()       // Convierte todo a minúscula
+        .replace(/^\w/, c => c.toUpperCase()); // Convierte la primera letra en mayúscula
+    });
+  };
+
+
+  // Aplicamos la función a las listas
+  const formattedDiagnosticOptions = formatOptions(diagnosticOptions);
+  const formattedGenderOptions = formatOptions(genderOptions);
 
   const handleSearchUser = async () => {
     try {
@@ -145,7 +162,19 @@ const VisitsNurse = () => {
                     required
                     rules={[{ required: true, message: 'El teléfono es obligatorio' }]}
                   >
-                    <Input placeholder="Teléfono" value={telefono} onChange={(e) => setTelefono(e.target.value)} maxLength={10} type="tel" />
+                    <Input
+                      type="number"  // Mantienes el tipo número
+                      placeholder="Teléfono"
+                      value={telefono}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Verificamos que el valor sea un número positivo
+                        if (value >= 0) {
+                          setTelefono(value);  // Solo actualizamos si el valor es válido
+                        }
+                      }}
+                      maxLength={10}  // Limitar a 10 caracteres
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -165,7 +194,13 @@ const VisitsNurse = () => {
                     required
                     rules={[{ required: true, message: 'El género es obligatorio' }]}
                   >
-                    <Select value={genero} onChange={setGenero} options={genderOptions.map(option => ({ value: option, label: option }))} />
+                    <Select value={genero}
+                      onChange={setGenero}
+                      options={formattedGenderOptions.map(option => ({
+                        value: option.toUpperCase().replace(/ /g, '_'),  // valor que se enviará al backend
+                        label: option
+                      }))}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -173,12 +208,18 @@ const VisitsNurse = () => {
                     required
                     rules={[{ required: true, message: 'El diagnóstico es obligatorio' }]}
                   >
-                    <Select value={diagnostico} onChange={setDiagnostico} options={diagnosticOptions.map(option => ({ value: option, label: option }))} />
+                    <Select value={diagnostico}
+                      onChange={setDiagnostico}
+                      options={formattedDiagnosticOptions.map(option => ({
+                        value: option.toUpperCase().replace(/ /g, '_'),  // valor que se enviará al backend
+                        label: option  // lo que se mostrará en la UI
+                      }))}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
                   <Form.Item label="Conducta">
-                    <Input.TextArea placeholder="Descripción de la conducta" value={conducta} onChange={(e) => setConducta(e.target.value)} rows={4} />
+                    <Input.TextArea placeholder="Descripción de la conducta" value={conducta} onChange={(e) => setConducta(e.target.value)} rows={4} maxLength={200}  />
                   </Form.Item>
                 </Col>
               </Row>
