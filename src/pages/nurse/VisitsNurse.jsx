@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import esLocale from 'antd/es/date-picker/locale/es_ES';
 import SearchInputR from '../../components/global/SearchInputR.jsx';
@@ -17,6 +17,9 @@ const VisitsNurse = () => {
   const [conducta, setConducta] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [username, setUsername] = useState('');
+
+  // Referencia para el formulario
+  const formRef = useRef();
 
   const diagnosticOptions = [
     "COLICOS_MENSTRUALES",
@@ -60,7 +63,8 @@ const VisitsNurse = () => {
 
   const onChangeTelefono = (e) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) { // Solo permite números
+    // Asegura que solo se ingresen números y que no sobrepasen los 10 caracteres
+    if (/^\d{0,10}$/.test(value)) { // Solo números, hasta 10 caracteres
       setTelefono(value);
     }
   };
@@ -94,6 +98,10 @@ const VisitsNurse = () => {
 
 
   const handleRegisterActivity = async () => {
+
+    // Validar campos antes de proceder
+    const isValid = await formRef.current.validateFields();
+    if (!isValid) return; // Si la validación falla, no hace nada
 
     const payload = {
       date: fecha,
@@ -145,7 +153,7 @@ const VisitsNurse = () => {
       <HeaderNurse />
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Registro de Actividades</h1>
-        <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las actividades del usuario en el servicio</p>
+        <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las actividades de los usuarios en el servicio.</p>
 
         <Card
           bordered={true}
@@ -158,7 +166,7 @@ const VisitsNurse = () => {
           }}
         >
           <Space direction="vertical" size={16} style={{ width: '95%' }}>
-            <Form layout="vertical">
+            <Form ref={formRef} layout="vertical">
               <Row gutter={40}>
 
                 <Col span={12}>
@@ -184,7 +192,8 @@ const VisitsNurse = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Nombre" labelAlign="left" required>
+                  <Form.Item label="Nombre" labelAlign="left" required
+                  >
                     <Input
                       placeholder="Nombre"
                       value={nombre}
@@ -211,6 +220,7 @@ const VisitsNurse = () => {
                       value={telefono}
                       onChange={onChangeTelefono}
                       maxLength={10}
+                      type="tel"
                     />
                   </Form.Item>
                 </Col>

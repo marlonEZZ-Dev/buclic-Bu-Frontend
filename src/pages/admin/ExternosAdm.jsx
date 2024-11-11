@@ -96,8 +96,8 @@ const ExternosAdmin = () => {
     <>
       <HeaderAdmin />
       <main className="becas-section" style={{ marginTop: '100px' }}>
-        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Reserva para Externos</h1>
-        <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar los becas para los usuarios externos.</p>
+        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Reserva para externos</h1>
+        <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las reservas para usuarios externos.</p>
 
         <Card
           bordered={true}
