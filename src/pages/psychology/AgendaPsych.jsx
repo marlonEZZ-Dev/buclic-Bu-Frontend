@@ -277,6 +277,10 @@ export default function AgendaPsych() {
   };
 
   const handlePageChange = (newPage) => {
+    // Si no hay datos en `appointmentDone`, no cambiar la página
+    if (appointmentDone.length === 0) {
+      return;
+    }
     setCurrentPage(newPage);
     if (searchDate) {
       fetchAttendedAppointmentsByDate(searchDate, newPage);
