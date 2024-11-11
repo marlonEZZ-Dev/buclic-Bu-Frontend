@@ -114,7 +114,7 @@ export default function ManagementUsers(){
     },
     {
       title:"Funcionarios del sistema",
-      description:"Aquí puedes agregar personas con alguna dependencia en la universidad o externas"
+      description:"Aquí puedes agregar personas con alguna dependencia en la universidad"
     }
   ]
 
