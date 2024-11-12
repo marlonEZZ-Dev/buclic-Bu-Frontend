@@ -1,51 +1,93 @@
-import { useState } from 'react';
-import { Card, Button, Modal, Descriptions, Table, Input } from 'antd';
-import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
-import HeaderDentist from "../../components/dentist/HeaderDentist"; // Importación del header específico
+import { useState, useCallback } from 'react';
+import HeaderDentist from "../../components/dentist/HeaderDentist";
+import SearchPicker from '../../components/global/SearchPicker.jsx';
+import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx"
+import TablePaginationR from '../../components/global/TablePaginationR.jsx';
+import { Card, Button, Modal, Descriptions, message } from 'antd';
+import { EyeOutlined } from '@ant-design/icons';
+import api from '../../api'; // Asegúrate de que esta instancia esté configurada con el baseURL adecuado.
+import moment from 'moment'; // Importamos moment para formatear fechas
 
 const HistoryDentistry = () => {
+    const [activities, setActivities] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedVisit, setSelectedVisit] = useState(null);
+    const [queryValue, setQueryValue] = useState("");
+    const [rangeValue, setRangeValue] = useState([]);
+    const [messageApi, contextHook] = message.useMessage();
+    const itemsPerPage = 10;
 
-    // Datos de ejemplo para mostrar en la tabla
-    const visitsData = [
-        { key: '1', date: '30/09/2024', name: 'Mario Sánchez', document: '123456789' },
-        { key: '2', date: '05/10/2024', name: 'Carolina Perez', document: '202056211' },
-    ];
+    const fetchVisits = useCallback(async () => {
+        try {
+            let params = {};
+            if (queryValue) params.username = queryValue; // Utilizar queryValue para el parámetro de búsqueda
+            if (rangeValue.length === 2) {
+                params.startDate = rangeValue[0].format('YYYY-MM-DD');
+                params.endDate = rangeValue[1].format('YYYY-MM-DD');
+            }
 
-    // Columnas para la tabla de visitas
-    const columns = [
-        { title: 'Fecha cita', dataIndex: 'date', key: 'date' },
-        { title: 'Nombre', dataIndex: 'name', key: 'name' },
-        { title: 'Código/Cédula', dataIndex: 'document', key: 'document' },
-        {
-            title: 'Detalles cita',
-            key: 'action',
-            render: (_, record) => (
-                <Button
-                    icon={<EyeOutlined />}
-                    style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
-                    onClick={() => showVisitDetail(record)}
-                />
-            ),
-        },
-    ];
+            if (!params.username && (!params.startDate || !params.endDate)) {
+                messageApi.error("Debe suministrar el nombre de usuario o el rango de fechas para realizar la búsqueda");
+                return;
+            }
 
-    // Función para mostrar el modal con detalles
-    const showVisitDetail = (visit) => {
-        setSelectedVisit(visit);
-        setIsModalVisible(true);
+            const response = await api.get('/odontology-visits', { params });
+
+            // Aseguramos que los datos estén definidos y formateamos adecuadamente
+            const formattedActivities = (response.data.list.content || []).map(activity => ({
+                ...activity,
+                date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible', // Formateamos la fecha a "DD/MM/YYYY" si está presente
+                fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastname || 'Apellido no disponible'}`, // Concatenamos nombre y apellido si están presentes
+                document: activity.user?.document || 'Documento no disponible', // Mostramos el documento si está presente
+            }));
+            setActivities(formattedActivities);
+        } catch (err) {
+            console.error("Error fetching visits:", err);
+            messageApi.error("Error al obtener los datos de visitas");
+        }
+    }, [queryValue, rangeValue]);
+
+    const showVisitDetail = async (visitId) => {
+        try {
+            const response = await api.get(`/visit/${visitId}`);
+            setSelectedVisit(response.data);
+            setIsModalVisible(true);
+        } catch (error) {
+            console.error("Error fetching visit details:", error);
+            messageApi.error("Error al obtener los detalles de la visita");
+        }
     };
 
-    // Cierra el modal y limpia el registro seleccionado
     const handleModalClose = () => {
         setIsModalVisible(false);
         setSelectedVisit(null);
     };
 
+    const paginatedActivities = activities.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const rows = paginatedActivities.map(visit => [
+        visit.date,
+        visit.fullName,
+        visit.document, // Mostramos el documento en la tabla
+        <Button
+            icon={<EyeOutlined />}
+            style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
+            onClick={() => showVisitDetail(visit.id)}
+        />
+    ]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     return (
         <>
             <HeaderDentist /> {/* Header específico de odontología */}
+            {contextHook}
             <main style={{ marginTop: '100px', textAlign: 'center' }}>
                 <h1 style={{ color: '#C20E1A', fontSize: '24px', fontWeight: 'bold' }}>Historial de visitas</h1>
                 <p>Aquí se podrán buscar las visitas por paciente o fecha que se han realizado en el servicio.</p>
@@ -60,14 +102,31 @@ const HistoryDentistry = () => {
                     }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                        <Input
-                            placeholder="Código/Cédula paciente"
-                            style={{ width: '80%', marginRight: '8px' }}
+                        <SearchPicker
+                            placeholder="Código/Cédula del paciente"
+                            dateRangeValue={rangeValue}
+                            queryValue={queryValue}
+                            onQueryChange={value => setQueryValue(value)}
+                            onDateRangeChange={value => setRangeValue(value)}
+                            onSearch={fetchVisits}
                         />
-                        <Button icon={<SearchOutlined />} />
+                        <ButtonRefresh
+                            onClick={() => {
+                                setQueryValue('');
+                                setRangeValue([]);
+                                setActivities([]);
+                            }}
+                        />
                     </div>
                     <p style={{ fontWeight: 'bold' }}>Tabla de actividades realizadas</p>
-                    <Table columns={columns} dataSource={visitsData} pagination={{ pageSize: 5 }} />
+                    <TablePaginationR
+                        columns={['Fecha cita', 'Nombre', 'Código/Cédula', 'Detalles cita']}
+                        rows={rows}
+                        currentPage={currentPage}
+                        itemsPerPage={itemsPerPage}
+                        totalItems={activities.length}
+                        onPageChange={handlePageChange}
+                    />
                 </Card>
                 {/* Modal para detalles de la visita */}
                 <Modal
@@ -82,14 +141,11 @@ const HistoryDentistry = () => {
                 >
                     {selectedVisit ? (
                         <Descriptions bordered size="small" column={1}>
-                            <Descriptions.Item label="Nombre">{selectedVisit.name}</Descriptions.Item>
-                            <Descriptions.Item label="Código/Cédula">{selectedVisit.document}</Descriptions.Item>
-                            <Descriptions.Item label="Plan/Área dependencia">7156</Descriptions.Item>
-                            <Descriptions.Item label="Fecha de visita">{selectedVisit.date}</Descriptions.Item>
-                            <Descriptions.Item label="Diagnóstico">Dolor de cabeza</Descriptions.Item>
-                            <Descriptions.Item label="Conducta">
-                                La paciente presentaba un dolor de cabeza leve por lo que se le suministró un acetaminofén
-                            </Descriptions.Item>
+                            <Descriptions.Item label="Nombre">{`${selectedVisit.user?.name || ''} ${selectedVisit.user?.lastname || ''}`}</Descriptions.Item>
+                            <Descriptions.Item label="Código/Cédula">{selectedVisit.user?.document || 'Documento no disponible'}</Descriptions.Item>
+                            <Descriptions.Item label="Fecha de visita">{moment(selectedVisit.date).format('DD/MM/YYYY')}</Descriptions.Item>
+                            <Descriptions.Item label="Diagnóstico">{selectedVisit.diagnostic}</Descriptions.Item>
+                            <Descriptions.Item label="Conducta">{selectedVisit.conduct}</Descriptions.Item>
                         </Descriptions>
                     ) : (
                         <p>Cargando detalles de la visita...</p>

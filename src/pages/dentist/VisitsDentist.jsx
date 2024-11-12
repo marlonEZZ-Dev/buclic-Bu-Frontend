@@ -180,8 +180,8 @@ const VisitsDentist = () => {
             </Form>
           </Space>
           <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
-            <Button type="primary" onClick={handleRegisterVisit}>Guardar</Button>
-            <Button onClick={resetFields}>Cancelar</Button>
+            <Button type="primary" className='button-save'onClick={handleRegisterVisit}>Guardar</Button>
+            <Button className='button-cancel' onClick={resetFields}>Cancelar</Button>
           </div>
         </Card>
       </main>
