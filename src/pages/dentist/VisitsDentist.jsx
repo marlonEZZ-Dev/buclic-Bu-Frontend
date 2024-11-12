@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { DatePicker, Form, Card, Space, Input, Select, Row, Col, Button, message } from "antd";
 import esLocale from "antd/es/date-picker/locale/es_ES";
 import HeaderDentist from "../../components/dentist/HeaderDentist";
+import SearchInputR from '../../components/global/SearchInputR.jsx';
+import api from '../../api';
 
 const VisitsDentist = () => {
   const [fecha, setFecha] = useState(null);
@@ -14,34 +16,72 @@ const VisitsDentist = () => {
 
   const [form] = Form.useForm();
 
-  const motivoOptions = [
-    "Ayudas diagnósticas",
-    "Formulación de medicamentos",
-    "Higiene oral",
-    "Remisión a otras dependencias",
-    "Resina de fotocurado",
-    "Revaloración",
-    "Urgencia odontológica",
-    "Valoración primera vez",
-  ];
+  // Opciones para el campo "Motivo" en mayúsculas
+  const motivoOptions = ["AYUDAS_DIAGNOSTICAS", "FORMULACION_DE_MEDICAMENTOS", "HIGIENE_ORAL", "REMISION_A_OTRAS_DEPENDENCIAS", "RESINA_DE_FOTOCURADO", "REVALORACION", "URGENCIA_ODONTOLOGICA", "VALORACION_PRIMERA_VEZ"];
 
-  const handleRegisterVisit = () => {
-    form.validateFields().then(() => {
-      const payload = {
-        fecha,
-        codigoCedula,
-        nombre,
-        apellido,
-        planArea,
-        motivo,
-        descripcion,
-      };
-      console.log("Datos del formulario:", payload);
-      message.success("Visita registrada exitosamente");
-      resetFields();
-    }).catch(() => {
-      message.error("Por favor, complete todos los campos obligatorios");
+  // Función para formatear las opciones (como en enfermería)
+  const formatOptions = (options) => {
+    return options.map(option => {
+      return option
+        .replace(/_/g, ' ')     // Reemplaza el guión bajo por espacio
+        .toLowerCase()          // Convierte todo a minúscula
+        .replace(/^\w/, c => c.toUpperCase()); // Convierte la primera letra en mayúscula
     });
+  };
+
+  // Opciones formateadas para mostrar en el select
+  const formattedMotivoOptions = formatOptions(motivoOptions);
+
+  const handleSearchUser = async () => {
+    try {
+      const { data } = await api.get(`/odontology-visits/search/${codigoCedula}`);
+      setNombre(data.name);      // Asignar solo el nombre
+      setApellido(data.lastName); // Asignar solo el apellido
+      setPlanArea(data.plan);
+      message.success("Usuario encontrado");
+  
+      // Actualizar valores del formulario con los datos encontrados
+      form.setFieldsValue({
+        nombre: data.name,
+        apellido: data.lastName,
+        planArea: data.plan,
+      });
+    } catch (error) {
+      message.error("Usuario no registrado. Realice el registro para crearlo.");
+      console.error("Error en la búsqueda de usuario:", error);
+    }
+  };
+  
+  // Función para registrar una visita
+  const handleRegisterVisit = async () => {
+    // Validar campos requeridos antes de enviar el payload
+    form.validateFields()
+      .then(async () => {
+        const payload = {
+          date: fecha ? fecha.format("YYYY-MM-DD") : null,
+          time: "00:00:00", // Hora fija por ahora
+          username: codigoCedula,
+          name: nombre,
+          lastname: apellido,
+          plan: planArea,
+          reason: motivo,
+          description: descripcion,
+        };
+
+        console.log("Payload enviado al backend:", payload); // Imprimir el payload en consola
+
+        try {
+          await api.post("/odontology-visits/register", payload);
+          message.success("Visita registrada exitosamente");
+          resetFields();
+        } catch (error) {
+          message.error("Ocurrió un error al registrar la visita.");
+          console.error("Error en el registro:", error);
+        }
+      })
+      .catch(() => {
+        message.error("Por favor, complete todos los campos obligatorios.");
+      });
   };
 
   const resetFields = () => {
@@ -79,10 +119,10 @@ const VisitsDentist = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item label="Código/Cédula" name="codigoCedula" rules={[{ required: true, message: "El código/cedula es obligatorio" }]}>
-                    <Input
-                      placeholder="Código/cédula paciente"
-                      value={codigoCedula}
-                      onChange={(e) => setCodigoCedula(e.target.value)}
+                    <SearchInputR 
+                      value={codigoCedula} 
+                      onSearch={handleSearchUser} 
+                      onChange={(e) => setCodigoCedula(e.target.value)} 
                     />
                   </Form.Item>
                 </Col>
@@ -118,7 +158,10 @@ const VisitsDentist = () => {
                     <Select
                       value={motivo}
                       onChange={(value) => setMotivo(value)}
-                      options={motivoOptions.map((option) => ({ value: option, label: option }))}
+                      options={motivoOptions.map((option) => ({
+                        value: option,
+                        label: formatOptions([option])[0] // Mostrar opción formateada en el selector
+                      }))}
                     />
                   </Form.Item>
                 </Col>
@@ -137,8 +180,8 @@ const VisitsDentist = () => {
             </Form>
           </Space>
           <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
-            <Button type="primary" className='button-save' onClick={handleRegisterVisit}>Guardar</Button>
-            <Button className='button-cancel' onClick={resetFields}>Cancelar</Button>
+            <Button type="primary" onClick={handleRegisterVisit}>Guardar</Button>
+            <Button onClick={resetFields}>Cancelar</Button>
           </div>
         </Card>
       </main>
