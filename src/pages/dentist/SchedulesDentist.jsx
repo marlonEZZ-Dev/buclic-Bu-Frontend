@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import HeaderDentist from '../../components/dentist/HeaderDentist.jsx';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import Modal from "../../components/global/Modal.jsx";
 import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
-import { Flex, Button, message } from "antd";
+import { Flex, Button, message, Modal } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-
 
 const styles = {
   container: {
@@ -28,14 +26,14 @@ const styles = {
     padding: '0 1rem',
   },
   cssTable: {
-    width: '400px', // Ancho más amplio
-    maxWidth: '800px', // Ancho máximo aumentado
+    width: '400px',
+    maxWidth: '800px',
     borderCollapse: 'collapse',
     backgroundColor: 'white',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   tableCell: {
-    padding: '0.8rem', // Espaciado ajustado para mayor claridad
+    padding: '0.8rem',
     border: 'none',
     verticalAlign: 'middle',
   },
@@ -61,16 +59,19 @@ const styles = {
   },
 };
 
-
 dayjs.locale('es');
 
-export default function SchedulesPsych() {
-  const [scheduleData, setScheduleData] = useState([{ date: "", times: [""] }]);
-  const [saveChanges, setSaveChanges] = useState({ status: false, title: "", content: "", save: false });
+export default function SchedulesDentist() {
+  const [scheduleData, setScheduleData] = useState([]);
+  const [originalScheduleData, setOriginalScheduleData] = useState([]);
+  const [isDeleteTimeModalVisible, setIsDeleteTimeModalVisible] = useState(false);
+  const [isSaveChangesModalVisible, setIsSaveChangesModalVisible] = useState(false);
+  const [modifiedScheduleData, setModifiedScheduleData] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedDateIndex, setSelectedDateIndex] = useState(null);
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoading, setIsLoading] = useState(false);
-
   const userId = localStorage.getItem("userId");
 
   const showNotification = (type, content) => {
@@ -80,34 +81,181 @@ export default function SchedulesPsych() {
     });
   };
 
-  const handlerEdit = () => setIsEditing(!isEditing);
+  const fetchAvailableDates = async () => {
+    try {
+      const response = await api.get(`/appointment/${userId}`);
+      const fetchedData = response.data.availableDates || [];
 
-  const handlerSaveChangesFill = ({ title, content, save }) => {
-    setSaveChanges({
-      status: true,
-      title: title,
-      content: content,
-      save: save
+      const now = dayjs();
+      const scheduleDataFormatted = fetchedData.reduce((acc, item) => {
+        const [date, time] = item.dateTime.split('T');
+        const dateTime = dayjs(`${date}T${time}`);
+
+        // Asegurarse de que solo incluimos horarios futuros
+        if (dateTime.isAfter(now)) {
+          const existingDate = acc.find(entry => entry.date === date);
+
+          if (existingDate) {
+            // Agregar el `id` a cada hora en el formato de `times`
+            existingDate.times.push({ time, id: item.id, isNew: false });
+          } else {
+            acc.push({ id: item.id, date, times: [{ time, id: item.id, isNew: false }] });
+          }
+        }
+        return acc;
+      }, []);
+
+      setScheduleData(scheduleDataFormatted);
+      setOriginalScheduleData(scheduleDataFormatted);
+    } catch (error) {
+      console.error("Error al cargar los horarios disponibles:", error);
+      showNotification('error', 'Error al cargar los horarios. Intente nuevamente.');
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailableDates();
+  }, []);
+
+  const handleOpenDeleteTimeModal = (dateIndex, timeIndex) => {
+    setSelectedDateIndex(dateIndex);
+    setSelectedTimeIndex(timeIndex);
+    setIsDeleteTimeModalVisible(true);
+  };
+
+  const handleCloseDeleteTimeModal = () => {
+    setIsDeleteTimeModalVisible(false);
+    setSelectedDateIndex(null);
+    setSelectedTimeIndex(null);
+  };
+
+  const handleDeleteDate = async (date) => {
+    // Mostrar un modal de confirmación para que el usuario confirme la eliminación
+    Modal.confirm({
+      title: "Confirmar Eliminación",
+      content: "¿Está seguro de que desea eliminar todos los horarios de este día? Esta acción no se puede deshacer.",
+      okText: "Sí, eliminar",
+      cancelText: "Cancelar",
+      onOk: async () => {
+        // El usuario ha confirmado, procedemos a eliminar
+        const formattedDate = dayjs(date).format('DD/MM/YYYY');
+        try {
+          const response = await api.delete("/appointment/delete-dates", {
+            data: { date: formattedDate }
+          });
+
+          if (response.status === 204) {
+            showNotification("success", "Todos los horarios de la fecha han sido eliminados correctamente.");
+
+            // Recargar los datos desde el servidor después de eliminar la fecha completa
+            await fetchAvailableDates();
+          } else {
+            showNotification("error", "Error al eliminar los horarios. Intente nuevamente.");
+          }
+        } catch (error) {
+          console.error("Error al eliminar la fecha:", error);
+          showNotification("error", "Error al eliminar la fecha y sus horas. Intente nuevamente.");
+        }
+      },
+      onCancel: () => {
+        // El usuario ha cancelado la acción, no se hace nada
+        showNotification("info", "Eliminación cancelada.");
+      },
     });
   };
 
-  const handlerSaveChangesClose = () => {
-    setSaveChanges((obj) => ({ ...obj, status: false }));
+
+  // Función de eliminar una hora
+  const handleDeleteTime = async () => {
+    if (selectedDateIndex === null || selectedTimeIndex === null) {
+      showNotification('error', 'Índices de fecha u hora no definidos.');
+      return;
+    }
+
+    const updatedSchedule = [...scheduleData];
+    const updatedDate = updatedSchedule[selectedDateIndex];
+    const timeIdToDelete = updatedDate.times[selectedTimeIndex]?.id;
+
+    if (!timeIdToDelete) {
+      showNotification('error', 'ID de hora no encontrado.');
+      handleCloseDeleteTimeModal();
+      return;
+    }
+
+    try {
+      await api.delete(`/appointment/${timeIdToDelete}`);
+      showNotification('success', 'Hora eliminada correctamente.');
+
+      // Recargar los datos desde el servidor después de eliminar una hora
+      await fetchAvailableDates();
+    } catch (error) {
+      console.error("Error al eliminar la hora:", error);
+      showNotification('error', 'Error al eliminar la hora. Intente nuevamente.');
+    } finally {
+      handleCloseDeleteTimeModal();
+    }
   };
+
+  const handleCloseSaveChangesModal = () => {
+    setIsSaveChangesModalVisible(false);
+  };
+
+  // Llamar a `fetchAvailableDates` después de cada operación para actualizar el estado.
+  const confirmSaveChanges = async () => {
+    setIsLoading(true);
+
+    try {
+      const saved = await saveDataToBackend();
+      if (saved) {
+        showNotification('success', 'El horario fue asignado con éxito.');
+        setIsEditing(false);
+        handleCloseSaveChangesModal();
+
+        // Recargar los datos desde el servidor para evitar inconsistencias
+        await fetchAvailableDates();
+      } else {
+        showNotification('error', 'No se pudo guardar el horario. Intente de nuevo.');
+      }
+    } catch (error) {
+      showNotification('error', 'Hubo un error inesperado. Intente nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const handlerEdit = () => setIsEditing(true);
 
   const handlerDontEdit = () => {
     setIsEditing(false);
-    setScheduleData([{ date: "", times: [""] }]);
+    setScheduleData(originalScheduleData);
+    setModifiedScheduleData([]);
   };
 
   const handlerCreateDate = () => {
-    setScheduleData([...scheduleData, { date: "", times: [""] }]);
+    const lastDateEntry = scheduleData[scheduleData.length - 1];
+    if (lastDateEntry && (!lastDateEntry.date || lastDateEntry.times.some(time => time.time === ""))) {
+      showNotification('warning', 'Debe diligenciar la fecha y al menos una hora antes de agregar una nueva fecha.');
+      return;
+    }
+
+    setScheduleData([...scheduleData, { date: "", times: [{ time: "", isNew: true }] }]);
   };
 
   const handlerCreateTime = (index) => {
+    const timesArray = scheduleData[index].times;
+    if (timesArray[timesArray.length - 1].time === "") {
+      showNotification('warning', 'Debe diligenciar la hora anterior antes de agregar una nueva hora.');
+      return;
+    }
+
     const newSchedule = [...scheduleData];
-    newSchedule[index].times.push("");
+    newSchedule[index].times.push({ time: "", isNew: true });
     setScheduleData(newSchedule);
+
+    if (!modifiedScheduleData.some(mod => mod.id === scheduleData[index].id)) {
+      setModifiedScheduleData([...modifiedScheduleData, scheduleData[index]]);
+    }
   };
 
   const handlerDateChange = (date, index) => {
@@ -121,13 +269,18 @@ export default function SchedulesPsych() {
 
     const newSchedule = [...scheduleData];
     newSchedule[index].date = date;
+    newSchedule[index].times.forEach(time => time.isNew = true);
     setScheduleData(newSchedule);
+
+    if (!modifiedScheduleData.some(mod => mod.id === scheduleData[index].id)) {
+      setModifiedScheduleData([...modifiedScheduleData, scheduleData[index]]);
+    }
   };
 
-  const handlerTimeChange = (time, dateIndex, timeIndex) => {
+  const handlerTimeChange = (newTime, dateIndex, timeIndex) => {
     const now = dayjs();
     const selectedDate = dayjs(scheduleData[dateIndex].date);
-    const selectedTime = dayjs(`${scheduleData[dateIndex].date}T${time}`);
+    const selectedTime = dayjs(`${scheduleData[dateIndex].date}T${newTime}`);
 
     if (selectedDate.isSame(now, 'day') && selectedTime.isBefore(now)) {
       showNotification('warning', 'No se puede seleccionar una hora pasada en la fecha actual.');
@@ -135,14 +288,12 @@ export default function SchedulesPsych() {
     }
 
     const newSchedule = [...scheduleData];
-    newSchedule[dateIndex].times[timeIndex] = time;
+    newSchedule[dateIndex].times[timeIndex] = { time: newTime, isNew: true };
     setScheduleData(newSchedule);
-  };
 
-  const validateScheduleData = () => {
-    return scheduleData.some(schedule =>
-      schedule.date && schedule.times.some(time => time)
-    );
+    if (!modifiedScheduleData.some(mod => mod.id === scheduleData[dateIndex].id)) {
+      setModifiedScheduleData([...modifiedScheduleData, scheduleData[dateIndex]]);
+    }
   };
 
   const saveDataToBackend = async () => {
@@ -152,93 +303,64 @@ export default function SchedulesPsych() {
         return false;
       }
 
-      const availableDates = scheduleData.flatMap(schedule =>
+      // Filtra solo los horarios nuevos (isNew: true)
+      const availableDates = modifiedScheduleData.flatMap(schedule =>
         schedule.times
-          .filter(time => time && schedule.date)
-          .map(time => ({
+          .filter(({ isNew }) => isNew)  // Solo tiempos nuevos
+          .map(({ time }) => ({
             dateTime: `${schedule.date}T${time}`,
             professionalId: Number(userId),
             typeAppointment: "ODONTOLOGIA"
           }))
-      ).filter(item => item.dateTime && dayjs(item.dateTime).isValid());
+      );
 
       if (availableDates.length === 0) {
-        showNotification('warning', 'No hay horarios válidos para guardar. Por favor, ingrese al menos una fecha y hora.');
+        showNotification('warning', 'No hay horarios nuevos para guardar.');
         return false;
       }
 
       setIsLoading(true);
 
-      const requestData = {
-        availableDates,
-        professionalId: Number(userId)
-      };
+      const response = await api.post("/appointment/create-date", { availableDates, professionalId: Number(userId) });
 
-      console.log('Enviando datos:', requestData);
-
-      // Realiza la petición al backend
-      const response = await api.post("/appointment/create-date", requestData);
-
-      // Verificar el estado de la respuesta
       if (response?.status === 200 || response?.status === 201) {
-        return true; // Guardado exitoso
+        // Marcar todos los horarios como guardados (isNew: false) después de guardarlos
+        const updatedScheduleData = scheduleData.map(schedule => ({
+          ...schedule,
+          times: schedule.times.map(time => ({ ...time, isNew: false }))
+        }));
+
+        setScheduleData(updatedScheduleData);
+        setOriginalScheduleData(updatedScheduleData); // Actualizar el original
+        setModifiedScheduleData([]); // Limpiar el array de modificaciones
+
+        // Recargar los datos desde el servidor para asegurarse de que el estado es consistente
+        await fetchAvailableDates();
+        return true;
       } else {
-        throw new Error('Error al guardar los horarios.'); // Lanza un error si la respuesta no es 200 o 201
+        throw new Error('Error al guardar los horarios.');
       }
     } catch (error) {
       console.error('Error al guardar horarios:', error);
-
-      let errorMessage = 'Hubo un error al guardar los horarios.';
-
-      if (error.response) {
-        errorMessage = error.response.data?.message || 'Error desconocido del servidor.';
-      } else if (error.request) {
-        errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión a internet.';
+      if (error.response && error.response.status === 409) {
+        showNotification('error', 'El horario ya existe. Por favor, verifique e intente nuevamente.');
+      } else {
+        showNotification('error', 'Hubo un error al guardar los horarios.');
       }
-
-      showNotification('error', errorMessage);
       return false;
     } finally {
-      setIsLoading(false); // Detener el estado de carga
+      setIsLoading(false);
     }
   };
 
-
   const handlerBtnSave = () => {
-    if (!validateScheduleData()) {
-      showNotification('warning', 'Debe ingresar al menos una fecha y hora antes de guardar.');
+    if (modifiedScheduleData.length === 0) {
+      showNotification('warning', 'No hay cambios para guardar.');
       return;
     }
 
-    handlerSaveChangesFill({
-      title: "Guardar Cambios",
-      content: "¿Desea guardar estos cambios?",
-      save: true
-    });
+    setIsSaveChangesModalVisible(true);
   };
-
-  const confirmSave = async () => {
-    setIsLoading(true); // Iniciar la carga al comenzar el proceso de guardado
-
-    try {
-      const saved = await saveDataToBackend();
-      if (saved) {
-        showNotification('success', 'El horario fue asignado con éxito.'); // Notificación de éxito
-        setScheduleData([{ date: "", times: [""] }]); // Limpiar los inputs
-        handlerSaveChangesClose(); // Cerrar el modal
-        handlerDontEdit(); // Salir del modo de edición
-      } else {
-        showNotification('error', 'No se pudo guardar el horario. Intente de nuevo.'); // Notificación de error
-      }
-    } catch (error) {
-      console.error('Error en la confirmación de guardado:', error);
-      showNotification('error', 'Hubo un error inesperado. Intente nuevamente.');
-    } finally {
-      setIsLoading(false); // Detener el estado de carga después del proceso
-    }
-  };
-
-
 
   return (
     <>
@@ -246,32 +368,62 @@ export default function SchedulesPsych() {
       <HeaderDentist/>
 
       <div style={styles.container}>
+        {/* Modal para Confirmación de Guardar Cambios */}
         <Modal
-          open={saveChanges.status}
+          open={isSaveChangesModalVisible}
           footer={null}
-          onClose={handlerSaveChangesClose}
+          onClose={handleCloseSaveChangesModal}
           centered
         >
           <div style={styles.modalCentered}>
             <span style={styles.modalFontSizeTitle}>
-              <InfoCircleOutlined /> {saveChanges.title}
+              <InfoCircleOutlined /> Guardar Cambios
             </span>
-            <p style={styles.modalFontSizeContent}>{saveChanges.content}</p>
+            <p style={styles.modalFontSizeContent}>¿Desea guardar estos cambios?</p>
           </div>
           <div style={styles.buttonContainer}>
             <button
               className="button-cancel"
-              onClick={handlerSaveChangesClose}
+              onClick={handleCloseSaveChangesModal}
               disabled={isLoading}
             >
               No
             </button>
             <button
               className="button-save"
-              onClick={confirmSave}
+              onClick={confirmSaveChanges}
               disabled={isLoading}
             >
               {isLoading ? 'Guardando...' : 'Sí'}
+            </button>
+          </div>
+        </Modal>
+
+        {/* Modal para Confirmación de Eliminar Hora */}
+        <Modal
+          open={isDeleteTimeModalVisible}
+          footer={null}
+          onClose={handleCloseDeleteTimeModal}
+          centered
+        >
+          <div style={styles.modalCentered}>
+            <span style={styles.modalFontSizeTitle}>
+              <InfoCircleOutlined /> Confirmar Eliminación
+            </span>
+            <p style={styles.modalFontSizeContent}>¿Está seguro de que desea eliminar esta hora?</p>
+          </div>
+          <div style={styles.buttonContainer}>
+            <button
+              className="button-cancel"
+              onClick={handleCloseDeleteTimeModal}
+            >
+              No
+            </button>
+            <button
+              className="button-save"
+              onClick={handleDeleteTime}
+            >
+              Sí
             </button>
           </div>
         </Modal>
@@ -282,111 +434,110 @@ export default function SchedulesPsych() {
         </div>
 
         <Flex justify="center" align="center" style={styles.tableWrapper}>
-          {isEditing ? (
-            <table style={styles.cssTable}>
-              <thead>
+          <table style={styles.cssTable}>
+            <thead>
+              <tr>
+                <th style={styles.tableHeader}>Fecha</th>
+                <th style={styles.tableHeader}>Horarios</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scheduleData.length === 0 ? (
                 <tr>
-                  <th style={styles.tableHeader}>Fecha</th>
-                  <th style={styles.tableHeader}>Hora</th>
+                  <td colSpan="2" style={{ textAlign: 'center', padding: '1rem' }}>
+                    No hay horarios disponibles. Presiona "Agregar Fecha" para comenzar.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {scheduleData.map((schedule, dateIndex) => (
+              ) : (
+                scheduleData.map((schedule, dateIndex) => (
                   <React.Fragment key={`fragment-${dateIndex}`}>
                     <tr key={`dateRow-${dateIndex}`}>
                       <td style={styles.tableCell}>
-                        <DateSpanish
-                          value={schedule.date}
-                          onChange={(date) => handlerDateChange(date, dateIndex)}
-                          disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
-                          disabled={!isEditing || isLoading}
-                          style={{ width: '100%' }} // Ajuste para ocupar el espacio disponible
-                        />
+                        {isEditing ? (
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <DateSpanish
+                              value={schedule.date}
+                              onChange={(date) => handlerDateChange(date, dateIndex)}
+                              disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
+                              disabled={!isEditing || !schedule.times.some(time => time.isNew)}
+                              style={{ width: '100%' }}
+                            />
+                            <Button
+                              type="link"
+                              onClick={() => handleDeleteDate(schedule.date)} // Llamada a `handleDeleteDate`
+                              style={{ color: 'red', marginLeft: '5px' }}
+                              disabled={isLoading}
+                            >
+                              Eliminar
+                            </Button>
+                          </div>
+                        ) : (
+                          <span>{schedule.date}</span>
+                        )}
                       </td>
+
                       <td style={styles.tableCell}>
-                        <TimeSpanish
-                          value={schedule.times[0]}
-                          onChange={(time) => handlerTimeChange(time, dateIndex, 0)}
-                          disabledHours={() => {
-                            const selectedDate = dayjs(schedule.date);
-                            if (selectedDate.isSame(dayjs(), 'day')) {
-                              return [...Array(dayjs().hour()).keys()];
-                            }
-                            return [];
-                          }}
-                          disabled={!isEditing || isLoading}
-                          style={{ width: '100%' }} // Ajuste para ocupar el espacio disponible
-                        />
+                        {schedule.times.map((time, timeIndex) => (
+                          <div key={`time-${dateIndex}-${timeIndex}`} style={{ display: 'flex', alignItems: 'center' }}>
+                            {isEditing ? (
+                              <>
+                                <TimeSpanish
+                                  value={time.time}
+                                  onChange={(newTime) => handlerTimeChange(newTime, dateIndex, timeIndex)}
+                                  disabled={!isEditing || !time.isNew}
+                                  style={{ width: '100%', marginBottom: '0.5rem' }}
+                                />
+                                <Button
+                                  type="link"
+                                  onClick={() => handleOpenDeleteTimeModal(dateIndex, timeIndex)}
+                                  style={{ color: 'red', marginLeft: '5px' }}
+                                >
+                                  X
+                                </Button>
+                              </>
+                            ) : (
+                              <span style={{ display: 'block', marginBottom: '0.5rem' }}>{time.time}</span>
+                            )}
+                          </div>
+                        ))}
+                        {isEditing && (
+                          <Button
+                            type="link"
+                            style={styles.linkButton}
+                            onClick={() => handlerCreateTime(dateIndex)}
+                            disabled={isLoading}
+                          >
+                            +<span style={styles.decorateText}> Agregar Hora</span>
+                          </Button>
+                        )}
                       </td>
                     </tr>
 
-                    {schedule.times.slice(1).map((timeValue, timeIndex) => (
-                      <tr key={`time-${dateIndex}-${timeIndex + 1}`}>
-                        <td style={styles.tableCell}></td>
-                        <td style={styles.tableCell}>
-                          <TimeSpanish
-                            value={timeValue}
-                            onChange={(time) => handlerTimeChange(time, dateIndex, timeIndex + 1)}
-                            disabled={!isEditing || isLoading}
-                            style={{ width: '100%' }} // Ajuste para ocupar el espacio disponible
-                          />
-                        </td>
+                    {dateIndex < scheduleData.length - 1 && (
+                      <tr key={`separator-${dateIndex}`}>
+                        <td colSpan={2} style={{ borderBottom: '2px solid #f0f0f0', height: '0.5rem' }}></td>
                       </tr>
-                    ))}
-
-                    <tr key={`RowLink-${dateIndex}`}>
-                      <td style={styles.tableCell}></td>
-                      <td style={styles.tableCell}>
-                        <Button
-                          type="link"
-                          style={styles.linkButton}
-                          onClick={() => handlerCreateTime(dateIndex)}
-                          disabled={!isEditing || isLoading}
-                        >
-                          +<span style={styles.decorateText}> Agregar Hora</span>
-                        </Button>
-                      </td>
-                    </tr>
+                    )}
                   </React.Fragment>
-                ))}
-
+                ))
+              )}
+              {isEditing && (
                 <tr>
-                  <td colSpan={2} style={{ textAlign: 'center', padding: '0.5rem' }}>
+                  <td colSpan="2" style={{ textAlign: 'center', padding: '0.5rem' }}>
                     <Button
                       type="link"
                       style={styles.linkButton}
                       onClick={handlerCreateDate}
-                      disabled={!isEditing || isLoading}
+                      disabled={isLoading}
                     >
                       +<span style={styles.decorateText}> Agregar Fecha</span>
                     </Button>
                   </td>
                 </tr>
-              </tbody>
-            </table>
-          ) : (
-            <table style={styles.cssTable}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Fecha</th>
-                  <th style={styles.tableHeader}>Hora</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={styles.tableCell}>
-                    <DateSpanish placeholder="Fecha" disabled style={{ width: '100%' }} />
-                  </td>
-                  <td style={styles.tableCell}>
-                    <TimeSpanish placeholder="Hora" disabled style={{ width: '100%' }} />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          )}
+              )}
+            </tbody>
+          </table>
         </Flex>
-
-
 
         <Flex justify="center" align="center" style={styles.marginTopEdit} gap={30}>
           {!isEditing && (

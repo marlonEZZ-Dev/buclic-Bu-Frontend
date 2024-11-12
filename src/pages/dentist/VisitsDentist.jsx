@@ -1,178 +1,149 @@
 import React, { useState } from "react";
+import { DatePicker, Form, Card, Space, Input, Select, Row, Col, Button, message } from "antd";
+import esLocale from "antd/es/date-picker/locale/es_ES";
 import HeaderDentist from "../../components/dentist/HeaderDentist";
 
-export default function VisitsDentist() {
-    const [formData, setFormData] = useState({
-        fecha: "",
-        codigoCedula: "",
-        nombre: "",
-        planArea: "",
-        motivo: "",
-        descripcion: ""
+const VisitsDentist = () => {
+  const [fecha, setFecha] = useState(null);
+  const [codigoCedula, setCodigoCedula] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [planArea, setPlanArea] = useState("");
+  const [motivo, setMotivo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+
+  const [form] = Form.useForm();
+
+  const motivoOptions = [
+    "Ayudas diagnósticas",
+    "Formulación de medicamentos",
+    "Higiene oral",
+    "Remisión a otras dependencias",
+    "Resina de fotocurado",
+    "Revaloración",
+    "Urgencia odontológica",
+    "Valoración primera vez",
+  ];
+
+  const handleRegisterVisit = () => {
+    form.validateFields().then(() => {
+      const payload = {
+        fecha,
+        codigoCedula,
+        nombre,
+        apellido,
+        planArea,
+        motivo,
+        descripcion,
+      };
+      console.log("Datos del formulario:", payload);
+      message.success("Visita registrada exitosamente");
+      resetFields();
+    }).catch(() => {
+      message.error("Por favor, complete todos los campos obligatorios");
     });
+  };
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+  const resetFields = () => {
+    setFecha(null);
+    setCodigoCedula("");
+    setNombre("");
+    setApellido("");
+    setPlanArea("");
+    setMotivo("");
+    setDescripcion("");
+    form.resetFields();
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Aquí agregarías la lógica para enviar los datos del formulario al backend
-        console.log(formData);
-    };
+  return (
+    <>
+      <HeaderDentist />
+      <main style={{ marginTop: "100px" }}>
+        <h1 style={{ textAlign: "center", color: "#d32f2f", fontSize: "24px", fontWeight: "bold" }}>Registro de visitas</h1>
+        <p style={{ textAlign: "center", color: "#555", fontSize: "16px", marginBottom: "20px" }}>
+          Aquí se podrán registrar las visitas de usuarios al servicio
+        </p>
+        <Card bordered style={{ width: "100%", maxWidth: "700px", margin: "0 auto" }}>
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            <Form form={form} layout="vertical">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="Fecha" name="fecha" rules={[{ required: true, message: "La fecha es obligatoria" }]}>
+                    <DatePicker
+                      locale={esLocale}
+                      onChange={(date) => setFecha(date)}
+                      value={fecha}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Código/Cédula" name="codigoCedula" rules={[{ required: true, message: "El código/cedula es obligatorio" }]}>
+                    <Input
+                      placeholder="Código/cédula paciente"
+                      value={codigoCedula}
+                      onChange={(e) => setCodigoCedula(e.target.value)}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Nombre" name="nombre" rules={[{ required: true, message: "El nombre es obligatorio" }]}>
+                    <Input
+                      placeholder="Nombre del paciente"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Apellido" name="apellido" rules={[{ required: true, message: "El apellido es obligatorio" }]}>
+                    <Input
+                      placeholder="Apellido del paciente"
+                      value={apellido}
+                      onChange={(e) => setApellido(e.target.value)}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Plan/Área Dependencia" name="planArea" rules={[{ required: true, message: "El plan de dependencia es obligatorio" }]}>
+                    <Input
+                      placeholder="Plan o área de dependencia"
+                      value={planArea}
+                      onChange={(e) => setPlanArea(e.target.value)}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Motivo" name="motivo" rules={[{ required: true, message: "El motivo es obligatorio" }]}>
+                    <Select
+                      value={motivo}
+                      onChange={(value) => setMotivo(value)}
+                      options={motivoOptions.map((option) => ({ value: option, label: option }))}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item label="Descripción de la visita" name="descripcion" rules={[{ required: true, message: "La descripción es obligatoria" }]}>
+                    <Input.TextArea
+                      placeholder="Descripción de la visita"
+                      value={descripcion}
+                      onChange={(e) => setDescripcion(e.target.value)}
+                      rows={4}
+                      maxLength={200}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Space>
+          <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+            <Button type="primary" className='button-save' onClick={handleRegisterVisit}>Guardar</Button>
+            <Button className='button-cancel' onClick={resetFields}>Cancelar</Button>
+          </div>
+        </Card>
+      </main>
+    </>
+  );
+};
 
-    return (
-        <div style={{ marginTop: "80px" }}>
-            <HeaderDentist />
-            <div style={{ maxWidth: "700px", margin: "0 auto", padding: "20px" }}>
-                <h2 style={{ textAlign: "center", color: "#d32f2f", fontSize: "24px", fontWeight: "bold" }}>Registro de visitas</h2>
-                <p style={{ textAlign: "center", color: "#555", fontSize: "16px", marginBottom: "20px" }}>
-                    Aquí se podrán registrar las visitas de usuarios al servicio
-                </p>
-                <form 
-                    onSubmit={handleSubmit} 
-                    style={{ 
-                        background: "#fff", 
-                        padding: "30px", 
-                        borderRadius: "12px", 
-                        boxShadow: "0px 8px 24px rgba(0,0,0,0.15)", 
-                        display: "flex", 
-                        flexDirection: "column",
-                        gap: "20px"
-                    }}
-                >
-                    <div style={{ display: "flex", gap: "20px" }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ fontWeight: "500", color: "#333" }}>Fecha</label>
-                            <input 
-                                type="date" 
-                                name="fecha" 
-                                value={formData.fecha} 
-                                onChange={handleChange} 
-                                required 
-                                style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
-                            />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ fontWeight: "500", color: "#333" }}>Código/cédula</label>
-                            <div style={{ display: "flex" }}>
-                                <input 
-                                    type="text" 
-                                    name="codigoCedula" 
-                                    placeholder="Código/cédula paciente" 
-                                    value={formData.codigoCedula} 
-                                    onChange={handleChange} 
-                                    required 
-                                    style={{ flex: 1, padding: "10px", borderRadius: "8px 0 0 8px", border: "1px solid #ccc" }}
-                                />
-                                <button 
-                                    type="button" 
-                                    style={{ 
-                                        padding: "10px", 
-                                        backgroundColor: "#e0e0e0", 
-                                        color: "#555", 
-                                        border: "1px solid #ccc", 
-                                        borderRadius: "0 8px 8px 0", 
-                                        cursor: "pointer" 
-                                    }}
-                                >
-                                    🔎
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ display: "flex", gap: "20px" }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ fontWeight: "500", color: "#333" }}>Nombre</label>
-                            <input 
-                                type="text" 
-                                name="nombre" 
-                                placeholder="Nombre del paciente" 
-                                value={formData.nombre} 
-                                onChange={handleChange} 
-                                required 
-                                style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
-                            />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ fontWeight: "500", color: "#333" }}>Plan/área dependencia</label>
-                            <input 
-                                type="text" 
-                                name="planArea" 
-                                placeholder="Plan/área dependencia" 
-                                value={formData.planArea} 
-                                onChange={handleChange} 
-                                required 
-                                style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label style={{ fontWeight: "500", color: "#333" }}>Motivo</label>
-                        <select 
-                            name="motivo" 
-                            value={formData.motivo} 
-                            onChange={handleChange} 
-                            required 
-                            style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
-                        >
-                            <option value="">Seleccione</option>
-                            <option value="ayudas_diagnosticas">Ayudas diagnósticas</option>
-                            <option value="formulacion_medicamentos">Formulación de medicamentos</option>
-                            <option value="higiene_oral">Higiene oral</option>
-                            <option value="remision_dependencias">Remisión a otras dependencias</option>
-                            <option value="resina_fotocurado">Resina de fotocurado</option>
-                            <option value="revaloracion">Revaloración</option>
-                            <option value="urgencia_odontologica">Urgencia odontológica</option>
-                            <option value="valoracion_primera_vez">Valoración primera vez</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style={{ fontWeight: "500", color: "#333" }}>Descripción de la visita</label>
-                        <textarea 
-                            name="descripcion" 
-                            placeholder="Descripción de la visita" 
-                            value={formData.descripcion} 
-                            onChange={handleChange} 
-                            required 
-                            style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", minHeight: "100px" }}
-                        />
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "20px" }}>
-                        <button 
-                            type="submit" 
-                            style={{ 
-                                padding: "12px 30px", 
-                                backgroundColor: "#d32f2f", 
-                                color: "#fff", 
-                                border: "none", 
-                                borderRadius: "8px", 
-                                cursor: "pointer", 
-                                fontWeight: "500"
-                            }}
-                        >
-                            Guardar
-                        </button>
-                        <button 
-                            type="button" 
-                            style={{ 
-                                padding: "12px 30px", 
-                                backgroundColor: "#f8f8f8", 
-                                color: "#d32f2f", 
-                                border: "1px solid #d32f2f", 
-                                borderRadius: "8px", 
-                                cursor: "pointer", 
-                                fontWeight: "500"
-                            }}
-                        >
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-}
+export default VisitsDentist;
