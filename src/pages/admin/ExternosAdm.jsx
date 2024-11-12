@@ -32,6 +32,12 @@ const ExternosAdmin = () => {
     try {
       const values = await form.validateFields();
 
+      // Validación de si los ajustes de horas y cantidad de becas están definidos
+      if (!settings.starLunch || !settings.endLunch || !settings.starSnack || !settings.endSnack) {
+        message.error('Aún no hay reservas disponibles, por favor configure los horarios y la cantidad de becas.');
+        return;
+      }
+
       // Validación de si la reserva está dentro del rango permitido
       const currentTime = new Date();
       const startLunch = new Date(`${currentTime.toISOString().split('T')[0]}T${settings.starLunch}`);
@@ -94,7 +100,7 @@ const ExternosAdmin = () => {
         } else if (status === 404) {
           message.error('Recurso no encontrado.');
         } else if (status === 403) {
-          message.error('No tienes autorización para realizar esta reserva.');
+          message.error('Ya realizaste la reserva.');
         } else if (status === 409) {
           message.error('No hay cupos disponibles para esta reserva.');
         } else if (status === 500) {
@@ -155,17 +161,16 @@ const ExternosAdmin = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Obtiene las configuraciones para reservar
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const response = await api.get('/setting');
-        setSettings(response.data[0]?.settingRequest);  // Almacena solo el objeto de configuración
+        setSettings(response.data[0]?.settingRequest || {}); // Almacena el objeto de configuración, si no existe se establece como un objeto vacío
       } catch (error) {
         console.error('Error al obtener las configuraciones', error);
       }
     };
-
+  
     fetchSettings();
   }, []);
 
@@ -183,7 +188,6 @@ const ExternosAdmin = () => {
 
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
 
     const hour12 = hours % 12 || 12;
     const ampm = hours >= 12 ? 'PM' : 'AM';
