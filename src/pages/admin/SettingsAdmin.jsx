@@ -126,6 +126,7 @@ const SettingsAdmin = () => {
 
     const handleCancelClick = () => {
         setSettingData(initialSettingData); // Restablece los datos al original
+        setErrors({}); // Limpia los mensajes de error
         setIsEditing(false); // Cambia a modo no edición
     };
 

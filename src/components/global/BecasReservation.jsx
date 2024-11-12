@@ -116,12 +116,12 @@ const BecasReservation = () => {
 
       // Verificar disponibilidad de reservas
       if (selectedType === 'almuerzo' && availability.remainingSlotsLunch === 0) {
-        message.error('No hay reservas disponibles para almuerzo');
+        message.error('No hay reservas disponibles para almuerzo.');
         return; // Salir de la función si no hay disponibilidad
       }
 
       if (selectedType === 'refrigerio' && availability.remainingSlotsSnack === 0) {
-        message.error('No hay reservas disponibles para refrigerio');
+        message.error('No hay reservas disponibles para refrigerio.');
         return; // Salir de la función si no hay disponibilidad
       }
 
@@ -133,7 +133,7 @@ const BecasReservation = () => {
 
       const response = await api.post('/reservations/create', reservationData);
 
-      // Actualizar la reserva inmediatamente con los datos del backend
+      // Comprobar el código de estado y los datos de respuesta
       if (selectedType === 'almuerzo') {
         setAlmuerzoReservation({
           hasReservation: true,
@@ -151,9 +151,27 @@ const BecasReservation = () => {
       }
 
       message.success('Reserva creada con éxito');
+
     } catch (error) {
-      console.error('Error al crear la reserva:', error);
-      message.error('Aun no es tu hora de reserva');
+      if (error.response) {
+        // Manejar códigos de estado específicos del backend
+        switch (error.response.status) {
+          case 404:
+            message.error('Recurso no encontrado');
+            break;
+          case 403:
+            message.error('No es tu hora de reserva');
+            break;
+          case 409:
+            message.error('No hay cupos disponibles');
+            break;
+          default:
+            message.error('Error al crear la reserva');
+        }
+      } else {
+        console.error('Error inesperado:', error);
+        message.error('Aun no es tu hora de reserva');
+      }
     }
   };
 
