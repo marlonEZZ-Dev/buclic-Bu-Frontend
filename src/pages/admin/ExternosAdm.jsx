@@ -10,7 +10,14 @@ const ExternosAdmin = () => {
   const [becas, setBecas] = useState('');
   const [cedula, setCedula] = useState('');
   const [externoData, setExternoData] = useState(null);
+
+  const [availability, setAvailability] = useState(0);
+  const [availabilityType, setAvailabilityType] = useState(''); // Agregado para tipo de disponibilidad
+
+  const [settings, setSettings] = useState(null);  // Estado para almacenar las configuraciones de becas
+
   const [form] = Form.useForm();
+
 
   const becasOptions = [
     { value: 'Almuerzo', label: 'Almuerzo' },
@@ -25,6 +32,39 @@ const ExternosAdmin = () => {
     try {
       const values = await form.validateFields();
 
+      // Validación de si la reserva está dentro del rango permitido
+      const currentTime = new Date();
+      const startLunch = new Date(`${currentTime.toISOString().split('T')[0]}T${settings.starLunch}`);
+      const endLunch = new Date(`${currentTime.toISOString().split('T')[0]}T${settings.endLunch}`);
+      const startSnack = new Date(`${currentTime.toISOString().split('T')[0]}T${settings.starSnack}`);
+      const endSnack = new Date(`${currentTime.toISOString().split('T')[0]}T${settings.endSnack}`);
+
+      const selectedTime = currentTime;
+
+      // Validación de hora para almuerzo
+      if (becas === 'Almuerzo' && (selectedTime < startLunch || selectedTime > endLunch)) {
+        message.error('No está en el rango de hora para realizar la reserva de almuerzo');
+        return;
+      }
+
+      // Validación de hora para refrigerio
+      if (becas === 'Refrigerio' && (selectedTime < startSnack || selectedTime > endSnack)) {
+        message.error('No está en el rango de hora para realizar la reserva de refrigerio');
+        return;
+      }
+
+      // Validación de disponibilidad
+      if (becas === 'Almuerzo' && availability <= 0) {
+        message.error('No hay almuerzos disponibles');
+        return;
+      }
+
+      if (becas === 'Refrigerio' && availability <= 0) {
+        message.error('No hay refrigerios disponibles');
+        return;
+      }
+
+
       const requestPayload = {
         username: values.cedula,
         name: values.name,
@@ -37,7 +77,7 @@ const ExternosAdmin = () => {
 
       const response = await api.post('/reservations/create-extern', requestPayload);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         message.success('Reserva realizada con éxito.');
         form.resetFields();
         setBecas('');
@@ -48,11 +88,16 @@ const ExternosAdmin = () => {
       if (error.response) {
         const { status, data } = error.response;
 
+        // Manejo específico de errores según los códigos de estado
         if (status === 400 && data.message) {
-          // Mostrar mensaje de error específico del backend
-          message.error(data.message);
+          message.error(data.message); // Error específico del backend
+        } else if (status === 404) {
+          message.error('Recurso no encontrado.');
+        } else if (status === 403) {
+          message.error('No tienes autorización para realizar esta reserva.');
+        } else if (status === 409) {
+          message.error('No hay cupos disponibles para esta reserva.');
         } else if (status === 500) {
-          // Error de servidor
           message.error('Error del servidor. Inténtalo de nuevo más tarde.');
         } else {
           message.error('Ocurrió un error desconocido.');
@@ -90,6 +135,62 @@ const ExternosAdmin = () => {
     }
   };
 
+  // Llama al endpoint para obtener la disponibilidad por hora
+  const fetchAvailability = async () => {
+    try {
+      const response = await api.get('/reservations/availability-per-hour');
+      setAvailability(response.data.availability || 0);
+      setAvailabilityType(response.data.type || ''); // Actualiza el tipo de disponibilidad
+    } catch (error) {
+      console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
+      message.error('No se pudo obtener la disponibilidad.');
+      setAvailability(0);
+      setAvailabilityType(''); // Resetea el tipo en caso de error
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailability();
+    const intervalId = setInterval(fetchAvailability, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Obtiene las configuraciones para reservar
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await api.get('/setting');
+        setSettings(response.data[0]?.settingRequest);  // Almacena solo el objeto de configuración
+      } catch (error) {
+        console.error('Error al obtener las configuraciones', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+
+  const formatTime = (timeString) => {
+    const currentDate = new Date().toISOString().split('T')[0]; // Solo la fecha actual (YYYY-MM-DD)
+    const formattedTimeString = `${currentDate}T${timeString}`;
+
+    const date = new Date(formattedTimeString);
+
+    if (isNaN(date)) {
+      console.error('Fecha inválida:', formattedTimeString);
+      return 'Hora inválida';
+    }
+
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    const formattedTime = `${hour12}:${String(minutes).padStart(2, '0')} ${ampm}`;
+    return formattedTime;
+  };
 
 
   return (
@@ -98,6 +199,7 @@ const ExternosAdmin = () => {
       <main className="becas-section" style={{ marginTop: '100px' }}>
         <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Reserva para externos</h1>
         <p style={{ marginBottom: '6px' }}>Aquí se podrán registrar las reservas para usuarios externos.</p>
+
 
         <Card
           bordered={true}
@@ -109,6 +211,23 @@ const ExternosAdmin = () => {
             justifyContent:
               'center'
           }}>
+
+          {settings && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', borderRadius: '8px' }}>
+              <div style={{ flex: 1, textAlign: 'center', padding: '10px', borderRight: '2px solid #ddd' }}>
+                Reserva almuerzo entre <strong>{formatTime(settings.starLunch)}</strong> y <strong>{formatTime(settings.endLunch)}</strong>
+              </div>
+              <div style={{ flex: 1, textAlign: 'center', padding: '10px' }}>
+                Reserva refrigerio entre <strong>{formatTime(settings.starSnack)}</strong> y <strong>{formatTime(settings.endSnack)}</strong>
+              </div>
+            </div>
+          )}
+
+          <Space style={{ marginTop: '20px', alignItems: 'center' }}>
+            <p style={{ fontWeight: 'bold' }}>
+              Reservas disponibles {availabilityType.toLowerCase()}: {availability} {/* Muestra el tipo y la disponibilidad */}
+            </p>
+          </Space>
 
           <Space direction="vertical" size={16} style={{ width: '95%' }}>
             <Form form={form} layout="vertical"> {/* Aquí se conecta la instancia de formulario */}
@@ -189,7 +308,7 @@ const ExternosAdmin = () => {
             <Button className="button-cancel" onClick={() => form.resetFields()}>Cancelar</Button>
           </div>
         </Card>
-      </main>
+      </main >
     </>
   );
 };
