@@ -171,7 +171,7 @@ export default function LoginPage() {
 
             <div style={{ textAlign: "center", marginTop: 16 }}>
               <a onClick={manejarClick} style={{ color: "#C20E1A" }}>
-                ¿Olvidó su nombre de usuario o contraseña?
+                ¿Olvidaste tu contraseña?
               </a>
             </div>
           </form>
