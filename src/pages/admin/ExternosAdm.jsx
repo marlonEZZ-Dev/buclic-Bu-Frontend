@@ -182,8 +182,7 @@ const ExternosAdmin = () => {
     const date = new Date(formattedTimeString);
 
     if (isNaN(date)) {
-      console.error('Fecha inválida:', formattedTimeString);
-      return 'Hora inválida';
+      return 'Hora por definir';
     }
 
     const hours = date.getHours();
