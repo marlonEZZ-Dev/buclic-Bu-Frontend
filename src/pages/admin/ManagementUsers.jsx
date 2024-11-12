@@ -900,10 +900,11 @@ useEffect(() => {
             }else{
               setPressedEdit(true)
               if(handlerVerify(objectSelected, isModalEdit)){
-                if(objectSelected.roles.includes("MONITOR")) objectSelected.roles[1] = "ESTUDIANTE"
+                if(objectSelected.roles.includes("MONITOR") && !objectSelected.roles.includes("ESTUDIANTE")){
+                  objectSelected.roles[1] = "ESTUDIANTE"
+                }
                 handlerSendUserEdited()
                 .then( () => {
-                  console.dir(objectSelected)
                   setObjectSelectedClone(null)
                   handlerCloseModalEdit(false)
                   setObjectSelected(null)

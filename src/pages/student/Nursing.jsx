@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const { Text } = Typography;
 
@@ -509,6 +510,7 @@ const Nursing = () => {
           </Col>
         </Row>
       </main>
+      <FooterProfessionals />
     </>
   );
 };

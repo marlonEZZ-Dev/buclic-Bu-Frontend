@@ -11,6 +11,7 @@ import Header from "../../components/auth/Header";
 import api from "../../api";
 import { ACCESS_TOKEN } from "../../constants";
 import "../../styles/HomePage.css";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -170,12 +171,14 @@ export default function LoginPage() {
 
             <div style={{ textAlign: "center", marginTop: 16 }}>
               <a onClick={manejarClick} style={{ color: "#C20E1A" }}>
-                ¿Olvidó su nombre de usuario o contraseña?
+                ¿Olvidaste tu contraseña?
               </a>
             </div>
           </form>
         </Card>
       </div>
+      <FooterProfessionals />
     </Fragment>
+    
   );
 }

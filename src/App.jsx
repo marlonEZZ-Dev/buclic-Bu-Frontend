@@ -63,6 +63,10 @@ import PasswordWorker from "./pages/worker/PasswordWorker";
 import PasswordDentist from "./pages/dentist/PasswordDentist";
 import ExternosAdmin from "./pages/admin/ExternosAdm";
 import Externos from "./pages/monitor/Externos"
+import NursePsych from "./pages/psychology/NursePsych";
+import DentistPsych from "./pages/psychology/DentistPsych";
+import PsychologistDent from "./pages/dentist/PsychologistDent";
+import NursingDent from "./pages/dentist/NursingDent";
 
 
 function App() {
@@ -111,6 +115,8 @@ function App() {
         <Route path="/psicologo" element={<ProtectedRoute allowedRoles={["PSICOLOGO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de psicólogo */}
         <Route path="cita" element={<AppointmentsPsych />} />
+        <Route path="enfermeria" element={<NursePsych />} />
+        <Route path="odontologia" element={<DentistPsych />} />
         <Route path="horario" element={<SchedulesPsych />} />
         <Route path="agenda" element={<AgendaPsych />} />
         <Route path="seguimiento" element={<Tracking />} />
@@ -136,6 +142,8 @@ function App() {
         <Route path="/odontologia" element={<ProtectedRoute allowedRoles={["ODONTOLOGO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de odontología */}
         <Route path="citas" element={<AppointmentDentist />} />
+        <Route path="psicologia" element={<PsychologistDent />} />
+        <Route path="enfermeria" element={<NursingDent />} />
         <Route path="horarios" element={<SchedulesDentist />} />
         <Route path="agenda" element={<AgendaDentist />} />
         <Route path="visitas" element={<VisitsDentist />} />
