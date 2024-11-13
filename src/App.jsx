@@ -69,6 +69,9 @@ import PsychologistDent from "./pages/dentist/PsychologistDent";
 import NursingDent from "./pages/dentist/NursingDent";
 import PsychologistNurse from "./pages/nurse/PsychologistNurse";
 import DentistNurse from "./pages/nurse/DentistNurse";
+import PsychologistMonitor from "./pages/monitor/PsychologistMonitor";
+import NursingMonitor from "./pages/monitor/NursingMonitor";
+import DentistMonitor from "./pages/monitor/DentistMonitor";
 
 
 function App() {
@@ -160,6 +163,9 @@ function App() {
         {/* Rutas hijas de monitor */}
         <Route path="becas" element={<BecasMonitor />} />
         <Route path="citas" element={<AppointmentMonitor />} />
+        <Route path="psicologia" element={<PsychologistMonitor />} />
+        <Route path="enfermeria" element={<NursingMonitor />} />
+        <Route path="odontologia" element={<DentistMonitor />} />
         <Route path="reservas" element={<Reservation />} />
         <Route path="menu" element={<MenuMonitor />} />
         <Route path="ajustes" element={<SettingMonitor />} />
