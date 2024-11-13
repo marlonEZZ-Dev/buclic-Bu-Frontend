@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -20,6 +19,7 @@ import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 const { Text } = Typography;
 
 const PsychologistNurse = () => {
@@ -490,6 +490,7 @@ const PsychologistNurse = () => {
           </Col>
         </Row>
       </main>
+      <FooterProfessionals/>
     </>
   );
 };
