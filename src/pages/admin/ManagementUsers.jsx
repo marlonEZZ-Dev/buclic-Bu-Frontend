@@ -230,15 +230,19 @@ const handlePageChange = page => {
   };
 
   const getValueComplexSelectInModal = () => {
-    if(isStudent) return getStatusValue(objectSelected.isActive)
-    if(isFuncionary) {
+    if (isStudent) return getStatusValue(objectSelected.isActive)
+    if (isFuncionary) {
       return objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]
     }
-    if(isBeneficiary && objectSelected.lunchBeneficiary){
+    if (isBeneficiary && objectSelected.lunchBeneficiary) {
       return "Beneficiario almuerzo"
-    }else{
-      return "Beneficiario refrigerio"
-    }   
+    } else {
+      if (isBeneficiary && objectSelected.lunchBeneficiary) {
+        return "Beneficiario refrigerio"
+      } else {
+        return null
+      }
+    }
   }
 
   const getOptionsComplexSelectInModal = () => {
