@@ -67,6 +67,8 @@ import NursePsych from "./pages/psychology/NursePsych";
 import DentistPsych from "./pages/psychology/DentistPsych";
 import PsychologistDent from "./pages/dentist/PsychologistDent";
 import NursingDent from "./pages/dentist/NursingDent";
+import PsychologistNurse from "./pages/nurse/PsychologistNurse";
+import DentistNurse from "./pages/nurse/DentistNurse";
 
 
 function App() {
@@ -128,6 +130,8 @@ function App() {
         <Route path="/enfermeria" element={<ProtectedRoute allowedRoles={["ENFERMERO"]}><Outlet /></ProtectedRoute>}>
         {/* Rutas hijas de enfermería */}
         <Route path="citas" element={<AppointmentsNurse />} />
+        <Route path="psicologia" element={<PsychologistNurse />} />
+        <Route path="odontologia" element={<DentistNurse />} />
         <Route path="horarios" element={<SchedulesNurse />} />
         <Route path="agendas" element={<AgendaNurse />} />
         <Route path="actividades" element={<VisitsNurse />} />
