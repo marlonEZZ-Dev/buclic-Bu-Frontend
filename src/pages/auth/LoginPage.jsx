@@ -64,7 +64,7 @@ export default function LoginPage() {
         localStorage.setItem("userSemester", userResponse.semester);
 
         // Redireccionar basado en el rol
-        const userRole = roles[0];
+        const userRole = roles.includes("MONITOR") ? "MONITOR" : roles[0];
         localStorage.setItem("userRole", userRole);
         const route = roleToRouteMap[userRole];
 

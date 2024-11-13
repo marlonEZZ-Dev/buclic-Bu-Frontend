@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -19,10 +18,11 @@ import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import HeaderDentist from "../../components/dentist/HeaderDentist.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 const { Text } = Typography;
 
-const Psychologist = () => {
+const PsychologistNurse = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
@@ -292,12 +292,12 @@ const Psychologist = () => {
   };
 
   const handleBack = () => {
-    navigate("/estudiante/citas");
+    navigate("/enfermeria/citas");
   };
 
   return (
     <>
-      <TopNavbar />
+      <HeaderDentist />
       <main
         className="psicologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
@@ -495,4 +495,4 @@ const Psychologist = () => {
   );
 };
 
-export default Psychologist;
+export default PsychologistNurse;
