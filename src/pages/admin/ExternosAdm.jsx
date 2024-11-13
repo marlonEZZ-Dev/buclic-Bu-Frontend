@@ -28,6 +28,21 @@ const ExternosAdmin = () => {
     setCedula(e.target.value);
   };
 
+  // Función para validar si la hora seleccionada está dentro de un rango
+  const isTimeInRange = (selectedTime, startTime, endTime) => {
+    const selectedHour = selectedTime.getHours();
+    const selectedMinutes = selectedTime.getMinutes();
+
+    const [startHour, startMinutes] = startTime.split(':').map(Number);
+    const [endHour, endMinutes] = endTime.split(':').map(Number);
+
+    return (
+      (selectedHour > startHour || (selectedHour === startHour && selectedMinutes >= startMinutes)) &&
+      (selectedHour < endHour || (selectedHour === endHour && selectedMinutes <= endMinutes))
+    );
+  };
+
+
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
@@ -47,16 +62,20 @@ const ExternosAdmin = () => {
 
       const selectedTime = currentTime;
 
-      // Validación de hora para almuerzo
-      if (becas === 'Almuerzo' && (selectedTime < startLunch || selectedTime > endLunch)) {
-        message.error('No está en el rango de hora para realizar la reserva de almuerzo');
-        return;
+      //Almuezo
+      if (becas === 'Almuerzo') {
+        if (!isTimeInRange(selectedTime, settings.starLunch, settings.endLunch)) {
+          message.error('No está en el rango de hora para realizar la reserva de almuerzo');
+          return;
+        }
       }
 
-      // Validación de hora para refrigerio
-      if (becas === 'Refrigerio' && (selectedTime < startSnack || selectedTime > endSnack)) {
-        message.error('No está en el rango de hora para realizar la reserva de refrigerio');
-        return;
+      // Refrigerio
+      if (becas === 'Refrigerio') {
+        if (!isTimeInRange(selectedTime, settings.starSnack, settings.endSnack)) {
+          message.error('No está en el rango de hora para realizar la reserva de refrigerio');
+          return;
+        }
       }
 
       // Validación de disponibilidad
@@ -170,7 +189,7 @@ const ExternosAdmin = () => {
         console.error('Error al obtener las configuraciones', error);
       }
     };
-  
+
     fetchSettings();
   }, []);
 
@@ -187,6 +206,7 @@ const ExternosAdmin = () => {
 
     const hours = date.getHours();
     const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
 
     const hour12 = hours % 12 || 12;
     const ampm = hours >= 12 ? 'PM' : 'AM';
