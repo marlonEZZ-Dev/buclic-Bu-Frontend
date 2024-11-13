@@ -258,8 +258,11 @@ const handlePageChange = page => {
   
   //Manejadores de estado de modals
   const handlerOnlyIntegerPositive = e => {
+    const allowedKeys = [
+      'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
+    ];
     // Evita la entrada de signos negativos y puntos
-    if (e.key === "-" || e.key === "." || e.key === ",") {
+    if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
       e.preventDefault();
     }
   };
@@ -1123,6 +1126,7 @@ useEffect(() => {
             value={codeUser}
             onChange={e => setCodeUser(e.target.value)}
             onClick ={handlerSearchUser}
+            onKeyDown={handlerOnlyIntegerPositive}
             />
           {isBeneficiary && 
           <button 
