@@ -15,14 +15,16 @@ import {
 import SchedulingTable from "../../components/global/SchedulingTable";
 import esES from "antd/es/locale/es_ES";
 import moment from "moment";
-import api from "../../api.js";
-import ReusableModal from "../../components/global/ReusableModal"; // Importar el modal reutilizable
 import { useNavigate } from "react-router-dom";
+import api from "../../api.js";
+import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-const { Text } = Typography;
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 
-const Dentist = () => {
+const { Text } = Typography;
+
+const NursingMonitor = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
@@ -30,19 +32,30 @@ const Dentist = () => {
   );
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
+  const [phone, setPhone] = useState("");
+  const [eps, setEps] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
-
-  const [isSemesterError, setIsSemesterError] = useState(false);
+  const [isPhoneError, setIsPhoneError] = useState(false);
+  const [isEpsError, setIsEpsError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
+  const [actionType, setActionType] = useState("");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-  const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
+  const [modalContent, setModalContent] = useState("");
 
   const username = localStorage.getItem("username");
+  const userEmail = localStorage.getItem("userEmail");
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
+
+  useEffect(() => {
+    const storedPhone = localStorage.getItem("userPhone");
+    const storedEps = localStorage.getItem("userEPS");
+
+    setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
+    setEps(storedEps !== "null" && storedEps ? storedEps : "");
+  }, []);
 
   useEffect(() => {
     fetchPendingAppointment();
@@ -58,12 +71,12 @@ const Dentist = () => {
         },
       })
       .then((response) => {
-        const dentistAppointment = response.data.appointments.find(
+        const nursingAppointment = response.data.appointments.find(
           (appt) =>
-            appt.availableDate.typeAppointment === "ODONTOLOGIA" &&
+            appt.availableDate.typeAppointment === "ENFERMERIA" &&
             appt.pending === true
         );
-        setPendingAppointment(dentistAppointment || null);
+        setPendingAppointment(nursingAppointment || null);
       })
       .catch((error) => {
         console.error("Error al obtener las citas del estudiante:", error);
@@ -74,7 +87,7 @@ const Dentist = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get("/appointment?type=ENFERMERIA", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -92,10 +105,28 @@ const Dentist = () => {
   }, []);
 
   const showModal = (type, appointmentId = null) => {
-    if (type === "reserve") {
-      let hasError = false;
+    let hasError = false;
 
-      // Encuentra la fecha y hora de la cita seleccionada para mostrar en el modal
+    if (phone.length !== 10) {
+      setIsPhoneError(true);
+      hasError = true;
+    } else {
+      setIsPhoneError(false);
+    }
+
+    if (!eps) {
+      setIsEpsError(true);
+      hasError = true;
+    } else {
+      setIsEpsError(false);
+    }
+
+    if (hasError) {
+      message.error("Digita los campos teléfono y EPS.");
+      return;
+    }
+
+    if (type === "reserve") {
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
       );
@@ -109,7 +140,6 @@ const Dentist = () => {
         ).format("DD/MM/YYYY [a las] hh:mm A")}?`
       );
     } else if (type === "cancel" && pendingAppointment) {
-      // Muestra la fecha y hora de la cita pendiente en el modal de cancelación
       setActionType(type);
       setModalVisible(true);
       setModalContent(
@@ -137,13 +167,8 @@ const Dentist = () => {
         .then(() => {
           message.success("Cita cancelada con éxito");
 
-          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
-
-          // Actualiza la lista de citas disponibles después de la cancelación
           fetchAvailableDates();
-
-          // Filtra las citas disponibles para la fecha seleccionada
           filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
@@ -157,12 +182,11 @@ const Dentist = () => {
     }
   };
 
-  // Nueva función para obtener y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get("/appointment?type=ENFERMERIA", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -177,23 +201,46 @@ const Dentist = () => {
   };
 
   const handleConfirmReserve = () => {
+    let hasError = false;
+
+    if (phone.length !== 10) {
+      setIsPhoneError(true);
+      hasError = true;
+    } else {
+      setIsPhoneError(false);
+    }
+
+    if (!eps) {
+      setIsEpsError(true);
+      hasError = true;
+    } else {
+      setIsEpsError(false);
+    }
+
+    if (hasError) {
+      message.error("Digita los campos teléfono y EPS.");
+      setModalVisible(false);
+      return;
+    }
+
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     setConfirmLoading(true);
+
+    const requestData = {
+      availableDateId: selectedAppointmentId,
+      pacientId: parseInt(userId, 10),
+      eps,
+      phone: parseInt(phone, 10),
+    };
+
     api
-      .post(
-        "/appointment-reservation",
-        {
-          pacientId: userId,
-          availableDateId: selectedAppointmentId,
+      .post("/appointment-reservation", requestData, {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      })
       .then((response) => {
         message.success(response.data.message);
         fetchPendingAppointment();
@@ -202,8 +249,8 @@ const Dentist = () => {
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Debes agendar tu cita al menos una hora antes.");
+        console.error("Debes agendar tu cita con una hora de anticipación", error);
+        message.error("Debes agendar tu cita con una hora de anticipación.");
       })
       .finally(() => {
         setConfirmLoading(false);
@@ -239,15 +286,34 @@ const Dentist = () => {
     );
   };
 
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
+
+    // Evitar que el primer dígito sea 0
+    if (value.startsWith("0")) {
+      value = value.substring(1);
+    }
+
+    setPhone(value);
+    setIsPhoneError(value.length !== 10);
+  };
+
+  const handleEpsChange = (e) => {
+    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras y espacios
+    setEps(value);
+    setIsEpsError(value === "");
+    localStorage.setItem("userEPS", value);
+  };
+
   const handleBack = () => {
-    navigate("/estudiante/citas");
+    navigate("/monitor/citas");
   };
 
   return (
     <>
-      <TopNavbar />
+      <HeaderNurse />
       <main
-        className="odontologia-section"
+        className="enfermeria-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
       >
         <div
@@ -278,11 +344,10 @@ const Dentist = () => {
               marginRight: "auto",
             }}
           >
-            Cita odontología
+            Cita enfermería
           </h1>
         </div>
 
-        {/* ReusableModal para confirmación de acciones */}
         <ReusableModal
           visible={modalVisible}
           title={
@@ -290,7 +355,7 @@ const Dentist = () => {
               ? "Confirmar Cancelación"
               : "Confirmar Reserva"
           }
-          content={modalContent} // Aquí usamos modalContent
+          content={modalContent}
           cancelText="Cancelar"
           confirmText="Confirmar"
           onCancel={() => setModalVisible(false)}
@@ -307,7 +372,11 @@ const Dentist = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item label="Correo">
+                  <Input value={userEmail || ""} disabled />
+                </Form.Item>
+              </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Código">
                   <Input value={username || ""} disabled />
@@ -316,6 +385,39 @@ const Dentist = () => {
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  label="Teléfono"
+                  validateStatus={isPhoneError ? "error" : ""}
+                  help={
+                    isPhoneError
+                      ? "El campo teléfono debe tener 10 dígitos."
+                      : ""
+                  }
+                >
+                  <Input
+                    type="text"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
+                    style={{ borderColor: isPhoneError ? "red" : "" }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  label="EPS"
+                  validateStatus={isEpsError ? "error" : ""}
+                  help={isEpsError ? "El campo EPS es obligatorio." : ""}
+                >
+                  <Input
+                    type="text"
+                    value={eps}
+                    onChange={handleEpsChange}
+                    style={{ borderColor: isEpsError ? "red" : "" }}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -353,7 +455,7 @@ const Dentist = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 201 bloque A"
+                salon="Salón 102 bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
@@ -388,7 +490,7 @@ const Dentist = () => {
                     maxWidth: "300px",
                   }}
                 >
-                  Agendaste una cita con odontología para el día{" "}
+                  Agendaste una cita con enfermería para el día{" "}
                   {moment(pendingAppointment.availableDate.dateTime).format(
                     "DD/MM/YYYY [a las] hh:mm A"
                   )}
@@ -414,4 +516,4 @@ const Dentist = () => {
   );
 };
 
-export default Dentist;
+export default NursingMonitor;

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -16,13 +15,14 @@ import SchedulingTable from "../../components/global/SchedulingTable";
 import esES from "antd/es/locale/es_ES";
 import moment from "moment";
 import api from "../../api.js";
-import ReusableModal from "../../components/global/ReusableModal"; // Importar el modal reutilizable
-import { useNavigate } from "react-router-dom";
+import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-const { Text } = Typography;
+import { useNavigate } from "react-router-dom";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
+const { Text } = Typography;
 
-const Dentist = () => {
+const PsychologistMonitor = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
@@ -30,19 +30,30 @@ const Dentist = () => {
   );
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
+  const [phone, setPhone] = useState("");
+  const [semester, setSemester] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
-
+  const [isPhoneError, setIsPhoneError] = useState(false);
   const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [actionType, setActionType] = useState(""); // 'cancel' o 'reserve'
+  const [actionType, setActionType] = useState("");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-  const [modalContent, setModalContent] = useState(""); // Estado para el contenido dinámico del modal
+  const [modalContent, setModalContent] = useState("");
 
-  const username = localStorage.getItem("username");
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
+
+  useEffect(() => {
+    const storedPhone = localStorage.getItem("userPhone");
+    const storedSemester = localStorage.getItem("userSemester");
+
+    setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
+    setSemester(
+      storedSemester !== "null" && storedSemester ? storedSemester : ""
+    );
+  }, []);
 
   useEffect(() => {
     fetchPendingAppointment();
@@ -58,12 +69,12 @@ const Dentist = () => {
         },
       })
       .then((response) => {
-        const dentistAppointment = response.data.appointments.find(
+        const psychologyAppointment = response.data.appointments.find(
           (appt) =>
-            appt.availableDate.typeAppointment === "ODONTOLOGIA" &&
+            appt.availableDate.typeAppointment === "PSICOLOGIA" &&
             appt.pending === true
         );
-        setPendingAppointment(dentistAppointment || null);
+        setPendingAppointment(psychologyAppointment || null);
       })
       .catch((error) => {
         console.error("Error al obtener las citas del estudiante:", error);
@@ -74,7 +85,7 @@ const Dentist = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get("/appointment?type=PSICOLOGIA", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -95,7 +106,25 @@ const Dentist = () => {
     if (type === "reserve") {
       let hasError = false;
 
-      // Encuentra la fecha y hora de la cita seleccionada para mostrar en el modal
+      if (phone.length !== 10) {
+        setIsPhoneError(true);
+        hasError = true;
+      } else {
+        setIsPhoneError(false);
+      }
+
+      if (!semester) {
+        setIsSemesterError(true);
+        hasError = true;
+      } else {
+        setIsSemesterError(false);
+      }
+
+      if (hasError) {
+        message.error("Digita los campos teléfono y semestre.");
+        return; // Detener la ejecución si hay errores
+      }
+
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
       );
@@ -109,7 +138,6 @@ const Dentist = () => {
         ).format("DD/MM/YYYY [a las] hh:mm A")}?`
       );
     } else if (type === "cancel" && pendingAppointment) {
-      // Muestra la fecha y hora de la cita pendiente en el modal de cancelación
       setActionType(type);
       setModalVisible(true);
       setModalContent(
@@ -137,13 +165,9 @@ const Dentist = () => {
         .then(() => {
           message.success("Cita cancelada con éxito");
 
-          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
           setPendingAppointment(null);
 
-          // Actualiza la lista de citas disponibles después de la cancelación
           fetchAvailableDates();
-
-          // Filtra las citas disponibles para la fecha seleccionada
           filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
@@ -157,12 +181,11 @@ const Dentist = () => {
     }
   };
 
-  // Nueva función para obtener y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get("/appointment?type=PSICOLOGIA", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -177,6 +200,8 @@ const Dentist = () => {
   };
 
   const handleConfirmReserve = () => {
+    if (isPhoneError || isSemesterError) return;
+
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     setConfirmLoading(true);
@@ -186,6 +211,8 @@ const Dentist = () => {
         {
           pacientId: userId,
           availableDateId: selectedAppointmentId,
+          semester,
+          phone,
         },
         {
           headers: {
@@ -196,6 +223,13 @@ const Dentist = () => {
       )
       .then((response) => {
         message.success(response.data.message);
+
+        localStorage.setItem("userPhone", phone);
+        localStorage.setItem("userSemester", semester);
+
+        setPhone(phone);
+        setSemester(semester);
+
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
@@ -239,15 +273,33 @@ const Dentist = () => {
     );
   };
 
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
+
+    // Evitar que el primer dígito sea 0
+    if (value.startsWith("0")) {
+      value = value.substring(1);
+    }
+
+    setPhone(value);
+    setIsPhoneError(value.length !== 10);
+  };
+
+  const handleSemesterChange = (e) => {
+    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras, letras con tildes y espacios
+    setSemester(value);
+    setIsSemesterError(value.trim() === ""); // Error si está vacío
+  };
+
   const handleBack = () => {
-    navigate("/estudiante/citas");
+    navigate("/monitor/citas");
   };
 
   return (
     <>
-      <TopNavbar />
+      <HeaderMonitor />
       <main
-        className="odontologia-section"
+        className="psicologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
       >
         <div
@@ -278,11 +330,10 @@ const Dentist = () => {
               marginRight: "auto",
             }}
           >
-            Cita odontología
+            Cita psicología
           </h1>
         </div>
 
-        {/* ReusableModal para confirmación de acciones */}
         <ReusableModal
           visible={modalVisible}
           title={
@@ -290,7 +341,7 @@ const Dentist = () => {
               ? "Confirmar Cancelación"
               : "Confirmar Reserva"
           }
-          content={modalContent} // Aquí usamos modalContent
+          content={modalContent}
           cancelText="Cancelar"
           confirmText="Confirmar"
           onCancel={() => setModalVisible(false)}
@@ -309,13 +360,43 @@ const Dentist = () => {
               </Col>
 
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Código">
-                  <Input value={username || ""} disabled />
+                <Form.Item label="Programa académico">
+                  <Input value={userPlan || ""} disabled />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Programa académico">
-                  <Input value={userPlan || ""} disabled />
+                <Form.Item
+                  label="Teléfono"
+                  validateStatus={isPhoneError ? "error" : ""}
+                  help={
+                    isPhoneError
+                      ? "El campo teléfono debe tener 10 dígitos."
+                      : ""
+                  }
+                >
+                  <Input
+                    type="text"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
+                    style={{ borderColor: isPhoneError ? "red" : "" }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item
+                  label="Semestre"
+                  validateStatus={isSemesterError ? "error" : ""}
+                  help={
+                    isSemesterError ? "El campo semestre es obligatorio." : ""
+                  }
+                >
+                  <Input
+                    type="text"
+                    value={semester}
+                    onChange={handleSemesterChange}
+                    style={{ borderColor: isSemesterError ? "red" : "" }}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -353,7 +434,7 @@ const Dentist = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 201 bloque A"
+                salon="Salón 312 bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
@@ -388,7 +469,7 @@ const Dentist = () => {
                     maxWidth: "300px",
                   }}
                 >
-                  Agendaste una cita con odontología para el día{" "}
+                  Agendaste una cita con psicología para el día{" "}
                   {moment(pendingAppointment.availableDate.dateTime).format(
                     "DD/MM/YYYY [a las] hh:mm A"
                   )}
@@ -409,9 +490,9 @@ const Dentist = () => {
           </Col>
         </Row>
       </main>
-      <FooterProfessionals />
+      <FooterProfessionals/>
     </>
   );
 };
 
-export default Dentist;
+export default PsychologistMonitor;

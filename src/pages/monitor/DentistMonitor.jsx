@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -21,8 +20,9 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 const { Text } = Typography;
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 
-const Dentist = () => {
+const DentistMonitor = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
@@ -240,12 +240,12 @@ const Dentist = () => {
   };
 
   const handleBack = () => {
-    navigate("/estudiante/citas");
+    navigate("/monitor/citas");
   };
 
   return (
     <>
-      <TopNavbar />
+      <HeaderMonitor />
       <main
         className="odontologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
@@ -414,4 +414,4 @@ const Dentist = () => {
   );
 };
 
-export default Dentist;
+export default DentistMonitor;

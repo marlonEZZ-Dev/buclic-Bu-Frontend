@@ -126,6 +126,7 @@ const SettingsAdmin = () => {
 
     const handleCancelClick = () => {
         setSettingData(initialSettingData); // Restablece los datos al original
+        setErrors({}); // Limpia los mensajes de error
         setIsEditing(false); // Cambia a modo no edición
     };
 
@@ -213,16 +214,16 @@ const SettingsAdmin = () => {
 
                 if (status === 400 && data.message) {
                     // Mostrar mensaje de error específico del backend
-                    message.error(data.message);
+                    message.error(data.message, 10);
                 } else if (status === 500) {
                     // Error de servidor
-                    message.error('Error del servidor. Inténtalo de nuevo más tarde.');
+                    message.error('Error del servidor. Inténtalo de nuevo más tarde.', 10);
                 } else {
-                    message.error('Ocurrió un error desconocido.');
+                    message.error('Ocurrió un error desconocido.', 10);
                 }
             } else {
                 // Error de red
-                message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+                message.error('No se pudo conectar con el servidor. Verifica tu conexión.', 10);
             }
         }
     };
