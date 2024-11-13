@@ -17,11 +17,6 @@ const SearchInputR = ({ placeholder = "Buscar", onSearch, ...props }) => {
     setValue(e.target.value);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
 
   return (
     <div style={styles.container}>
@@ -30,7 +25,11 @@ const SearchInputR = ({ placeholder = "Buscar", onSearch, ...props }) => {
         style={styles.input}
         value={value}
         onChange={handleInputChange}
-        onKeyPress={handleKeyPress}
+        onKeyPress={(e) => {
+          if (!/[0-9]/.test(e.key)) {
+            e.preventDefault(); // Previene la entrada de cualquier caracter que no sea un número
+          }
+        }}
         {...props}
       />
       <Button

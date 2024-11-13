@@ -238,7 +238,7 @@ const Reservations = () => {
                             marginTop: '20px'
                         }}
                     >
-                        <SearchInputR onSearch={handleSearch} />
+                        <SearchInputR onSearch={handleSearch} placeholder="Ingrese el código/cédula" />
                     </div>
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
@@ -338,7 +338,7 @@ const Reservations = () => {
                             `${reservation.name} ${reservation.lastName}`,
                             `${formatDate(reservation.data)} ${formatTime(reservation.time)}`
                         ])}
-                        columns={['Código', 'Nombre', 'Fecha y Hora de Reserva']}
+                        columns={['Código/Cédula', 'Nombre', 'Fecha y Hora de Reserva']}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
                         totalItems={totalItems}
