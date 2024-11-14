@@ -45,6 +45,10 @@ export default function FooterProfessionals({...props}){
               Servicio de Odontología Segundo piso Bloque A
               <br />
               Seccional Palmira
+              <br /><br />
+              Trabajo Social Tercer piso Bloque A (Oficina del servicio psicología)
+              <br />
+              Seccional Palmira
             </p>
           </Flex>
 
@@ -56,7 +60,7 @@ export default function FooterProfessionals({...props}){
           className={styles.boxRight}>
             <p className={`${styles.parag} ${styles.subtitle}`}>Contacto</p>
             <p className={`${styles.parag} text-left`}>
-            <MailOutlined className={styles.email}/>  Bienestar Universitario
+            <MailOutlined className={styles.email}/>  Becas de alimentación
               <br />            
                 <a className={styles.ancle} href="mailto:bonoalimentacion.palmira@gmail.com">bonoalimentacion.palmira@gmail.com</a>
               <br /><br />
@@ -75,6 +79,10 @@ export default function FooterProfessionals({...props}){
               <MailOutlined className={styles.email}/>  Servicio de Odontología
               <br />
                 <a className={styles.ancle} href="mailto:carlosfer2284@hotmail.com">carlosfer2284@hotmail.com</a>
+              <br /><br />            
+              <MailOutlined className={styles.email}/>  Trabajo Social
+              <br />
+                <a className={styles.ancle} href="mailto:trabajosocial.palmira@correounivalle.edu.co">trabajosocial.palmira@correounivalle.edu.co</a>
             </p>
           </Flex>
         </Flex>
