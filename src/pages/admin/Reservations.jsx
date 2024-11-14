@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
-import { RedoOutlined } from '@ant-design/icons';
+import { ReloadOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
@@ -225,7 +225,7 @@ const Reservations = () => {
                     }}
                 >
                     <Space style={{ marginTop: '5px', alignItems: 'center' }}>
-                        <h1 className="titleCard">Reservas realizadas</h1>
+                        <h1 className="titleCard"><strong>Reservas realizadas</strong></h1>
                     </Space>
 
                     <p>Aquí puedes buscar las personas que han reservado la beca de alimentación.</p>
@@ -238,7 +238,7 @@ const Reservations = () => {
                             marginTop: '20px'
                         }}
                     >
-                        <SearchInputR onSearch={handleSearch} />
+                        <SearchInputR onSearch={handleSearch} placeholder="Ingrese el código/cédula" />
                     </div>
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
@@ -322,7 +322,7 @@ const Reservations = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                         <div style={{ flexGrow: 1 }}></div>
                         <Button
-                            icon={<RedoOutlined />}
+                            icon={<ReloadOutlined />}
                             className="button-save"
                             style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
                             onClick={fetchReservations}
@@ -338,7 +338,7 @@ const Reservations = () => {
                             `${reservation.name} ${reservation.lastName}`,
                             `${formatDate(reservation.data)} ${formatTime(reservation.time)}`
                         ])}
-                        columns={['Código', 'Nombre', 'Fecha y Hora de Reserva']}
+                        columns={['Código/Cédula', 'Nombre', 'Fecha y Hora de Reserva']}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
                         totalItems={totalItems}

@@ -327,7 +327,7 @@ const ExternosAdmin = () => {
           </Space>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <Button className="button-save" onClick={handleSave}>Guardar</Button>
+            <Button className="button-save" onClick={handleSave}>Reservar</Button>
             <Button className="button-cancel" onClick={() => form.resetFields()}>Cancelar</Button>
           </div>
         </Card>

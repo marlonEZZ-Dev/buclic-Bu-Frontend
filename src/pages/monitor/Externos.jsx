@@ -30,6 +30,21 @@ const Externos = () => {
     setCedula(e.target.value);
   };
 
+   // Función para validar si la hora seleccionada está dentro de un rango
+  const isTimeInRange = (selectedTime, startTime, endTime) => {
+    const selectedHour = selectedTime.getHours();
+    const selectedMinutes = selectedTime.getMinutes();
+
+    const [startHour, startMinutes] = startTime.split(':').map(Number);
+    const [endHour, endMinutes] = endTime.split(':').map(Number);
+
+    return (
+      (selectedHour > startHour || (selectedHour === startHour && selectedMinutes >= startMinutes)) &&
+      (selectedHour < endHour || (selectedHour === endHour && selectedMinutes <= endMinutes))
+    );
+  };
+
+
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
@@ -49,16 +64,20 @@ const Externos = () => {
 
       const selectedTime = currentTime;
 
-      // Validación de hora para almuerzo
-      if (becas === 'Almuerzo' && (selectedTime < startLunch || selectedTime > endLunch)) {
-        message.error('No está en el rango de hora para realizar la reserva de almuerzo');
-        return;
+      //Almuezo
+      if (becas === 'Almuerzo') {
+        if (!isTimeInRange(selectedTime, settings.starLunch, settings.endLunch)) {
+          message.error('No está en el rango de hora para realizar la reserva de almuerzo');
+          return;
+        }
       }
 
-      // Validación de hora para refrigerio
-      if (becas === 'Refrigerio' && (selectedTime < startSnack || selectedTime > endSnack)) {
-        message.error('No está en el rango de hora para realizar la reserva de refrigerio');
-        return;
+      // Refrigerio
+      if (becas === 'Refrigerio') {
+        if (!isTimeInRange(selectedTime, settings.starSnack, settings.endSnack)) {
+          message.error('No está en el rango de hora para realizar la reserva de refrigerio');
+          return;
+        }
       }
 
       // Validación de disponibilidad
@@ -116,6 +135,7 @@ const Externos = () => {
       }
     }
   };
+
 
   const handleBecasChange = (value) => {
     setBecas(value);
@@ -309,7 +329,7 @@ const Externos = () => {
           </Space>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <Button className="button-save" onClick={handleSave}>Guardar</Button>
+            <Button className="button-save" onClick={handleSave}>Reservar</Button>
             <Button className="button-cancel" onClick={() => form.resetFields()}>Cancelar</Button>
           </div>
         </Card>
