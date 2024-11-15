@@ -305,7 +305,7 @@ const SettingsAdmin = () => {
                         <div style={{ marginBottom: '10px', textAlign: 'left' }}>
                             <p>Aquí hay ajustes adicionales relacionados a las becas de alimentación.</p>
                             <Space direction="vertical" size={12}>
-                                <label style={{ display: 'block' }}>Duración del semestre <span style={{ color: 'red' }}>*</span> </label>
+                                <label style={{ display: 'block' }}><span style={{ color: 'red' }}>*</span> Duración del semestre</label>
                                 <RangePicker
                                     style={{
                                         width: '100%',
@@ -345,7 +345,7 @@ const SettingsAdmin = () => {
                             <div style={{ marginTop: '20px' }}>
                                 <div style={{ display: 'flex', marginBottom: '12px' }}>
                                     <div style={{ width: '38%', marginRight: '20px' }}>
-                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas almuerzo<span style={{ color: 'red' }}>*</span> </label>
+                                        <label style={{ display: 'block', marginBottom: '4px' }}><span style={{ color: 'red' }}>*</span> No. Becas almuerzo </label>
                                         <Input
                                             type="number"
                                             placeholder="Número de almuerzos"
@@ -371,7 +371,7 @@ const SettingsAdmin = () => {
                                         {errors.numLunch && <span style={{ color: 'red' }}>{errors.numLunch}</span>}
                                     </div>
                                     <div style={{ width: '38%' }}>
-                                        <label style={{ display: 'block', marginBottom: '4px' }}>No. Becas refrigerio<span style={{ color: 'red' }}>*</span> </label>
+                                        <label style={{ display: 'block', marginBottom: '4px' }}><span style={{ color: 'red' }}>*</span> No. Becas refrigerio</label>
                                         <Input
                                             type="number"
                                             placeholder="Número de refrigerios"
@@ -399,7 +399,7 @@ const SettingsAdmin = () => {
                                 </div>
                                 {/* Accesos y horarios */}
                                 {/* Acceso para beneficiarios almuerzo */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios almuerzo <span style={{ color: 'red' }}>*</span></p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}><span style={{ color: 'red' }}>*</span> Acceso para beneficiarios almuerzo</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
@@ -445,7 +445,7 @@ const SettingsAdmin = () => {
                                 {errors.beneficiaryLunch && <span style={{ color: 'red' }}>{errors.beneficiaryLunch}</span>}
 
                                 {/* Acceso para venta libre almuerzo */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre almuerzo <span style={{ color: 'red' }}>*</span></p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}><span style={{ color: 'red' }}>*</span> Acceso para venta libre almuerzo</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
@@ -492,7 +492,7 @@ const SettingsAdmin = () => {
                                 {errors.Lunch && <span style={{ color: 'red' }}>{errors.Lunch}</span>}
 
                                 {/* Acceso para beneficiarios refrigerio */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para beneficiarios refrigerio <span style={{ color: 'red' }}>*</span></p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}><span style={{ color: 'red' }}>*</span> Acceso para beneficiarios refrigerio</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"
@@ -539,7 +539,7 @@ const SettingsAdmin = () => {
                                 {errors.BeneficiarySnack && <span style={{ color: 'red' }}>{errors.BeneficiarySnack}</span>}
 
                                 {/* Acceso para venta libre refrigerio */}
-                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}>Acceso para venta libre refrigerio<span style={{ color: 'red' }}>*</span></p>
+                                <p style={{ marginTop: '20px', textAlign: 'left', marginBottom: '4px' }}><span style={{ color: 'red' }}>*</span> Acceso para venta libre refrigerio</p>
                                 <Space direction="horizontal" size={12} style={{ width: '100%' }}>
                                     <TimePicker
                                         placeholder="Inicio"

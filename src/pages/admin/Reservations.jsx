@@ -22,7 +22,7 @@ const Reservations = () => {
 
     const handleSearch = async (username) => {
         if (!username.trim()) {
-            message.warning("Ingrese un código de usuario para buscar.");
+            message.warning("Ingrese el código o cédula de un usuario para buscar.", 5);
             return;
         }
         try {
@@ -339,7 +339,7 @@ const Reservations = () => {
                             `${reservation.name} ${reservation.lastName}`,
                             `${formatDate(reservation.data)} ${formatTime(reservation.time)}`
                         ])}
-                        columns={['Código/Cédula', 'Nombre', 'Fecha y Hora de Reserva']}
+                        columns={['Código/cédula', 'Nombre', 'Fecha y hora de reserva']}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
                         totalItems={totalItems}

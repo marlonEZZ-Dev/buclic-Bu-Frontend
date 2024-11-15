@@ -315,7 +315,7 @@ const BecasReservation = () => {
 
 
   // Definir las columnas para cada tipo de menú
-  const columnsAlmuerzo = ['Plato Principal', 'Bebida', 'Postre'];
+  const columnsAlmuerzo = ['Plato principal', 'Bebida', 'Postre'];
   const columnsRefrigerio = ['Aperitivo', 'Bebida'];
 
   // Convertir los datos del menú en filas para la tabla
@@ -386,7 +386,7 @@ const BecasReservation = () => {
   return (
     <>
       <main className="becas-section" style={{ marginTop: '100px' }}>
-        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Becas de Alimentación</h1>
+        <h1 className="text-xl font-bold" style={{ marginBottom: '12px' }}>Becas de alimentación</h1>
 
         {menuData?.Almuerzo?.note && (
           <p style={{ marginBottom: '6px' }}><strong>Nota:</strong> {menuData?.Almuerzo?.note}</p>

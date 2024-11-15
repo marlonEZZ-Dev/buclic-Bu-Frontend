@@ -140,6 +140,10 @@ const ExternosAdmin = () => {
 
 
   const handleSearch = async () => {
+    if (!cedula.trim()) {
+      message.warning("Ingrese la cédula de un usuario para buscar.");
+      return;
+    }
     try {
       const response = await api.get(`/reservations/extern/${cedula}`);
       const externoData = response.data;
@@ -299,7 +303,7 @@ const ExternosAdmin = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
+                  <Form.Item label="Área dependencia" labelAlign="left" name="dependencia" rules={[
                     { required: true, message: 'Por favor ingrese el área de dependencia' },
                   ]}>
                     <Input placeholder="Ingrese el área de dependencia"
