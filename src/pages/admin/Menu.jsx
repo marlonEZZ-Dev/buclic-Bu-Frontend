@@ -224,7 +224,7 @@ const Menu = () => {
   };
 
   const isLunch = selectedType === "Almuerzo";
-  const mainDishLabel = isLunch ? "Plato Principal" : "Aperitivo";
+  const mainDishLabel = isLunch ? "Plato principal" : "Aperitivo";
   const mainDishPlaceholder = isLunch
     ? "Describe el plato principal"
     : "Describe el aperitivo";
@@ -402,7 +402,7 @@ const Menu = () => {
                 display: "block",
               }}
             >
-              Enlace
+              Enlace de encuesta de satisfacción
             </label>
             <Input
               type="text"
