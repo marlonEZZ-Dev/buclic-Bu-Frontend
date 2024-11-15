@@ -272,7 +272,14 @@ const ExternosAdmin = () => {
                 <Col span={12}>
                   <Form.Item label="Nombre" labelAlign="left" name="name" rules={[
                     { required: true, message: 'Por favor ingrese el nombre' },]}>
-                    <Input placeholder="Ingrese el nombre" />
+                    <Input placeholder="Ingrese el nombre"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -280,7 +287,14 @@ const ExternosAdmin = () => {
                   <Form.Item label="Apellido" labelAlign="left" name="lastname" rules={[
                     { required: true, message: 'Por favor ingrese el apellido' },
                   ]}>
-                    <Input placeholder="Ingrese el apellido" />
+                    <Input placeholder="Ingrese el apellido"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -288,7 +302,14 @@ const ExternosAdmin = () => {
                   <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
                     { required: true, message: 'Por favor ingrese el área de dependencia' },
                   ]}>
-                    <Input placeholder="Ingrese el área de dependencia" />
+                    <Input placeholder="Ingrese el área de dependencia" 
+                    onKeyPress={(e) => {
+                      const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                      if (!regex.test(e.key)) {
+                        e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                      }
+                    }}
+                  />
                   </Form.Item>
                 </Col>
 
@@ -300,7 +321,7 @@ const ExternosAdmin = () => {
                     required
                     rules={[
                       { required: true, message: 'Por favor ingrese el correo electrónico' },
-                      { type: 'email', message: 'Por favor ingrese un correo electrónico válido' }
+                      { type: 'email', message: 'Por favor ingrese un correo electrónico válido ej: uv@gmail.com' }
                     ]}
                   >
                     <Input type="email" placeholder="Ingrese el correo" />

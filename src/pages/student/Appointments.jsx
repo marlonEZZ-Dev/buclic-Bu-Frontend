@@ -2,6 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 import FooterProfessionals from '../../components/global/FooterProfessionals';
+import psicologiaImage from '../../assets/psicologia.jpg';
+import enfermeriaImage from '../../assets/enfermeria.png';
+import odontologiaImage from '../../assets/odontologia.jpeg';
 
 const Appointments = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
@@ -14,35 +17,35 @@ const Appointments = () => {
   return (
     <>
       <TopNavbar />
-      
+
       {/* Contenido principal */}
-      <main className="citas-section" style={{ marginTop: '100px', padding: '0 20px' }}> 
-        
+      <main className="citas-section" style={{ marginTop: '100px', padding: '0 20px' }}>
+
         {/* Título principal */}
         <header>
           <h1 className="text-xl font-bold" style={{ color: '#C20E1A', textAlign: 'center' }}>
             Área de citas
           </h1>
         </header>
-        
+
         {/* Sección de opciones de citas */}
-        <section 
-          style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            gap: '20px', 
-            marginTop: '20px', 
+        <section
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: '20px',
+            marginTop: '20px',
             flexWrap: 'wrap'  // Permitir que las tarjetas se envuelvan
           }}
         >
-          
+
           {/* Opción 1: Psicología */}
-          <article 
-            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
+          <article
+            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }}
             onClick={() => handleNavigation('/estudiante/psicologia')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={psicologiaImage}
               title="Psicología"
               style={{
                 backgroundColor: 'white',
@@ -55,12 +58,12 @@ const Appointments = () => {
           </article>
 
           {/* Opción 2: Enfermería - Médico general */}
-          <article 
-            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
+          <article
+            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }}
             onClick={() => handleNavigation('/estudiante/enfermeria')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={enfermeriaImage}
               title="Enfermería - Médico general"
               style={{
                 backgroundColor: 'white',
@@ -73,12 +76,12 @@ const Appointments = () => {
           </article>
 
           {/* Opción 3: Odontología */}
-          <article 
-            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }} 
+          <article
+            style={{ width: 'calc(33.33% - 20px)', minWidth: '300px' }}
             onClick={() => handleNavigation('/estudiante/odontologia')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={odontologiaImage}
               title="Odontología"
               style={{
                 backgroundColor: 'white',
@@ -89,10 +92,10 @@ const Appointments = () => {
               }}
             />
           </article>
-          
+
         </section>
       </main>
-      <FooterProfessionals/>
+      <FooterProfessionals />
     </>
   );
 };
