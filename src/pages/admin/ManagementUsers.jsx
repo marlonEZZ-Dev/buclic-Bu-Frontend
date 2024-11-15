@@ -493,6 +493,7 @@ const handlePageChange = page => {
       userFound.roles = getArrObjInArrStr(userFound.roles)
       arrayUserFound.push(userFound)
       setRows(arrayUserFound)
+      setTotalItems(1)
     }catch(error){
       console.error(`Esto ocurre en handlerSearchUser ${error}`)
     }
