@@ -131,7 +131,7 @@ export default function AgendaDentist() {
   const [searchDate, setSearchDate] = useState(""); // Estado para almacenar la fecha de búsqueda
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [totalItems, setTotalItems] = useState(0); // Total de elementos
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   const removePendingAppointment = (reservationId) => {
     setPendingAppointments((prev) => {

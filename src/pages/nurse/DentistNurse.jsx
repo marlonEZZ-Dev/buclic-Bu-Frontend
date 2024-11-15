@@ -22,6 +22,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 const { Text } = Typography;
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx";
+import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 
 const DentistNurse = () => {
   const { token } = theme.useToken();
@@ -246,7 +247,7 @@ const DentistNurse = () => {
 
   return (
     <>
-      <HeaderDentist />
+      <HeaderNurse />
       <main
         className="odontologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
