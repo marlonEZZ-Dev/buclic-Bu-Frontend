@@ -27,7 +27,7 @@ const errorForPut = new Map([
   [401, "No autorizado para actualizar"],
   [403, "No tienes permisos para actualizar"],
   [404, "Usuario a actualizar no encontrado"],
-  [409, "Conflicto con el estado actual del usuario"],
+  [409, "Código o cédula existente"],
   [500, "Error interno del servidor"]
 ])
 
