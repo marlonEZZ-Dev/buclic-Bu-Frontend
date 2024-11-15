@@ -83,7 +83,7 @@ export default function ManagementUsers(){
     email: "",
     plan:"",
     roles: [""],
-    grant: ""
+    grant: null
   }
   const [user, setUser] = useState(initialUser)
   //Predicados
@@ -235,12 +235,9 @@ const handlePageChange = page => {
     }
     if (isBeneficiary && objectSelected.lunchBeneficiary) {
       return "Beneficiario almuerzo"
-    } else {
-      if (isBeneficiary && objectSelected.lunchBeneficiary) {
-        return "Beneficiario refrigerio"
-      } else {
-        return null
-      }
+    }
+    if (isBeneficiary && objectSelected.snackBeneficiary) {
+      return "Beneficiario refrigerio"
     }
   }
 
@@ -413,6 +410,7 @@ const handlePageChange = page => {
 
   const handlerSave = useCallback(async () => {
   try {
+    console.log(user)
     const responseCreate = await createUser(user);
     if(responseCreate.success === false){
       notifyError(responseCreate.message)
@@ -558,10 +556,10 @@ const handlePageChange = page => {
   }
 
   const handlerClearFields = () => {
-    setUser(initialUser)
     setRefreshFields(refreshFields + 1)
     setStatusEstadoRolTipoBecaSelect(undefined)
     setStatusRolesGrantSelect(undefined)    
+    setUser(initialUser)
   }
   
   useEffect(() => {
