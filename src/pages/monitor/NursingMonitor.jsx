@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -20,7 +19,7 @@ import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 
 const { Text } = Typography;
 
@@ -311,7 +310,7 @@ const NursingMonitor = () => {
 
   return (
     <>
-      <HeaderNurse />
+      <HeaderMonitor />
       <main
         className="enfermeria-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
