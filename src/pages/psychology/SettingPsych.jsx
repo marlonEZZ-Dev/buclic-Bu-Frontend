@@ -34,12 +34,12 @@ const SettingPysch = () => {
             <HeaderPsych />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <Card
-                    title="Perfil"
                     bordered={false}
                     style={{ width: '100%', maxWidth: '600px' }}
                 >
                     {profileData ? (
                         <Form layout="vertical">
+                            <h1 className="titleCard"><strong>Perfil</strong></h1>
                             <Form.Item label={<span style={{ color: 'black', }}>Nombres</span>}>
                                 <Input value={profileData.name} disabled style={{ color: '#767676' }} />
                             </Form.Item>

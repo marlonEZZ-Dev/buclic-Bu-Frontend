@@ -271,7 +271,7 @@ const SettingsAdmin = () => {
 
     const buttons = [
         { type: 'Perfil', label: 'Perfil' },
-        { type: 'Ajustes Becas', label: 'Becas' },
+        { type: 'Ajustes becas', label: 'Becas' },
     ];
 
     return (

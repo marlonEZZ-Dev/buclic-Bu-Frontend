@@ -74,7 +74,7 @@ const PasswordStudent = () => {
         <Card bordered={true} style={styles.card}>
           {/* Título */}
           <Space style={styles.titleSpace}>
-            <h1 className="titleCard">Cambiar contraseña</h1>
+            <h1 className="titleCard"><strong>Cambiar contraseña</strong></h1>
           </Space>
 
           <p style={styles.paragraph}>La contraseña debe contener mínimo 8 caracteres.</p>
