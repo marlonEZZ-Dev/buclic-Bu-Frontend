@@ -1,18 +1,18 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { MenuContext } from '../../utils/MenuContext';  // Importar el contexto
-import { Button, Input, message } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from "react";
+import { MenuContext } from "../../utils/MenuContext"; // Importar el contexto
+import { Button, Input, message } from "antd";
+import { useNavigate } from "react-router-dom";
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
-import api from '../../api.js';
+import api from "../../api.js";
 import { ACCESS_TOKEN } from "../../constants";
 
 const { TextArea } = Input;
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { menuData, setMenuData } = useContext(MenuContext);  // Acceder a datos del contexto
-  const [selectedType, setSelectedType] = useState('Almuerzo');
+  const { menuData, setMenuData } = useContext(MenuContext); // Acceder a datos del contexto
+  const [selectedType, setSelectedType] = useState("Almuerzo");
   const [isEditable, setIsEditable] = useState({
     Almuerzo: false,
     Refrigerio: false,
@@ -21,7 +21,7 @@ const Menu = () => {
   // Estado temporal para manejar los datos durante la edición, incluyendo `link`
   const [tempMenuData, setTempMenuData] = useState({
     Almuerzo: { link: "" },
-    Refrigerio: { link: "" }
+    Refrigerio: { link: "" },
   });
 
   // Estado para errores de validación en campos obligatorios
@@ -37,40 +37,38 @@ const Menu = () => {
       try {
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (!token) {
-          message.error('Por favor, inicie sesión nuevamente');
-          navigate('/login');
+          message.error("Por favor, inicie sesión nuevamente");
+          navigate("/login");
           return;
         }
 
-        const response = await api.get('/menu', {
+        const response = await api.get("/menu", {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const menus = response.data;
 
-        const almuerzoMenu = menus.find(menu => menu.id === 1) || {};
-        const refrigerioMenu = menus.find(menu => menu.id === 2) || {};
+        const almuerzoMenu = menus.find((menu) => menu.id === 1) || {};
+        const refrigerioMenu = menus.find((menu) => menu.id === 2) || {};
 
         setMenuData({
           Almuerzo: almuerzoMenu,
-          Refrigerio: refrigerioMenu
+          Refrigerio: refrigerioMenu,
         });
 
         setTempMenuData({
           Almuerzo: almuerzoMenu,
-          Refrigerio: refrigerioMenu
+          Refrigerio: refrigerioMenu,
         });
-
       } catch (error) {
-        message.error('Error al obtener los datos del menú');
+        message.error("Error al obtener los datos del menú");
         console.error(error);
       }
     };
 
     fetchMenuData(); // Llama a la función para obtener los datos al cargar el componente
-
   }, [navigate, setMenuData]);
 
   // Maneja los cambios de los inputs en el estado temporal y la validación
@@ -116,15 +114,15 @@ const Menu = () => {
       message.error("Por favor, complete los campos obligatorios.");
       return;
     }
-    
+
     try {
       let response;
-      
+
       // Verifica si ya existe un id para determinar si es PUT (actualización) o POST (creación)
       if (menuData[selectedType] && menuData[selectedType].id) {
         // Actualización usando PUT
         response = await api.put(
-          "/menu", 
+          "/menu",
           {
             id: menuData[selectedType].id,
             note: menuTypeData.note,
@@ -163,18 +161,20 @@ const Menu = () => {
         );
         message.success("Menú creado exitosamente");
       }
-  
+
       // Actualizar los datos en el contexto solo después de guardar
       setMenuData((prevMenuData) => ({
         ...prevMenuData,
         [selectedType]: response.data,
       }));
-  
+
       // Deshabilitar la edición después de guardar
       setIsEditable({ ...isEditable, [selectedType]: false });
     } catch (error) {
       if (error.response && error.response.status === 409) {
-        message.error("Conflicto al guardar el menú: el recurso ya existe o hay un problema con los datos.");
+        message.error(
+          "Conflicto al guardar el menú: el recurso ya existe o hay un problema con los datos."
+        );
       } else if (error.response && error.response.status === 401) {
         message.error("Sesión expirada. Por favor, inicie sesión nuevamente");
         navigate("/login");
@@ -204,13 +204,13 @@ const Menu = () => {
     setTempMenuData((prevData) => ({
       ...prevData,
       [selectedType]: {
-        note: '',
-        mainDish: '',
-        appetizer: '',
-        drink: '',
-        dessert: '',
+        note: "",
+        mainDish: "",
+        appetizer: "",
+        drink: "",
+        dessert: "",
         price: 0,
-        link: '',
+        link: "",
       },
     }));
   };
@@ -238,7 +238,7 @@ const Menu = () => {
     if (value === undefined || value === null) return ""; // Retorna una cadena vacía si el valor no está definido
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
-  
+
   return (
     <>
       <HeaderAdmin />
@@ -282,7 +282,8 @@ const Menu = () => {
               fontSize: "16px",
             }}
           >
-            Diligencia los datos para el {selectedType} - {new Date().toLocaleDateString()}
+            Diligencia los datos para el {selectedType} -{" "}
+            {new Date().toLocaleDateString()}
           </p>
 
           {/* TextArea para el plato principal o aperitivo */}
@@ -294,19 +295,17 @@ const Menu = () => {
                 display: "block",
               }}
             >
-              {mainDishLabel}
+              Plato Principal <span style={{ color: "red" }}>*</span>
             </label>
             <TextArea
-              placeholder={mainDishPlaceholder}
+              placeholder="Describe el plato principal"
               autoSize
               style={{
                 width: "100%",
                 borderColor: validationErrors.mainDish ? "red" : undefined,
               }}
               value={tempMenuData[selectedType].mainDish}
-              onChange={(e) =>
-                handleInputChange("mainDish", e.target.value)
-              }
+              onChange={(e) => handleInputChange("mainDish", e.target.value)}
               disabled={!isEditable[selectedType]}
             />
           </div>
@@ -320,7 +319,7 @@ const Menu = () => {
                 display: "block",
               }}
             >
-              Bebida
+              Bebida <span style={{ color: "red" }}>*</span>
             </label>
             <TextArea
               placeholder="Describe la bebida"
@@ -367,7 +366,7 @@ const Menu = () => {
                 display: "block",
               }}
             >
-              Precio
+              Precio <span style={{ color: "red" }}>*</span>
             </label>
             <Input
               type="text"
