@@ -216,12 +216,23 @@ const Menu = () => {
   };
 
   const handleCancel = () => {
+    // Restaurar el estado editable a false
     setIsEditable((prevEditable) => ({
       ...prevEditable,
       [selectedType]: false,
     }));
-    setTempMenuData(menuData); // Revertir cambios, volviendo al estado original
+  
+    // Restaurar los datos temporales con los valores originales
+    setTempMenuData(menuData);
+  
+    // Limpiar los errores de validación
+    setValidationErrors({
+      mainDish: false,
+      drink: false,
+      price: false,
+    });
   };
+  
 
   const isLunch = selectedType === "Almuerzo";
   const mainDishLabel = isLunch ? "Plato principal" : "Aperitivo";
