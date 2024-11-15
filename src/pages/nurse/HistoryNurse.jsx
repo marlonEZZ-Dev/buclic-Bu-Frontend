@@ -25,6 +25,11 @@ const HistoryNurse = () => {
         let response;
         let existQuery = queryValue.length !== 0
         let existRange = rangeValue && rangeValue.length === 2
+
+        if(!existRange) {
+            messageApi.warning("Ingrese una fecha de consulta para buscar")
+            return
+        }
         
         if(!existQuery && !existRange){
             messageApi.error("Los campos estan vacíos")
@@ -47,9 +52,14 @@ const HistoryNurse = () => {
         }else if(existQuery){
             response = await searchBy({name: queryValue})
         }
+
+        if(response && !response.success){
+            messageApi.error("No hay actividades realizadas")
+            return
+        }
         setActivities(response)
         }catch(err){
-        console.log(err);
+        // console.log(err);
         }
     }, [queryValue, rangeValue])
 
