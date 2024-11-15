@@ -28,7 +28,7 @@ export default function TablePaginationUsers({
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
-        fontSize: '1.125rem',
+        fontSize: '1.1rem',
         padding: '8px',
         textAlign: 'center',
     };
