@@ -5,6 +5,7 @@ import HeaderPsych from "../../components/psychology/HeaderPsych";
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const PasswordPysch = () => {
   const [form] = Form.useForm();
@@ -194,6 +195,7 @@ const PasswordPysch = () => {
           </Modal>
         </Card>
       </main>
+      <FooterProfessionals />
     </>
   );
 };

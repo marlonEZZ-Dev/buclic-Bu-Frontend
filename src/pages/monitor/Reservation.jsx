@@ -2,7 +2,7 @@ import HeaderMonitor from "../../components/monitor/HeaderMonitor";
 
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
-import { RedoOutlined } from '@ant-design/icons';
+import { ReloadOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
@@ -324,7 +324,7 @@ const Reservation = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                         <div style={{ flexGrow: 1 }}></div>
                         <Button
-                            icon={<RedoOutlined />}
+                            icon={<ReloadOutlined />}
                             className="button-save"
                             style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
                             onClick={fetchReservations}

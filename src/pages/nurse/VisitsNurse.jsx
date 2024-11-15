@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import esLocale from "antd/es/date-picker/locale/es_ES";
 import SearchInputR from "../../components/global/SearchInputR.jsx";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import moment from "moment";
 import {
   DatePicker,
@@ -198,6 +199,12 @@ const VisitsNurse = () => {
                       placeholder="Nombre"
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -214,6 +221,12 @@ const VisitsNurse = () => {
                       placeholder="Apellido"
                       value={apellido}
                       onChange={(e) => setApellido(e.target.value)}
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -343,6 +356,7 @@ const VisitsNurse = () => {
           </div>
         </Card>
       </main>
+      <FooterProfessionals />
     </>
   );
 };

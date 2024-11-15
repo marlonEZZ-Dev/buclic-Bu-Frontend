@@ -5,6 +5,7 @@ import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import ReusableModal from '../../components/global/ReusableModal.jsx';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 import { Card, Space, Descriptions, Button, message } from 'antd';
 
@@ -347,6 +348,7 @@ const Reservations = () => {
 
                 </Card>
             </main>
+            <FooterProfessionals />
         </>
     );
 };

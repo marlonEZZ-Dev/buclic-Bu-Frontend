@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 import FooterProfessionals from '../../components/global/FooterProfessionals';
+import psicologiaImage from '../../assets/psicologia.jpg';
+import enfermeriaImage from '../../assets/enfermeria.png';
+import odontologiaImage from '../../assets/odontologia.jpg';
 
 const AppointmentsMonitor = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
@@ -44,7 +47,7 @@ const AppointmentsMonitor = () => {
             onClick={() => handleNavigation('/monitor/psicologia')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={psicologiaImage}
               title="Psicología"
               style={{
                 backgroundColor: 'white',
@@ -62,7 +65,7 @@ const AppointmentsMonitor = () => {
             onClick={() => handleNavigation('/monitor/enfermeria')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={enfermeriaImage}
               title="Enfermería - Médico general"
               style={{
                 backgroundColor: 'white',
@@ -80,7 +83,7 @@ const AppointmentsMonitor = () => {
             onClick={() => handleNavigation('/monitor/odontologia')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={odontologiaImage}
               title="Odontología"
               style={{
                 backgroundColor: 'white',

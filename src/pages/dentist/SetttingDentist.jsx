@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderDentist from "../../components/dentist/HeaderDentist";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Form, Input, message, Card } from 'antd';
 import api from '../../api';
 
@@ -67,6 +68,7 @@ const SettingDentist = () => {
                     )}
                 </Card>
             </main>
+            <FooterProfessionals />
         </>
     );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderPsych from "../../components/psychology/HeaderPsych";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Form, Input, message, Card } from 'antd';
 import api from '../../api';
 
@@ -67,6 +68,7 @@ const SettingPysch = () => {
                     )}
                 </Card>
             </main>
+            <FooterProfessionals />
         </>
     );
 };
