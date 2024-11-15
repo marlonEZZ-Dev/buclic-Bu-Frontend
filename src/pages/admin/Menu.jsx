@@ -6,6 +6,7 @@ import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
 import api from "../../api.js";
 import { ACCESS_TOKEN } from "../../constants";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const { TextArea } = Input;
 
@@ -511,6 +512,7 @@ const Menu = () => {
           </div>
         </MenuBecas>
       </div>
+      <FooterProfessionals/>
     </>
   );
 };
