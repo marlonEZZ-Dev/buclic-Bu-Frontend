@@ -1,6 +1,14 @@
 import dayjs from "dayjs";
 import axios from "../../api.js";
 
+const errorForGet = new Map([
+  [400, "Solicitud inválida"],
+  [401, "No estas autorizado"],
+  [403, "No tienes los permisos para solicitar este recurso"],
+  [404, "Usuario no encontrado"],
+  [500, "Error interno del servidor"]
+])
+
 export const searchBy = async ({name="", startDate = "", endDate = ""}) => {
   const baseUrl = "/nursing-activities"
   let queryParams = [];
@@ -16,14 +24,15 @@ export const searchBy = async ({name="", startDate = "", endDate = ""}) => {
     queryParams.push(`endDate=${fEndDate}`)
   }
 
-  const finalUrl = queryParams.length > 0 ? `${baseUrl}?${queryParams.join('&')}` : baseUrl
-  
-  console.log(finalUrl)
+  const finalUrl = queryParams.length > 0 ? `${baseUrl}?${queryParams.join('&')}` : baseUrl  
   
   try {
     const response = await axios.get(finalUrl)
     return response.data
   } catch (error) {
-    return error
+    return {
+      success: false,
+      message: errorForGet.get(error.response.status) 
+    }
   }
 }
