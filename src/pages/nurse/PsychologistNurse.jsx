@@ -20,6 +20,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 const { Text } = Typography;
 
 const PsychologistNurse = () => {
@@ -297,7 +298,7 @@ const PsychologistNurse = () => {
 
   return (
     <>
-      <HeaderDentist />
+      <HeaderNurse />
       <main
         className="psicologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}

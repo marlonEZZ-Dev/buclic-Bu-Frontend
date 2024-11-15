@@ -124,7 +124,7 @@ export default function LoginPage() {
                 className="welcome-title"
                 style={{ margin: 0, textAlign: "center" }}
               >
-                BuClick
+                BUclick
               </h1>
             </div>
           }
@@ -137,7 +137,7 @@ export default function LoginPage() {
         >
           <form onSubmit={handleLogin}>
             <Input
-              placeholder="Usuario"
+              placeholder="Código/cédula"
               prefix={<UserOutlined />}
               style={{ height: 33, width: "100%", marginBottom: 20 }}
               value={username}
