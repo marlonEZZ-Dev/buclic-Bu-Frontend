@@ -73,6 +73,17 @@ const Menu = () => {
 
   // Maneja los cambios de los inputs en el estado temporal y la validación
   const handleInputChange = (field, value) => {
+    // Expresión regular para permitir solo letras y tildes
+    const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
+  
+    if (field === "mainDish" || field === "drink" || field === "dessert") {
+      // Validar solo para campos de texto
+      if (!validTextRegex.test(value)) {
+        
+        return;
+      }
+    }
+  
     setTempMenuData((prevData) => ({
       ...prevData,
       [selectedType]: {
@@ -80,7 +91,7 @@ const Menu = () => {
         [field]: value,
       },
     }));
-
+  
     // Si el campo se llena, eliminar el error de validación para ese campo
     if (value) {
       setValidationErrors((prevErrors) => ({
@@ -89,6 +100,7 @@ const Menu = () => {
       }));
     }
   };
+  
 
   const saveMenu = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
