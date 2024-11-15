@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TopNavbar from '../../components/TopNavbar';
 import BecasReservation from '../../components/global/BecasReservation';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const Becas = () => {
 
@@ -8,6 +9,7 @@ const Becas = () => {
     <>
       <TopNavbar />
       <BecasReservation />
+      <FooterProfessionals />
 
     </>
   );

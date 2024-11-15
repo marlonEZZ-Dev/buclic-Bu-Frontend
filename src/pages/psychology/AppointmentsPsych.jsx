@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import enfermeriaImage from '../../assets/enfermeria.png';
-import odontologiaImage from '../../assets/odontologia.jpeg';
+import odontologiaImage from '../../assets/odontologia.jpg';
 
 const AppointmentsPsych = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate

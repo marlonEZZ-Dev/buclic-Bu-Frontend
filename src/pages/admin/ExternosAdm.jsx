@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
-import ReusableModal from '../../components/global/ReusableModal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Col, Form, Card, Space, Row, Input, Select, message } from 'antd';
 import api from '../../api';
 import SearchInputR from '../../components/global/SearchInputR';
@@ -302,14 +302,14 @@ const ExternosAdmin = () => {
                   <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
                     { required: true, message: 'Por favor ingrese el área de dependencia' },
                   ]}>
-                    <Input placeholder="Ingrese el área de dependencia" 
-                    onKeyPress={(e) => {
-                      const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-                      if (!regex.test(e.key)) {
-                        e.preventDefault(); // Evita el ingreso de caracteres no permitidos
-                      }
-                    }}
-                  />
+                    <Input placeholder="Ingrese el área de dependencia"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -353,6 +353,7 @@ const ExternosAdmin = () => {
           </div>
         </Card>
       </main >
+      <FooterProfessionals />
     </>
   );
 };

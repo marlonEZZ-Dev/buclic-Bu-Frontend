@@ -5,7 +5,7 @@ import TopNavbar from '../../components/TopNavbar';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 import FooterProfessionals from '../../components/global/FooterProfessionals';
 import psicologiaImage from '../../assets/psicologia.jpg';
-import odontologiaImage from '../../assets/odontologia.jpeg';
+import odontologiaImage from '../../assets/odontologia.jpg';
 
 const AppointmentsNurse = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate

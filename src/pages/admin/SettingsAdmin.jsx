@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import MenuBecas from '../../components/global/MenuBecas';
 import ReusableModal from '../../components/global/ReusableModal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import esES from 'antd/es/locale/es_ES';
 import { Button, Form, Input, Space, DatePicker, TimePicker, ConfigProvider, message } from 'antd';
 import api from '../../api';
@@ -641,6 +642,7 @@ const SettingsAdmin = () => {
                     )}
                 </MenuBecas>
             </main>
+            <FooterProfessionals />
         </ConfigProvider>
     );
 };

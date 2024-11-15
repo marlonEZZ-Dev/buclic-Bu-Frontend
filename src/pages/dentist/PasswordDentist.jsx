@@ -5,6 +5,7 @@ import HeaderDentist from "../../components/dentist/HeaderDentist";
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const PasswordDentist = () => {
   const [form] = Form.useForm();
@@ -194,6 +195,7 @@ const PasswordDentist = () => {
           </Modal>
         </Card>
       </main>
+      <FooterProfessionals />
     </>
   );
 };
