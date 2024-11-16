@@ -1,7 +1,5 @@
-import HeaderWorker from "../../components/worker/HeaderWorker";
-
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
+import HeaderWorker from "../../components/worker/HeaderWorker.jsx"
 import {
   Form,
   Input,
@@ -23,6 +21,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 const { Text } = Typography;
+
 
 const PsychologistWorker = () => {
   const { token } = theme.useToken();
@@ -87,11 +86,12 @@ const PsychologistWorker = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=PSICOLOGIA", {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
+  .get(`/appointment-reservation/student/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${storedToken}`,
+    },
+  })
+
       .then((response) => {
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
@@ -183,29 +183,41 @@ const PsychologistWorker = () => {
     }
   };
 
+  useEffect(() => {
+    fetchAvailableDates();
+  }, [userId]);
+
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=PSICOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
+  
 
   const handleConfirmReserve = () => {
     if (isPhoneError || isSemesterError) return;
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -225,14 +237,15 @@ const PsychologistWorker = () => {
       )
       .then((response) => {
         message.success(response.data.message);
-
+  
         localStorage.setItem("userPhone", phone);
         localStorage.setItem("userSemester", semester);
-
+  
         setPhone(phone);
         setSemester(semester);
-
+  
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualiza los horarios disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
@@ -246,6 +259,7 @@ const PsychologistWorker = () => {
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,

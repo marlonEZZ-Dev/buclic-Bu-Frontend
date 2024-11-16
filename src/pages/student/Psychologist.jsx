@@ -85,11 +85,12 @@ const Psychologist = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=PSICOLOGIA", {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
+  .get(`/appointment-reservation/student/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${storedToken}`,
+    },
+  })
+
       .then((response) => {
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
@@ -181,29 +182,41 @@ const Psychologist = () => {
     }
   };
 
+  useEffect(() => {
+    fetchAvailableDates();
+  }, [userId]);
+
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=PSICOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
+  
 
   const handleConfirmReserve = () => {
     if (isPhoneError || isSemesterError) return;
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -223,14 +236,15 @@ const Psychologist = () => {
       )
       .then((response) => {
         message.success(response.data.message);
-
+  
         localStorage.setItem("userPhone", phone);
         localStorage.setItem("userSemester", semester);
-
+  
         setPhone(phone);
         setSemester(semester);
-
+  
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualiza los horarios disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
@@ -244,6 +258,7 @@ const Psychologist = () => {
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,

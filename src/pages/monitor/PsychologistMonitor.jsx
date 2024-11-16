@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -85,11 +86,12 @@ const PsychologistMonitor = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=PSICOLOGIA", {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
+  .get(`/appointment-reservation/student/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${storedToken}`,
+    },
+  })
+
       .then((response) => {
         setAvailableDates(response.data.availableDates);
         filterDatesBySelectedDay(
@@ -181,23 +183,35 @@ const PsychologistMonitor = () => {
     }
   };
 
+  useEffect(() => {
+    fetchAvailableDates();
+  }, [userId]);
+
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=PSICOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
+  
 
   const handleConfirmReserve = () => {
     if (isPhoneError || isSemesterError) return;
@@ -231,18 +245,14 @@ const PsychologistMonitor = () => {
         setSemester(semester);
   
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualiza los horarios disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
-        if (error.response && error.response.data?.message) {
-          // Mostrar únicamente el mensaje devuelto por el backend
-          message.error(error.response.data.message);
-        } else {
-          // Si no hay mensaje específico, loguear en consola y no mostrar mensaje
-          console.error("Error inesperado:", error);
-        }
+        console.error("Error al reservar la cita:", error);
+        message.error("Debes agendar tu cita al menos una hora antes.");
       })
       .finally(() => {
         setConfirmLoading(false);
@@ -271,6 +281,10 @@ const PsychologistMonitor = () => {
   };
 
   const disabledDate = (currentDate) => {
+    if (!availableDates || availableDates.length === 0) {
+      return true; // Deshabilita todas las fechas si no hay datos disponibles
+    }
+  
     const formattedDate = currentDate.format("YYYY-MM-DD");
     return !availableDates.some(
       (item) =>
@@ -278,7 +292,7 @@ const PsychologistMonitor = () => {
         item.available === true
     );
   };
-
+  
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
 
