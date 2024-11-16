@@ -10,6 +10,7 @@ import Search  from '../../components/admin/SearchInput.jsx'
 import StateUser from '../../components/global/StateUser.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx"
 
 import styles from "../../styles/admin/managementUsers.module.css"
 
@@ -229,7 +230,7 @@ const handlePageChange = page => {
   };
 
   const getValueComplexSelectInModal = () => {
-    if (isStudent) return getStatusValue(objectSelected.isActive)
+    if (isStudent) return objectSelected.isActive
     if (isFuncionary) {
       return objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]
     }
@@ -239,6 +240,7 @@ const handlePageChange = page => {
     if (isBeneficiary && objectSelected.snackBeneficiary) {
       return "Beneficiario refrigerio"
     }
+    // if(isBeneficiary &&)
   }
 
   const getOptionsComplexSelectInModal = () => {
@@ -297,15 +299,14 @@ const handlePageChange = page => {
   const handlerCloseModalImport = () => setIsModalImport(false)
   
   const handlerOpenModalEdit = row => {
-    //Debe seguir ese orden el código...
-    //Si lo va a modificar tenga mucho cuidado
-    const [thisName,] = row.name.split("  ")
-    row.name = thisName
-    row.isActive = getStatusValue(row.isActive)
-    setObjectSelectedClone(structuredClone(row))
-    row.isActive = tranformToStateUser(row.isActive)
+    row.isActive = getStatusValue(row.isActive) //Quita el react.Element que contiene un symbol y no se puede clonarse
+    const rowSelected = structuredClone(row)
+    const [thisName,] = rowSelected.name.split("  ")
+    rowSelected.name = thisName
+    setObjectSelectedClone(structuredClone(rowSelected))//Para deshacer cambios
+    row.isActive = tranformToStateUser(row.isActive)//Debe volver a ser un react.Element por tanto se establece denuevo el componente para no alterar la visibilidad de la fila
     setIsModalEdit(true)
-    setObjectSelected(row)
+    setObjectSelected(rowSelected)
   }  
 
   const handlerOpenModalDelete = row => {
@@ -386,6 +387,7 @@ const handlePageChange = page => {
     setIsModalEdit(false)
     handlerOkValidation({clear: true})
     setObjectSelected(null)
+    setObjectSelectedClone(null)
   }
   const handlerVerify = (user, isEdit = false) => {
     const fnState = isEdit ? setOkValidationEdit : setOkValidation;
@@ -1185,6 +1187,7 @@ useEffect(() => {
         </Flex>        
         </MenuBecas>
       </main>
+      <FooterProfessionals/>
     </>
   )
 }
