@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 import {
   Form,
   Input,
@@ -19,7 +20,6 @@ import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 
 const { Text } = Typography;
 
