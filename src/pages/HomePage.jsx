@@ -7,7 +7,7 @@ export default function HomePage() {
       <div className="welcome-box">
         <h1 className="welcome-title">Te damos la bienvenida</h1>
         <Link to="/login">
-          <button className="welcome-button">BuClick</button>
+          <button className="welcome-button">BUclick</button>
         </Link>
         <p className="welcome-text">
           Con BuClick, gestiona tus becas de alimentación y reserva citas de
