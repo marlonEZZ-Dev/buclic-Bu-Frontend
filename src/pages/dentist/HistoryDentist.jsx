@@ -38,8 +38,8 @@ const HistoryDentistry = () => {
             const formattedActivities = (response.data.list.content || []).map(activity => ({
                 ...activity,
                 date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible', // Formateamos la fecha a "DD/MM/YYYY" si está presente
-                fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastname || 'Apellido no disponible'}`, // Concatenamos nombre y apellido si están presentes
-                document: activity.user?.document || 'Documento no disponible', // Mostramos el documento si está presente
+                fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastName || 'Apellido no disponible'}`, // Concatenamos nombre y apellido si están presentes
+                document: activity.user?.username || 'Documento no disponible', // Mostramos el documento si está presente
             }));
             setActivities(formattedActivities);
         } catch (err) {
@@ -48,16 +48,42 @@ const HistoryDentistry = () => {
         }
     }, [queryValue, rangeValue]);
 
-    const showVisitDetail = async (visitId) => {
+    const showVisitDetail = useCallback(async (visitId) => {
+        if (!visitId) {
+            messageApi.error("ID de la visita no válido");
+            return;
+        }
+
         try {
-            const response = await api.get(`/visit/${visitId}`);
-            setSelectedVisit(response.data);
-            setIsModalVisible(true);
+            // Solicitar datos al endpoint del detalle de la visita
+            const response = await api.get(`/odontology-visits/visit/${visitId}`);
+
+            if (response.data) {
+                // Ajustar y mapear los datos para el modal
+                const visitDetails = {
+                    user: {
+                        name: response.data.name || "Nombre no disponible",
+                        document: response.data.username || "Documento no disponible",
+                    },
+                    date: response.data.date
+                        ? moment(response.data.date).format("DD/MM/YYYY")
+                        : "Fecha no disponible",
+                    plan: response.data.plan || "Plan no disponible",
+                    reason: response.data.reason || "Razón no disponible",
+                    description: response.data.description || "Descripción no disponible",
+                };
+
+                // Guardar los detalles de la visita en el estado
+                setSelectedVisit(visitDetails);
+                setIsModalVisible(true);
+            } else {
+                messageApi.error("No se encontraron detalles para esta visita");
+            }
         } catch (error) {
             console.error("Error fetching visit details:", error);
             messageApi.error("Error al obtener los detalles de la visita");
         }
-    };
+    }, [messageApi]);
 
     const handleModalClose = () => {
         setIsModalVisible(false);
@@ -141,11 +167,24 @@ const HistoryDentistry = () => {
                 >
                     {selectedVisit ? (
                         <Descriptions bordered size="small" column={1}>
-                            <Descriptions.Item label="Nombre">{`${selectedVisit.user?.name || ''} ${selectedVisit.user?.lastname || ''}`}</Descriptions.Item>
-                            <Descriptions.Item label="Código/Cédula">{selectedVisit.user?.document || 'Documento no disponible'}</Descriptions.Item>
-                            <Descriptions.Item label="Fecha de visita">{moment(selectedVisit.date).format('DD/MM/YYYY')}</Descriptions.Item>
-                            <Descriptions.Item label="Diagnóstico">{selectedVisit.diagnostic}</Descriptions.Item>
-                            <Descriptions.Item label="Conducta">{selectedVisit.conduct}</Descriptions.Item>
+                            <Descriptions.Item label="Nombre">
+                                {selectedVisit.user.name}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Código/Cédula">
+                                {selectedVisit.user.document}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Fecha de visita">
+                                {selectedVisit.date}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Plan">
+                                {selectedVisit.plan}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Razón">
+                                {selectedVisit.reason}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Descripción">
+                                {selectedVisit.description}
+                            </Descriptions.Item>
                         </Descriptions>
                     ) : (
                         <p>Cargando detalles de la visita...</p>
@@ -155,5 +194,4 @@ const HistoryDentistry = () => {
         </>
     );
 };
-
-export default HistoryDentistry;
+export default HistoryDentistry;    
