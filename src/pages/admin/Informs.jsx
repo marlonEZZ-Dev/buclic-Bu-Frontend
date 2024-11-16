@@ -183,14 +183,21 @@ const CombinedReports = () => {
       }
 
       const response = await api.get(endpoint);
+
+      // Validar si hay datos disponibles
+      if (response.data.length === 0) {
+        message.error('No hay informes en esa fecha'); // Notificación de error
+        return; // Salimos sin actualizar la tabla
+      }
+
+      // Actualizar datos si se encontraron resultados
       setReports(response.data);
       setTotalItems(response.data.length);
-      setNoResults(response.data.length === 0); // Actualiza si no hay resultados
-      message.success('Búsqueda realizada con éxito');
+      setNoResults(false); // Reinicia el estado de no resultados
     } catch (error) {
       console.error('Error en la búsqueda:', error);
       message.error(`No se pudo realizar la búsqueda: ${error.response?.data?.message || error.message}`);
-      setNoResults(true); // En caso de error, también mostramos el mensaje de no resultados
+      setNoResults(true); // Indicar que no hay resultados disponibles
     }
   };
 
@@ -236,7 +243,7 @@ const CombinedReports = () => {
                     marginRight: '10px',
                     backgroundColor: selectedBeca === 'Almuerzo' ? '#C20E1A' : 'white',
                     color: selectedBeca === 'Almuerzo' ? 'white' : '#C20E1A',
-                    border: '1px solid #C20E1A'
+                    border: '1px solid #C20E1A',
                   }}
                   onClick={() => generateReport('almuerzo')}
                 >
@@ -246,7 +253,7 @@ const CombinedReports = () => {
                   style={{
                     backgroundColor: selectedBeca === 'Refrigerio' ? '#C20E1A' : 'white',
                     color: selectedBeca === 'Refrigerio' ? 'white' : '#C20E1A',
-                    border: '1px solid #C20E1A'
+                    border: '1px solid #C20E1A',
                   }}
                   onClick={() => generateReport('refrigerio')}
                 >
@@ -254,7 +261,6 @@ const CombinedReports = () => {
                 </Button>
               </div>
 
-              {/* Divider para separar los botones del texto */}
               <Divider style={{ borderColor: 'grey' }} />
 
               <p style={{ textAlign: 'center' }}>
@@ -271,12 +277,12 @@ const CombinedReports = () => {
                   style={{
                     backgroundColor: '#C20E1A',
                     color: 'white',
-                    border: 'none'
+                    border: 'none',
                   }}
                   onClick={handleCustomSearch}
-                >
-                </Button>
+                />
               </div>
+              
             </>
           ) : (
             <>
@@ -295,7 +301,7 @@ const CombinedReports = () => {
                     marginRight: '10px',
                     backgroundColor: selectedBeca === 'Almuerzo' ? '#C20E1A' : 'white',
                     color: selectedBeca === 'Almuerzo' ? 'white' : '#C20E1A',
-                    border: '1px solid #C20E1A'
+                    border: '1px solid #C20E1A',
                   }}
                   onClick={() => generateReport('Almuerzo')}
                 >
@@ -305,7 +311,7 @@ const CombinedReports = () => {
                   style={{
                     backgroundColor: selectedBeca === 'Refrigerio' ? '#C20E1A' : 'white',
                     color: selectedBeca === 'Refrigerio' ? 'white' : '#C20E1A',
-                    border: '1px solid #C20E1A'
+                    border: '1px solid #C20E1A',
                   }}
                   onClick={() => generateReport('Refrigerio')}
                 >
@@ -313,7 +319,6 @@ const CombinedReports = () => {
                 </Button>
               </div>
 
-              {/* Divider para separar los botones del texto */}
               <Divider style={{ borderColor: 'grey' }} />
 
               <p style={{ textAlign: 'center' }}>
@@ -332,27 +337,31 @@ const CombinedReports = () => {
                   style={{
                     backgroundColor: '#C20E1A',
                     color: 'white',
-                    border: 'none'
+                    border: 'none',
                   }}
                   onClick={handleCustomSearch}
-                >
-                </Button>
+                />
               </div>
             </>
           )}
 
-          {noResults ? (
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ color: 'red' }}>No se encontraron resultados para la búsqueda.</p>
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={handleReloadTable}
-                style={{ backgroundColor: '#C20E1A', color: 'white' }}
-              >
-                Recargar Tabla
-              </Button>
-            </div>
-          ) : (
+          {/* Contenedor para tabla y botón de recargar */}
+          <div style={{ position: 'relative', marginTop: '20px' }}>
+            {/* Botón de recargar */}
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={handleReloadTable}
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                right: '0',
+                backgroundColor: '#C20E1A',
+                color: 'white',
+                border: 'none',
+              }}
+            />
+
+            {/* Tabla */}
             <TablePaginationR
               rows={reports.map(formatReportData)}
               columns={selectedType === "Diarios" ? columnsDaily : columnsSemestral}
@@ -361,23 +370,23 @@ const CombinedReports = () => {
               totalItems={totalItems}
               onPageChange={handlePageChange}
             />
-          )}
 
-          <Modal
-            open={isDeleteModalVisible}
-            onClose={handleDeleteCancel}
-            modalTitle="Confirmar eliminación"
-          >
-            <p>¿Desea eliminar el informe {selectedType === "Diarios" ? "diario" : "semestral"} seleccionado?</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <Button onClick={handleDeleteCancel} style={{ marginRight: '10px' }}>
-                Cancelar
-              </Button>
-              <Button type="primary" danger onClick={handleDeleteConfirm}>
-                Aceptar
-              </Button>
-            </div>
-          </Modal>
+            <Modal
+              open={isDeleteModalVisible}
+              onClose={handleDeleteCancel}
+              modalTitle="Confirmar eliminación"
+            >
+              <p>¿Desea eliminar el informe {selectedType === "Diarios" ? "diario" : "semestral"} seleccionado?</p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <Button onClick={handleDeleteCancel} style={{ marginRight: '10px' }}>
+                  Cancelar
+                </Button>
+                <Button type="primary" danger onClick={handleDeleteConfirm}>
+                  Aceptar
+                </Button>
+              </div>
+            </Modal>
+          </div>
         </MenuBecas>
       </div>
       <FooterProfessionals />
