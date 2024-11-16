@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
-import ReusableModal from '../../components/global/ReusableModal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Col, Form, Card, Space, Row, Input, Select, message } from 'antd';
 import api from '../../api';
 import SearchInputR from '../../components/global/SearchInputR';
@@ -28,6 +28,21 @@ const ExternosAdmin = () => {
     setCedula(e.target.value);
   };
 
+  // Función para validar si la hora seleccionada está dentro de un rango
+  const isTimeInRange = (selectedTime, startTime, endTime) => {
+    const selectedHour = selectedTime.getHours();
+    const selectedMinutes = selectedTime.getMinutes();
+
+    const [startHour, startMinutes] = startTime.split(':').map(Number);
+    const [endHour, endMinutes] = endTime.split(':').map(Number);
+
+    return (
+      (selectedHour > startHour || (selectedHour === startHour && selectedMinutes >= startMinutes)) &&
+      (selectedHour < endHour || (selectedHour === endHour && selectedMinutes <= endMinutes))
+    );
+  };
+
+
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
@@ -47,16 +62,20 @@ const ExternosAdmin = () => {
 
       const selectedTime = currentTime;
 
-      // Validación de hora para almuerzo
-      if (becas === 'Almuerzo' && (selectedTime < startLunch || selectedTime > endLunch)) {
-        message.error('No está en el rango de hora para realizar la reserva de almuerzo');
-        return;
+      //Almuezo
+      if (becas === 'Almuerzo') {
+        if (!isTimeInRange(selectedTime, settings.starLunch, settings.endLunch)) {
+          message.error('No está en el rango de hora para realizar la reserva de almuerzo');
+          return;
+        }
       }
 
-      // Validación de hora para refrigerio
-      if (becas === 'Refrigerio' && (selectedTime < startSnack || selectedTime > endSnack)) {
-        message.error('No está en el rango de hora para realizar la reserva de refrigerio');
-        return;
+      // Refrigerio
+      if (becas === 'Refrigerio') {
+        if (!isTimeInRange(selectedTime, settings.starSnack, settings.endSnack)) {
+          message.error('No está en el rango de hora para realizar la reserva de refrigerio');
+          return;
+        }
       }
 
       // Validación de disponibilidad
@@ -121,6 +140,10 @@ const ExternosAdmin = () => {
 
 
   const handleSearch = async () => {
+    if (!cedula.trim()) {
+      message.warning("Ingrese la cédula de un usuario para buscar.");
+      return;
+    }
     try {
       const response = await api.get(`/reservations/extern/${cedula}`);
       const externoData = response.data;
@@ -170,7 +193,7 @@ const ExternosAdmin = () => {
         console.error('Error al obtener las configuraciones', error);
       }
     };
-  
+
     fetchSettings();
   }, []);
 
@@ -182,12 +205,12 @@ const ExternosAdmin = () => {
     const date = new Date(formattedTimeString);
 
     if (isNaN(date)) {
-      console.error('Fecha inválida:', formattedTimeString);
-      return 'Hora inválida';
+      return 'Hora por definir';
     }
 
     const hours = date.getHours();
     const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
 
     const hour12 = hours % 12 || 12;
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -253,7 +276,14 @@ const ExternosAdmin = () => {
                 <Col span={12}>
                   <Form.Item label="Nombre" labelAlign="left" name="name" rules={[
                     { required: true, message: 'Por favor ingrese el nombre' },]}>
-                    <Input placeholder="Ingrese el nombre" />
+                    <Input placeholder="Ingrese el nombre"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -261,15 +291,29 @@ const ExternosAdmin = () => {
                   <Form.Item label="Apellido" labelAlign="left" name="lastname" rules={[
                     { required: true, message: 'Por favor ingrese el apellido' },
                   ]}>
-                    <Input placeholder="Ingrese el apellido" />
+                    <Input placeholder="Ingrese el apellido"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
+                  <Form.Item label="Área dependencia" labelAlign="left" name="dependencia" rules={[
                     { required: true, message: 'Por favor ingrese el área de dependencia' },
                   ]}>
-                    <Input placeholder="Ingrese el área de dependencia" />
+                    <Input placeholder="Ingrese el área de dependencia"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -281,7 +325,7 @@ const ExternosAdmin = () => {
                     required
                     rules={[
                       { required: true, message: 'Por favor ingrese el correo electrónico' },
-                      { type: 'email', message: 'Por favor ingrese un correo electrónico válido' }
+                      { type: 'email', message: 'Por favor ingrese un correo electrónico válido ej: uv@gmail.com' }
                     ]}
                   >
                     <Input type="email" placeholder="Ingrese el correo" />
@@ -308,11 +352,12 @@ const ExternosAdmin = () => {
           </Space>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <Button className="button-save" onClick={handleSave}>Guardar</Button>
+            <Button className="button-save" onClick={handleSave}>Reservar</Button>
             <Button className="button-cancel" onClick={() => form.resetFields()}>Cancelar</Button>
           </div>
         </Card>
       </main >
+      <FooterProfessionals />
     </>
   );
 };

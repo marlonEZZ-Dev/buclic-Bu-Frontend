@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -20,9 +19,10 @@ import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 const { Text } = Typography;
 
-const Psychologist = () => {
+const PsychologistMonitor = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
@@ -292,12 +292,12 @@ const Psychologist = () => {
   };
 
   const handleBack = () => {
-    navigate("/estudiante/citas");
+    navigate("/monitor/citas");
   };
 
   return (
     <>
-      <TopNavbar />
+      <HeaderMonitor />
       <main
         className="psicologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
@@ -495,4 +495,4 @@ const Psychologist = () => {
   );
 };
 
-export default Psychologist;
+export default PsychologistMonitor;

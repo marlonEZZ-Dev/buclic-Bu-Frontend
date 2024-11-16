@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 import {
   Form,
   Input,
@@ -15,14 +15,15 @@ import {
 import SchedulingTable from "../../components/global/SchedulingTable";
 import esES from "antd/es/locale/es_ES";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+
 const { Text } = Typography;
 
-const Psychologist = () => {
+const NursingMonitor = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(
@@ -31,28 +32,28 @@ const Psychologist = () => {
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
-  const [semester, setSemester] = useState("");
+  const [eps, setEps] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
   const [isPhoneError, setIsPhoneError] = useState(false);
-  const [isSemesterError, setIsSemesterError] = useState(false);
+  const [isEpsError, setIsEpsError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionType, setActionType] = useState("");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [modalContent, setModalContent] = useState("");
 
+  const username = localStorage.getItem("username");
+  const userEmail = localStorage.getItem("userEmail");
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
 
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
-    const storedSemester = localStorage.getItem("userSemester");
+    const storedEps = localStorage.getItem("userEPS");
 
     setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
-    setSemester(
-      storedSemester !== "null" && storedSemester ? storedSemester : ""
-    );
+    setEps(storedEps !== "null" && storedEps ? storedEps : "");
   }, []);
 
   useEffect(() => {
@@ -69,12 +70,12 @@ const Psychologist = () => {
         },
       })
       .then((response) => {
-        const psychologyAppointment = response.data.appointments.find(
+        const nursingAppointment = response.data.appointments.find(
           (appt) =>
-            appt.availableDate.typeAppointment === "PSICOLOGIA" &&
+            appt.availableDate.typeAppointment === "ENFERMERIA" &&
             appt.pending === true
         );
-        setPendingAppointment(psychologyAppointment || null);
+        setPendingAppointment(nursingAppointment || null);
       })
       .catch((error) => {
         console.error("Error al obtener las citas del estudiante:", error);
@@ -85,7 +86,7 @@ const Psychologist = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=PSICOLOGIA", {
+      .get("/appointment?type=ENFERMERIA", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -103,28 +104,28 @@ const Psychologist = () => {
   }, []);
 
   const showModal = (type, appointmentId = null) => {
+    let hasError = false;
+
+    if (phone.length !== 10) {
+      setIsPhoneError(true);
+      hasError = true;
+    } else {
+      setIsPhoneError(false);
+    }
+
+    if (!eps) {
+      setIsEpsError(true);
+      hasError = true;
+    } else {
+      setIsEpsError(false);
+    }
+
+    if (hasError) {
+      message.error("Digita los campos teléfono y EPS.");
+      return;
+    }
+
     if (type === "reserve") {
-      let hasError = false;
-
-      if (phone.length !== 10) {
-        setIsPhoneError(true);
-        hasError = true;
-      } else {
-        setIsPhoneError(false);
-      }
-
-      if (!semester) {
-        setIsSemesterError(true);
-        hasError = true;
-      } else {
-        setIsSemesterError(false);
-      }
-
-      if (hasError) {
-        message.error("Digita los campos teléfono y semestre.");
-        return; // Detener la ejecución si hay errores
-      }
-
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
       );
@@ -166,7 +167,6 @@ const Psychologist = () => {
           message.success("Cita cancelada con éxito");
 
           setPendingAppointment(null);
-
           fetchAvailableDates();
           filterDatesBySelectedDay(selectedDate);
         })
@@ -185,7 +185,7 @@ const Psychologist = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=PSICOLOGIA", {
+      .get("/appointment?type=ENFERMERIA", {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -200,44 +200,56 @@ const Psychologist = () => {
   };
 
   const handleConfirmReserve = () => {
-    if (isPhoneError || isSemesterError) return;
+    let hasError = false;
+
+    if (phone.length !== 10) {
+      setIsPhoneError(true);
+      hasError = true;
+    } else {
+      setIsPhoneError(false);
+    }
+
+    if (!eps) {
+      setIsEpsError(true);
+      hasError = true;
+    } else {
+      setIsEpsError(false);
+    }
+
+    if (hasError) {
+      message.error("Digita los campos teléfono y EPS.");
+      setModalVisible(false);
+      return;
+    }
 
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     setConfirmLoading(true);
+
+    const requestData = {
+      availableDateId: selectedAppointmentId,
+      pacientId: parseInt(userId, 10),
+      eps,
+      phone: parseInt(phone, 10),
+    };
+
     api
-      .post(
-        "/appointment-reservation",
-        {
-          pacientId: userId,
-          availableDateId: selectedAppointmentId,
-          semester,
-          phone,
+      .post("/appointment-reservation", requestData, {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      })
       .then((response) => {
         message.success(response.data.message);
-
-        localStorage.setItem("userPhone", phone);
-        localStorage.setItem("userSemester", semester);
-
-        setPhone(phone);
-        setSemester(semester);
-
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Debes agendar tu cita al menos una hora antes.");
+        console.error("Debes agendar tu cita con una hora de anticipación", error);
+        message.error("Debes agendar tu cita con una hora de anticipación.");
       })
       .finally(() => {
         setConfirmLoading(false);
@@ -285,21 +297,22 @@ const Psychologist = () => {
     setIsPhoneError(value.length !== 10);
   };
 
-  const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras, letras con tildes y espacios
-    setSemester(value);
-    setIsSemesterError(value.trim() === ""); // Error si está vacío
+  const handleEpsChange = (e) => {
+    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras y espacios
+    setEps(value);
+    setIsEpsError(value === "");
+    localStorage.setItem("userEPS", value);
   };
 
   const handleBack = () => {
-    navigate("/estudiante/citas");
+    navigate("/monitor/citas");
   };
 
   return (
     <>
-      <TopNavbar />
+      <HeaderMonitor />
       <main
-        className="psicologia-section"
+        className="enfermeria-section"
         style={{ marginTop: "100px", padding: "0 20px" }}
       >
         <div
@@ -330,7 +343,7 @@ const Psychologist = () => {
               marginRight: "auto",
             }}
           >
-            Cita psicología
+            Cita enfermería
           </h1>
         </div>
 
@@ -358,7 +371,16 @@ const Psychologist = () => {
                   <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
-
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item label="Correo">
+                  <Input value={userEmail || ""} disabled />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Form.Item label="Código">
+                  <Input value={username || ""} disabled />
+                </Form.Item>
+              </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
@@ -385,17 +407,15 @@ const Psychologist = () => {
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
-                  label="Semestre"
-                  validateStatus={isSemesterError ? "error" : ""}
-                  help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
-                  }
+                  label="EPS"
+                  validateStatus={isEpsError ? "error" : ""}
+                  help={isEpsError ? "El campo EPS es obligatorio." : ""}
                 >
                   <Input
                     type="text"
-                    value={semester}
-                    onChange={handleSemesterChange}
-                    style={{ borderColor: isSemesterError ? "red" : "" }}
+                    value={eps}
+                    onChange={handleEpsChange}
+                    style={{ borderColor: isEpsError ? "red" : "" }}
                   />
                 </Form.Item>
               </Col>
@@ -434,7 +454,7 @@ const Psychologist = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 312 bloque A"
+                salon="Salón 102 bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
@@ -469,7 +489,7 @@ const Psychologist = () => {
                     maxWidth: "300px",
                   }}
                 >
-                  Agendaste una cita con psicología para el día{" "}
+                  Agendaste una cita con enfermería para el día{" "}
                   {moment(pendingAppointment.availableDate.dateTime).format(
                     "DD/MM/YYYY [a las] hh:mm A"
                   )}
@@ -490,9 +510,9 @@ const Psychologist = () => {
           </Col>
         </Row>
       </main>
-      <FooterProfessionals/>
+      <FooterProfessionals />
     </>
   );
 };
 
-export default Psychologist;
+export default NursingMonitor;

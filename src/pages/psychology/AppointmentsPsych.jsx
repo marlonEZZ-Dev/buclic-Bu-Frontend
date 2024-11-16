@@ -2,6 +2,8 @@ import HeaderPsych from "../../components/psychology/HeaderPsych";
 import { useNavigate } from 'react-router-dom';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import enfermeriaImage from '../../assets/enfermeria.png';
+import odontologiaImage from '../../assets/odontologia.jpg';
 
 const AppointmentsPsych = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
@@ -43,7 +45,7 @@ const AppointmentsPsych = () => {
             onClick={() => handleNavigation('/psicologo/enfermeria')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={enfermeriaImage}
               title="Enfermería - Médico general"
               style={{
                 backgroundColor: 'white',
@@ -61,7 +63,7 @@ const AppointmentsPsych = () => {
             onClick={() => handleNavigation('/psicologo/odontologia')} // Manejo de clic para redirigir
           >
             <AppointmentMenu
-              image="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+              image={odontologiaImage}
               title="Odontología"
               style={{
                 backgroundColor: 'white',

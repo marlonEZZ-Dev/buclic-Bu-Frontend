@@ -5,6 +5,7 @@ import HeaderDentist from "../../components/dentist/HeaderDentist";
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const PasswordDentist = () => {
   const [form] = Form.useForm();
@@ -73,7 +74,7 @@ const PasswordDentist = () => {
         <Card bordered={true} style={styles.card}>
           {/* Título */}
           <Space style={styles.titleSpace}>
-            <h1 className="titleCard">Cambiar contraseña</h1>
+            <h1 className="titleCard"><strong>Cambiar contraseña</strong></h1>
           </Space>
 
           <p style={styles.paragraph}>La contraseña debe contener mínimo 8 caracteres.</p>
@@ -194,6 +195,7 @@ const PasswordDentist = () => {
           </Modal>
         </Card>
       </main>
+      <FooterProfessionals />
     </>
   );
 };

@@ -5,6 +5,7 @@ import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 const PasswordAdmin = () => {
   const [form] = Form.useForm();
@@ -194,6 +195,7 @@ const PasswordAdmin = () => {
           </Modal>
         </Card>
       </main>
+      <FooterProfessionals />
     </>
   );
 };

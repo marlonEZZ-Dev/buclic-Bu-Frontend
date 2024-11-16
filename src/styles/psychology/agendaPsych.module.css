@@ -23,7 +23,8 @@
 }
 
 .card{
-  width: 600px;
+  width: 100%;
+  max-width: 37.5rem;
   margin-top: 0;
 }
 
@@ -48,6 +49,12 @@
 .searchInput{
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.searchButton{
+  color: white;
+  background-color: var(--red);
+  margin-left: .625rem;
 }
 
 .assistance{

@@ -4,17 +4,19 @@ import ReusableModal from "../../components/global/ReusableModal.jsx";
 import api from "../../api.js";
 import styles from "../../styles/psychology/agendaPsych.module.css";
 
-function AssistanceButtons({ appointmentId, onReload }) {
+function AssistanceButtons({ appointmentId, onReload, notifySuccess = () => {}}) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
 
   const handleOpenModal = (status) => {
     setSelectedStatus(status); // Guarda el estado seleccionado (true o false)
     setIsModalVisible(true);   // Muestra el modal de confirmación
+
   };
 
   const handleConfirm = async () => {
-    try {
+    try {      
+      notifySuccess(`${selectedStatus ? "A" : "Ina"}sistencia confirmada`)
       const token = localStorage.getItem("access");
       await api.post(
         "/appointment-reservation/asistencia",
@@ -56,7 +58,6 @@ function AssistanceButtons({ appointmentId, onReload }) {
         onCancel={handleCancel}
         onConfirm={handleConfirm}
       />
-
       <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
         <button
           className={styles.buttonCheck}

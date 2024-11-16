@@ -10,6 +10,7 @@ import Search  from '../../components/admin/SearchInput.jsx'
 import StateUser from '../../components/global/StateUser.jsx'
 import SmallInput from '../../components/global/SmallInput.jsx'
 import TablePaginationUsers from '../../components/global/TablePaginationUsers.jsx'
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx"
 
 import styles from "../../styles/admin/managementUsers.module.css"
 
@@ -82,8 +83,8 @@ export default function ManagementUsers(){
     lastName:"",
     email: "",
     plan:"",
-    roles: [],
-    grant: ""
+    roles: [""],
+    grant: null
   }
   const [user, setUser] = useState(initialUser)
   //Predicados
@@ -95,7 +96,6 @@ export default function ManagementUsers(){
   //Definicion de variables
 
   const fontSizeTitleModal = {fontSize:"1.5rem"}
-
   //Pestañas para cada usuario
   const buttons = [
     {type:"Beneficiarios",label:"Beneficiarios"},
@@ -230,15 +230,17 @@ const handlePageChange = page => {
   };
 
   const getValueComplexSelectInModal = () => {
-    if(isStudent) return getStatusValue(objectSelected.isActive)
-    if(isFuncionary) {
+    if (isStudent) return objectSelected.isActive
+    if (isFuncionary) {
       return objectSelected.roles.includes("MONITOR") ? "MONITOR" : objectSelected.roles[0]
     }
-    if(isBeneficiary && objectSelected.lunchBeneficiary){
+    if (isBeneficiary && objectSelected.lunchBeneficiary) {
       return "Beneficiario almuerzo"
-    }else{
+    }
+    if (isBeneficiary && objectSelected.snackBeneficiary) {
       return "Beneficiario refrigerio"
-    }   
+    }
+    // if(isBeneficiary &&)
   }
 
   const getOptionsComplexSelectInModal = () => {
@@ -248,14 +250,19 @@ const handlePageChange = page => {
     console.error("no deberían existir más usuarios")
   }
 
+  const setItemsInLocalStorage = () => localStorage.setItem("userManagementUser", JSON.stringify(user))
+
   //Handlers
   const handlerClick = type => setChangesDescription(users.get(type))
 
   
   //Manejadores de estado de modals
   const handlerOnlyIntegerPositive = e => {
+    const allowedKeys = [
+      'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
+    ];
     // Evita la entrada de signos negativos y puntos
-    if (e.key === "-" || e.key === "." || e.key === ",") {
+    if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
       e.preventDefault();
     }
   };
@@ -292,15 +299,14 @@ const handlePageChange = page => {
   const handlerCloseModalImport = () => setIsModalImport(false)
   
   const handlerOpenModalEdit = row => {
-    //Debe seguir ese orden el código...
-    //Si lo va a modificar tenga mucho cuidado
-    const [thisName,] = row.name.split("  ")
-    row.name = thisName
-    row.isActive = getStatusValue(row.isActive)
-    setObjectSelectedClone(structuredClone(row))
-    row.isActive = tranformToStateUser(row.isActive)
+    row.isActive = getStatusValue(row.isActive) //Quita el react.Element que contiene un symbol y no se puede clonarse
+    const rowSelected = structuredClone(row)
+    const [thisName,] = rowSelected.name.split("  ")
+    rowSelected.name = thisName
+    setObjectSelectedClone(structuredClone(rowSelected))//Para deshacer cambios
+    row.isActive = tranformToStateUser(row.isActive)//Debe volver a ser un react.Element por tanto se establece denuevo el componente para no alterar la visibilidad de la fila
     setIsModalEdit(true)
-    setObjectSelected(row)
+    setObjectSelected(rowSelected)
   }  
 
   const handlerOpenModalDelete = row => {
@@ -381,6 +387,7 @@ const handlePageChange = page => {
     setIsModalEdit(false)
     handlerOkValidation({clear: true})
     setObjectSelected(null)
+    setObjectSelectedClone(null)
   }
   const handlerVerify = (user, isEdit = false) => {
     const fnState = isEdit ? setOkValidationEdit : setOkValidation;
@@ -405,6 +412,7 @@ const handlePageChange = page => {
 
   const handlerSave = useCallback(async () => {
   try {
+    console.log(user)
     const responseCreate = await createUser(user);
     if(responseCreate.success === false){
       notifyError(responseCreate.message)
@@ -487,6 +495,7 @@ const handlePageChange = page => {
       userFound.roles = getArrObjInArrStr(userFound.roles)
       arrayUserFound.push(userFound)
       setRows(arrayUserFound)
+      setTotalItems(1)
     }catch(error){
       console.error(`Esto ocurre en handlerSearchUser ${error}`)
     }
@@ -550,10 +559,10 @@ const handlePageChange = page => {
   }
 
   const handlerClearFields = () => {
-    setUser(initialUser)
     setRefreshFields(refreshFields + 1)
     setStatusEstadoRolTipoBecaSelect(undefined)
     setStatusRolesGrantSelect(undefined)    
+    setUser(initialUser)
   }
   
   useEffect(() => {
@@ -562,7 +571,10 @@ const handlePageChange = page => {
   
   useEffect(() => {
     handleResize();
-
+    const dataLocalStorage = localStorage.getItem("userManagementUser")
+    if(dataLocalStorage){
+      setUser(JSON.parse(dataLocalStorage))
+    }
     // Añade el event listener para cambios en el tamaño de la pantalla
     window.addEventListener('resize', handleResize);
 
@@ -574,13 +586,13 @@ const handlePageChange = page => {
   
   useEffect(() => {
     loadUsers()
-    setUser(initialUser)
+    localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
     setCodeUser("")
   }, [changesDescription])
 
   // Para cada campo en `user`, agrega un useEffect similar al siguiente
 useEffect(() => {
-  if(user.name !== "") localStorage.setItem("name_ManagementUsers", user.name)
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "name",
@@ -591,7 +603,7 @@ useEffect(() => {
 }, [user.name, pressedSave]);
 
 useEffect(() => {
-  localStorage.setItem("lastName_ManagementUsers", user.lastName)
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "lastname",
@@ -602,7 +614,7 @@ useEffect(() => {
 }, [user.lastName, pressedSave]);
 
 useEffect(() => {
-  localStorage.setItem("email_ManagementUsers", user.email)
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "email",
@@ -613,7 +625,7 @@ useEffect(() => {
 }, [user.email, pressedSave]);
 
 useEffect(() => {
-  localStorage.setItem("username_ManagementUsers", user.username)
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "username",
@@ -624,7 +636,7 @@ useEffect(() => {
 }, [user.username, pressedSave]);
 
 useEffect(() => {
-  localStorage.setItem("plan_ManagementUsers", user.plan)
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "plan",
@@ -635,7 +647,7 @@ useEffect(() => {
 }, [user.plan, pressedSave]);
 
 useEffect(() => {
-  localStorage.setItem("roles_ManagementUsers", JSON.stringify(user.roles))
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "roles",
@@ -646,6 +658,7 @@ useEffect(() => {
 }, [user.roles, pressedSave]);
 
 useEffect(() => {
+  setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
           name: "grant",
@@ -879,7 +892,7 @@ useEffect(() => {
         <SelectWithError title='Estado'
           errorMessage={okValidationEdit.status}
           placeholder="Selecciona"
-          value={getStatusValue(objectSelected.isActive)}
+          value={objectSelected.isActive}
           style={{width:"11.5rem"}}
           options={cbxStatus}
           onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}
@@ -960,6 +973,8 @@ useEffect(() => {
             setCurrentPage(0)
             handlerOkValidation({clear: true, fnState: setOkValidation})
             setPressedSave(false)
+            localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
+            setUser(initialUser)
           }}
           defaultSelected={buttons[1].type}>
             <button 
@@ -988,6 +1003,7 @@ useEffect(() => {
                 autoComplete="off"
                 errorMessage={pressedSave ? okValidation.name : ""}
                 name="name"
+                value={user.name}
                 required
                 onChange={e => handlerCreateUser(e)}
                 onKeyDown={handlerTextOnlyInput}
@@ -998,6 +1014,7 @@ useEffect(() => {
                 maxLength={50}
                 autoComplete="off"
                 errorMessage={pressedSave ? okValidation.lastName : ""}
+                value={user.lastName}
                 required
                 name="lastName"
                 onChange={e => handlerCreateUser(e)}
@@ -1017,6 +1034,7 @@ useEffect(() => {
               autoComplete="off"
               min={10000000}
               max={99999999}
+              value={user.username}
               required
               name="username"
               onChange={handlerCreateUser}
@@ -1029,6 +1047,7 @@ useEffect(() => {
               min={isFuncionary ? undefined : 1000}
               max={isFuncionary ? undefined : 9999}
               errorMessage={pressedSave ? okValidation.plan : ""}
+              value={user.plan}
               required
               autoComplete="off"
               name="plan"
@@ -1045,6 +1064,7 @@ useEffect(() => {
               key={`email${changesDescription}${refreshFields}`}              
               placeholder={isFuncionary ? 'Correo de la persona':'Correo del estudiante'}
               errorMessage={pressedSave ? okValidation.email : ""}
+              value={user.email}
               required
               autoComplete="off"
               type="email"              
@@ -1061,6 +1081,7 @@ useEffect(() => {
               status={statusRolesGrantSelect}
               options={isFuncionary ? cbxFuncionary : cbxBeneficiaries}
               errorMessage={(isFuncionary && pressedSave) ? okValidation.roles : okValidation.grant}
+              value={isFuncionary ? user.roles[0] : user.grant}
               onSelect={(value, option) => {
                 
                 if(isBeneficiary) {
@@ -1096,6 +1117,7 @@ useEffect(() => {
               handlerClearFields()
               handlerOkValidation({clear:true, fnState: setOkValidation})
               setPressedSave(false)
+              localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
             }            
             console.log(verify)
             console.dir(okValidation)
@@ -1105,6 +1127,7 @@ useEffect(() => {
             handlerClearFields()
             setPressedSave(false)
             handlerOkValidation({clear: true, fnState: setOkValidation})
+            localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
           }}
           >Cancelar</button>
         </Flex>
@@ -1119,6 +1142,7 @@ useEffect(() => {
             value={codeUser}
             onChange={e => setCodeUser(e.target.value)}
             onClick ={handlerSearchUser}
+            onKeyDown={handlerOnlyIntegerPositive}
             />
           {isBeneficiary && 
           <button 
@@ -1133,7 +1157,7 @@ useEffect(() => {
           <Flex 
           justify='space-between'
           >
-            <p style={{fontWeight:"bold", fontSize:"20px"}} className={styles.marginTable}>
+            <p style={{fontWeight:"bold", fontSize:"1.25rem"}} className={styles.marginTable}>
             {`Tabla de ${
             isFuncionary ? "funcionarios y externos registrados": 
               isStudent ? "estudiantes registrados" : 
@@ -1163,6 +1187,7 @@ useEffect(() => {
         </Flex>        
         </MenuBecas>
       </main>
+      <FooterProfessionals/>
     </>
   )
 }

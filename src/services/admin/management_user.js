@@ -27,7 +27,7 @@ const errorForPut = new Map([
   [401, "No autorizado para actualizar"],
   [403, "No tienes permisos para actualizar"],
   [404, "Usuario a actualizar no encontrado"],
-  [409, "Conflicto con el estado actual del usuario"],
+  [409, "Código o cédula existente"],
   [500, "Error interno del servidor"]
 ])
 
@@ -117,9 +117,13 @@ export const editUser = async (user) => {
   if(user.lunchBeneficiary === "Beneficiario almuerzo"){
     user.lunchBeneficiary = true
     user.snackBeneficiary = false
-  }else{
+  } else if(user.lunchBeneficiary === "Beneficiario refrigerio"){
     user.lunchBeneficiary = false
     user.snackBeneficiary = true
+  }
+  else{
+    user.lunchBeneficiary = false
+    user.snackBeneficiary = false
   }
   if(!("eps" in user)) user.eps = "eps"
   if(!("semester" in user)) user.semester = "semester"

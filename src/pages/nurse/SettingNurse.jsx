@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderNurse from "../../components/nurse/HeaderNurse";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Form, Input, message, Card } from 'antd';
 import api from '../../api';
 
@@ -33,12 +34,12 @@ const SettingNurse = () => {
             <HeaderNurse />
             <main style={{ marginTop: '100px', padding: '0 20px', display: 'flex', justifyContent: 'center' }}>
                 <Card
-                    title="Perfil"
                     bordered={false}
                     style={{ width: '100%', maxWidth: '600px' }}
                 >
                     {profileData ? (
                         <Form layout="vertical">
+                            <h1 className="titleCard"><strong>Perfil</strong></h1>
                             <Form.Item label={<span style={{ color: 'black', }}>Nombres</span>}>
                                 <Input value={profileData.name} disabled style={{ color: '#767676' }} />
                             </Form.Item>
@@ -67,6 +68,7 @@ const SettingNurse = () => {
                     )}
                 </Card>
             </main>
+            <FooterProfessionals />
         </>
     );
 };
