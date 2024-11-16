@@ -892,7 +892,7 @@ useEffect(() => {
         <SelectWithError title='Estado'
           errorMessage={okValidationEdit.status}
           placeholder="Selecciona"
-          value={getStatusValue(objectSelected.isActive)}
+          value={objectSelected.isActive}
           style={{width:"11.5rem"}}
           options={cbxStatus}
           onSelect={ (value, option) => handlerEditUser({target:{name:"isActive", value:option.value}})}

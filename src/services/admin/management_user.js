@@ -117,9 +117,13 @@ export const editUser = async (user) => {
   if(user.lunchBeneficiary === "Beneficiario almuerzo"){
     user.lunchBeneficiary = true
     user.snackBeneficiary = false
-  }else{
+  } else if(user.lunchBeneficiary === "Beneficiario refrigerio"){
     user.lunchBeneficiary = false
     user.snackBeneficiary = true
+  }
+  else{
+    user.lunchBeneficiary = false
+    user.snackBeneficiary = false
   }
   if(!("eps" in user)) user.eps = "eps"
   if(!("semester" in user)) user.semester = "semester"
