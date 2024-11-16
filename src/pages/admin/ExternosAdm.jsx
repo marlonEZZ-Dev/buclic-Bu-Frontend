@@ -353,7 +353,10 @@ const ExternosAdmin = () => {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
             <Button className="button-save" onClick={handleSave}>Reservar</Button>
-            <Button className="button-cancel" onClick={() => form.resetFields()}>Cancelar</Button>
+            <Button className="button-cancel" onClick={() => {
+              form.resetFields(); // Limpia los campos del formulario
+              setCedula(''); // Limpia el estado de búsqueda
+            }}>Cancelar</Button>
           </div>
         </Card>
       </main >
