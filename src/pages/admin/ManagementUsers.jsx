@@ -1155,7 +1155,7 @@ useEffect(() => {
           <Flex 
           justify='space-between'
           >
-            <p style={{fontWeight:"bold", fontSize:"20px"}} className={styles.marginTable}>
+            <p style={{fontWeight:"bold", fontSize:"1.25rem"}} className={styles.marginTable}>
             {`Tabla de ${
             isFuncionary ? "funcionarios y externos registrados": 
               isStudent ? "estudiantes registrados" : 
