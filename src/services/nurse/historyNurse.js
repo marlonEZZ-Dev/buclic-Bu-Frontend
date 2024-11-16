@@ -23,16 +23,16 @@ export const searchBy = async ({name="", startDate = "", endDate = ""}) => {
     queryParams.push(`startDate=${fStartDate}`)
     queryParams.push(`endDate=${fEndDate}`)
   }
-
   const finalUrl = queryParams.length > 0 ? `${baseUrl}?${queryParams.join('&')}` : baseUrl  
   
   try {
     const response = await axios.get(finalUrl)
     return response.data
   } catch (error) {
+    const messageBackend = error.response.data.message    
     return {
       success: false,
-      message: errorForGet.get(error.response.status) 
+      message: messageBackend.length !== 0 ?  error.response.data.message : errorForGet.get(error.response.status)
     }
   }
 }
