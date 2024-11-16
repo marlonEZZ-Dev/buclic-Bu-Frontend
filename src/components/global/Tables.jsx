@@ -16,15 +16,12 @@ const Tables = ({
     border: '1px solid #ddd',
     padding: '8px',
     textAlign: 'center',
-    whiteSpace: 'nowrap', // Evita que el contenido se divida en varias líneas
-    overflow: 'hidden',
     textOverflow: 'ellipsis', // Añade "..." si el contenido es muy largo
   };
 
   const tableStyle = {
     width:"100%",
-    borderCollapse: 'collapse',
-    tableLayout: 'fixed', // Distribuye el ancho de manera uniforme sin desbordar
+    borderCollapse: 'collapse' // Distribuye el ancho de manera uniforme sin desbordar
   };
 
   return (
