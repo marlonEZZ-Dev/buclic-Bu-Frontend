@@ -149,6 +149,7 @@ export default function AgendaPsych() {
   };
   const fetchAttendedAppointmentsByDate = async (date, page = 1) => {
     try {
+      date = dayjs(date).format("DD/MM/YYYY")
       const response = await api.get(
         `/appointment-reservation/professional/attended/search/${id}`,
         {
@@ -218,7 +219,7 @@ export default function AgendaPsych() {
                 className={styles.searchInput}
                 placeholder="Fecha de consulta (dd/MM/yyyy)"
                 format={"DD/MM/YYYY"}
-                onChange={value => setSearchDate(value)}
+                onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
               />
               <Button
               type="primary"
@@ -229,7 +230,7 @@ export default function AgendaPsych() {
                 borderColor: hover ? '#var(--red-dark)' : 'var(--red)'
               }}
               onClick={() => {
-                if (!searchDate.trim()) {
+                if (!searchDate) {
                   message.warning("Ingrese una fecha de consulta para buscar.");
                   return;
                 }
