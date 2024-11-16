@@ -201,38 +201,37 @@ const NursingMonitor = () => {
 
   const handleConfirmReserve = () => {
     let hasError = false;
-
+  
     if (phone.length !== 10) {
       setIsPhoneError(true);
       hasError = true;
     } else {
       setIsPhoneError(false);
     }
-
+  
     if (!eps) {
       setIsEpsError(true);
       hasError = true;
     } else {
       setIsEpsError(false);
     }
-
+  
     if (hasError) {
-      message.error("Digita los campos teléfono y EPS.");
       setModalVisible(false);
       return;
     }
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
-
+  
     const requestData = {
       availableDateId: selectedAppointmentId,
       pacientId: parseInt(userId, 10),
       eps,
       phone: parseInt(phone, 10),
     };
-
+  
     api
       .post("/appointment-reservation", requestData, {
         headers: {
@@ -241,6 +240,7 @@ const NursingMonitor = () => {
         },
       })
       .then((response) => {
+        // Manejo del caso exitoso
         message.success(response.data.message);
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
@@ -248,14 +248,20 @@ const NursingMonitor = () => {
         );
       })
       .catch((error) => {
-        console.error("Debes agendar tu cita con una hora de anticipación", error);
-        message.error("Debes agendar tu cita con una hora de anticipación.");
+        if (error.response && error.response.data?.message) {
+          // Mostrar únicamente el mensaje devuelto por el backend
+          message.error(error.response.data.message);
+        } else {
+          // Si no hay mensaje específico, loggear en consola y no mostrar mensaje
+          console.error("Error inesperado:", error);
+        }
       })
       .finally(() => {
         setConfirmLoading(false);
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
@@ -287,15 +293,17 @@ const NursingMonitor = () => {
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
-
+  
     // Evitar que el primer dígito sea 0
     if (value.startsWith("0")) {
       value = value.substring(1);
     }
-
+  
     setPhone(value);
     setIsPhoneError(value.length !== 10);
+    localStorage.setItem("userPhone", value); // Guardar inmediatamente en localStorage
   };
+  
 
   const handleEpsChange = (e) => {
     const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras y espacios
