@@ -52,11 +52,16 @@ export const listUsers = async (filter, page, size) => {
   }
 }
 
-export const searchUser = async (username) => {
-  const url = `/users/search/${username}`
-  console.log(url);
+export const searchUser = async (username, isFuncionary) => {
+  let response;
+  const urlStudent = `/users/search?username=${username}&type=estudiantes`
+  const urlAnybody = `/users/search/${username}`
   try {
-    const response = await axios.get(url)
+    if(isFuncionary){
+      response = await axios.get(urlAnybody)
+    }else{
+      response = await axios.get(urlStudent)
+    }
     return response.data
   } catch (error) {
     return {

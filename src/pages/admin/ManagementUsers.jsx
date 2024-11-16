@@ -240,7 +240,6 @@ const handlePageChange = page => {
     if (isBeneficiary && objectSelected.snackBeneficiary) {
       return "Beneficiario refrigerio"
     }
-    // if(isBeneficiary &&)
   }
 
   const getOptionsComplexSelectInModal = () => {
@@ -485,7 +484,7 @@ const handlePageChange = page => {
 
   const handlerSearchUser = async () => {
     try{
-      const userFound = await searchUser(codeUser)
+      const userFound = await searchUser(codeUser, isFuncionary)
       if((userFound !== undefined) && ("success" in userFound)){
         notifyError(userFound.message)
         return
