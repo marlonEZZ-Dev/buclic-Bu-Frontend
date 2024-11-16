@@ -201,9 +201,9 @@ const PsychologistMonitor = () => {
 
   const handleConfirmReserve = () => {
     if (isPhoneError || isSemesterError) return;
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -223,27 +223,33 @@ const PsychologistMonitor = () => {
       )
       .then((response) => {
         message.success(response.data.message);
-
+  
         localStorage.setItem("userPhone", phone);
         localStorage.setItem("userSemester", semester);
-
+  
         setPhone(phone);
         setSemester(semester);
-
+  
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Debes agendar tu cita al menos una hora antes.");
+        if (error.response && error.response.data?.message) {
+          // Mostrar únicamente el mensaje devuelto por el backend
+          message.error(error.response.data.message);
+        } else {
+          // Si no hay mensaje específico, loguear en consola y no mostrar mensaje
+          console.error("Error inesperado:", error);
+        }
       })
       .finally(() => {
         setConfirmLoading(false);
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,

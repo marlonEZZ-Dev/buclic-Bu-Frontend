@@ -52,16 +52,18 @@ export const listUsers = async (filter, page, size) => {
   }
 }
 
-export const searchUser = async (username) => {
-  const url = `/users/search/${username}`
-  console.log(url);
+export const searchUser = async (username, isFuncionary) => {
+  let response;
+  const url = `/users/search?username=${username}&type=${ isFuncionary ? "funcionarios":"estudiantes"}`
   try {
-    const response = await axios.get(url)
+    response = await axios.get(url)
     return response.data
   } catch (error) {
+    console.log(error)
+    const messageBackend = error.response.data.message
     return {
       success: false,
-      message: errorForGet.get(error.response.status)
+      message: messageBackend.length !== 0 ?  error.response.data.message : errorForGet.get(error.response.status)
     }
   }
 }

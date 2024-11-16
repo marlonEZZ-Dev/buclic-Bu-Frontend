@@ -124,7 +124,7 @@ const MenuMonitor = () => {
 
     // Si alguno de los campos está vacío, mostrar mensaje y detener el guardado
     if (Object.values(errors).some((error) => error)) {
-      message.error("Por favor, complete los campos obligatorios.");
+      message.error("Complete los campos obligatorios.");
       return;
     }
 
@@ -309,30 +309,30 @@ const MenuMonitor = () => {
             Diligencia los datos para el {selectedType} -{" "}
             {new Date().toLocaleDateString()}
           </p>
+{/* TextArea para el plato principal o aperitivo */}
+<div style={{ width: "100%", marginBottom: "12px" }}>
+  <label
+    style={{
+      marginBottom: "6px",
+      textAlign: "left",
+      display: "block",
+    }}
+  >
+    {mainDishLabel} <span style={{ color: "red" }}>*</span>
+  </label>
+  <TextArea
+    placeholder={mainDishPlaceholder}
+    autoSize
+    style={{
+      width: "100%",
+      borderColor: validationErrors.mainDish ? "red" : undefined,
+    }}
+    value={tempMenuData[selectedType].mainDish}
+    onChange={(e) => handleInputChange("mainDish", e.target.value)}
+    disabled={!isEditable[selectedType]}
+  />
+</div>
 
-          {/* TextArea para el plato principal o aperitivo */}
-          <div style={{ width: "100%", marginBottom: "12px" }}>
-            <label
-              style={{
-                marginBottom: "6px",
-                textAlign: "left",
-                display: "block",
-              }}
-            >
-              Plato Principal <span style={{ color: "red" }}>*</span>
-            </label>
-            <TextArea
-              placeholder="Describe el plato principal"
-              autoSize
-              style={{
-                width: "100%",
-                borderColor: validationErrors.mainDish ? "red" : undefined,
-              }}
-              value={tempMenuData[selectedType].mainDish}
-              onChange={(e) => handleInputChange("mainDish", e.target.value)}
-              disabled={!isEditable[selectedType]}
-            />
-          </div>
 
           {/* TextArea para Bebida */}
           <div style={{ width: "100%", marginBottom: "12px" }}>

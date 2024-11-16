@@ -178,7 +178,7 @@ const DentistMonitor = () => {
 
   const handleConfirmReserve = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -195,6 +195,7 @@ const DentistMonitor = () => {
         }
       )
       .then((response) => {
+        // Mostrar mensaje de éxito proporcionado por el backend
         message.success(response.data.message);
         fetchPendingAppointment();
         setFilteredDates((prevDates) =>
@@ -202,14 +203,20 @@ const DentistMonitor = () => {
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Debes agendar tu cita al menos una hora antes.");
+        if (error.response && error.response.data?.message) {
+          // Mostrar únicamente el mensaje devuelto por el backend
+          message.error(error.response.data.message);
+        } else {
+          // Si no hay mensaje específico del backend, registrar en consola sin mostrar mensajes adicionales
+          console.error("Error inesperado:", error);
+        }
       })
       .finally(() => {
         setConfirmLoading(false);
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
