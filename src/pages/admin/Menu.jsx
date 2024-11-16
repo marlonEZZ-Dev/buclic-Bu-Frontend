@@ -76,15 +76,14 @@ const Menu = () => {
   const handleInputChange = (field, value) => {
     // Expresión regular para permitir solo letras y tildes
     const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
-  
+
     if (field === "mainDish" || field === "drink" || field === "dessert") {
       // Validar solo para campos de texto
       if (!validTextRegex.test(value)) {
-        
         return;
       }
     }
-  
+
     setTempMenuData((prevData) => ({
       ...prevData,
       [selectedType]: {
@@ -92,7 +91,7 @@ const Menu = () => {
         [field]: value,
       },
     }));
-  
+
     // Si el campo se llena, eliminar el error de validación para ese campo
     if (value) {
       setValidationErrors((prevErrors) => ({
@@ -101,7 +100,6 @@ const Menu = () => {
       }));
     }
   };
-  
 
   const saveMenu = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
@@ -124,7 +122,7 @@ const Menu = () => {
 
     // Si alguno de los campos está vacío, mostrar mensaje y detener el guardado
     if (Object.values(errors).some((error) => error)) {
-      message.error("Por favor, complete los campos obligatorios.");
+      message.error("Complete los campos obligatorios.");
       return;
     }
 
@@ -234,10 +232,10 @@ const Menu = () => {
       ...prevEditable,
       [selectedType]: false,
     }));
-  
+
     // Restaurar los datos temporales con los valores originales
     setTempMenuData(menuData);
-  
+
     // Limpiar los errores de validación
     setValidationErrors({
       mainDish: false,
@@ -245,7 +243,6 @@ const Menu = () => {
       price: false,
     });
   };
-  
 
   const isLunch = selectedType === "Almuerzo";
   const mainDishLabel = isLunch ? "Plato principal" : "Aperitivo";
@@ -319,10 +316,10 @@ const Menu = () => {
                 display: "block",
               }}
             >
-              Plato Principal <span style={{ color: "red" }}>*</span>
+              {mainDishLabel} <span style={{ color: "red" }}>*</span>
             </label>
             <TextArea
-              placeholder="Describe el plato principal"
+              placeholder={mainDishPlaceholder}
               autoSize
               style={{
                 width: "100%",
@@ -512,7 +509,7 @@ const Menu = () => {
           </div>
         </MenuBecas>
       </div>
-      <FooterProfessionals/>
+      <FooterProfessionals />
     </>
   );
 };
