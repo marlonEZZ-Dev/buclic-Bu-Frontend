@@ -54,19 +54,16 @@ export const listUsers = async (filter, page, size) => {
 
 export const searchUser = async (username, isFuncionary) => {
   let response;
-  const urlStudent = `/users/search?username=${username}&type=estudiantes`
-  const urlAnybody = `/users/search/${username}`
+  const url = `/users/search?username=${username}&type=${ isFuncionary ? "funcionarios":"estudiantes"}`
   try {
-    if(isFuncionary){
-      response = await axios.get(urlAnybody)
-    }else{
-      response = await axios.get(urlStudent)
-    }
+    response = await axios.get(url)
     return response.data
   } catch (error) {
+    console.log(error)
+    const messageBackend = error.response.data.message
     return {
       success: false,
-      message: errorForGet.get(error.response.status)
+      message: messageBackend.length !== 0 ?  error.response.data.message : errorForGet.get(error.response.status)
     }
   }
 }
