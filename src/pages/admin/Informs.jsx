@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Input, message, DatePicker } from 'antd';
+import { Button, Input, message, DatePicker, Divider } from 'antd';
 import { EyeOutlined, DownloadOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import Modal from '../../components/global/Modal.jsx';
@@ -227,7 +228,7 @@ const CombinedReports = () => {
           {selectedType === "Diarios" ? (
             <>
               <p style={{ textAlign: 'center' }}>
-                Aquí puedes generar los informes diarios de las becas de alimentación
+                Para generar los informes diarios, selecciona la beca correspondiente que desees
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 <Button
@@ -252,8 +253,12 @@ const CombinedReports = () => {
                   Refrigerio
                 </Button>
               </div>
+
+              {/* Divider para separar los botones del texto */}
+              <Divider style={{ borderColor: 'grey' }} />
+
               <p style={{ textAlign: 'center' }}>
-                Aquí puedes buscar los informes diarios generados a través de la fecha
+                Busca los informes diarios generados
               </p>
 
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
@@ -270,14 +275,13 @@ const CombinedReports = () => {
                   }}
                   onClick={handleCustomSearch}
                 >
-                  Buscar por Fecha
                 </Button>
               </div>
             </>
           ) : (
             <>
               <p style={{ textAlign: 'center' }}>
-                Para generar los informes semestrales debes ingresar el semestre y seleccionar la beca
+                Para generar los informes debes ingresar el semestre y seleccionar el tipo de beca que desees
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 <Input
@@ -308,8 +312,12 @@ const CombinedReports = () => {
                   Refrigerio
                 </Button>
               </div>
+
+              {/* Divider para separar los botones del texto */}
+              <Divider style={{ borderColor: 'grey' }} />
+
               <p style={{ textAlign: 'center' }}>
-                Aquí puedes buscar los informes semestrales generados a través del semestre
+                Busca los informes semestrales generados
               </p>
 
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
@@ -328,7 +336,6 @@ const CombinedReports = () => {
                   }}
                   onClick={handleCustomSearch}
                 >
-                  Buscar por Semestre
                 </Button>
               </div>
             </>
@@ -373,6 +380,7 @@ const CombinedReports = () => {
           </Modal>
         </MenuBecas>
       </div>
+      <FooterProfessionals />
     </>
   );
 };

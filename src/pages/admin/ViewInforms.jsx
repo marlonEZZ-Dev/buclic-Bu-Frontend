@@ -127,8 +127,7 @@ const VerInforme = () => {
         <Card
           title={
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Button icon={<LeftOutlined />} onClick={handleBack} style={{ border: 'none', boxShadow: 'none' }}>
-                Volver
+              <Button icon={<LeftOutlined />} onClick={handleBack} style={{ backgroundColor: '#C20E1A', color:'white', border: 'none', boxShadow: 'none' }}>
               </Button>
               <span style={{color:'#C20E1A'}}>{isDailyReport ? 'Informe diario' : 'Informe semestral'}</span>
               <Button 
