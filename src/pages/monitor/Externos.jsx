@@ -114,25 +114,47 @@ const Externos = () => {
       if (error.response) {
         const { status, data } = error.response;
 
-        // Manejo específico de errores según los códigos de estado
-        if (status === 400 && data.message) {
-          message.error(data.message); // Error específico del backend
-        } else if (status === 401 && data.message) {
-          message.error(data.message);
-        } else if (status === 404 && data.message) {
-          message.error(data.message);
-        } else if (status === 403 && data.message) {
-          message.error(data.message);
-        } else if (status === 409 && data.message) {
-          message.error(data.message);
-        } else if (status === 500 && data.message) {
-          message.error(data.message);
-        } else {
-          message.error('Ocurrió un error desconocido.');
+        // Mostrar detalles del error en la consola para depuración
+        console.log("Error Response:", error.response);
+
+        // Función para obtener el mensaje de error
+        const getErrorMessage = (data) => {
+          if (typeof data === "string") {
+            return data; // Si data es un string, lo usamos directamente
+          } else if (data && data.message) {
+            return data.message; // Si data tiene un campo message, lo usamos
+          }
+          return "Ocurrió un error desconocido."; // Mensaje por defecto
+        };
+
+        // Manejo de errores según el código de estado
+        switch (status) {
+          case 400:
+            message.error(getErrorMessage(data) || "Solicitud incorrecta. Verifica los datos enviados.");
+            break;
+          case 401:
+            message.error(getErrorMessage(data) || "No autorizado. Verifica tus credenciales.");
+            break;
+          case 403:
+            message.error(getErrorMessage(data) || "Acceso denegado. No tienes permisos para realizar esta acción.");
+            break;
+          case 404:
+            message.error(getErrorMessage(data) || "Recurso no encontrado. Verifica el endpoint.");
+            break;
+          case 409:
+            message.error(getErrorMessage(data) || "Conflicto. La operación no pudo completarse.");
+            break;
+          case 500:
+            message.error(getErrorMessage(data) || "Error interno del servidor. Inténtalo más tarde.");
+            break;
+          default:
+            message.error(getErrorMessage(data) || "Ocurrió un error desconocido.");
+            break;
         }
       } else {
-        // Error de red
-        message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+        // Error de red o problemas de conexión
+        console.log("Network/Error:", error);
+        message.error("No se pudo conectar con el servidor. Verifica tu conexión.");
       }
     }
   };
