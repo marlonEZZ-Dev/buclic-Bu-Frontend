@@ -1,6 +1,5 @@
 import HeaderPsych from "../../components/psychology/HeaderPsych";
 import React, { useState } from "react";
-import SearchInput from "../../components/global/SearchInput.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
 import {
@@ -18,6 +17,7 @@ import api from "../../api.js";
 import moment from "moment";
 import TablePaginationR from "../../components/global/TablePaginationR.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import SearchTracking from "../../components/psychology/SearchTracking.jsx";
 
 const AssistanceIcon = ({ attended }) => (
   <div
@@ -188,7 +188,7 @@ const Tracking = () => {
         </p>
         <Card bordered={true} style={styles.card}>
           <div style={styles.searchContainer}>
-            <SearchInput
+            <SearchTracking
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               onClick={() => handleSearch(1)}
