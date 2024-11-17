@@ -167,11 +167,11 @@ const Tracking = () => {
       <AssistanceIcon attended={reservation.assistant} />,
     ]) || [];
 
-    const handleRefresh = () => {
-      setSearchUsername(""); // Limpia el campo de búsqueda
-      setUserInfo(null); // Limpia la información del usuario
-      setCurrentPage(1); // Reinicia la paginación
-    };
+  const handleRefresh = () => {
+    setSearchUsername(""); // Limpia el campo de búsqueda
+    setUserInfo(null); // Limpia la información del usuario
+    setCurrentPage(1); // Reinicia la paginación
+  };
   return (
     <>
       <HeaderPsych />
@@ -247,7 +247,10 @@ const Tracking = () => {
                     />
                   </Col>
                 </Row>
-                <Row justify="center" style={styles.buttonRow}>
+                <Row
+                  justify="center"
+                  style={{ ...styles.buttonRow, marginBottom: "10px" }}
+                >
                   <Space size={20}>
                     <Button
                       type="primary"
