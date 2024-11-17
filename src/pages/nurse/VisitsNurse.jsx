@@ -33,17 +33,7 @@ const VisitsNurse = () => {
   const [isPhoneError, setIsPhoneError] = useState(false);
   const [form] = Form.useForm();
 
-  const diagnosticOptions = [
-    "COLICOS_MENSTRUALES",
-    "CURACION",
-    "DOLOR_DE_CABEZA",
-    "DOLOR_ESTOMACAL",
-    "DOLOR_MUSCULAR",
-    "MALESTAR_GENERAL",
-    "MAREOS_DESMAYOS",
-    "PRESERVATIVOS",
-    "OTRO",
-  ];
+
   const genderOptions = ["MASCULINO", "FEMENINO", "OTRO", "NO_RESPONDE"];
 
   // Función para transformar las opciones
@@ -58,10 +48,31 @@ const VisitsNurse = () => {
   };
 
   // Aplicamos la función a las listas
-  const formattedDiagnosticOptions = formatOptions(diagnosticOptions);
+  const diagnosticMapping = {
+    "Cólicos menstruales": "COLICOS_MENSTRUALES",
+    "Curación": "CURACION",
+    "Dolor de cabeza": "DOLOR_DE_CABEZA",
+    "Dolor estomacal": "DOLOR_ESTOMACAL",
+    "Dolor muscular": "DOLOR_MUSCULAR",
+    "Malestar general": "MALESTAR_GENERAL",
+    "Mareos desmayos": "MAREOS_DESMAYOS",
+    "Preservativos": "PRESERVATIVOS",
+    "Otro": "OTRO",
+  };
+
+  // Obtener las opciones para el Select
+  const diagnosticOptions = Object.keys(diagnosticMapping).map((label) => ({
+    label: label, // Lo que se muestra en la UI
+    value: diagnosticMapping[label], // Lo que se enviará al backend
+  }));
+
   const formattedGenderOptions = formatOptions(genderOptions);
 
   const handleSearchUser = async () => {
+    if (!username.trim()) {
+      message.warning("Ingrese el código o cédula de un usuario para buscar.");
+      return;
+    }
     try {
       const { data } = await api.get(`/nursing-activities/search/${username}`);
       setUsername(data.username);
@@ -84,6 +95,8 @@ const VisitsNurse = () => {
       });
       message.success("Usuario encontrado");
     } catch {
+      // Limpiar el formulario antes de buscar
+      resetFields();
       message.error("Usuario no registrado. Realice el registro para crearlo");
     }
   };
@@ -169,13 +182,13 @@ const VisitsNurse = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    label="Código/Cédula"
+                    label="Código/cédula"
                     name="username"
                     required
                     rules={[
                       {
                         required: true,
-                        message: "El código/cedula es obligatorio",
+                        message: "El código/cédula es obligatorio",
                       },
                     ]}
                   >
@@ -260,12 +273,12 @@ const VisitsNurse = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    label="Plan/Área Dependencia"
+                    label="Plan/área dependencia"
                     name="planDependencia"
                     rules={[
                       {
                         required: true,
-                        message: "El plan de dependencia es obligatorio",
+                        message: "El plan o área dependencia es obligatorio.",
                       },
                     ]}
                   >
@@ -273,6 +286,12 @@ const VisitsNurse = () => {
                       placeholder="Plan o área de dependencia"
                       value={planDependencia}
                       onChange={(e) => setPlanDependencia(e.target.value)}
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-Z0-9\s]+$/; // Permite letras, números y espacios
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Bloquea la entrada si no coincide con el patrón
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -318,11 +337,11 @@ const VisitsNurse = () => {
                   >
                     <Select
                       value={diagnostico}
-                      onChange={setDiagnostico}
-                      options={formattedDiagnosticOptions.map((option) => ({
-                        value: option.toUpperCase().replace(/ /g, "_"), // valor que se enviará al backend
-                        label: option, // lo que se mostrará en la UI
-                      }))}
+                      onChange={(value) => {
+                        console.log("Valor seleccionado para backend:", value);
+                        setDiagnostico(value);
+                      }}
+                      options={diagnosticOptions}
                     />
                   </Form.Item>
                 </Col>
