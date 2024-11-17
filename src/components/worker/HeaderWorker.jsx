@@ -76,9 +76,7 @@ export default function HeaderWorker(props) {
             open={drawerOpen} 
             styles={{ body: { paddingBottom: 80 } }} 
           >
-            <ul className="drawer-menu">
-            
-              
+            <ul className="drawer-menu"> 
               <li
                 onClick={() => handleButtonClick("/funcionario/citas")}
                 className={location.pathname === "/funcionario/citas" ? "active" : ""}
@@ -86,14 +84,12 @@ export default function HeaderWorker(props) {
                 Citas
               </li>
               <li
-                onClick={() => handleButtonClick("funcionario/ajustes")}
+                onClick={() => handleButtonClick("/funcionario/ajustes")}
                 className={location.pathname === "/funcionario/ajustes" ? "active" : ""}
               >
                 Ajustes
               </li>
-              
             </ul>
-
             {/* Botón de cerrar sesión en la parte inferior del Drawer */}
             <div className="drawer-footer">
               <LogoutButton />
