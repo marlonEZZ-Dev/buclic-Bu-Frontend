@@ -1,7 +1,4 @@
-import Attendance from "../../components/global/Attendance.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
-import Modal from "../../components/global/Modal.jsx";
 import SearchInput from "../../components/global/SearchInput.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
@@ -9,105 +6,16 @@ import Tables from "../../components/global/Tables.jsx";
 import AssistanceButtons from "../../components/global/AssistanceButtons.jsx";
 import api from "../../api.js";
 import { Card, Flex, message } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import styles from "../../styles/psychology/agendaPsych.module.css";
-import cssButtonsModal from "../../styles/admin/managementUsers.module.css";
 
 import { useEffect, useState } from "react";
 import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 
-function AssistanceCell(key) {
-  const [selectedAssistance, setSelectedAssistance] = useState("nothing");
-  const [isModalActive, setIsModalActive] = useState(false);
-  const [yes, setYes] = useState(false);
-  let initShow = true;
-  return (
-    <>
-      <Modal open={isModalActive} onClose={() => setIsModalActive(false)}>
-        <Flex vertical align="center" justify="center">
-          <div style={{ fontSize: "2rem" }}>
-            <ExclamationCircleOutlined />{" "}
-            <h3 style={{ display: "inline" }}>Confirmar</h3>
-          </div>
-          <p style={{ fontSize: "1.5rem" }}>{`¿Desea confirmar la ${
-            selectedAssistance === "active"
-              ? "asistencia?"
-              : selectedAssistance
-              ? "inasistencia"
-              : ""
-          }`}</p>
-        </Flex>
-        <Flex align="center" gap="small" justify="space-around">
-          <button
-            style={{ fontSize: "1.5rem" }}
-            className={cssButtonsModal.buttonCancel}
-            onClick={() => {
-              setYes(false);
-              setIsModalActive(false);
-            }}
-          >
-            Cancelar
-          </button>
-          <button
-            style={{ fontSize: "1.5rem" }}
-            className={cssButtonsModal.buttonSave}
-            onClick={() => {
-              setYes(true);
-              setIsModalActive(false);
-            }}
-          >
-            Guardar
-          </button>
-        </Flex>
-      </Modal>
-      <Flex identifier={identifier} justify="space-around" align="center">
-        {initShow && (
-          <>
-            <button
-              name="active"
-              onClick={(e) => {
-                setSelectedAssistance(e.currentTarget.name);
-                setIsModalActive(true);
-              }}
-              className={styles.assistance}
-            >
-              <Attendance non={false} />
-            </button>
-            <button
-              name="inactive"
-              onClick={(e) => {
-                setSelectedAssistance(e.currentTarget.name);
-                setIsModalActive(true);
-              }}
-              className={styles.assistance}
-            >
-              <Attendance />
-            </button>
-          </>
-        )}
-        {selectedAssistance === "active" && yes && (
-          <StateUser
-            identifier={`stateUser-${selectedAssistance}`}
-            active={true}
-          />
-        )}
-        {selectedAssistance === "inactive" && yes && (
-          <StateUser
-            identifier={`stateUser-${selectedAssistance}`}
-            active={false}
-          />
-        )}
-      </Flex>
-    </>
-  );
-}
-
 export default function AgendaNurse() {
   dayjs.locale("es");
-
-  let date = dayjs();
+  const [messageApi, showMessage] = message.useMessage()
 
   const appointmentPendingColums = [
     "Horario",
@@ -181,6 +89,7 @@ export default function AgendaNurse() {
             fetchAttendedAppointments();
             removePendingAppointment(appointment.reservationId);
           }} // Recargar datos después de una acción
+          notifySuccess={messageApi.success}
         />,
       ]);
 
@@ -288,6 +197,7 @@ export default function AgendaNurse() {
 
   return (
     <>
+    {showMessage}
       <HeaderNurse />
       <div className={styles.contentTitle}>
         <h1 className="text-red">Agenda</h1>
