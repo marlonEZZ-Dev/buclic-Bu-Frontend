@@ -116,20 +116,22 @@ const ExternosAdmin = () => {
         // Manejo específico de errores según los códigos de estado
         if (status === 400 && data.message) {
           message.error(data.message); // Error específico del backend
+        } else if (status === 401) {
+          message.error(data.message);
         } else if (status === 404) {
-          message.error('Recurso no encontrado.');
+          message.error(data.message);
         } else if (status === 403) {
-          message.error('Ya realizaste la reserva.');
+          message.error(data.message);
         } else if (status === 409) {
-          message.error('No hay cupos disponibles para esta reserva.');
+          message.error(data.message);
         } else if (status === 500) {
-          message.error('Error del servidor. Inténtalo de nuevo más tarde.');
+          message.error(data.message);
         } else {
           message.error('Ocurrió un error desconocido.');
         }
       } else {
         // Error de red
-        message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+        message.error('No se pudo realizar la reserva.');
       }
     }
   };
@@ -160,6 +162,7 @@ const ExternosAdmin = () => {
       message.success('Usuario encontrado');
     } catch (error) {
       console.error("Error al buscar el usuario externo:", error);
+      form.resetFields();
       message.error('Usuario no encontrado');
     }
   };

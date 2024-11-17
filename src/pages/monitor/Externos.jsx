@@ -117,14 +117,16 @@ const Externos = () => {
         // Manejo específico de errores según los códigos de estado
         if (status === 400 && data.message) {
           message.error(data.message); // Error específico del backend
-        } else if (status === 404) {
-          message.error('Recurso no encontrado.');
-        } else if (status === 403) {
-          message.error('Ya realizaste la reserva.');
-        } else if (status === 409) {
-          message.error('No hay cupos disponibles para esta reserva.');
-        } else if (status === 500) {
-          message.error('Error del servidor. Inténtalo de nuevo más tarde.');
+        } else if (status === 401 && data.message) {
+          message.error(data.message);
+        } else if (status === 404 && data.message) {
+          message.error(data.message);
+        } else if (status === 403 && data.message) {
+          message.error(data.message);
+        } else if (status === 409 && data.message) {
+          message.error(data.message);
+        } else if (status === 500 && data.message) {
+          message.error(data.message);
         } else {
           message.error('Ocurrió un error desconocido.');
         }
@@ -161,6 +163,7 @@ const Externos = () => {
       message.success('Usuario encontrado');
     } catch (error) {
       console.error("Error al buscar el usuario externo:", error);
+      form.resetFields();
       message.error('Usuario no encontrado');
     }
   };
