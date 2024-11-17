@@ -1,8 +1,7 @@
 import HeaderMonitor from "../../components/monitor/HeaderMonitor";
 
 import React, { useState, useEffect } from 'react';
-import HeaderAdmin from '../../components/admin/HeaderAdmin';
-import ReusableModal from '../../components/global/ReusableModal';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Col, Form, Card, Space, Row, Input, Select, message } from 'antd';
 import api from '../../api';
 import SearchInputR from '../../components/global/SearchInputR';
@@ -30,7 +29,7 @@ const Externos = () => {
     setCedula(e.target.value);
   };
 
-   // Función para validar si la hora seleccionada está dentro de un rango
+  // Función para validar si la hora seleccionada está dentro de un rango
   const isTimeInRange = (selectedTime, startTime, endTime) => {
     const selectedHour = selectedTime.getHours();
     const selectedMinutes = selectedTime.getMinutes();
@@ -115,27 +114,50 @@ const Externos = () => {
       if (error.response) {
         const { status, data } = error.response;
 
-        // Manejo específico de errores según los códigos de estado
-        if (status === 400 && data.message) {
-          message.error(data.message); // Error específico del backend
-        } else if (status === 404) {
-          message.error('Recurso no encontrado.');
-        } else if (status === 403) {
-          message.error('Ya realizaste la reserva.');
-        } else if (status === 409) {
-          message.error('No hay cupos disponibles para esta reserva.');
-        } else if (status === 500) {
-          message.error('Error del servidor. Inténtalo de nuevo más tarde.');
-        } else {
-          message.error('Ocurrió un error desconocido.');
+        // Mostrar detalles del error en la consola para depuración
+        console.log("Error Response:", error.response);
+
+        // Función para obtener el mensaje de error
+        const getErrorMessage = (data) => {
+          if (typeof data === "string") {
+            return data; // Si data es un string, lo usamos directamente
+          } else if (data && data.message) {
+            return data.message; // Si data tiene un campo message, lo usamos
+          }
+          return "Ocurrió un error desconocido."; // Mensaje por defecto
+        };
+
+        // Manejo de errores según el código de estado
+        switch (status) {
+          case 400:
+            message.error(getErrorMessage(data) || "Solicitud incorrecta. Verifica los datos enviados.");
+            break;
+          case 401:
+            message.error(getErrorMessage(data) || "No autorizado. Verifica tus credenciales.");
+            break;
+          case 403:
+            message.error(getErrorMessage(data) || "Acceso denegado. No tienes permisos para realizar esta acción.");
+            break;
+          case 404:
+            message.error(getErrorMessage(data) || "Recurso no encontrado. Verifica el endpoint.");
+            break;
+          case 409:
+            message.error(getErrorMessage(data) || "Conflicto. La operación no pudo completarse.");
+            break;
+          case 500:
+            message.error(getErrorMessage(data) || "Error interno del servidor. Inténtalo más tarde.");
+            break;
+          default:
+            message.error(getErrorMessage(data) || "Ocurrió un error desconocido.");
+            break;
         }
       } else {
-        // Error de red
-        message.error('No se pudo conectar con el servidor. Verifica tu conexión.');
+        // Error de red o problemas de conexión
+        console.log("Network/Error:", error);
+        message.error("No se pudo conectar con el servidor. Verifica tu conexión.");
       }
     }
   };
-
 
   const handleBecasChange = (value) => {
     setBecas(value);
@@ -143,6 +165,10 @@ const Externos = () => {
 
 
   const handleSearch = async () => {
+    if (!cedula.trim()) {
+      message.warning("Ingrese la cédula de un usuario para buscar.");
+      return;
+    }
     try {
       const response = await api.get(`/reservations/extern/${cedula}`);
       const externoData = response.data;
@@ -159,6 +185,7 @@ const Externos = () => {
       message.success('Usuario encontrado');
     } catch (error) {
       console.error("Error al buscar el usuario externo:", error);
+      form.resetFields();
       message.error('Usuario no encontrado');
     }
   };
@@ -192,7 +219,7 @@ const Externos = () => {
         console.error('Error al obtener las configuraciones', error);
       }
     };
-  
+
     fetchSettings();
   }, []);
 
@@ -209,6 +236,7 @@ const Externos = () => {
 
     const hours = date.getHours();
     const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
 
     const hour12 = hours % 12 || 12;
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -274,7 +302,14 @@ const Externos = () => {
                 <Col span={12}>
                   <Form.Item label="Nombre" labelAlign="left" name="name" rules={[
                     { required: true, message: 'Por favor ingrese el nombre' },]}>
-                    <Input placeholder="Ingrese el nombre" />
+                    <Input placeholder="Ingrese el nombre"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -282,15 +317,29 @@ const Externos = () => {
                   <Form.Item label="Apellido" labelAlign="left" name="lastname" rules={[
                     { required: true, message: 'Por favor ingrese el apellido' },
                   ]}>
-                    <Input placeholder="Ingrese el apellido" />
+                    <Input placeholder="Ingrese el apellido"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label="Área Dependencia" labelAlign="left" name="dependencia" rules={[
+                  <Form.Item label="Área dependencia" labelAlign="left" name="dependencia" rules={[
                     { required: true, message: 'Por favor ingrese el área de dependencia' },
                   ]}>
-                    <Input placeholder="Ingrese el área de dependencia" />
+                    <Input placeholder="Ingrese el área de dependencia"
+                      onKeyPress={(e) => {
+                        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+                        if (!regex.test(e.key)) {
+                          e.preventDefault(); // Evita el ingreso de caracteres no permitidos
+                        }
+                      }}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -302,7 +351,7 @@ const Externos = () => {
                     required
                     rules={[
                       { required: true, message: 'Por favor ingrese el correo electrónico' },
-                      { type: 'email', message: 'Por favor ingrese un correo electrónico válido' }
+                      { type: 'email', message: 'Por favor ingrese un correo electrónico válido ej: uv@gmail.com' }
                     ]}
                   >
                     <Input type="email" placeholder="Ingrese el correo" />
@@ -330,10 +379,14 @@ const Externos = () => {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
             <Button className="button-save" onClick={handleSave}>Reservar</Button>
-            <Button className="button-cancel" onClick={() => form.resetFields()}>Cancelar</Button>
+            <Button className="button-cancel" onClick={() => {
+              form.resetFields(); // Limpia los campos del formulario
+              setCedula(''); // Limpia el estado de búsqueda
+            }}>Cancelar</Button>
           </div>
         </Card>
       </main >
+      <FooterProfessionals />
     </>
   );
 };

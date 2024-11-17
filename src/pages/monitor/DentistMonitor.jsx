@@ -74,7 +74,7 @@ const DentistMonitor = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=ODONTOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -122,7 +122,7 @@ const DentistMonitor = () => {
 
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     if (pendingAppointment) {
       api
@@ -136,14 +136,10 @@ const DentistMonitor = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
-
-          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
+  
+          // Actualizar las citas pendientes y las citas disponibles
           setPendingAppointment(null);
-
-          // Actualiza la lista de citas disponibles después de la cancelación
-          fetchAvailableDates();
-
-          // Filtra las citas disponibles para la fecha seleccionada
+          fetchAvailableDates(); // Actualizar inmediatamente las citas disponibles
           filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
@@ -156,26 +152,34 @@ const DentistMonitor = () => {
         });
     }
   };
+  
 
   // Nueva función para obtener y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=ODONTOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
-
+  
   const handleConfirmReserve = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
   
@@ -197,7 +201,10 @@ const DentistMonitor = () => {
       .then((response) => {
         // Mostrar mensaje de éxito proporcionado por el backend
         message.success(response.data.message);
+  
+        // Actualizar las citas pendientes y las citas disponibles
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualizar inmediatamente las citas disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
@@ -207,7 +214,6 @@ const DentistMonitor = () => {
           // Mostrar únicamente el mensaje devuelto por el backend
           message.error(error.response.data.message);
         } else {
-          // Si no hay mensaje específico del backend, registrar en consola sin mostrar mensajes adicionales
           console.error("Error inesperado:", error);
         }
       })

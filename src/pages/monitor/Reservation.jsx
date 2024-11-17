@@ -3,7 +3,7 @@ import HeaderMonitor from "../../components/monitor/HeaderMonitor";
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import { ReloadOutlined } from '@ant-design/icons';
-import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import ReusableModal from '../../components/global/ReusableModal.jsx';
@@ -23,7 +23,7 @@ const Reservation = () => {
 
     const handleSearch = async (username) => {
         if (!username.trim()) {
-            message.warning("Ingrese un código de usuario para buscar.");
+            message.warning("Ingrese el código o cédula de un usuario para buscar.", 5);
             return;
         }
         try {
@@ -227,7 +227,7 @@ const Reservation = () => {
                     }}
                 >
                     <Space style={{ marginTop: '5px', alignItems: 'center' }}>
-                        <h1 className="titleCard">Reservas realizadas</h1>
+                        <h1 className="titleCard"><strong>Reservas realizadas</strong></h1>
                     </Space>
 
                     <p>Aquí puedes buscar las personas que han reservado la beca de alimentación.</p>
@@ -240,7 +240,7 @@ const Reservation = () => {
                             marginTop: '20px'
                         }}
                     >
-                        <SearchInputR onSearch={handleSearch} />
+                        <SearchInputR onSearch={handleSearch} placeholder="Ingrese el código/cédula" />
                     </div>
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
@@ -340,7 +340,7 @@ const Reservation = () => {
                             `${reservation.name} ${reservation.lastName}`,
                             `${formatDate(reservation.data)} ${formatTime(reservation.time)}`
                         ])}
-                        columns={['Código', 'Nombre', 'Fecha y Hora de Reserva']}
+                        columns={['Código/cédula', 'Nombre', 'Fecha y hora de reserva']}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
                         totalItems={totalItems}
@@ -349,6 +349,7 @@ const Reservation = () => {
 
                 </Card>
             </main>
+            <FooterProfessionals />
         </>
     );
 };

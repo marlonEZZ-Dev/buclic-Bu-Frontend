@@ -86,7 +86,7 @@ const NursingMonitor = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ENFERMERIA", {
+      .get(`/appointment/all-dates/${userId}?type=ENFERMERIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -183,21 +183,29 @@ const NursingMonitor = () => {
 
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=ENFERMERIA", {
+      .get(`/appointment/all-dates/${userId}?type=ENFERMERIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
+  
 
   const handleConfirmReserve = () => {
     let hasError = false;
@@ -240,19 +248,17 @@ const NursingMonitor = () => {
         },
       })
       .then((response) => {
-        // Manejo del caso exitoso
         message.success(response.data.message);
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualiza los horarios disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
         if (error.response && error.response.data?.message) {
-          // Mostrar únicamente el mensaje devuelto por el backend
           message.error(error.response.data.message);
         } else {
-          // Si no hay mensaje específico, loggear en consola y no mostrar mensaje
           console.error("Error inesperado:", error);
         }
       })
