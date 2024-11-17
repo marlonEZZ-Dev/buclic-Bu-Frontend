@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import HeaderPsych from "../../components/psychology/HeaderPsych.jsx"
+import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
 import {
   Form,
   Input,
@@ -47,6 +47,7 @@ const NursePsych = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
+  const lastName = localStorage.getItem("lastName");
 
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
@@ -184,12 +185,12 @@ const NursePsych = () => {
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
     const userId = localStorage.getItem("userId");
-  
+
     if (!userId) {
       console.error("Error: userId no encontrado en localStorage");
       return;
     }
-  
+
     api
       .get(`/appointment/all-dates/${userId}?type=ENFERMERIA`, {
         headers: {
@@ -205,41 +206,40 @@ const NursePsych = () => {
         console.error("Error al obtener los horarios:", error);
       });
   };
-  
 
   const handleConfirmReserve = () => {
     let hasError = false;
-  
+
     if (phone.length !== 10) {
       setIsPhoneError(true);
       hasError = true;
     } else {
       setIsPhoneError(false);
     }
-  
+
     if (!eps) {
       setIsEpsError(true);
       hasError = true;
     } else {
       setIsEpsError(false);
     }
-  
+
     if (hasError) {
       setModalVisible(false);
       return;
     }
-  
+
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-  
+
     setConfirmLoading(true);
-  
+
     const requestData = {
       availableDateId: selectedAppointmentId,
       pacientId: parseInt(userId, 10),
       eps,
       phone: parseInt(phone, 10),
     };
-  
+
     api
       .post("/appointment-reservation", requestData, {
         headers: {
@@ -267,7 +267,6 @@ const NursePsych = () => {
         setModalVisible(false);
       });
   };
-  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
@@ -299,17 +298,16 @@ const NursePsych = () => {
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
-  
+
     // Evitar que el primer dígito sea 0
     if (value.startsWith("0")) {
       value = value.substring(1);
     }
-  
+
     setPhone(value);
     setIsPhoneError(value.length !== 10);
     localStorage.setItem("userPhone", value); // Guardar inmediatamente en localStorage
   };
-  
 
   const handleEpsChange = (e) => {
     const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras y espacios
@@ -382,7 +380,11 @@ const NursePsych = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
-                  <Input value={userName || ""} disabled />
+                  {/* Combina userName y lastName */}
+                  <Input
+                    value={`${userName} ${lastName || ""}`.trim()}
+                    disabled
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
@@ -391,7 +393,7 @@ const NursePsych = () => {
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Código">
+                <Form.Item label="Cédula">
                   <Input value={username || ""} disabled />
                 </Form.Item>
               </Col>
