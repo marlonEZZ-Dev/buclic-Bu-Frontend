@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
 import {
   Form,
   Input,
@@ -21,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 const { Text } = Typography;
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import TopNavbar from "../../components/TopNavbar";
 
 const Dentist = () => {
   const { token } = theme.useToken();
@@ -74,7 +74,7 @@ const Dentist = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=ODONTOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -122,7 +122,7 @@ const Dentist = () => {
 
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     if (pendingAppointment) {
       api
@@ -136,14 +136,10 @@ const Dentist = () => {
         )
         .then(() => {
           message.success("Cita cancelada con éxito");
-
-          // Actualiza la cita pendiente y vuelve a añadir la cita cancelada a las disponibles
+  
+          // Actualizar las citas pendientes y las citas disponibles
           setPendingAppointment(null);
-
-          // Actualiza la lista de citas disponibles después de la cancelación
-          fetchAvailableDates();
-
-          // Filtra las citas disponibles para la fecha seleccionada
+          fetchAvailableDates(); // Actualizar inmediatamente las citas disponibles
           filterDatesBySelectedDay(selectedDate);
         })
         .catch((error) => {
@@ -156,29 +152,37 @@ const Dentist = () => {
         });
     }
   };
+  
 
   // Nueva función para obtener y actualizar las citas disponibles
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=ODONTOLOGIA", {
+      .get(`/appointment/all-dates/${userId}?type=ODONTOLOGIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
-
+  
   const handleConfirmReserve = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
     api
       .post(
@@ -195,21 +199,30 @@ const Dentist = () => {
         }
       )
       .then((response) => {
+        // Mostrar mensaje de éxito proporcionado por el backend
         message.success(response.data.message);
+  
+        // Actualizar las citas pendientes y las citas disponibles
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualizar inmediatamente las citas disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Debes agendar tu cita al menos una hora antes.");
+        if (error.response && error.response.data?.message) {
+          // Mostrar únicamente el mensaje devuelto por el backend
+          message.error(error.response.data.message);
+        } else {
+          console.error("Error inesperado:", error);
+        }
       })
       .finally(() => {
         setConfirmLoading(false);
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
@@ -245,7 +258,7 @@ const Dentist = () => {
 
   return (
     <>
-      <TopNavbar />
+      <TopNavbar/>
       <main
         className="odontologia-section"
         style={{ marginTop: "100px", padding: "0 20px" }}

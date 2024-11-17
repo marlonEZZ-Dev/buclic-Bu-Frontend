@@ -1,7 +1,5 @@
-import HeaderWorker from "../../components/worker/HeaderWorker";
-
 import React, { useEffect, useState } from "react";
-import TopNavbar from "../../components/TopNavbar";
+import HeaderWorker from "../../components/worker/HeaderWorker.jsx"
 import {
   Form,
   Input,
@@ -88,7 +86,7 @@ const NursingWorker = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
     api
-      .get("/appointment?type=ENFERMERIA", {
+      .get(`/appointment/all-dates/${userId}?type=ENFERMERIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -185,56 +183,63 @@ const NursingWorker = () => {
 
   const fetchAvailableDates = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      console.error("Error: userId no encontrado en localStorage");
+      return;
+    }
+  
     api
-      .get("/appointment?type=ENFERMERIA", {
+      .get(`/appointment/all-dates/${userId}?type=ENFERMERIA`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
       })
       .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(selectedDate, response.data.availableDates);
+        const availableDates = response.data.availableDates;
+        setAvailableDates(availableDates);
+        filterDatesBySelectedDay(selectedDate, availableDates);
       })
       .catch((error) => {
         console.error("Error al obtener los horarios:", error);
       });
   };
+  
 
   const handleConfirmReserve = () => {
     let hasError = false;
-
+  
     if (phone.length !== 10) {
       setIsPhoneError(true);
       hasError = true;
     } else {
       setIsPhoneError(false);
     }
-
+  
     if (!eps) {
       setIsEpsError(true);
       hasError = true;
     } else {
       setIsEpsError(false);
     }
-
+  
     if (hasError) {
-      message.error("Digita los campos teléfono y EPS.");
       setModalVisible(false);
       return;
     }
-
+  
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-
+  
     setConfirmLoading(true);
-
+  
     const requestData = {
       availableDateId: selectedAppointmentId,
       pacientId: parseInt(userId, 10),
       eps,
       phone: parseInt(phone, 10),
     };
-
+  
     api
       .post("/appointment-reservation", requestData, {
         headers: {
@@ -245,19 +250,24 @@ const NursingWorker = () => {
       .then((response) => {
         message.success(response.data.message);
         fetchPendingAppointment();
+        fetchAvailableDates(); // Actualiza los horarios disponibles
         setFilteredDates((prevDates) =>
           prevDates.filter((date) => date.id !== selectedAppointmentId)
         );
       })
       .catch((error) => {
-        console.error("Debes agendar tu cita con una hora de anticipación", error);
-        message.error("Debes agendar tu cita con una hora de anticipación.");
+        if (error.response && error.response.data?.message) {
+          message.error(error.response.data.message);
+        } else {
+          console.error("Error inesperado:", error);
+        }
       })
       .finally(() => {
         setConfirmLoading(false);
         setModalVisible(false);
       });
   };
+  
 
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
@@ -289,15 +299,17 @@ const NursingWorker = () => {
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
-
+  
     // Evitar que el primer dígito sea 0
     if (value.startsWith("0")) {
       value = value.substring(1);
     }
-
+  
     setPhone(value);
     setIsPhoneError(value.length !== 10);
+    localStorage.setItem("userPhone", value); // Guardar inmediatamente en localStorage
   };
+  
 
   const handleEpsChange = (e) => {
     const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras y espacios
