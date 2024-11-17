@@ -1,11 +1,13 @@
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import SearchInput from "../../components/global/SearchInput.jsx";
+import DateSpanish from "../../components/global/DateSpanishM.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import Tables from "../../components/global/Tables.jsx";
 import AssistanceButtons from "../../components/global/AssistanceButtons.jsx";
+import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx";
 import api from "../../api.js";
-import { Card, Flex, message } from "antd";
+import { Card, Flex, Button, message } from "antd";
+import {SearchOutlined} from "@ant-design/icons"
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import styles from "../../styles/psychology/agendaPsych.module.css";
@@ -38,6 +40,7 @@ export default function AgendaNurse() {
   const [searchDate, setSearchDate] = useState(""); // Estado para almacenar la fecha de búsqueda
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [totalItems, setTotalItems] = useState(0); // Total de elementos
+  const [hover, setHover] = useState(false)
   const [itemsPerPage] = useState(10);
 
   const removePendingAppointment = (reservationId) => {
@@ -79,7 +82,7 @@ export default function AgendaNurse() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        appointment.patient || "Anónimo Nn",
         appointment.phone || "Sin Teléfono",
         <AssistanceButtons
           key={appointment.reservationId}
@@ -210,27 +213,40 @@ export default function AgendaNurse() {
               columns={appointmentPendingColums}
               rows={pendingAppointments}
             />
-            <SearchInput
-              className={styles.searchInput}
-              placeholder="Fecha de consulta (dd/MM/yyyy)"
-              onChange={(e) => setSearchDate(e.target.value)}
+            <Flex justify="center" align="center">
+              <DateSpanish
+                className={styles.searchInput}
+                placeholder="Fecha de consulta (dd/MM/yyyy)"
+                format={"DD/MM/YYYY"}
+                onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
+              />
+              <Button
+              type="primary"
+              icon={<SearchOutlined style={{ color: 'white' }} />}
+              className={styles.searchButton}
+              style={{
+                backgroundColor: hover ? 'var(--red-dark)' : 'var(--red)',
+                borderColor: hover ? '#var(--red-dark)' : 'var(--red)'
+              }}
               onClick={() => {
-                if (!searchDate.trim()) {
+                if (!searchDate) {
                   message.warning("Ingrese una fecha de consulta para buscar.");
                   return;
                 }
                 setCurrentPage(1); // Resetea la paginación
                 fetchAttendedAppointmentsByDate(searchDate, 1);
               }}
-              onRefresh={() => {
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}/>
+              <ButtonRefresh onClick={() => {
                 setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
                 fetchAttendedAppointments(1);
-              }}
-            />
+              }}/>
+            </Flex>
           </Flex>
           <Flex vertical>
-            <p className="text-left">Tabla historial de citas realizadas</p>
+            <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0}} className="text-left">Tabla historial de citas realizadas</p>
             <TablePagination
               columns={appointmentDoneColums}
               rows={appointmentDone}

@@ -1,114 +1,23 @@
-import Attendance from "../../components/global/Attendance.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import HeaderPsych from "../../components/psychology/HeaderPsych.jsx";
-import Modal from "../../components/global/Modal.jsx";
-import SearchInput from "../../components/global/SearchInput.jsx";
+import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx";
+import DateSpanish from "../../components/global/DateSpanishM.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import Tables from "../../components/global/Tables.jsx";
 import AssistanceButtons from "../../components/global/AssistanceButtons.jsx";
 import api from "../../api.js";
-import { Card, Flex, message } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Card, Flex, Button, message } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import styles from "../../styles/psychology/agendaPsych.module.css";
-import cssButtonsModal from "../../styles/admin/managementUsers.module.css";
 
 import { useEffect, useState } from "react";
-import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx";
-
-function AssistanceCell(key) {
-  const [selectedAssistance, setSelectedAssistance] = useState("nothing");
-  const [isModalActive, setIsModalActive] = useState(false);
-  const [yes, setYes] = useState(false);
-  let initShow = true;
-  return (
-    <>
-      <Modal open={isModalActive} onClose={() => setIsModalActive(false)}>
-        <Flex vertical align="center" justify="center">
-          <div style={{ fontSize: "2rem" }}>
-            <ExclamationCircleOutlined />{" "}
-            <h3 style={{ display: "inline" }}>Confirmar</h3>
-          </div>
-          <p style={{ fontSize: "1.5rem" }}>{`¿Desea confirmar la ${
-            selectedAssistance === "active"
-              ? "asistencia?"
-              : selectedAssistance
-              ? "inasistencia"
-              : ""
-          }`}</p>
-        </Flex>
-        <Flex align="center" gap="small" justify="space-around">
-          <button
-            style={{ fontSize: "1.5rem" }}
-            className={cssButtonsModal.buttonCancel}
-            onClick={() => {
-              setYes(false);
-              setIsModalActive(false);
-            }}
-          >
-            Cancelar
-          </button>
-          <button
-            style={{ fontSize: "1.5rem" }}
-            className={cssButtonsModal.buttonSave}
-            onClick={() => {
-              setYes(true);
-              setIsModalActive(false);
-            }}
-          >
-            Guardar
-          </button>
-        </Flex>
-      </Modal>
-      <Flex identifier={identifier} justify="space-around" align="center">
-        {initShow && (
-          <>
-            <button
-              name="active"
-              onClick={(e) => {
-                setSelectedAssistance(e.currentTarget.name);
-                setIsModalActive(true);
-              }}
-              className={styles.assistance}
-            >
-              <Attendance non={false} />
-            </button>
-            <button
-              name="inactive"
-              onClick={(e) => {
-                setSelectedAssistance(e.currentTarget.name);
-                setIsModalActive(true);
-              }}
-              className={styles.assistance}
-            >
-              <Attendance />
-            </button>
-          </>
-        )}
-        {selectedAssistance === "active" && yes && (
-          <StateUser
-            identifier={`stateUser-${selectedAssistance}`}
-            active={true}
-          />
-        )}
-        {selectedAssistance === "inactive" && yes && (
-          <StateUser
-            identifier={`stateUser-${selectedAssistance}`}
-            active={false}
-          />
-        )}
-      </Flex>
-    </>
-  );
-}
 
 export default function AgendaDentist() {
   dayjs.locale("es");
-
-  let date = dayjs();
+  const [messageApi, showMessage] = message.useMessage()
 
   const appointmentPendingColums = [
     "Horario",
@@ -131,6 +40,7 @@ export default function AgendaDentist() {
   const [searchDate, setSearchDate] = useState(""); // Estado para almacenar la fecha de búsqueda
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [totalItems, setTotalItems] = useState(0); // Total de elementos
+  const [hover, setHover] = useState(false)
   const [itemsPerPage] = useState(10);
 
   const removePendingAppointment = (reservationId) => {
@@ -172,7 +82,7 @@ export default function AgendaDentist() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        appointment.patient || "Anónimo Nn",
         appointment.phone || "Sin Teléfono",
         <AssistanceButtons
           key={appointment.reservationId}
@@ -182,6 +92,7 @@ export default function AgendaDentist() {
             fetchAttendedAppointments();
             removePendingAppointment(appointment.reservationId);
           }} // Recargar datos después de una acción
+          notifySuccess={messageApi.success}
         />,
       ]);
 
@@ -289,6 +200,7 @@ export default function AgendaDentist() {
 
   return (
     <>
+      {showMessage}
       <HeaderDentist />
       <div className={styles.contentTitle}>
         <h1 className="text-red">Agenda</h1>
@@ -301,27 +213,40 @@ export default function AgendaDentist() {
               columns={appointmentPendingColums}
               rows={pendingAppointments}
             />
-            <SearchInput
-              className={styles.searchInput}
-              placeholder="Fecha de consulta (dd/MM/yyyy)"
-              onChange={(e) => setSearchDate(e.target.value)}
+            <Flex justify="center" align="center">
+              <DateSpanish
+                className={styles.searchInput}
+                placeholder="Fecha de consulta (dd/MM/yyyy)"
+                format={"DD/MM/YYYY"}
+                onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
+              />
+              <Button
+              type="primary"
+              icon={<SearchOutlined style={{ color: 'white' }} />}
+              className={styles.searchButton}
+              style={{
+                backgroundColor: hover ? 'var(--red-dark)' : 'var(--red)',
+                borderColor: hover ? '#var(--red-dark)' : 'var(--red)'
+              }}
               onClick={() => {
-                if (!searchDate.trim()) {
+                if (!searchDate) {
                   message.warning("Ingrese una fecha de consulta para buscar.");
                   return;
                 }
                 setCurrentPage(1); // Resetea la paginación
                 fetchAttendedAppointmentsByDate(searchDate, 1);
               }}
-              onRefresh={() => {
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}/>
+              <ButtonRefresh onClick={() => {
                 setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
                 fetchAttendedAppointments(1);
-              }}
-            />
+              }}/>
+            </Flex>
           </Flex>
           <Flex vertical>
-            <p className="text-left">Tabla historial de citas realizadas</p>
+            <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0}} className="text-left">Tabla historial de citas realizadas</p>
             <TablePagination
               columns={appointmentDoneColums}
               rows={appointmentDone}
