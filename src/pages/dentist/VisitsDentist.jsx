@@ -16,31 +16,25 @@ const VisitsDentist = () => {
 
   const [form] = Form.useForm();
 
-  // Opciones para el campo "Motivo" en mayúsculas
-  const motivoOptions = ["AYUDAS_DIAGNOSTICAS", "FORMULACION_DE_MEDICAMENTOS", "HIGIENE_ORAL", "REMISION_A_OTRAS_DEPENDENCIAS", "RESINA_DE_FOTOCURADO", "REVALORACION", "URGENCIA_ODONTOLOGICA", "VALORACION_PRIMERA_VEZ"];
-
-  // Función para formatear las opciones (como en enfermería)
-  const formatOptions = (options) => {
-    return options.map(option => {
-      return option
-        .replace(/_/g, ' ')     // Reemplaza el guión bajo por espacio
-        .toLowerCase()          // Convierte todo a minúscula
-        .replace(/^\w/, c => c.toUpperCase()); // Convierte la primera letra en mayúscula
-    });
-  };
-
-  // Opciones formateadas para mostrar en el select
-  const formattedMotivoOptions = formatOptions(motivoOptions);
+  const motivoOptions = [
+    { value: "AYUDAS_DIAGNOSTICAS", label: "Ayudas diagnósticas" },
+    { value: "FORMULACION_DE_MEDICAMENTOS", label: "Formulación de medicamentos" },
+    { value: "HIGIENE_ORAL", label: "Higiene oral" },
+    { value: "REMISION_A_OTRAS_DEPENDENCIAS", label: "Remisión a otras dependencias" },
+    { value: "RESINA_DE_FOTOCURADO", label: "Resina de fotocurado" },
+    { value: "REVALORACION", label: "Revaloración" },
+    { value: "URGENCIA_ODONTOLOGICA", label: "Urgencia odontológica" },
+    { value: "VALORACION_PRIMERA_VEZ", label: "Valoración primera vez" }
+  ];
 
   const handleSearchUser = async () => {
     try {
       const { data } = await api.get(`/odontology-visits/search/${codigoCedula}`);
-      setNombre(data.name);      // Asignar solo el nombre
-      setApellido(data.lastName); // Asignar solo el apellido
+      setNombre(data.name);
+      setApellido(data.lastName);
       setPlanArea(data.plan);
       message.success("Usuario encontrado");
   
-      // Actualizar valores del formulario con los datos encontrados
       form.setFieldsValue({
         nombre: data.name,
         apellido: data.lastName,
@@ -52,14 +46,12 @@ const VisitsDentist = () => {
     }
   };
   
-  // Función para registrar una visita
   const handleRegisterVisit = async () => {
-    // Validar campos requeridos antes de enviar el payload
     form.validateFields()
       .then(async () => {
         const payload = {
           date: fecha ? fecha.format("YYYY-MM-DD") : null,
-          time: "00:00:00", // Hora fija por ahora
+          time: "00:00:00",
           username: codigoCedula,
           name: nombre,
           lastname: apellido,
@@ -68,7 +60,7 @@ const VisitsDentist = () => {
           description: descripcion,
         };
 
-        console.log("Payload enviado al backend:", payload); // Imprimir el payload en consola
+        console.log("Payload enviado al backend:", payload);
 
         try {
           await api.post("/odontology-visits/register", payload);
@@ -108,17 +100,23 @@ const VisitsDentist = () => {
             <Form form={form} layout="vertical">
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item label="Fecha" name="fecha" rules={[{ required: true, message: "La fecha es obligatoria" }]}>
+                  <Form.Item 
+                    label="Fecha" 
+                    name="fecha" 
+                    rules={[{ required: true, message: "La fecha es obligatoria" }]}
+                  >
                     <DatePicker
                       locale={esLocale}
                       onChange={(date) => setFecha(date)}
                       value={fecha}
                       style={{ width: "100%" }}
+                      allowClear={false} // Evita que se borre el contenido al escribir
+                      inputReadOnly // Previene entrada manual en el input de fecha
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Código/Cédula" name="codigoCedula" rules={[{ required: true, message: "El código/cedula es obligatorio" }]}>
+                  <Form.Item label="Código/cédula" name="codigoCedula" rules={[{ required: true, message: "El código/cédula es obligatorio" }]}>
                     <SearchInputR 
                       value={codigoCedula} 
                       onSearch={handleSearchUser} 
@@ -127,7 +125,14 @@ const VisitsDentist = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Nombre" name="nombre" rules={[{ required: true, message: "El nombre es obligatorio" }]}>
+                  <Form.Item 
+                    label="Nombre" 
+                    name="nombre" 
+                    rules={[
+                      { required: true, message: "El nombre es obligatorio" },
+                      { pattern: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, message: "El nombre solo puede contener letras y tildes" }
+                    ]}
+                  >
                     <Input
                       placeholder="Nombre del paciente"
                       value={nombre}
@@ -136,7 +141,14 @@ const VisitsDentist = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Apellido" name="apellido" rules={[{ required: true, message: "El apellido es obligatorio" }]}>
+                  <Form.Item 
+                    label="Apellido" 
+                    name="apellido" 
+                    rules={[
+                      { required: true, message: "El apellido es obligatorio" },
+                      { pattern: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, message: "El apellido solo puede contener letras y tildes" }
+                    ]}
+                  >
                     <Input
                       placeholder="Apellido del paciente"
                       value={apellido}
@@ -145,7 +157,14 @@ const VisitsDentist = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Plan/Área Dependencia" name="planArea" rules={[{ required: true, message: "El plan de dependencia es obligatorio" }]}>
+                  <Form.Item 
+                    label="Plan/área dependencia" 
+                    name="planArea" 
+                    rules={[
+                      { required: true, message: "El plan de dependencia es obligatorio" },
+                      { pattern: /^[A-Za-z0-9\s]+$/, message: "El plan/área no puede contener símbolos" }
+                    ]}
+                  >
                     <Input
                       placeholder="Plan o área de dependencia"
                       value={planArea}
@@ -158,15 +177,12 @@ const VisitsDentist = () => {
                     <Select
                       value={motivo}
                       onChange={(value) => setMotivo(value)}
-                      options={motivoOptions.map((option) => ({
-                        value: option,
-                        label: formatOptions([option])[0] // Mostrar opción formateada en el selector
-                      }))}
+                      options={motivoOptions}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item label="Descripción de la visita" name="descripcion" rules={[{ required: true, message: "La descripción es obligatoria" }]}>
+                  <Form.Item label="Descripción de la visita" name="descripcion">
                     <Input.TextArea
                       placeholder="Descripción de la visita"
                       value={descripcion}
