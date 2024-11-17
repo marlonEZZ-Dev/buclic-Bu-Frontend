@@ -3,6 +3,7 @@ import { DatePicker, Form, Card, Space, Input, Select, Row, Col, Button, message
 import esLocale from "antd/es/date-picker/locale/es_ES";
 import HeaderDentist from "../../components/dentist/HeaderDentist";
 import SearchInputR from '../../components/global/SearchInputR.jsx';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import api from '../../api';
 
 const VisitsDentist = () => {
@@ -90,8 +91,8 @@ const VisitsDentist = () => {
   return (
     <>
       <HeaderDentist />
-      <main style={{ marginTop: "100px" }}>
-        <h1 style={{ textAlign: "center", color: "#d32f2f", fontSize: "24px", fontWeight: "bold" }}>Registro de visitas</h1>
+      <main className="becas-section" style={{ marginTop: "100px" }}>
+        <h1>Registro de visitas</h1>
         <p style={{ textAlign: "center", color: "#555", fontSize: "16px", marginBottom: "20px" }}>
           Aquí se podrán registrar las visitas de usuarios al servicio
         </p>
@@ -201,6 +202,7 @@ const VisitsDentist = () => {
           </div>
         </Card>
       </main>
+      <FooterProfessionals/>
     </>
   );
 };

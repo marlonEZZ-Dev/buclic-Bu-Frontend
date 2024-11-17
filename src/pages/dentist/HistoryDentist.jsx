@@ -3,6 +3,7 @@ import HeaderDentist from "../../components/dentist/HeaderDentist";
 import SearchPicker from '../../components/global/SearchPicker.jsx';
 import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx"
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Card, Button, Modal, Descriptions, message } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import api from '../../api'; // Asegúrate de que esta instancia esté configurada con el baseURL adecuado.
@@ -53,16 +54,18 @@ const HistoryDentistry = () => {
             messageApi.error("ID de la visita no válido");
             return;
         }
-
+    
         try {
-            // Solicitar datos al endpoint del detalle de la visita
             const response = await api.get(`/odontology-visits/visit/${visitId}`);
-
+            console.log("Datos de la visita:", response.data); // <-- Para verificar qué datos llegan desde el backend
+    
             if (response.data) {
-                // Ajustar y mapear los datos para el modal
+                // Concatenar nombre y apellido correctamente
+                const fullName = `${response.data.name || "Nombre no disponible"} ${response.data.lastName || ""}`.trim();
+    
                 const visitDetails = {
                     user: {
-                        name: response.data.name || "Nombre no disponible",
+                        fullName, // Concatenar nombre y apellido
                         document: response.data.username || "Documento no disponible",
                     },
                     date: response.data.date
@@ -72,8 +75,7 @@ const HistoryDentistry = () => {
                     reason: response.data.reason || "Razón no disponible",
                     description: response.data.description || "Descripción no disponible",
                 };
-
-                // Guardar los detalles de la visita en el estado
+    
                 setSelectedVisit(visitDetails);
                 setIsModalVisible(true);
             } else {
@@ -84,6 +86,8 @@ const HistoryDentistry = () => {
             messageApi.error("Error al obtener los detalles de la visita");
         }
     }, [messageApi]);
+    
+
 
     const handleModalClose = () => {
         setIsModalVisible(false);
@@ -114,8 +118,8 @@ const HistoryDentistry = () => {
         <>
             <HeaderDentist /> {/* Header específico de odontología */}
             {contextHook}
-            <main style={{ marginTop: '100px', textAlign: 'center' }}>
-                <h1 style={{ color: '#C20E1A', fontSize: '24px', fontWeight: 'bold' }}>Historial de visitas</h1>
+            <main className="becas-section" style={{ marginTop: '100px', textAlign: 'center' }}>
+                <h1>Historial de visitas</h1>
                 <p>Aquí se podrán buscar las visitas por paciente o fecha que se han realizado en el servicio.</p>
                 <Card
                     bordered={true}
@@ -158,7 +162,7 @@ const HistoryDentistry = () => {
                 <Modal
                     title={
                         <div style={{ color: '#C20E1A', fontSize: '20px', textAlign: 'center', fontWeight: 'bold' }}>
-                            Detalles de la Visita
+                            Detalles de la visita
                         </div>
                     }
                     open={isModalVisible}
@@ -167,22 +171,22 @@ const HistoryDentistry = () => {
                 >
                     {selectedVisit ? (
                         <Descriptions bordered size="small" column={1}>
-                            <Descriptions.Item label="Nombre">
-                                {selectedVisit.user.name}
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Nombre</span>}>
+                                {selectedVisit.user.fullName}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Código/Cédula">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Código/cédula</span>}>
                                 {selectedVisit.user.document}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Fecha de visita">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Fecha de visita</span>}>
                                 {selectedVisit.date}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Plan">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Plan/área dependencia</span>}>
                                 {selectedVisit.plan}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Razón">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Motivo</span>}>
                                 {selectedVisit.reason}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Descripción">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Descripción</span>}>
                                 {selectedVisit.description}
                             </Descriptions.Item>
                         </Descriptions>
@@ -191,6 +195,7 @@ const HistoryDentistry = () => {
                     )}
                 </Modal>
             </main>
+            <FooterProfessionals/>
         </>
     );
 };

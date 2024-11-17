@@ -5,6 +5,7 @@ import HeaderNurse from "../../components/nurse/HeaderNurse";
 import api from '../../api';
 import { useNavigate } from 'react-router-dom';
 import TablePaginationR from '../../components/global/TablePaginationR';
+import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
 export default function InformNurse() {
   const [trimesterInput, setTrimesterInput] = useState('');
@@ -306,6 +307,7 @@ export default function InformNurse() {
           )}
         </Card>
       </main>
+      <FooterProfessionals/>
     </>
   );
 }

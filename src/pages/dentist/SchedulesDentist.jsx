@@ -10,13 +10,6 @@ import { Flex, Button, message, Modal } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
 const styles = {
-  container: {
-    marginTop: '3rem',
-    minHeight: 'calc(80vh - 64px)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
   contentTitle: {
     textAlign: 'center',
     margin: '1.5rem 0',
@@ -367,7 +360,7 @@ export default function SchedulesDentist() {
       {contextHolder}
       <HeaderDentist/>
 
-      <div style={styles.container}>
+      <div  className="becas-section" style={{ marginTop: "100px" }}>
         {/* Modal para Confirmación de Guardar Cambios */}
         <Modal
           open={isSaveChangesModalVisible}
@@ -444,7 +437,7 @@ export default function SchedulesDentist() {
             <tbody>
               {scheduleData.length === 0 ? (
                 <tr>
-                  <td colSpan="2" style={{ textAlign: 'center', padding: '1rem' }}>
+                  <td colSpan="2" style={{ color:'black', textAlign: 'center', padding: '1rem' }}>
                     No hay horarios disponibles. Presiona "Agregar Fecha" para comenzar.
                   </td>
                 </tr>
