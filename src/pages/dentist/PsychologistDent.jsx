@@ -218,6 +218,7 @@ const PsychologistDent = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
   
     setConfirmLoading(true);
+  
     api
       .post(
         "/appointment-reservation",
@@ -250,8 +251,13 @@ const PsychologistDent = () => {
         );
       })
       .catch((error) => {
-        console.error("Error al reservar la cita:", error);
-        message.error("Debes agendar tu cita al menos una hora antes.");
+        // Mostrar únicamente el mensaje proporcionado por el backend
+        if (error.response && error.response.data?.message) {
+          message.error(error.response.data.message);
+        } else {
+          console.error("Error inesperado:", error);
+          message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+        }
       })
       .finally(() => {
         setConfirmLoading(false);
