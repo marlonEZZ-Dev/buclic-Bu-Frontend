@@ -54,6 +54,19 @@ export default function ConfirmationPassword() {
             message.error("Las contraseñas no coinciden");
             return;
         }
+
+        // Validaciones de campos requeridos
+        if (!password || !passwordConfirmation) {
+            message.error("Todos los campos son obligatorios.");
+            return;
+        }
+
+        // Validación de longitud mínima de la contraseña
+        if (password.length < 8) {
+            message.error("La contraseña debe tener al menos 8 caracteres.");
+            return;
+        }
+
         try {
             setLoading(true);
             const resetPasswordRequest = {
@@ -66,7 +79,7 @@ export default function ConfirmationPassword() {
                     'Content-Type': 'application/json'
                 }
             });
-            message.success("Contraseña actualizada con éxito");
+            message.success("Contraseña actualizada con éxito");    
             navigate('/login');
         } catch (error) {
             console.error("Error resetting password:", error.response || error);
@@ -102,7 +115,6 @@ export default function ConfirmationPassword() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '100vh',
-                backgroundColor: '#f0f2f5',
             }}>
                 <Card
                     style={{
@@ -110,7 +122,7 @@ export default function ConfirmationPassword() {
                         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                         borderRadius: '8px',
                     }}
-                    bodyStyle={{ padding: '24px' }}
+                    body={{ padding: '24px' }}
                 >
                     <h2 style={{
                         textAlign: 'center',

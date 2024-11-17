@@ -9,6 +9,12 @@ export default function RecoverPassword() {
     const navigate = useNavigate();
 
     const handleRecoverPassword = async () => {
+        if (!email.trim()) {
+            // Validar si el campo está vacío
+            message.error("El campo de correo electrónico es obligatorio.");
+            return; // Salir de la función si el correo está vacío
+        }
+        
         try {
             const response = await api.post('/auth/email-reset', { email });
             message.success('Correo enviado correctamente.');
