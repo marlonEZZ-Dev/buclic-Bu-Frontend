@@ -59,7 +59,6 @@ export const searchUser = async (username, isFuncionary) => {
     response = await axios.get(url)
     return response.data
   } catch (error) {
-    console.log(error)
     const messageBackend = error.response.data.message
     return {
       success: false,
@@ -84,9 +83,10 @@ export const createUser = async (user) => {
     if(response.status === 201) return "Usuario creado exitosamente" 
     
   }catch(error){
+    const messageBackend = error.response.data.message
     return {
       success: false,
-      message: errorForPost.get(error.response.status)
+      message: messageBackend.length !== 0 ?  error.response.data.message : errorForPost.get(error.response.status)
     }
   };
 }
@@ -104,10 +104,10 @@ export const importUsers = async (role, fileCSV) => {
       return { success: true, message: "Archivo subido con éxito" };
     }
   } catch (error) {
+    const messageBackend = error.response.data.message
     return {
       success: false,
-      message: errorForPost.get(error.response.status),
-      error: error
+      message: messageBackend.length !== 0 ?  error.response.data.message : errorForPost.get(error.response.status)
     }
   }
 } 
@@ -152,10 +152,10 @@ export const editUser = async (user) => {
     }
 
   } catch (error) {
+    const messageBackend = error.response.data.message
     return {
-      success: false, 
-      message: errorForPut.get(error.response.status),
-      errorGet : error
+      success: false,
+      message: messageBackend.length !== 0 ?  error.response.data.message : errorForPut.get(error.response.status)
     }
   }
 }

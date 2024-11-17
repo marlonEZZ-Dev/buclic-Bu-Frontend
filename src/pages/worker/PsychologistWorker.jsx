@@ -288,6 +288,12 @@ const PsychologistWorker = () => {
   };
 
   const disabledDate = (currentDate) => {
+
+     // Asegúrate de que availableDates es un array válido antes de aplicar .some
+     if (!Array.isArray(availableDates) || availableDates.length === 0) {
+      return true; // Deshabilitar todas las fechas si no hay datos disponibles
+    }
+
     const formattedDate = currentDate.format("YYYY-MM-DD");
     return !availableDates.some(
       (item) =>
@@ -296,6 +302,8 @@ const PsychologistWorker = () => {
     );
   };
 
+  
+  
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
 

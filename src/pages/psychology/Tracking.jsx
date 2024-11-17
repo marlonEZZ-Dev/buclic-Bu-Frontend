@@ -1,6 +1,5 @@
 import HeaderPsych from "../../components/psychology/HeaderPsych";
 import React, { useState } from "react";
-import SearchInput from "../../components/global/SearchInput.jsx";
 import TablePagination from "../../components/global/TablePagination.jsx";
 import StateUser from "../../components/global/StateUser.jsx";
 import {
@@ -18,6 +17,7 @@ import api from "../../api.js";
 import moment from "moment";
 import TablePaginationR from "../../components/global/TablePaginationR.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import SearchTracking from "../../components/psychology/SearchTracking.jsx";
 
 const AssistanceIcon = ({ attended }) => (
   <div
@@ -46,7 +46,7 @@ const Tracking = () => {
 
   const handleSearchClick = () => {
     if (!searchUsername.trim()) {
-      message.warning("Ingrese un código de usuario para buscar.");
+      message.warning("Ingrese el código o cédula de un usuario para buscar");
     } else {
       handleSearch(1); // Inicia la búsqueda en la primera página
     }
@@ -54,7 +54,7 @@ const Tracking = () => {
 
   const handleSearch = async (page = 1) => {
     if (!searchUsername.trim()) {
-      message.warning("Ingrese un código de usuario para buscar.");
+      message.warning("Ingrese el código o cédula de un usuario para buscar");
       return;
     }
 
@@ -127,6 +127,9 @@ const Tracking = () => {
 
       // Refrescar la información después de agendar
       handleSearch();
+      // Limpiar los valores de TimePicker y DatePicker
+    setSelectedDate(null);
+    setSelectedTime(null);
     } catch (error) {
       console.error("Error saving appointment:", error);
       console.log("Error response:", error.response); // Imprime los detalles de la respuesta de error para depuración
@@ -167,6 +170,11 @@ const Tracking = () => {
       <AssistanceIcon attended={reservation.assistant} />,
     ]) || [];
 
+  const handleRefresh = () => {
+    setSearchUsername(""); // Limpia el campo de búsqueda
+    setUserInfo(null); // Limpia la información del usuario
+    setCurrentPage(1); // Reinicia la paginación
+  };
   return (
     <>
       <HeaderPsych />
@@ -180,10 +188,11 @@ const Tracking = () => {
         </p>
         <Card bordered={true} style={styles.card}>
           <div style={styles.searchContainer}>
-            <SearchInput
+            <SearchTracking
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               onClick={() => handleSearch(1)}
+              onRefresh={handleRefresh}
             />
           </div>
           <h3 style={styles.sectionTitle}>Información del paciente</h3>
@@ -241,7 +250,10 @@ const Tracking = () => {
                     />
                   </Col>
                 </Row>
-                <Row justify="center" style={styles.buttonRow}>
+                <Row
+                  justify="center"
+                  style={{ ...styles.buttonRow, marginBottom: "10px" }}
+                >
                   <Space size={20}>
                     <Button
                       type="primary"
