@@ -208,7 +208,7 @@ export default function AgendaDentist() {
       </div>
       <Flex align="center" justify="center">
         <Card className={styles.card} bordered>
-          <Flex vertical align="center" justify="center">
+          <Flex vertical>
             <Tables
               columns={appointmentPendingColums}
               rows={pendingAppointments}
