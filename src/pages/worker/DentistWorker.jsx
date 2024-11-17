@@ -43,6 +43,7 @@ const DentistWorker = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
+  const lastName = localStorage.getItem("lastName");
 
   useEffect(() => {
     fetchPendingAppointment();
@@ -321,17 +322,17 @@ const DentistWorker = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
-                  <Input value={userName || ""} disabled />
+                <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Código">
+                <Form.Item label="Cédula">
                   <Input value={username || ""} disabled />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Programa académico">
+                <Form.Item label="Área dependencia">
                   <Input value={userPlan || ""} disabled />
                 </Form.Item>
               </Col>

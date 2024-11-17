@@ -7,15 +7,26 @@ const SearchTracking = ({
   placeholder = "Código/cédula", 
   onClick = () => {}, 
   onChange = () => {}, 
-  onRefresh = () => {},  // Nueva prop para manejar el refresco
+  onRefresh = () => {},  
   ...props 
 }) => {
   const [hover, setHover] = useState(false);
-  const [inputValue, setInputValue] = useState(""); // Estado local para controlar el valor del input
+  const [inputValue, setInputValue] = useState("");
 
   const handleInputChange = (e) => {
-    setInputValue(e.target.value); // Actualiza el estado local
-    onChange(e); // Llama a la función onChange proporcionada
+    const value = e.target.value;
+    // Permitir solo números positivos
+    if (/^\d*$/.test(value)) {
+      setInputValue(value); // Actualiza el estado si es válido
+      onChange(e); // Llama a la función onChange proporcionada
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    // Prevenir letras y caracteres especiales
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+    }
   };
 
   const handleRefresh = () => {
@@ -26,10 +37,11 @@ const SearchTracking = ({
   return (
     <div style={styles.container}>
       <Input
-        value={inputValue} // El valor está controlado por el estado local
+        value={inputValue}
         placeholder={placeholder}
         style={styles.input}
         onChange={handleInputChange}
+        onKeyPress={handleKeyPress} // Valida al presionar teclas
         {...props}
       />
       <Button
@@ -55,7 +67,7 @@ const SearchTracking = ({
         }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        onClick={handleRefresh} // Llama a handleRefresh en lugar de onRefresh directamente
+        onClick={handleRefresh}
       />
     </div>
   );
@@ -82,7 +94,7 @@ SearchTracking.propTypes = {
   placeholder: PropTypes.string,
   onClick: PropTypes.func,
   onChange: PropTypes.func,
-  onRefresh: PropTypes.func, // Nueva prop para manejar la función de refresco
+  onRefresh: PropTypes.func,
 };
 
 export default SearchTracking;
