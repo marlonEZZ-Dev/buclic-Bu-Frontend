@@ -51,8 +51,12 @@ function AssistanceButtons({ appointmentId, onReload, notifySuccess = () => {}})
       {/* Modal de confirmación */}
       <ReusableModal
         visible={isModalVisible}
-        title="Confirmar Asistencia"
-        content={`¿Estás seguro de ${selectedStatus ? "confirmar" : "cancelar"} la asistencia?`}
+        title={selectedStatus ? "Confirmar asistencia" : "Confirmar inasistencia"} // Cambia dinámicamente el título
+        content={
+          selectedStatus
+            ? "¿Estás seguro de confirmar la asistencia?"
+            : "¿Estás seguro de confirmar la inasistencia?" // Cambia dinámicamente el contenido
+        }
         cancelText="Cancelar"
         confirmText="Guardar"
         onCancel={handleCancel}
@@ -68,7 +72,7 @@ function AssistanceButtons({ appointmentId, onReload, notifySuccess = () => {}})
         </button>
         <button
           className={styles.buttonCross}
-          onClick={() => handleOpenModal(false)} // Abre el modal con `false` para declinar asistencia
+          onClick={() => handleOpenModal(false)} // Abre el modal con `false` para confirmar inasistencia
           style={{ background: "transparent", border: "none", cursor: "pointer" }}
         >
           <CloseCircleOutlined style={{ color: "red", fontSize: "20px" }} />
