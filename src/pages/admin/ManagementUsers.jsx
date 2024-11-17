@@ -272,7 +272,7 @@ const handlePageChange = page => {
     ];
     if (
       !allowedKeys.includes(e.key) && // Permitir teclas de navegación y edición
-      !/^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]$/.test(e.key)     // Permitir letras y espacios
+      !/^[a-zA-ZáéíóúÁÉÍÓÚüÜÑñ\s]$/.test(e.key)     // Permitir letras y espacios
     ) {
       e.preventDefault();
     }

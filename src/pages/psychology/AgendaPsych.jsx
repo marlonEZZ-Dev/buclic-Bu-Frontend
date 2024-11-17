@@ -82,7 +82,7 @@ export default function AgendaPsych() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        appointment.patient || "Anónimo Nn",
         appointment.phone || "Sin Teléfono",
         <AssistanceButtons
           key={appointment.reservationId}
@@ -244,7 +244,7 @@ export default function AgendaPsych() {
                 setCurrentPage(1); // Resetea la página al refrescar
                 fetchAttendedAppointments(1);
               }}/>
-              </Flex>
+            </Flex>
           </Flex>
           <Flex vertical>
             <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0}} className="text-left">Tabla historial de citas realizadas</p>
