@@ -82,7 +82,7 @@ export default function AgendaNurse() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo Nn",
+        `${appointment.patient || "Anónimo"} ${appointment.patientLastname || "Nn"}`,
         appointment.phone || "Sin Teléfono",
         <AssistanceButtons
           key={appointment.reservationId}
@@ -132,7 +132,7 @@ export default function AgendaNurse() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        `${appointment.patient || "Anónimo"} ${appointment.patientLastname || "Nn"}`,
         appointment.phone || "Sin Teléfono",
         <StateUser
           key={appointment.reservationId}
@@ -147,8 +147,10 @@ export default function AgendaNurse() {
       message.error(errorMessage);
     }
   };
+
   const fetchAttendedAppointmentsByDate = async (date, page = 1) => {
     try {
+      date = dayjs(date).format("DD/MM/YYYY")
       const response = await api.get(
         `/appointment-reservation/professional/attended/search/${id}`,
         {
@@ -169,7 +171,7 @@ export default function AgendaNurse() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        `${appointment.patient || "Anónimo"} ${appointment.patientLastname || "Nn"}`,
         appointment.phone || "Sin Teléfono",
         <StateUser
           key={appointment.reservationId}
@@ -239,9 +241,9 @@ export default function AgendaNurse() {
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
               <ButtonRefresh onClick={() => {
+                setAppointmentDone([]);
                 setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
-                fetchAttendedAppointments(1);
               }}/>
             </Flex>
           </Flex>
