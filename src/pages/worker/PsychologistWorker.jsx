@@ -32,10 +32,8 @@ const PsychologistWorker = () => {
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
-  const [semester, setSemester] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
   const [isPhoneError, setIsPhoneError] = useState(false);
-  const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionType, setActionType] = useState("");
@@ -45,15 +43,11 @@ const PsychologistWorker = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
+  const lastName = localStorage.getItem("lastName");
 
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
-    const storedSemester = localStorage.getItem("userSemester");
-
     setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
-    setSemester(
-      storedSemester !== "null" && storedSemester ? storedSemester : ""
-    );
   }, []);
 
   useEffect(() => {
@@ -107,30 +101,23 @@ const PsychologistWorker = () => {
   const showModal = (type, appointmentId = null) => {
     if (type === "reserve") {
       let hasError = false;
-
+  
       if (phone.length !== 10) {
         setIsPhoneError(true);
         hasError = true;
       } else {
         setIsPhoneError(false);
       }
-
-      if (!semester) {
-        setIsSemesterError(true);
-        hasError = true;
-      } else {
-        setIsSemesterError(false);
-      }
-
+  
       if (hasError) {
-        message.error("Digita los campos teléfono y semestre.");
+        message.error("Digita el campo teléfono.");
         return; // Detener la ejecución si hay errores
       }
-
+  
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
       );
-
+  
       setActionType(type);
       setSelectedAppointmentId(appointmentId);
       setModalVisible(true);
@@ -149,6 +136,7 @@ const PsychologistWorker = () => {
       );
     }
   };
+  
 
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
@@ -214,7 +202,7 @@ const PsychologistWorker = () => {
   
 
   const handleConfirmReserve = () => {
-    if (isPhoneError || isSemesterError) return;
+    if (isPhoneError ) return;
   
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
   
@@ -226,7 +214,7 @@ const PsychologistWorker = () => {
         {
           pacientId: userId,
           availableDateId: selectedAppointmentId,
-          semester,
+          
           phone,
         },
         {
@@ -240,10 +228,8 @@ const PsychologistWorker = () => {
         message.success(response.data.message);
   
         localStorage.setItem("userPhone", phone);
-        localStorage.setItem("userSemester", semester);
   
         setPhone(phone);
-        setSemester(semester);
   
         fetchPendingAppointment();
         fetchAvailableDates(); // Actualiza los horarios disponibles
@@ -316,11 +302,7 @@ const PsychologistWorker = () => {
     setIsPhoneError(value.length !== 10);
   };
 
-  const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras, letras con tildes y espacios
-    setSemester(value);
-    setIsSemesterError(value.trim() === ""); // Error si está vacío
-  };
+
 
   const handleBack = () => {
     navigate("/funcionario/citas");
@@ -386,12 +368,13 @@ const PsychologistWorker = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
-                  <Input value={userName || ""} disabled />
+                <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
+
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Programa académico">
+                <Form.Item label="Área dependencia">
                   <Input value={userPlan || ""} disabled />
                 </Form.Item>
               </Col>
@@ -411,22 +394,6 @@ const PsychologistWorker = () => {
                     onChange={handlePhoneChange}
                     maxLength={10}
                     style={{ borderColor: isPhoneError ? "red" : "" }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  label="Semestre"
-                  validateStatus={isSemesterError ? "error" : ""}
-                  help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
-                  }
-                >
-                  <Input
-                    type="text"
-                    value={semester}
-                    onChange={handleSemesterChange}
-                    style={{ borderColor: isSemesterError ? "red" : "" }}
                   />
                 </Form.Item>
               </Col>
