@@ -7,7 +7,7 @@ import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
 import { Flex, Button, message, Modal } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 const styles = {
   contentTitle: {
@@ -29,6 +29,9 @@ const styles = {
     padding: '0.8rem',
     border: 'none',
     verticalAlign: 'middle',
+    textAlign: 'center', // Alineación central
+    color: 'black', // Cambiar el texto a negro
+    fontSize: '16px', // Opcional: Ajustar tamaño de texto
   },
   tableHeader: {
     padding: '0.8rem',
@@ -110,12 +113,6 @@ export default function SchedulesDentist() {
     fetchAvailableDates();
   }, []);
 
-  const handleOpenDeleteTimeModal = (dateIndex, timeIndex) => {
-    setSelectedDateIndex(dateIndex);
-    setSelectedTimeIndex(timeIndex);
-    setIsDeleteTimeModalVisible(true);
-  };
-
   const handleCloseDeleteTimeModal = () => {
     setIsDeleteTimeModalVisible(false);
     setSelectedDateIndex(null);
@@ -170,7 +167,7 @@ export default function SchedulesDentist() {
     const timeIdToDelete = updatedDate.times[selectedTimeIndex]?.id;
 
     if (!timeIdToDelete) {
-      showNotification('error', 'ID de hora no encontrado.');
+      showNotification('error', 'la hora no ha sido registrada previamente, no se puede eliminar.');
       handleCloseDeleteTimeModal();
       return;
     }
@@ -358,9 +355,8 @@ export default function SchedulesDentist() {
   return (
     <>
       {contextHolder}
-      <HeaderDentist/>
-
-      <div  className="becas-section" style={{ marginTop: "100px" }}>
+      <HeaderDentist />
+      <div className="becas-section" style={{ marginTop: "100px" }}>
         {/* Modal para Confirmación de Guardar Cambios */}
         <Modal
           open={isSaveChangesModalVisible}
@@ -437,8 +433,8 @@ export default function SchedulesDentist() {
             <tbody>
               {scheduleData.length === 0 ? (
                 <tr>
-                  <td colSpan="2" style={{ color:'black', textAlign: 'center', padding: '1rem' }}>
-                    No hay horarios disponibles. Presiona "Agregar Fecha" para comenzar.
+                  <td colSpan="2" style={{ color: 'black', textAlign: 'center', padding: '1rem' }}>
+                    No hay horarios disponibles. Presiona "Agregar fecha" para comenzar.
                   </td>
                 </tr>
               ) : (
@@ -457,9 +453,10 @@ export default function SchedulesDentist() {
                             />
                             <Button
                               type="link"
-                              onClick={() => handleDeleteDate(schedule.date)} // Llamada a `handleDeleteDate`
-                              style={{ color: 'red', marginLeft: '5px' }}
+                              onClick={() => handleDeleteDate(schedule.date)}
                               disabled={isLoading}
+                              icon={<CloseCircleOutlined />}
+                              danger
                             >
                               Eliminar
                             </Button>
@@ -482,11 +479,14 @@ export default function SchedulesDentist() {
                                 />
                                 <Button
                                   type="link"
-                                  onClick={() => handleOpenDeleteTimeModal(dateIndex, timeIndex)}
-                                  style={{ color: 'red', marginLeft: '5px' }}
-                                >
-                                  X
-                                </Button>
+                                  icon={<CloseCircleOutlined />}
+                                  danger
+                                  onClick={() => {
+                                    setSelectedDateIndex(dateIndex);
+                                    setSelectedTimeIndex(timeIndex);
+                                    setIsDeleteTimeModalVisible(true);
+                                  }}
+                                />
                               </>
                             ) : (
                               <span style={{ display: 'block', marginBottom: '0.5rem' }}>{time.time}</span>
@@ -500,7 +500,7 @@ export default function SchedulesDentist() {
                             onClick={() => handlerCreateTime(dateIndex)}
                             disabled={isLoading}
                           >
-                            +<span style={styles.decorateText}> Agregar Hora</span>
+                            +<span style={styles.decorateText}> Agregar hora</span>
                           </Button>
                         )}
                       </td>
@@ -523,7 +523,7 @@ export default function SchedulesDentist() {
                       onClick={handlerCreateDate}
                       disabled={isLoading}
                     >
-                      +<span style={styles.decorateText}> Agregar Fecha</span>
+                      +<span style={styles.decorateText}> Agregar fecha</span>
                     </Button>
                   </td>
                 </tr>
@@ -539,7 +539,7 @@ export default function SchedulesDentist() {
               onClick={handlerEdit}
               disabled={isLoading}
             >
-              Editar
+              Agregar fecha
             </button>
           )}
           {isEditing && (
