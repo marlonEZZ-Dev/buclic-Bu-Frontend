@@ -326,7 +326,7 @@ const DentistPsych = () => {
               </Col>
 
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Código">
+                <Form.Item label="Cédula">
                   <Input value={username || ""} disabled />
                 </Form.Item>
               </Col>
