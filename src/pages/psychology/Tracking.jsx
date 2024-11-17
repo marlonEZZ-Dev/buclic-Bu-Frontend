@@ -127,6 +127,9 @@ const Tracking = () => {
 
       // Refrescar la información después de agendar
       handleSearch();
+      // Limpiar los valores de TimePicker y DatePicker
+    setSelectedDate(null);
+    setSelectedTime(null);
     } catch (error) {
       console.error("Error saving appointment:", error);
       console.log("Error response:", error.response); // Imprime los detalles de la respuesta de error para depuración
