@@ -18,23 +18,23 @@ const ViewNursingReport = () => {
         setLoading(true);
         const response = await api.get(`/nursing-report/${id}`);
         const reportData = response.data;
-
+  
         // Transformar diagnosticCount en un array de objetos para la tabla
         const details = Object.entries(reportData.diagnosticCount || {}).map(([reason, count]) => ({
-          reason,
+          reason: diagnosticMapping[reason] || reason, // Mapea el texto legible o usa el original si no existe en el mapeo
           count,
         }));
-
+  
         // Calcular el total de todas las cantidades
         const totalCount = details.reduce((sum, item) => sum + item.count, 0);
-
+  
         // Agregar la fila de total al final de los detalles
         details.push({
           reason: 'Total', // Título de la fila de total
           count: totalCount,
           isTotal: true, // Marcar la fila como total para aplicar estilos
         });
-
+  
         setReport({ ...reportData, details }); // Agregar details al reporte
       } catch (error) {
         console.error('Error al cargar informe:', error);
@@ -44,7 +44,7 @@ const ViewNursingReport = () => {
       }
     };
     fetchReport();
-  }, [id]);
+  }, [id]);  
 
   // Función para descargar el informe
   const handleDownload = async () => {
@@ -71,6 +71,18 @@ const ViewNursingReport = () => {
       console.error('Error al descargar informe:', error);
       message.error(`No se pudo descargar el informe: ${error.response?.data?.message || error.message}`);
     }
+  };
+
+  const diagnosticMapping = {
+    "COLICOS_MENSTRUALES": "Cólicos menstruales",
+    "CURACION": "Curación",
+    "DOLOR_DE_CABEZA": "Dolor de cabeza",
+    "DOLOR_ESTOMACAL": "Dolor estomacal",
+    "DOLOR_MUSCULAR": "Dolor muscular",
+    "MALESTAR_GENERAL": "Malestar general",
+    "MAREOS_DESMAYOS": "Mareos desmayos",
+    "PRESERVATIVOS": "Preservativos",
+    "OTRO": "Otro",
   };
 
   // Definición de las columnas de la tabla
@@ -112,7 +124,6 @@ const ViewNursingReport = () => {
                 onClick={() => navigate(-1)}
                 style={{ border: 'none', backgroundColor: '#C20E1A', color: 'white' }}
               >
-                Volver
               </Button>
               <span style={{ fontSize: '20px', color: '#C20E1A' }}>Informe trimestral</span>
               <Button

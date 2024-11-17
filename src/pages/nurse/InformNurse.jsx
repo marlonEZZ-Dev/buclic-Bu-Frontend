@@ -74,7 +74,7 @@ export default function InformNurse() {
         setReports([]);
         setTotalItems(0);
         setNoResults(true); // Indica que no hubo resultados en la búsqueda
-        message.info('No se encontró ningún informe para el trimestre especificado.');
+        message.warning('No se encontró ningún informe para el trimestre especificado.');
       }
     } catch (error) {
       console.error('Error al buscar el informe:', error);
@@ -238,7 +238,7 @@ export default function InformNurse() {
   return (
     <>
       <HeaderNurse />
-      <main className="informes-section" style={{ marginTop: '100px', padding: '0 20px' }}>
+      <main className="becas-section" style={{ marginTop: '100px', padding: '0 20px' }}>
         <h1 style={{ color: '#C20E1A', textAlign: 'center', marginBottom: 20 }}>Informes</h1>
         <p style={{ textAlign: 'center' }}>Para generar los informes debes ingresar el trimestre.</p>
 
@@ -259,13 +259,13 @@ export default function InformNurse() {
           </div>
 
           <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '20px 0' }} />
-          <p style={{ textAlign: 'center', marginBottom: '20px', color: '#555' }}>
-            Aquí puedes buscar los informes generados por ID de informe.
+          <p style={{ textAlign: 'center', marginBottom: '20px' }}>
+            Aquí puedes buscar los informes generados por trimestre.
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
             <Input
-              placeholder="ID informe"
+              placeholder="trimestre"
               style={{ width: '70%', marginRight: '10px' }}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -281,13 +281,13 @@ export default function InformNurse() {
 
           {noResults && isSearching ? (
             <div style={{ textAlign: 'center' }}>
-              <p style={{ color: 'red' }}>No se encontró ningún informe con el ID especificado.</p>
+              <p style={{ color: 'red' }}>No se encontró ningún informe con el trimestre especificado.</p>
               <Button
                 icon={<ReloadOutlined />}
                 onClick={handleReloadTable}
                 style={{ backgroundColor: '#C20E1A', color: 'white' }}
               >
-                Recargar Tabla
+                Recargar tabla
               </Button>
             </div>
           ) : noResults && !isSearching ? (
