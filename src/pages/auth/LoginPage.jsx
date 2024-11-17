@@ -62,6 +62,7 @@ export default function LoginPage() {
         localStorage.setItem("userEPS", userResponse.eps);
         localStorage.setItem("userPhone", userResponse.phone);
         localStorage.setItem("userSemester", userResponse.semester);
+        localStorage.setItem("lastName", userResponse.lastName);
 
         // Redireccionar basado en el rol
         const userRole = roles.includes("MONITOR") ? "MONITOR" : roles[0];

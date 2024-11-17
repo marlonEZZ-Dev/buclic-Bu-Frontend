@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import HeaderNurse from "../../components/nurse/HeaderNurse";
 import SearchPicker from '../../components/global/SearchPicker.jsx';
 import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx"
@@ -58,7 +58,7 @@ const HistoryNurse = () => {
         }
         setActivities(response)
         }catch(err){
-        // console.log(err);
+        console.log(err);
         }
     }, [queryValue, rangeValue])
 
@@ -95,21 +95,20 @@ const HistoryNurse = () => {
         const handlePageChange = (page) => {
             setCurrentPage(page);
         };
-    
         return (
             <>
                 <HeaderNurse />
                 {contextHook}
                 <main className="becas-section" style={{ marginTop: '100px' }}>
-                    <h1 className="text-xl font-bold">Historial de Actividades</h1>
-                    <p>Aquí se podrán buscar a los pacientes con las actividades que han realizado en el servicio.</p>
+                    <h1 className="text-xl font-bold">Historial de actividades</h1>
+                    <p>Aquí se podrán buscar las visitas por paciente o fecha que se han realizado en el servicio.</p>
                     <Card bordered={true}
                         style={{
                             width: '100%', maxWidth: '700px', marginTop: '100px', margin: '3px auto', justifyContent: 'center'
                         }}>
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                             <SearchPicker
-                            placeholder='Código/Cédula del paciente'
+                            placeholder='Código/cédula del paciente'
                             dateRangeValue={rangeValue}
                             queryValue={queryValue}
                             onQueryChange={value => setQueryValue(value)}
@@ -124,9 +123,9 @@ const HistoryNurse = () => {
                             }}
                             />
                         </div>
-                        <p style={{ marginTop: '30px' }}>Tabla de actividades realizadas</p>
+                        <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0, marginTop:"1.875rem"}}>Tabla de actividades realizadas</p>
                         <TablePaginationR
-                            columns={['Fecha cita', 'Nombre', 'Código/Cédula', 'Detalles cita']}
+                            columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles cita']}
                             rows={rows}
                             currentPage={currentPage}
                             itemsPerPage={itemsPerPage}
@@ -138,7 +137,7 @@ const HistoryNurse = () => {
                 <Modal
                     title={
                         <div style={{ color: '#C20E1A', fontSize: '20px', textAlign: 'center', fontWeight: 'bold' }}>
-                            Detalles de la Actividad
+                            Detalles de la actividad
                         </div>
                     }
                     open={isModalVisible}
@@ -150,10 +149,13 @@ const HistoryNurse = () => {
                             <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Nombre</span>} className="descriptions-item">
                                 {selectedActivity.user.name}
                             </Descriptions.Item>
-                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Código/Cédula</span>} className="descriptions-item">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Apellido</span>} className="descriptions-item">
+                                {selectedActivity.user.lastname}
+                            </Descriptions.Item>
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Código/cédula</span>} className="descriptions-item">
                                 {selectedActivity.user.username}
                             </Descriptions.Item>
-                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Plan/Área Dependencia</span>} className="descriptions-item">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Plan/área dependencia</span>} className="descriptions-item">
                                 {selectedActivity.user.plan}
                             </Descriptions.Item>
                             <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Semestre</span>} className="descriptions-item">
@@ -165,7 +167,7 @@ const HistoryNurse = () => {
                             <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Teléfono</span>} className="descriptions-item">
                                 {selectedActivity.user.phone}
                             </Descriptions.Item>
-                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Fecha de Actividad</span>} className="descriptions-item">
+                            <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Fecha de actividad</span>} className="descriptions-item">
                                 {selectedActivity.date}
                             </Descriptions.Item>
                             <Descriptions.Item label={<span style={{ fontWeight: 'bold' }}>Diagnóstico</span>} className="descriptions-item">

@@ -76,13 +76,12 @@ export default function AgendaPsych() {
         }
       );
       const data = response.data.appointments; // Ajusta esto según los datos correctos
-
       // Transforma los datos para tu tabla
       const formattedRows = data.map((appointment) => [
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo Nn",
+        `${appointment.patient || "Anónimo"} ${appointment.patientLastname || "Nn"}`,
         appointment.phone || "Sin Teléfono",
         <AssistanceButtons
           key={appointment.reservationId}
@@ -125,14 +124,13 @@ export default function AgendaPsych() {
           },
         }
       );
-
       const { appointments, totalElements } = response.data;
 
       const formattedAttendedRows = appointments.map((appointment) => [
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        `${appointment.patient || "Anónimo"} ${appointment.patientLastname || "Nn"}`,
         appointment.phone || "Sin Teléfono",
         <StateUser
           key={appointment.reservationId}
@@ -170,7 +168,7 @@ export default function AgendaPsych() {
         dayjs(appointment.availableDate?.dateTime).format(
           "DD/MM/YYYY h:mm A"
         ) || "Sin Fecha",
-        appointment.patient || "Anónimo",
+        `${appointment.patient || "Anónimo"} ${appointment.patientLastname || "Nn"}`,
         appointment.phone || "Sin Teléfono",
         <StateUser
           key={appointment.reservationId}
@@ -219,7 +217,7 @@ export default function AgendaPsych() {
                 className={styles.searchInput}
                 placeholder="Fecha de consulta (dd/MM/yyyy)"
                 format={"DD/MM/YYYY"}
-                onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
+                onChange={value => setSearchDate(value)}
               />
               <Button
               type="primary"
@@ -240,9 +238,9 @@ export default function AgendaPsych() {
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
               <ButtonRefresh onClick={() => {
+                setAppointmentDone([]);
                 setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
-                fetchAttendedAppointments(1);
               }}/>
             </Flex>
           </Flex>
