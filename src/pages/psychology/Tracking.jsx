@@ -46,7 +46,7 @@ const Tracking = () => {
 
   const handleSearchClick = () => {
     if (!searchUsername.trim()) {
-      message.warning("Ingrese un código de usuario para buscar.");
+      message.warning("Ingrese el código o cédula de un usuario para buscar");
     } else {
       handleSearch(1); // Inicia la búsqueda en la primera página
     }
@@ -54,7 +54,7 @@ const Tracking = () => {
 
   const handleSearch = async (page = 1) => {
     if (!searchUsername.trim()) {
-      message.warning("Ingrese un código de usuario para buscar.");
+      message.warning("Ingrese el código o cédula de un usuario para buscar");
       return;
     }
 
