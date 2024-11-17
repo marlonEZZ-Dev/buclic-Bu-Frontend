@@ -167,6 +167,11 @@ const Tracking = () => {
       <AssistanceIcon attended={reservation.assistant} />,
     ]) || [];
 
+    const handleRefresh = () => {
+      setSearchUsername(""); // Limpia el campo de búsqueda
+      setUserInfo(null); // Limpia la información del usuario
+      setCurrentPage(1); // Reinicia la paginación
+    };
   return (
     <>
       <HeaderPsych />
@@ -184,6 +189,7 @@ const Tracking = () => {
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               onClick={() => handleSearch(1)}
+              onRefresh={handleRefresh}
             />
           </div>
           <h3 style={styles.sectionTitle}>Información del paciente</h3>
