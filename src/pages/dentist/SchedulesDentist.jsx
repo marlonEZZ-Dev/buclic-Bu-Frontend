@@ -7,7 +7,7 @@ import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
 import { Flex, Button, message, Modal } from "antd";
-import { InfoCircleOutlined, CloseCircleOutlined} from "@ant-design/icons";
+import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 const styles = {
   contentTitle: {
@@ -70,7 +70,7 @@ export default function SchedulesDentist() {
   const [isLoading, setIsLoading] = useState(false);
   const userId = localStorage.getItem("userId");
 
-  const showNotification = (type, content) => {messageApi[type]({content, duration: 5});};
+  const showNotification = (type, content) => { messageApi[type]({ content, duration: 5 }); };
 
   const fetchAvailableDates = async () => {
     try {
@@ -99,7 +99,7 @@ export default function SchedulesDentist() {
       scheduleDataFormatted.forEach(schedule => {
         schedule.times.sort((a, b) => dayjs(`1970-01-01T${a.time}`).diff(dayjs(`1970-01-01T${b.time}`)));
       });
-      
+
       setScheduleData(scheduleDataFormatted);
       setOriginalScheduleData(scheduleDataFormatted);
     } catch (error) {
@@ -185,6 +185,28 @@ export default function SchedulesDentist() {
     }
   };
 
+  // Función para eliminar timepicker vacío
+  const handleRemoveEmptyTime = (dateIndex, timeIndex) => {
+    // Si el tiempo está vacío, solo eliminamos el timepicker
+    if (!scheduleData[dateIndex].times[timeIndex].time) {
+      const newSchedule = [...scheduleData];
+      newSchedule[dateIndex].times.splice(timeIndex, 1);
+
+      // Si no quedan horarios en la fecha, agregar uno vacío
+      if (newSchedule[dateIndex].times.length === 0) {
+        newSchedule[dateIndex].times.push({ time: "", isNew: true });
+      }
+
+      setScheduleData(newSchedule);
+      return;
+    }
+
+    // Si el tiempo tiene valor, procedemos con la eliminación normal
+    setSelectedDateIndex(dateIndex);
+    setSelectedTimeIndex(timeIndex);
+    setIsDeleteTimeModalVisible(true);
+  };
+
   const handleCloseSaveChangesModal = () => {
     setIsSaveChangesModalVisible(false);
   };
@@ -196,14 +218,12 @@ export default function SchedulesDentist() {
     try {
       const saved = await saveDataToBackend();
       if (saved) {
-        showNotification('success', 'El horario fue asignado con éxito.');
+        showNotification('success', 'Los horarios fueron asignados con éxito.');
         setIsEditing(false);
         handleCloseSaveChangesModal();
-
-        // Recargar los datos desde el servidor para evitar inconsistencias
-        await fetchAvailableDates();
+        await fetchAvailableDates(); // Recargar datos
       } else {
-        showNotification('error', 'No se pudo guardar el horario. Intente de nuevo.');
+        showNotification('error', 'No se pudieron guardar los horarios. Intente de nuevo.');
       }
     } catch (error) {
       showNotification('error', 'Hubo un error inesperado. Intente nuevamente.');
@@ -271,8 +291,26 @@ export default function SchedulesDentist() {
     const selectedDate = dayjs(scheduleData[dateIndex].date);
     const selectedTime = dayjs(`${scheduleData[dateIndex].date}T${newTime}`);
 
+    // Validar que no sea una hora pasada en el día actual
     if (selectedDate.isSame(now, 'day') && selectedTime.isBefore(now)) {
       showNotification('warning', 'No se puede seleccionar una hora pasada en la fecha actual.');
+      return;
+    }
+
+    // Verificar duplicados en toda la tabla
+    const isDuplicateTime = scheduleData.some((schedule, sDateIndex) =>
+      // Si es la misma fecha
+      schedule.date === scheduleData[dateIndex].date &&
+      // Buscar en todos los horarios de esa fecha
+      schedule.times.some((time, sTimeIndex) =>
+        // Excluir la posición actual que estamos editando
+        (sDateIndex !== dateIndex || sTimeIndex !== timeIndex) &&
+        time.time === newTime
+      )
+    );
+
+    if (isDuplicateTime) {
+      showNotification('warning', 'Esta hora ya existe en el calendario. Por favor, seleccione una hora diferente.');
       return;
     }
 
@@ -292,10 +330,20 @@ export default function SchedulesDentist() {
         return false;
       }
 
-      // Filtra solo los horarios nuevos (isNew: true)
-      const availableDates = modifiedScheduleData.flatMap(schedule =>
+      // Verificar horarios duplicados en el mismo día antes de enviar
+      for (const schedule of scheduleData) {
+        const times = schedule.times.map(t => t.time).filter(t => t !== "");
+        const uniqueTimes = new Set(times);
+        if (times.length !== uniqueTimes.size) {
+          showNotification('error', `Hay horarios duplicados en la fecha ${schedule.date}. Por favor, revise y corrija.`);
+          return false;
+        }
+      }
+
+      // Recolectar todas las fechas y horarios nuevos
+      const availableDates = scheduleData.flatMap(schedule =>
         schedule.times
-          .filter(({ isNew }) => isNew)  // Solo tiempos nuevos
+          .filter(time => time.isNew && time.time !== "") // Filtrar horarios vacíos
           .map(({ time }) => ({
             dateTime: `${schedule.date}T${time}`,
             professionalId: Number(userId),
@@ -310,20 +358,24 @@ export default function SchedulesDentist() {
 
       setIsLoading(true);
 
-      const response = await api.post("/appointment/create-date", { availableDates, professionalId: Number(userId) });
+      const response = await api.post("/appointment/create-date", {
+        availableDates,
+        professionalId: Number(userId)
+      });
 
       if (response?.status === 200 || response?.status === 201) {
-        // Marcar todos los horarios como guardados (isNew: false) después de guardarlos
         const updatedScheduleData = scheduleData.map(schedule => ({
           ...schedule,
-          times: schedule.times.map(time => ({ ...time, isNew: false }))
+          times: schedule.times.map(time => ({
+            ...time,
+            isNew: false
+          }))
         }));
 
         setScheduleData(updatedScheduleData);
-        setOriginalScheduleData(updatedScheduleData); // Actualizar el original
-        setModifiedScheduleData([]); // Limpiar el array de modificaciones
+        setOriginalScheduleData(updatedScheduleData);
+        setModifiedScheduleData([]);
 
-        // Recargar los datos desde el servidor para asegurarse de que el estado es consistente
         await fetchAvailableDates();
         return true;
       } else {
@@ -332,7 +384,7 @@ export default function SchedulesDentist() {
     } catch (error) {
       console.error('Error al guardar horarios:', error);
       if (error.response && error.response.status === 409) {
-        showNotification('error', 'El horario ya existe. Por favor, verifique e intente nuevamente.');
+        showNotification('error', 'Algunos horarios ya existen. Por favor, verifique e intente nuevamente.');
       } else {
         showNotification('error', 'Hubo un error al guardar los horarios.');
       }
@@ -343,8 +395,13 @@ export default function SchedulesDentist() {
   };
 
   const handlerBtnSave = () => {
-    if (modifiedScheduleData.length === 0) {
-      showNotification('warning', 'No hay cambios para guardar.');
+    // Verificar si hay fechas nuevas para guardar
+    const hasNewDates = scheduleData.some(schedule =>
+      schedule.times.some(time => time.isNew && time.time !== "")
+    );
+
+    if (!hasNewDates) {
+      showNotification('warning', 'No hay cambios nuevos para guardar.');
       return;
     }
 
@@ -480,11 +537,7 @@ export default function SchedulesDentist() {
                                   type="link"
                                   icon={<CloseCircleOutlined />}
                                   danger
-                                  onClick={() => {
-                                    setSelectedDateIndex(dateIndex);
-                                    setSelectedTimeIndex(timeIndex);
-                                    setIsDeleteTimeModalVisible(true);
-                                  }}
+                                  onClick={() => handleRemoveEmptyTime(dateIndex, timeIndex)}
                                 />
                               </>
                             ) : (
