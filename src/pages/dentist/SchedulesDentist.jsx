@@ -76,12 +76,12 @@ export default function SchedulesDentist() {
     try {
       const response = await api.get(`/appointment/${userId}`);
       const fetchedData = response.data.availableDates || [];
-
+  
       const now = dayjs();
       const scheduleDataFormatted = fetchedData.reduce((acc, item) => {
         const [date, time] = item.dateTime.split('T');
         const dateTime = dayjs(`${date}T${time}`);
-
+  
         // Asegurarse de que solo incluimos horarios futuros
         if (dateTime.isAfter(now)) {
           const existingDate = acc.find(entry => entry.date === date);
@@ -94,12 +94,15 @@ export default function SchedulesDentist() {
         }
         return acc;
       }, []);
-
+  
       // Ordenar horarios de cada fecha
       scheduleDataFormatted.forEach(schedule => {
         schedule.times.sort((a, b) => dayjs(`1970-01-01T${a.time}`).diff(dayjs(`1970-01-01T${b.time}`)));
       });
-
+  
+      // Ordenar las fechas cronológicamente
+      scheduleDataFormatted.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+  
       setScheduleData(scheduleDataFormatted);
       setOriginalScheduleData(scheduleDataFormatted);
     } catch (error) {
@@ -107,6 +110,7 @@ export default function SchedulesDentist() {
       showNotification('error', 'Error al cargar los horarios. Intente nuevamente.');
     }
   };
+  
 
   useEffect(() => {
     fetchAvailableDates();
