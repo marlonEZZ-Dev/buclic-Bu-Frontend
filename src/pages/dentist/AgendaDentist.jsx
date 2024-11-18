@@ -240,9 +240,9 @@ export default function AgendaDentist() {
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
               <ButtonRefresh onClick={() => {
-                setAppointmentDone([]);
                 setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
+                fetchAttendedAppointments(1);
               }}/>
             </Flex>
           </Flex>
