@@ -80,9 +80,9 @@ export const validPlan = plan => {
   return EMPTY_FIELD
 }
 
-export const validEmail = (email, funcionary) => {
+export const validEmail = (email, funcionary, edit) => {
   if(funcionary){
-    return forEmailFuncionary(email)
+    return edit && email === "" ? true : forEmailFuncionary(email)
   }
   return forEmailStudent(email)
 }

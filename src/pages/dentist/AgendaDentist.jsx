@@ -219,7 +219,8 @@ export default function AgendaDentist() {
                 className={styles.searchInput}
                 placeholder="Fecha de consulta (dd/MM/yyyy)"
                 format={"DD/MM/YYYY"}
-                onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
+                value={searchDate}
+                onChange={value => setSearchDate(value)}
               />
               <Button
               type="primary"
@@ -239,10 +240,22 @@ export default function AgendaDentist() {
               }}
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
-              <ButtonRefresh onClick={() => {
-                setAppointmentDone([]);
+              <ButtonRefresh onClick={ async () => {
+                try {
+                let verify = "Entro"
                 setSearchDate(""); // Limpia la búsqueda
+                verify += " - Limpio"
                 setCurrentPage(1); // Resetea la página al refrescar
+                verify += " - Refresco"
+                await fetchAttendedAppointments(1);
+                verify += " - Cargo"
+                console.log(`sucedido ${verify}`)
+                console.log(`Esta vacio ? ${searchDate === "" ? true : searchDate}`)
+                } catch (error) {
+                  console.log(error)
+                } finally{
+                  console.dir(appointmentDone);
+                }
               }}/>
             </Flex>
           </Flex>

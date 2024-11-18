@@ -241,7 +241,7 @@ export default function AgendaNurse() {
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
               <ButtonRefresh onClick={() => {
-                setAppointmentDone([]);
+                fetchAttendedAppointments(1);
                 setSearchDate(""); // Limpia la búsqueda
                 setCurrentPage(1); // Resetea la página al refrescar
               }}/>
