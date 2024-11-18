@@ -82,7 +82,7 @@ export const validPlan = plan => {
 
 export const validEmail = (email, funcionary, edit) => {
   if(funcionary){
-    return edit && email === "" ? true : forEmailFuncionary(email)
+    return edit && email === null ? true : forEmailFuncionary(email)
   }
   return forEmailStudent(email)
 }

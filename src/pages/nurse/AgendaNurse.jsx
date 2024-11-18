@@ -220,6 +220,7 @@ export default function AgendaNurse() {
                 className={styles.searchInput}
                 placeholder="Fecha de consulta (dd/MM/yyyy)"
                 format={"DD/MM/YYYY"}
+                value={searchDate}
                 onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
               />
               <Button
@@ -240,10 +241,14 @@ export default function AgendaNurse() {
               }}
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
-              <ButtonRefresh onClick={() => {
-                fetchAttendedAppointments(1);
-                setSearchDate(""); // Limpia la búsqueda
-                setCurrentPage(1); // Resetea la página al refrescar
+              <ButtonRefresh onClick={async () => {
+                try {
+                  setSearchDate(""); // Limpia la búsqueda
+                  setCurrentPage(1); // Resetea la página al refrescar
+                  await fetchAttendedAppointments(1);
+                } catch (error) {
+                  console.log(error)
+                }
               }}/>
             </Flex>
           </Flex>
