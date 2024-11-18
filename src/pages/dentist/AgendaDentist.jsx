@@ -240,7 +240,8 @@ export default function AgendaDentist() {
               }}
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
-              <ButtonRefresh onClick={ () => {
+              <ButtonRefresh onClick={ async () => {
+                try {
                 let verify = "Entro"
                 setSearchDate(""); // Limpia la búsqueda
                 verify += " - Limpio"
@@ -250,6 +251,11 @@ export default function AgendaDentist() {
                 verify += " - Cargo"
                 console.log(`sucedido ${verify}`)
                 console.log(`Esta vacio ? ${searchDate === "" ? true : searchDate}`)
+                } catch (error) {
+                  console.log(error)
+                } finally{
+                  console.dir(appointmentDone);
+                }
               }}/>
             </Flex>
           </Flex>
