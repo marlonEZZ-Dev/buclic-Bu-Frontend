@@ -7,7 +7,7 @@ import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
 import { Flex, Button, message, Modal } from "antd";
-import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, CloseCircleOutlined} from "@ant-design/icons";
 
 const styles = {
   contentTitle: {
@@ -31,7 +31,7 @@ const styles = {
     verticalAlign: 'middle',
     textAlign: 'center', // Alineación central
     color: 'black', // Cambiar el texto a negro
-    fontSize: '16px', // Opcional: Ajustar tamaño de texto
+    fontSize: '16px', // Ajustar tamaño de texto
   },
   tableHeader: {
     padding: '0.8rem',
@@ -70,12 +70,7 @@ export default function SchedulesDentist() {
   const [isLoading, setIsLoading] = useState(false);
   const userId = localStorage.getItem("userId");
 
-  const showNotification = (type, content) => {
-    messageApi[type]({
-      content,
-      duration: 5,
-    });
-  };
+  const showNotification = (type, content) => {messageApi[type]({content, duration: 5});};
 
   const fetchAvailableDates = async () => {
     try {
@@ -90,7 +85,6 @@ export default function SchedulesDentist() {
         // Asegurarse de que solo incluimos horarios futuros
         if (dateTime.isAfter(now)) {
           const existingDate = acc.find(entry => entry.date === date);
-
           if (existingDate) {
             // Agregar el `id` a cada hora en el formato de `times`
             existingDate.times.push({ time, id: item.id, isNew: false });
@@ -101,6 +95,11 @@ export default function SchedulesDentist() {
         return acc;
       }, []);
 
+      // Ordenar horarios de cada fecha
+      scheduleDataFormatted.forEach(schedule => {
+        schedule.times.sort((a, b) => dayjs(`1970-01-01T${a.time}`).diff(dayjs(`1970-01-01T${b.time}`)));
+      });
+      
       setScheduleData(scheduleDataFormatted);
       setOriginalScheduleData(scheduleDataFormatted);
     } catch (error) {
