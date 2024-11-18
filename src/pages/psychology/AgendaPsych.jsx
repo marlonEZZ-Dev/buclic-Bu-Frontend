@@ -216,6 +216,7 @@ export default function AgendaPsych() {
               <DateSpanish
                 className={styles.searchInput}
                 placeholder="Fecha de consulta (dd/MM/yyyy)"
+                value={searchDate}
                 format={"DD/MM/YYYY"}
                 onChange={value => setSearchDate(value)}
               />
@@ -237,10 +238,14 @@ export default function AgendaPsych() {
               }}
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}/>
-              <ButtonRefresh onClick={() => {
-                fetchAttendedAppointments(1);
-                setSearchDate(""); // Limpia la búsqueda
-                setCurrentPage(1); // Resetea la página al refrescar
+              <ButtonRefresh onClick={async () => {
+                try {
+                  setSearchDate(""); // Limpia la búsqueda
+                  setCurrentPage(1); // Resetea la página al refrescar
+                  await fetchAttendedAppointments(1);
+                } catch (error) {
+                  console.log(error)
+                }
               }}/>
             </Flex>
           </Flex>

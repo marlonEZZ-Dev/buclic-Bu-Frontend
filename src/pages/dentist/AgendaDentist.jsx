@@ -242,19 +242,11 @@ export default function AgendaDentist() {
               onMouseLeave={() => setHover(false)}/>
               <ButtonRefresh onClick={ async () => {
                 try {
-                let verify = "Entro"
-                setSearchDate(""); // Limpia la búsqueda
-                verify += " - Limpio"
-                setCurrentPage(1); // Resetea la página al refrescar
-                verify += " - Refresco"
-                await fetchAttendedAppointments(1);
-                verify += " - Cargo"
-                console.log(`sucedido ${verify}`)
-                console.log(`Esta vacio ? ${searchDate === "" ? true : searchDate}`)
+                  setSearchDate(""); // Limpia la búsqueda
+                  setCurrentPage(1); // Resetea la página al refrescar
+                  await fetchAttendedAppointments(1);
                 } catch (error) {
                   console.log(error)
-                } finally{
-                  console.dir(appointmentDone);
                 }
               }}/>
             </Flex>
