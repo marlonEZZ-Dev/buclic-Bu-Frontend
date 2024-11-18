@@ -247,7 +247,7 @@ export default function AgendaDentist() {
                 verify += " - Limpio"
                 setCurrentPage(1); // Resetea la página al refrescar
                 verify += " - Refresco"
-                fetchAttendedAppointments(1);
+                await fetchAttendedAppointments(1);
                 verify += " - Cargo"
                 console.log(`sucedido ${verify}`)
                 console.log(`Esta vacio ? ${searchDate === "" ? true : searchDate}`)
