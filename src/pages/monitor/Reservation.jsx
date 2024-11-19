@@ -62,6 +62,7 @@ const Reservation = () => {
 
             // Limpiar los datos de la reserva después de registrar el pago
             setReservationData(null);
+            await fetchReservations();
         } catch (error) {
             // Muestra el error si algo sale mal
             console.error("Error al intentar registrar el pago:", error);
@@ -89,6 +90,7 @@ const Reservation = () => {
 
             // Limpiar los datos de la reserva después de cancelar
             setReservationData(null);
+            await fetchReservations();
         } catch (error) {
             // Muestra el error si algo sale mal
             console.error("Error al intentar cancelar la reserva:", error);
