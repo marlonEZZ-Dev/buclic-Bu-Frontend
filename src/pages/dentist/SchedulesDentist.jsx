@@ -13,32 +13,39 @@ const styles = {
   contentTitle: {
     textAlign: 'center',
     margin: '1.5rem 0',
-  },
-  tableWrapper: {
-    margin: '1.5rem 0',
     padding: '0 1rem',
   },
+  tableWrapper: {
+    margin: '1.5rem auto',
+    padding: '0 1rem',
+    width: '100%',
+    maxWidth: '1200px',
+    overflowX: 'auto',
+  },
   cssTable: {
-    width: '400px',
+    width: '100%',
+    minWidth: '320px',
     maxWidth: '800px',
+    margin: '0 auto',
     borderCollapse: 'collapse',
     backgroundColor: 'white',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   tableCell: {
-    padding: '0.8rem',
+    padding: window.innerWidth <= 768 ? '0.5rem' : '0.8rem',
     border: 'none',
     verticalAlign: 'middle',
-    textAlign: 'center', // Alineación central
-    color: 'black', // Cambiar el texto a negro
-    fontSize: '16px', // Ajustar tamaño de texto
+    textAlign: 'center',
+    color: 'black',
+    fontSize: window.innerWidth <= 768 ? '14px' : '16px',
   },
   tableHeader: {
-    padding: '0.8rem',
+    padding: window.innerWidth <= 768 ? '0.5rem' : '0.8rem',
     backgroundColor: 'var(--red)',
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: window.innerWidth <= 768 ? '14px' : '16px',
   },
   linkButton: {
     color: 'var(--red)',
@@ -47,13 +54,76 @@ const styles = {
     background: 'none',
     cursor: 'pointer',
     padding: '0.5rem',
+    whiteSpace: 'nowrap',
   },
   buttonContainer: {
     display: 'flex',
     gap: '1rem',
     justifyContent: 'center',
+    flexWrap: 'wrap',
+    padding: '0 1rem',
+  },
+  modalCentered: {
+    textAlign: 'center',
+    padding: '1rem',
+  },
+  modalFontSizeTitle: {
+    fontSize: window.innerWidth <= 768 ? '1rem' : '1.2rem',
+    fontWeight: 'bold',
+  },
+  modalFontSizeContent: {
+    fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
+    marginTop: '1rem',
+  },
+  timeContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    marginBottom: '0.5rem',
+    flexWrap: 'wrap',
+    flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+  },
+  dateContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+  },
+  marginTopEdit: {
+    marginTop: window.innerWidth <= 768 ? '1rem' : '2rem',
+  },
+  decorateText: {
+    display: window.innerWidth <= 480 ? 'none' : 'inline',
   },
 };
+
+// Agregar estilos CSS globales
+const globalStyles = `
+  @media (max-width: 768px) {
+    .ant-picker {
+      width: 100% !important;
+    }
+    
+    .ant-btn {
+      font-size: 14px !important;
+      padding: 4px 8px !important;
+    }
+    
+    .button-save,
+    .button-cancel {
+      padding: 8px 16px !important;
+      font-size: 14px !important;
+    }
+  }
+`;
+
+// Agregar los estilos globales al documento
+const styleSheet = document.createElement('style');
+styleSheet.type = 'text/css';
+styleSheet.innerText = globalStyles;
+document.head.appendChild(styleSheet);
 
 dayjs.locale('es');
 
