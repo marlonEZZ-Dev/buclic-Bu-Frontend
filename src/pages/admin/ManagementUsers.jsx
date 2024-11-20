@@ -395,7 +395,7 @@ const handlePageChange = page => {
         username: validCode(user.username, !isFuncionary, isFuncionary),
         name: validName(user.name),
         lastName: validLastname(user.lastName),
-        email: validEmail(user.email, isFuncionary, isModalEdit),
+        email: validEmail(user.email, isFuncionary, user.roles.includes("EXTERNO"),isModalEdit),
         plan: validPlan(user.plan),
         roles: validRol(user.roles),
         grant: !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
@@ -617,7 +617,7 @@ useEffect(() => {
   if (pressedSave) {
       handlerOkValidation({
           name: "email",
-          value: validEmail(user.email, isFuncionary, isModalEdit),
+          value: validEmail(user.email, isFuncionary, false,isModalEdit),
           fnState: setOkValidation
       });
   }
@@ -693,7 +693,7 @@ useEffect(() => {
   if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "email",
-          value: validEmail(objectSelected.email, isFuncionary, isModalEdit),
+          value: validEmail(objectSelected.email, isFuncionary, objectSelected.roles.includes("EXTERNO"),isModalEdit),
           fnState: setOkValidationEdit
       });
   }
