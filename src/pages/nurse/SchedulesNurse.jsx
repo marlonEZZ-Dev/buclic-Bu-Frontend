@@ -7,42 +7,45 @@ import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
 import api from '../../api';
 import { Flex, Button, message, Modal } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 const styles = {
-  container: {
-    marginTop: '3rem',
-    minHeight: 'calc(80vh - 64px)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
   contentTitle: {
     textAlign: 'center',
     margin: '1.5rem 0',
-  },
-  tableWrapper: {
-    margin: '1.5rem 0',
     padding: '0 1rem',
   },
+  tableWrapper: {
+    margin: '1.5rem auto',
+    padding: '0 1rem',
+    width: '100%',
+    maxWidth: '1200px',
+    overflowX: 'auto',
+  },
   cssTable: {
-    width: '400px',
+    width: '100%',
+    minWidth: '320px',
     maxWidth: '800px',
+    margin: '0 auto',
     borderCollapse: 'collapse',
     backgroundColor: 'white',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   tableCell: {
-    padding: '0.8rem',
+    padding: window.innerWidth <= 768 ? '0.5rem' : '0.8rem',
     border: 'none',
     verticalAlign: 'middle',
+    textAlign: 'center',
+    color: 'black',
+    fontSize: window.innerWidth <= 768 ? '14px' : '16px',
   },
   tableHeader: {
-    padding: '0.8rem',
+    padding: window.innerWidth <= 768 ? '0.5rem' : '0.8rem',
     backgroundColor: 'var(--red)',
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: window.innerWidth <= 768 ? '14px' : '16px',
   },
   linkButton: {
     color: 'var(--red)',
@@ -51,13 +54,76 @@ const styles = {
     background: 'none',
     cursor: 'pointer',
     padding: '0.5rem',
+    whiteSpace: 'nowrap',
   },
   buttonContainer: {
     display: 'flex',
     gap: '1rem',
     justifyContent: 'center',
+    flexWrap: 'wrap',
+    padding: '0 1rem',
+  },
+  modalCentered: {
+    textAlign: 'center',
+    padding: '1rem',
+  },
+  modalFontSizeTitle: {
+    fontSize: window.innerWidth <= 768 ? '1rem' : '1.2rem',
+    fontWeight: 'bold',
+  },
+  modalFontSizeContent: {
+    fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
+    marginTop: '1rem',
+  },
+  timeContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    marginBottom: '0.5rem',
+    flexWrap: 'wrap',
+    flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+  },
+  dateContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+  },
+  marginTopEdit: {
+    marginTop: window.innerWidth <= 768 ? '1rem' : '2rem',
+  },
+  decorateText: {
+    display: window.innerWidth <= 480 ? 'none' : 'inline',
   },
 };
+
+// Agregar estilos CSS globales
+const globalStyles = `
+  @media (max-width: 768px) {
+    .ant-picker {
+      width: 100% !important;
+    }
+    
+    .ant-btn {
+      font-size: 14px !important;
+      padding: 4px 8px !important;
+    }
+    
+    .button-save,
+    .button-cancel {
+      padding: 8px 16px !important;
+      font-size: 14px !important;
+    }
+  }
+`;
+
+// Agregar los estilos globales al documento
+const styleSheet = document.createElement('style');
+styleSheet.type = 'text/css';
+styleSheet.innerText = globalStyles;
+document.head.appendChild(styleSheet);
 
 dayjs.locale('es');
 
@@ -74,27 +140,21 @@ export default function SchedulesNurse() {
   const [isLoading, setIsLoading] = useState(false);
   const userId = localStorage.getItem("userId");
 
-  const showNotification = (type, content) => {
-    messageApi[type]({
-      content,
-      duration: 5,
-    });
-  };
+  const showNotification = (type, content) => { messageApi[type]({ content, duration: 5 }); };
 
   const fetchAvailableDates = async () => {
     try {
       const response = await api.get(`/appointment/${userId}`);
       const fetchedData = response.data.availableDates || [];
-
+  
       const now = dayjs();
       const scheduleDataFormatted = fetchedData.reduce((acc, item) => {
         const [date, time] = item.dateTime.split('T');
         const dateTime = dayjs(`${date}T${time}`);
-
+  
         // Asegurarse de que solo incluimos horarios futuros
         if (dateTime.isAfter(now)) {
           const existingDate = acc.find(entry => entry.date === date);
-
           if (existingDate) {
             // Agregar el `id` a cada hora en el formato de `times`
             existingDate.times.push({ time, id: item.id, isNew: false });
@@ -104,7 +164,15 @@ export default function SchedulesNurse() {
         }
         return acc;
       }, []);
-
+  
+      // Ordenar horarios de cada fecha
+      scheduleDataFormatted.forEach(schedule => {
+        schedule.times.sort((a, b) => dayjs(`1970-01-01T${a.time}`).diff(dayjs(`1970-01-01T${b.time}`)));
+      });
+  
+      // Ordenar las fechas cronológicamente
+      scheduleDataFormatted.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+  
       setScheduleData(scheduleDataFormatted);
       setOriginalScheduleData(scheduleDataFormatted);
     } catch (error) {
@@ -112,17 +180,11 @@ export default function SchedulesNurse() {
       showNotification('error', 'Error al cargar los horarios. Intente nuevamente.');
     }
   };
-
+  
 
   useEffect(() => {
     fetchAvailableDates();
   }, []);
-
-  const handleOpenDeleteTimeModal = (dateIndex, timeIndex) => {
-    setSelectedDateIndex(dateIndex);
-    setSelectedTimeIndex(timeIndex);
-    setIsDeleteTimeModalVisible(true);
-  };
 
   const handleCloseDeleteTimeModal = () => {
     setIsDeleteTimeModalVisible(false);
@@ -144,10 +206,10 @@ export default function SchedulesNurse() {
           const response = await api.delete("/appointment/delete-dates", {
             data: { date: formattedDate }
           });
-  
+
           if (response.status === 204) {
             showNotification("success", "Todos los horarios de la fecha han sido eliminados correctamente.");
-            
+
             // Recargar los datos desde el servidor después de eliminar la fecha completa
             await fetchAvailableDates();
           } else {
@@ -164,7 +226,7 @@ export default function SchedulesNurse() {
       },
     });
   };
-  
+
 
   // Función de eliminar una hora
   const handleDeleteTime = async () => {
@@ -178,7 +240,7 @@ export default function SchedulesNurse() {
     const timeIdToDelete = updatedDate.times[selectedTimeIndex]?.id;
 
     if (!timeIdToDelete) {
-      showNotification('error', 'ID de hora no encontrado.');
+      showNotification('error', 'la hora no ha sido registrada previamente, no se puede eliminar.');
       handleCloseDeleteTimeModal();
       return;
     }
@@ -197,6 +259,28 @@ export default function SchedulesNurse() {
     }
   };
 
+  // Función para eliminar timepicker vacío
+  const handleRemoveEmptyTime = (dateIndex, timeIndex) => {
+    // Si el tiempo está vacío, solo eliminamos el timepicker
+    if (!scheduleData[dateIndex].times[timeIndex].time) {
+      const newSchedule = [...scheduleData];
+      newSchedule[dateIndex].times.splice(timeIndex, 1);
+
+      // Si no quedan horarios en la fecha, agregar uno vacío
+      if (newSchedule[dateIndex].times.length === 0) {
+        newSchedule[dateIndex].times.push({ time: "", isNew: true });
+      }
+
+      setScheduleData(newSchedule);
+      return;
+    }
+
+    // Si el tiempo tiene valor, procedemos con la eliminación normal
+    setSelectedDateIndex(dateIndex);
+    setSelectedTimeIndex(timeIndex);
+    setIsDeleteTimeModalVisible(true);
+  };
+
   const handleCloseSaveChangesModal = () => {
     setIsSaveChangesModalVisible(false);
   };
@@ -208,14 +292,12 @@ export default function SchedulesNurse() {
     try {
       const saved = await saveDataToBackend();
       if (saved) {
-        showNotification('success', 'El horario fue asignado con éxito.');
+        showNotification('success', 'Los horarios fueron asignados con éxito.');
         setIsEditing(false);
         handleCloseSaveChangesModal();
-
-        // Recargar los datos desde el servidor para evitar inconsistencias
-        await fetchAvailableDates();
+        await fetchAvailableDates(); // Recargar datos
       } else {
-        showNotification('error', 'No se pudo guardar el horario. Intente de nuevo.');
+        showNotification('error', 'No se pudieron guardar los horarios. Intente de nuevo.');
       }
     } catch (error) {
       showNotification('error', 'Hubo un error inesperado. Intente nuevamente.');
@@ -283,8 +365,26 @@ export default function SchedulesNurse() {
     const selectedDate = dayjs(scheduleData[dateIndex].date);
     const selectedTime = dayjs(`${scheduleData[dateIndex].date}T${newTime}`);
 
+    // Validar que no sea una hora pasada en el día actual
     if (selectedDate.isSame(now, 'day') && selectedTime.isBefore(now)) {
       showNotification('warning', 'No se puede seleccionar una hora pasada en la fecha actual.');
+      return;
+    }
+
+    // Verificar duplicados en toda la tabla
+    const isDuplicateTime = scheduleData.some((schedule, sDateIndex) =>
+      // Si es la misma fecha
+      schedule.date === scheduleData[dateIndex].date &&
+      // Buscar en todos los horarios de esa fecha
+      schedule.times.some((time, sTimeIndex) =>
+        // Excluir la posición actual que estamos editando
+        (sDateIndex !== dateIndex || sTimeIndex !== timeIndex) &&
+        time.time === newTime
+      )
+    );
+
+    if (isDuplicateTime) {
+      showNotification('warning', 'Esta hora ya existe en el calendario. Por favor, seleccione una hora diferente.');
       return;
     }
 
@@ -304,10 +404,20 @@ export default function SchedulesNurse() {
         return false;
       }
 
-      // Filtra solo los horarios nuevos (isNew: true)
-      const availableDates = modifiedScheduleData.flatMap(schedule =>
+      // Verificar horarios duplicados en el mismo día antes de enviar
+      for (const schedule of scheduleData) {
+        const times = schedule.times.map(t => t.time).filter(t => t !== "");
+        const uniqueTimes = new Set(times);
+        if (times.length !== uniqueTimes.size) {
+          showNotification('error', `Hay horarios duplicados en la fecha ${schedule.date}. Por favor, revise y corrija.`);
+          return false;
+        }
+      }
+
+      // Recolectar todas las fechas y horarios nuevos
+      const availableDates = scheduleData.flatMap(schedule =>
         schedule.times
-          .filter(({ isNew }) => isNew)  // Solo tiempos nuevos
+          .filter(time => time.isNew && time.time !== "") // Filtrar horarios vacíos
           .map(({ time }) => ({
             dateTime: `${schedule.date}T${time}`,
             professionalId: Number(userId),
@@ -322,20 +432,24 @@ export default function SchedulesNurse() {
 
       setIsLoading(true);
 
-      const response = await api.post("/appointment/create-date", { availableDates, professionalId: Number(userId) });
+      const response = await api.post("/appointment/create-date", {
+        availableDates,
+        professionalId: Number(userId)
+      });
 
       if (response?.status === 200 || response?.status === 201) {
-        // Marcar todos los horarios como guardados (isNew: false) después de guardarlos
         const updatedScheduleData = scheduleData.map(schedule => ({
           ...schedule,
-          times: schedule.times.map(time => ({ ...time, isNew: false }))
+          times: schedule.times.map(time => ({
+            ...time,
+            isNew: false
+          }))
         }));
 
         setScheduleData(updatedScheduleData);
-        setOriginalScheduleData(updatedScheduleData); // Actualizar el original
-        setModifiedScheduleData([]); // Limpiar el array de modificaciones
+        setOriginalScheduleData(updatedScheduleData);
+        setModifiedScheduleData([]);
 
-        // Recargar los datos desde el servidor para asegurarse de que el estado es consistente
         await fetchAvailableDates();
         return true;
       } else {
@@ -344,7 +458,7 @@ export default function SchedulesNurse() {
     } catch (error) {
       console.error('Error al guardar horarios:', error);
       if (error.response && error.response.status === 409) {
-        showNotification('error', 'El horario ya existe. Por favor, verifique e intente nuevamente.');
+        showNotification('error', 'Algunos horarios ya existen. Por favor, verifique e intente nuevamente.');
       } else {
         showNotification('error', 'Hubo un error al guardar los horarios.');
       }
@@ -355,8 +469,13 @@ export default function SchedulesNurse() {
   };
 
   const handlerBtnSave = () => {
-    if (modifiedScheduleData.length === 0) {
-      showNotification('warning', 'No hay cambios para guardar.');
+    // Verificar si hay fechas nuevas para guardar
+    const hasNewDates = scheduleData.some(schedule =>
+      schedule.times.some(time => time.isNew && time.time !== "")
+    );
+
+    if (!hasNewDates) {
+      showNotification('warning', 'No hay cambios nuevos para guardar.');
       return;
     }
 
@@ -367,8 +486,7 @@ export default function SchedulesNurse() {
     <>
       {contextHolder}
       <HeaderNurse />
-
-      <div style={styles.container}>
+      <div className="becas-section" style={{ marginTop: "100px" }}>
         {/* Modal para Confirmación de Guardar Cambios */}
         <Modal
           open={isSaveChangesModalVisible}
@@ -445,8 +563,8 @@ export default function SchedulesNurse() {
             <tbody>
               {scheduleData.length === 0 ? (
                 <tr>
-                  <td colSpan="2" style={{ textAlign: 'center', padding: '1rem' }}>
-                    No hay horarios disponibles. Presiona "Agregar Fecha" para comenzar.
+                  <td colSpan="2" style={{ color: 'black', textAlign: 'center', padding: '1rem' }}>
+                    No hay horarios disponibles. Presiona "Agregar fecha" para comenzar.
                   </td>
                 </tr>
               ) : (
@@ -465,9 +583,10 @@ export default function SchedulesNurse() {
                             />
                             <Button
                               type="link"
-                              onClick={() => handleDeleteDate(schedule.date)} // Llamada a `handleDeleteDate`
-                              style={{ color: 'red', marginLeft: '5px' }}
+                              onClick={() => handleDeleteDate(schedule.date)}
                               disabled={isLoading}
+                              icon={<CloseCircleOutlined />}
+                              danger
                             >
                               Eliminar
                             </Button>
@@ -490,11 +609,10 @@ export default function SchedulesNurse() {
                                 />
                                 <Button
                                   type="link"
-                                  onClick={() => handleOpenDeleteTimeModal(dateIndex, timeIndex)}
-                                  style={{ color: 'red', marginLeft: '5px' }}
-                                >
-                                  X
-                                </Button>
+                                  icon={<CloseCircleOutlined />}
+                                  danger
+                                  onClick={() => handleRemoveEmptyTime(dateIndex, timeIndex)}
+                                />
                               </>
                             ) : (
                               <span style={{ display: 'block', marginBottom: '0.5rem' }}>{time.time}</span>
@@ -508,7 +626,7 @@ export default function SchedulesNurse() {
                             onClick={() => handlerCreateTime(dateIndex)}
                             disabled={isLoading}
                           >
-                            +<span style={styles.decorateText}> Agregar Hora</span>
+                            +<span style={styles.decorateText}> Agregar hora</span>
                           </Button>
                         )}
                       </td>
@@ -531,7 +649,7 @@ export default function SchedulesNurse() {
                       onClick={handlerCreateDate}
                       disabled={isLoading}
                     >
-                      +<span style={styles.decorateText}> Agregar Fecha</span>
+                      +<span style={styles.decorateText}> Agregar fecha</span>
                     </Button>
                   </td>
                 </tr>
@@ -547,7 +665,7 @@ export default function SchedulesNurse() {
               onClick={handlerEdit}
               disabled={isLoading}
             >
-              Editar
+              Agregar fecha
             </button>
           )}
           {isEditing && (
