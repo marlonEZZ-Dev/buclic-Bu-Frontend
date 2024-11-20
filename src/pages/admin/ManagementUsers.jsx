@@ -194,7 +194,8 @@ export default function ManagementUsers(){
         ...user,
         isActive: tranformToStateUser(user.isActive),
         roles: getArrObjInArrStr(user.roles),
-        name: `${user.name}  ${ user.lastName === undefined || user.lastName === null ? "": user.lastName }`
+        name: `${user.name}  ${ user.lastName === undefined || user.lastName === null ? "": user.lastName }`,
+        email: user.email ?? "no tiene"
       })));
       setTotalItems(result.page.totalElements)
     } catch (error) {
