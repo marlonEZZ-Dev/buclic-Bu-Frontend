@@ -47,6 +47,7 @@ const NursingMonitor = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
+  const lastName = localStorage.getItem("lastName");
 
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
@@ -382,7 +383,7 @@ const NursingMonitor = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
-                  <Input value={userName || ""} disabled />
+                <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
