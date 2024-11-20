@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import { ReloadOutlined } from '@ant-design/icons';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import SearchInputR from '../../components/global/SearchInputR.jsx';
+import SearchReservantions from "../../components/admin/SearchReservantions.jsx";
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import ReusableModal from '../../components/global/ReusableModal.jsx';
 
@@ -242,7 +242,7 @@ const Reservation = () => {
                             marginTop: '20px'
                         }}
                     >
-                        <SearchInputR onSearch={handleSearch} placeholder="Ingrese el código/cédula" />
+                        <SearchReservantions onSearch={handleSearch} placeholder="Ingrese el código/cédula" />
                     </div>
 
                     <Space style={{ marginTop: '20px', alignItems: 'center' }}>
