@@ -6,12 +6,13 @@ import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Card, Button, Modal, Descriptions, message } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
-import api from '../../api'; // Asegúrate de que esta instancia esté configurada con el baseURL adecuado.
-import moment from 'moment'; // Importamos moment para formatear fechas
+import api from '../../api';
+import moment from 'moment';
 
 const HistoryDentistry = () => {
     const [activities, setActivities] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedVisit, setSelectedVisit] = useState(null);
     const [queryValue, setQueryValue] = useState("");
@@ -19,10 +20,14 @@ const HistoryDentistry = () => {
     const [messageApi, contextHook] = message.useMessage();
     const itemsPerPage = 10;
 
-    const fetchVisits = useCallback(async () => {
+    const fetchVisits = useCallback(async (page = 1) => {
         try {
-            let params = {};
-            if (queryValue) params.username = queryValue; // Utilizar queryValue para el parámetro de búsqueda
+            let params = {
+                page: page - 1, // La API probablemente espera una página base-0
+                size: itemsPerPage
+            };
+
+            if (queryValue) params.username = queryValue;
             if (rangeValue.length === 2) {
                 params.startDate = rangeValue[0].format('YYYY-MM-DD');
                 params.endDate = rangeValue[1].format('YYYY-MM-DD');
@@ -34,20 +39,28 @@ const HistoryDentistry = () => {
             }
 
             const response = await api.get('/odontology-visits', { params });
+            console.log('Respuesta completa:', response.data);
+            console.log('Content:', response.data.list.content);
+            console.log('Total elementos:', response.data.list.totalElements);
 
-            // Aseguramos que los datos estén definidos y formateamos adecuadamente
+            // Asumiendo que la respuesta tiene esta estructura:
+            // { content: [...], totalElements: number, totalPages: number }
             const formattedActivities = (response.data.list.content || []).map(activity => ({
                 ...activity,
-                date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible', // Formateamos la fecha a "DD/MM/YYYY" si está presente
-                fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastName || 'Apellido no disponible'}`, // Concatenamos nombre y apellido si están presentes
-                document: activity.user?.username || 'Documento no disponible', // Mostramos el documento si está presente
+                date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible',
+                fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastName || 'Apellido no disponible'}`,
+                document: activity.user?.username || 'Documento no disponible',
             }));
+
             setActivities(formattedActivities);
+            setTotalItems(response.data.list.totalElements || formattedActivities.length);
+            setCurrentPage(page);
+
         } catch (err) {
             console.error("Error fetching visits:", err);
             messageApi.error("Error al obtener los datos de visitas");
         }
-    }, [queryValue, rangeValue]);
+    }, [queryValue, rangeValue, messageApi]);
 
     const showVisitDetail = useCallback(async (visitId) => {
         if (!visitId) {
@@ -57,15 +70,19 @@ const HistoryDentistry = () => {
     
         try {
             const response = await api.get(`/odontology-visits/visit/${visitId}`);
-            console.log("Datos de la visita:", response.data); // <-- Para verificar qué datos llegan desde el backend
-    
+            console.log("Detalles recibidos desde el backend:", response.data);
             if (response.data) {
-                // Concatenar nombre y apellido correctamente
-                const fullName = `${response.data.name || "Nombre no disponible"} ${response.data.lastName || ""}`.trim();
+                console.log('Detalles recibidos:', response.data); // Depuración: verifica los datos recibidos.
+    
+                // Asegúrate de que `name` y `lastName` existen en `response.data`.
+                const fullName = [
+                    response.data.name || "Nombre no disponible",
+                    response.data.lastName || "Apellido no disponible"
+                ].join(" ").trim();
     
                 const visitDetails = {
                     user: {
-                        fullName, // Concatenar nombre y apellido
+                        fullName,
                         document: response.data.username || "Documento no disponible",
                     },
                     date: response.data.date
@@ -87,36 +104,42 @@ const HistoryDentistry = () => {
         }
     }, [messageApi]);
     
-
-
     const handleModalClose = () => {
         setIsModalVisible(false);
         setSelectedVisit(null);
     };
 
-    const paginatedActivities = activities.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const handlePageChange = (page) => {
+        fetchVisits(page);
+    };
 
-    const rows = paginatedActivities.map(visit => [
+    const handleRefresh = () => {
+        setQueryValue('');
+        setRangeValue([]);
+        setActivities([]);
+        setTotalItems(0);
+        setCurrentPage(1);
+    };
+
+    const rows = activities.map(visit => [
         visit.date,
         visit.fullName,
-        visit.document, // Mostramos el documento en la tabla
+        visit.document,
         <Button
+            key={visit.id}
             icon={<EyeOutlined />}
             style={{ backgroundColor: '#C20E1A', color: 'white', border: 'none' }}
             onClick={() => showVisitDetail(visit.id)}
         />
     ]);
 
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
+    const handleSearch = () => {
+        fetchVisits(1); // Reset a la primera página cuando se hace una nueva búsqueda
     };
 
     return (
         <>
-            <HeaderDentist /> {/* Header específico de odontología */}
+            <HeaderDentist />
             {contextHook}
             <main className="becas-section" style={{ marginTop: '100px', textAlign: 'center' }}>
                 <h1>Historial de visitas</h1>
@@ -138,15 +161,9 @@ const HistoryDentistry = () => {
                             queryValue={queryValue}
                             onQueryChange={value => setQueryValue(value)}
                             onDateRangeChange={value => setRangeValue(value)}
-                            onSearch={fetchVisits}
+                            onSearch={handleSearch}
                         />
-                        <ButtonRefresh
-                            onClick={() => {
-                                setQueryValue('');
-                                setRangeValue([]);
-                                setActivities([]);
-                            }}
-                        />
+                        <ButtonRefresh onClick={handleRefresh} />
                     </div>
                     <p style={{ fontWeight: 'bold' }}>Tabla de actividades realizadas</p>
                     <TablePaginationR
@@ -154,11 +171,10 @@ const HistoryDentistry = () => {
                         rows={rows}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
-                        totalItems={activities.length}
+                        totalItems={totalItems}
                         onPageChange={handlePageChange}
                     />
                 </Card>
-                {/* Modal para detalles de la visita */}
                 <Modal
                     title={
                         <div style={{ color: '#C20E1A', fontSize: '20px', textAlign: 'center', fontWeight: 'bold' }}>
@@ -195,8 +211,9 @@ const HistoryDentistry = () => {
                     )}
                 </Modal>
             </main>
-            <FooterProfessionals/>
+            <FooterProfessionals />
         </>
     );
 };
-export default HistoryDentistry;    
+
+export default HistoryDentistry;

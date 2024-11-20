@@ -154,7 +154,7 @@ const Externos = () => {
       } else {
         // Error de red o problemas de conexión
         console.log("Network/Error:", error);
-        message.error("No se pudo conectar con el servidor. Verifica tu conexión.");
+        message.error("Verifique la información suministrada.");
       }
     }
   };
