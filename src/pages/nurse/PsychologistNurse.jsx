@@ -20,21 +20,17 @@ import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 const { Text } = Typography;
 
 const PsychologistNurse = () => {
-  const { token } = theme.useToken();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(
-    moment().format("YYYY-MM-DD")
-  );
+  const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
   const [availableDates, setAvailableDates] = useState([]);
   const [filteredDates, setFilteredDates] = useState([]);
   const [phone, setPhone] = useState("");
-  // const [semester, setSemester] = useState("");
   const [pendingAppointment, setPendingAppointment] = useState(null);
   const [isPhoneError, setIsPhoneError] = useState(false);
-  // const [isSemesterError, setIsSemesterError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionType, setActionType] = useState("");
@@ -44,65 +40,227 @@ const PsychologistNurse = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
-  const lastName = localStorage.getItem("lastName");
 
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
-    // const storedSemester = localStorage.getItem("userSemester");
 
     setPhone(storedPhone !== "null" && storedPhone ? storedPhone : "");
-    // setSemester(
-    //   storedSemester !== "null" && storedSemester ? storedSemester : ""
-    // );
   }, []);
 
+  // Unificación de solicitudes en un solo useEffect
   useEffect(() => {
-    fetchPendingAppointment();
-  }, [userId]);
+    const fetchUserData = async () => {
+      const storedToken = localStorage.getItem("access");
 
-  const fetchPendingAppointment = () => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+      if (!storedToken || !userId) {
+        console.error("ACCESS_TOKEN o userId no encontrados en localStorage");
+        return;
+      }
 
-    api
-      .get(`/appointment-reservation/student/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
-      .then((response) => {
-        const psychologyAppointment = response.data.appointments.find(
+      try {
+        const [appointmentsResponse, datesResponse] = await Promise.all([
+          api.get(`/appointment-reservation/student/${userId}`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+          }),
+          api.get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+          }),
+        ]);
+
+        // Configurar citas pendientes
+        const psychologyAppointment = appointmentsResponse.data.appointments.find(
           (appt) =>
             appt.availableDate.typeAppointment === "PSICOLOGIA" &&
             appt.pending === true
         );
         setPendingAppointment(psychologyAppointment || null);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las citas del estudiante:", error);
-      });
+
+        // Configurar fechas disponibles
+        const availableDates = datesResponse.data.availableDates || [];
+        setAvailableDates(availableDates);
+
+        // Filtrar fechas
+        filterDatesBySelectedDay(selectedDate, availableDates);
+      } catch (error) {
+        console.error("Error al obtener datos del usuario:", error);
+        message.error("No se pudieron cargar los datos. Inténtalo nuevamente.");
+      }
+    };
+
+    fetchUserData();
+  }, [selectedDate, userId]);
+
+  
+  
+  const filterDatesBySelectedDay = (formattedSelectedDate, dates = availableDates) => {
+    if (!Array.isArray(dates)) {
+      console.error("dates no es un array válido", dates);
+      return;
+    }
+    const filtered = dates.filter((item) => {
+      const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
+      return itemDate === formattedSelectedDate && item.available === true;
+    });
+    setFilteredDates(filtered);
   };
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+  const fetchPendingAppointment = async () => {
+    const storedToken = localStorage.getItem("access");
 
-    api
-  .get(`/appointment-reservation/student/${userId}`, {
-    headers: {
-      Authorization: `Bearer ${storedToken}`,
-    },
-  })
+    if (!storedToken || !userId) {
+        console.error("ACCESS_TOKEN o userId no encontrados.");
+        return;
+    }
 
-      .then((response) => {
-        setAvailableDates(response.data.availableDates);
-        filterDatesBySelectedDay(
-          moment().format("YYYY-MM-DD"),
-          response.data.availableDates
+    try {
+        const response = await api.get(`/appointment-reservation/student/${userId}`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+        });
+
+        console.log("Response Data:", response.data);
+
+        const psychologyAppointment = response.data.appointments.find(
+            (appt) =>
+                appt.availableDate.typeAppointment === "PSICOLOGIA" &&
+                appt.pending === true
         );
+
+        if (psychologyAppointment) {
+            console.log("Psychology Appointment:", psychologyAppointment);
+            setPendingAppointment(psychologyAppointment);
+        } else {
+            console.warn("No hay citas pendientes.");
+            setPendingAppointment(null);
+        }
+    } catch (error) {
+        console.error("Error al obtener las citas del estudiante:", error);
+        message.error("Hubo un error al cargar las citas pendientes.");
+    }
+};
+
+const fetchUserData = async () => {
+  const storedToken = localStorage.getItem("access");
+
+  if (!storedToken || !userId) {
+      console.error("ACCESS_TOKEN o userId no encontrados en localStorage");
+      return;
+  }
+
+  try {
+      const datesResponse = await api.get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
+          headers: { Authorization: `Bearer ${storedToken}` },
+      });
+
+      // Configurar fechas disponibles
+      const availableDates = datesResponse.data.availableDates || [];
+      setAvailableDates(availableDates);
+
+      // Filtrar fechas
+      filterDatesBySelectedDay(selectedDate, availableDates);
+
+      // Obtener citas pendientes
+      await fetchPendingAppointment();
+  } catch (error) {
+      console.error("Error al obtener datos del usuario:", error);
+      message.error("No se pudieron cargar los datos. Inténtalo nuevamente.");
+  }
+};
+
+const handleConfirmReserve = () => {
+  if (isPhoneError ) return;
+
+  const storedToken = localStorage.getItem("access");
+
+  setConfirmLoading(true);
+
+  api
+      .post(
+          "/appointment-reservation",
+          {
+              pacientId: userId,
+              availableDateId: selectedAppointmentId,
+              phone,
+          },
+          {
+              headers: {
+                  Authorization: `Bearer ${storedToken}`,
+                  "Content-Type": "application/json",
+              },
+          }
+      )
+      .then(async (response) => {
+          message.success(response.data.message);
+
+          localStorage.setItem("userPhone", phone);
+      
+
+          setPhone(phone);
+
+          // Actualizar citas disponibles (eliminar la cita reservada)
+          const updatedAvailableDates = availableDates.filter(
+              (date) => date.id !== selectedAppointmentId
+          );
+          setAvailableDates(updatedAvailableDates);
+
+          // Actualizar citas filtradas (eliminar la cita reservada)
+          const updatedFilteredDates = filteredDates.filter(
+              (date) => date.id !== selectedAppointmentId
+          );
+          setFilteredDates(updatedFilteredDates);
+
+          // Refrescar citas pendientes
+          await fetchPendingAppointment();
       })
       .catch((error) => {
-        console.error("Error al obtener los horarios:", error);
+          if (error.response && error.response.data?.message) {
+              message.error(error.response.data.message);
+          } else {
+              console.error("Error inesperado:", error);
+              message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+          }
+      })
+      .finally(() => {
+          setConfirmLoading(false);
+          setModalVisible(false);
       });
-  }, []);
+};
+
+
+
+  const onDateSelect = (date) => {
+    if (date && date.isValid()) {
+      const formattedDate = date.format("YYYY-MM-DD");
+      setSelectedDate(formattedDate);
+      filterDatesBySelectedDay(formattedDate);
+    }
+  };
+
+  const disabledDate = (currentDate) => {
+    if (!availableDates || availableDates.length === 0) {
+      return true; // Deshabilita todas las fechas si no hay datos disponibles
+    }
+
+    const formattedDate = currentDate.format("YYYY-MM-DD");
+    return !availableDates.some(
+      (item) =>
+        moment(item.dateTime).format("YYYY-MM-DD") === formattedDate &&
+        item.available === true
+    );
+  };
+
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
+    if (value.startsWith("0")) {
+      value = value.substring(1); // Evitar que comience con 0
+    }
+    setPhone(value);
+    setIsPhoneError(value.length !== 10);
+  };
+
+
+  const handleBack = () => {
+    navigate("/enfermeria/citas");
+  };
 
   const showModal = (type, appointmentId = null) => {
     if (type === "reserve") {
@@ -115,8 +273,9 @@ const PsychologistNurse = () => {
         setIsPhoneError(false);
       }
   
+  
       if (hasError) {
-        message.error("Digita el campo teléfono.");
+        message.error("Digita el campos de teléfono");
         return; // Detener la ejecución si hay errores
       }
   
@@ -143,177 +302,65 @@ const PsychologistNurse = () => {
     }
   };
   
-
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
 
+    // Validación para asegurarse de que pendingAppointment es válido
+    if (!pendingAppointment || !pendingAppointment.reservationId) {
+        console.error("Error: No hay una cita pendiente o falta el reservationId.");
+        message.error("No se puede cancelar la cita. Intenta nuevamente.");
+        return;
+    }
+
     setConfirmLoading(true);
-    if (pendingAppointment) {
-      api
+
+    // Llamada para cancelar la cita
+    api
         .delete(
-          `/appointment-reservation/cancel/${pendingAppointment.reservationId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          }
+            `/appointment-reservation/cancel/${pendingAppointment.reservationId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${storedToken}`,
+                },
+            }
         )
         .then(() => {
-          message.success("Cita cancelada con éxito");
+            message.success("Cita cancelada con éxito");
 
-          setPendingAppointment(null);
+            const restoredAppointment = {
+                ...pendingAppointment.availableDate,
+                available: true, // Marcar la cita como disponible
+            };
 
-          fetchAvailableDates();
-          filterDatesBySelectedDay(selectedDate);
+            // Agregar la cita nuevamente a availableDates
+            const updatedAvailableDates = [...availableDates, restoredAppointment];
+            setAvailableDates(updatedAvailableDates);
+
+            // Actualizar filteredDates para reflejar la restauración en la tabla
+            const updatedFilteredDates = [
+                ...filteredDates,
+                restoredAppointment,
+            ].filter(
+                (date) =>
+                    moment(date.dateTime).format("YYYY-MM-DD") === selectedDate
+            );
+            setFilteredDates(updatedFilteredDates);
+
+            // Limpiar la cita pendiente
+            setPendingAppointment(null);
         })
         .catch((error) => {
-          console.error("Error al cancelar la cita:", error);
-          message.error("Hubo un error al cancelar la cita.");
+            console.error("Error al cancelar la cita:", error);
+            message.error("Hubo un error al cancelar la cita.");
         })
         .finally(() => {
-          setConfirmLoading(false);
-          setModalVisible(false);
+            setConfirmLoading(false);
+            setModalVisible(false);
         });
-    }
-  };
+};
 
-  useEffect(() => {
-    fetchAvailableDates();
-  }, [userId]);
 
-  const fetchAvailableDates = () => {
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
-    const userId = localStorage.getItem("userId");
   
-    if (!userId) {
-      console.error("Error: userId no encontrado en localStorage");
-      return;
-    }
-  
-    api
-      .get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
-      .then((response) => {
-        const availableDates = response.data.availableDates;
-        setAvailableDates(availableDates);
-        filterDatesBySelectedDay(selectedDate, availableDates);
-      })
-      .catch((error) => {
-        console.error("Error al obtener los horarios:", error);
-      });
-  };
-  
-
-  const handleConfirmReserve = () => {
-    if (isPhoneError) return;
-  
-    const storedToken = localStorage.getItem("ACCESS_TOKEN");
-  
-    setConfirmLoading(true);
-  
-    api
-      .post(
-        "/appointment-reservation",
-        {
-          pacientId: userId,
-          availableDateId: selectedAppointmentId,
-          // semester,
-          phone,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        message.success(response.data.message);
-  
-        localStorage.setItem("userPhone", phone);
-        
-  
-        setPhone(phone);
-        
-  
-        fetchPendingAppointment();
-        fetchAvailableDates(); // Actualiza los horarios disponibles
-        setFilteredDates((prevDates) =>
-          prevDates.filter((date) => date.id !== selectedAppointmentId)
-        );
-      })
-      .catch((error) => {
-        // Mostrar únicamente el mensaje proporcionado por el backend
-        if (error.response && error.response.data?.message) {
-          message.error(error.response.data.message);
-        } else {
-          console.error("Error inesperado:", error);
-          message.error("Ocurrió un error inesperado. Intenta nuevamente.");
-        }
-      })
-      .finally(() => {
-        setConfirmLoading(false);
-        setModalVisible(false);
-      });
-  };
-  
-
-  const filterDatesBySelectedDay = (
-    formattedSelectedDate,
-    dates = availableDates
-  ) => {
-    const filtered = dates.filter((item) => {
-      const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
-      return itemDate === formattedSelectedDate && item.available === true;
-    });
-    setFilteredDates(filtered);
-  };
-
-  const onDateSelect = (date) => {
-    if (date && date.isValid()) {
-      const formattedDate = date.format("YYYY-MM-DD");
-      setSelectedDate(formattedDate);
-      filterDatesBySelectedDay(formattedDate);
-    }
-  };
-
-  const disabledDate = (currentDate) => {
-     // Asegúrate de que availableDates es un array válido antes de aplicar .some
-     if (!Array.isArray(availableDates) || availableDates.length === 0) {
-      return true; // Deshabilitar todas las fechas si no hay datos disponibles
-    }
-    const formattedDate = currentDate.format("YYYY-MM-DD");
-    return !availableDates.some(
-      (item) =>
-        moment(item.dateTime).format("YYYY-MM-DD") === formattedDate &&
-        item.available === true
-    );
-  };
-
-  const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/[^0-9]/g, ""); // Permitir solo números
-
-    // Evitar que el primer dígito sea 0
-    if (value.startsWith("0")) {
-      value = value.substring(1);
-    }
-
-    setPhone(value);
-    setIsPhoneError(value.length !== 10);
-  };
-
-  // const handleSemesterChange = (e) => {
-  //   const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Solo permite letras, letras con tildes y espacios
-  //   setSemester(value);
-  //   setIsSemesterError(value.trim() === ""); // Error si está vacío
-  // };
-
-  const handleBack = () => {
-    navigate("/enfermeria/citas");
-  };
 
   return (
     <>
@@ -375,12 +422,12 @@ const PsychologistNurse = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
-                <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
+                  <Input value={userName || ""} disabled />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Área dependencia">
+                <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
                 </Form.Item>
               </Col>
@@ -403,22 +450,7 @@ const PsychologistNurse = () => {
                   />
                 </Form.Item>
               </Col>
-              {/* <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  label="Semestre"
-                  validateStatus={isSemesterError ? "error" : ""}
-                  help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
-                  }
-                >
-                  <Input
-                    type="text"
-                    value={semester}
-                    onChange={handleSemesterChange}
-                    style={{ borderColor: isSemesterError ? "red" : "" }}
-                  />
-                </Form.Item>
-              </Col> */}
+              
             </Row>
           </Form>
         )}
