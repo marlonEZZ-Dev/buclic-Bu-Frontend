@@ -108,71 +108,130 @@ const PsychologistMonitor = () => {
     setFilteredDates(filtered);
   };
 
-  const handleConfirmReserve = () => {
-    if (isPhoneError || isSemesterError) return;
-
+  const fetchPendingAppointment = async () => {
     const storedToken = localStorage.getItem("access");
 
-    setConfirmLoading(true);
+    if (!storedToken || !userId) {
+        console.error("ACCESS_TOKEN o userId no encontrados.");
+        return;
+    }
 
-    api
-      .post(
-        "/appointment-reservation",
-        {
-          pacientId: userId,
-          availableDateId: selectedAppointmentId,
-          semester,
-          phone,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        message.success(response.data.message);
-      
-        localStorage.setItem("userPhone", phone);
-        localStorage.setItem("userSemester", semester);
-      
-        setPhone(phone);
-        setSemester(semester);
-      
-        // Actualizar estado local en lugar de volver a realizar un fetch
-        const newPendingAppointment = {
-          availableDate: availableDates.find((date) => date.id === selectedAppointmentId),
-          pending: true,
-        };
-        setPendingAppointment(newPendingAppointment);
-      
-        // Remover la cita reservada de las fechas disponibles
-        const updatedAvailableDates = availableDates.filter(
-          (date) => date.id !== selectedAppointmentId
+    try {
+        const response = await api.get(`/appointment-reservation/student/${userId}`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+        });
+
+        console.log("Response Data:", response.data);
+
+        const psychologyAppointment = response.data.appointments.find(
+            (appt) =>
+                appt.availableDate.typeAppointment === "PSICOLOGIA" &&
+                appt.pending === true
         );
-        setAvailableDates(updatedAvailableDates);
-      
-        // Recalcular las fechas filtradas
-        const updatedFilteredDates = filteredDates.filter(
-          (date) => date.id !== selectedAppointmentId
-        );
-        setFilteredDates(updatedFilteredDates);
-      })
-      
-      .catch((error) => {
-        if (error.response && error.response.data?.message) {
-          message.error(error.response.data.message);
+
+        if (psychologyAppointment) {
+            console.log("Psychology Appointment:", psychologyAppointment);
+            setPendingAppointment(psychologyAppointment);
         } else {
-          console.error("Error inesperado:", error);
-          message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+            console.warn("No hay citas pendientes.");
+            setPendingAppointment(null);
         }
+    } catch (error) {
+        console.error("Error al obtener las citas del estudiante:", error);
+        message.error("Hubo un error al cargar las citas pendientes.");
+    }
+};
+
+const fetchUserData = async () => {
+  const storedToken = localStorage.getItem("access");
+
+  if (!storedToken || !userId) {
+      console.error("ACCESS_TOKEN o userId no encontrados en localStorage");
+      return;
+  }
+
+  try {
+      const datesResponse = await api.get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
+          headers: { Authorization: `Bearer ${storedToken}` },
+      });
+
+      // Configurar fechas disponibles
+      const availableDates = datesResponse.data.availableDates || [];
+      setAvailableDates(availableDates);
+
+      // Filtrar fechas
+      filterDatesBySelectedDay(selectedDate, availableDates);
+
+      // Obtener citas pendientes
+      await fetchPendingAppointment();
+  } catch (error) {
+      console.error("Error al obtener datos del usuario:", error);
+      message.error("No se pudieron cargar los datos. Inténtalo nuevamente.");
+  }
+};
+
+const handleConfirmReserve = () => {
+  if (isPhoneError || isSemesterError) return;
+
+  const storedToken = localStorage.getItem("access");
+
+  setConfirmLoading(true);
+
+  api
+      .post(
+          "/appointment-reservation",
+          {
+              pacientId: userId,
+              availableDateId: selectedAppointmentId,
+              semester,
+              phone,
+          },
+          {
+              headers: {
+                  Authorization: `Bearer ${storedToken}`,
+                  "Content-Type": "application/json",
+              },
+          }
+      )
+      .then(async (response) => {
+          message.success(response.data.message);
+
+          localStorage.setItem("userPhone", phone);
+          localStorage.setItem("userSemester", semester);
+
+          setPhone(phone);
+          setSemester(semester);
+
+          // Actualizar citas disponibles (eliminar la cita reservada)
+          const updatedAvailableDates = availableDates.filter(
+              (date) => date.id !== selectedAppointmentId
+          );
+          setAvailableDates(updatedAvailableDates);
+
+          // Actualizar citas filtradas (eliminar la cita reservada)
+          const updatedFilteredDates = filteredDates.filter(
+              (date) => date.id !== selectedAppointmentId
+          );
+          setFilteredDates(updatedFilteredDates);
+
+          // Refrescar citas pendientes
+          await fetchPendingAppointment();
+      })
+      .catch((error) => {
+          if (error.response && error.response.data?.message) {
+              message.error(error.response.data.message);
+          } else {
+              console.error("Error inesperado:", error);
+              message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+          }
       })
       .finally(() => {
-        setConfirmLoading(false);
-        setModalVisible(false);
+          setConfirmLoading(false);
+          setModalVisible(false);
       });
-  };
+};
+
+
 
   const onDateSelect = (date) => {
     if (date && date.isValid()) {
@@ -262,43 +321,62 @@ const PsychologistMonitor = () => {
   
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("ACCESS_TOKEN");
-  
+
     // Validación para asegurarse de que pendingAppointment es válido
     if (!pendingAppointment || !pendingAppointment.reservationId) {
-      console.error("Error: No hay una cita pendiente o falta el reservationId.");
-      message.error("No se puede cancelar la cita. Intenta nuevamente.");
-      return;
+        console.error("Error: No hay una cita pendiente o falta el reservationId.");
+        message.error("No se puede cancelar la cita. Intenta nuevamente.");
+        return;
     }
-  
+
     setConfirmLoading(true);
-  
+
     // Llamada para cancelar la cita
     api
-      .delete(
-        `/appointment-reservation/cancel/${pendingAppointment.reservationId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        }
-      )
-      .then(() => {
-        message.success("Cita cancelada con éxito");
-  
-        // Actualizar el estado después de la cancelación
-        setPendingAppointment(null);
-        fetchAvailableDates(); // Refrescar los horarios disponibles
-        filterDatesBySelectedDay(selectedDate); // Filtrar los horarios según la fecha seleccionada
-      })
-      .catch((error) => {
-        console.error("Error al cancelar la cita:", error);
-        message.error("Hubo un error al cancelar la cita.");
-      })
-      .finally(() => {
-        setConfirmLoading(false);
-        setModalVisible(false);
-      });
-  };
+        .delete(
+            `/appointment-reservation/cancel/${pendingAppointment.reservationId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${storedToken}`,
+                },
+            }
+        )
+        .then(() => {
+            message.success("Cita cancelada con éxito");
+
+            const restoredAppointment = {
+                ...pendingAppointment.availableDate,
+                available: true, // Marcar la cita como disponible
+            };
+
+            // Agregar la cita nuevamente a availableDates
+            const updatedAvailableDates = [...availableDates, restoredAppointment];
+            setAvailableDates(updatedAvailableDates);
+
+            // Actualizar filteredDates para reflejar la restauración en la tabla
+            const updatedFilteredDates = [
+                ...filteredDates,
+                restoredAppointment,
+            ].filter(
+                (date) =>
+                    moment(date.dateTime).format("YYYY-MM-DD") === selectedDate
+            );
+            setFilteredDates(updatedFilteredDates);
+
+            // Limpiar la cita pendiente
+            setPendingAppointment(null);
+        })
+        .catch((error) => {
+            console.error("Error al cancelar la cita:", error);
+            message.error("Hubo un error al cancelar la cita.");
+        })
+        .finally(() => {
+            setConfirmLoading(false);
+            setModalVisible(false);
+        });
+};
+
+
   
 
   return (
