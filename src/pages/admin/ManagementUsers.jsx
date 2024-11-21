@@ -865,7 +865,7 @@ useEffect(() => {
             />
           <SelectWithError title={isStudent ? "Estado" 
             : isFuncionary ? "Rol"
-            : "Tipo de Beca"}
+            : "Tipo de beneficio"}
             isRenderAsteric={!isModalEdit}
             style={{width:"11.5rem"}}
             errorMessage={isStudent ? okValidationEdit.status : isFuncionary ? okValidationEdit.roles : okValidationEdit.grant} 
@@ -1072,7 +1072,7 @@ useEffect(() => {
               onChange={e => handlerCreateUser(e)}
             />
           {(!isStudent || !enableResponsive) && 
-            <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beca"}
+            <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beneficio"}
               isRenderAsteric={isBeneficiary || isFuncionary}
               name={isBeneficiary ? "grant" : ""}
               key={`SelectImportant${changesDescription}${refreshFields}`}
