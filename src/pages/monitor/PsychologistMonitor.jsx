@@ -42,7 +42,7 @@ const PsychologistMonitor = () => {
   const userName = localStorage.getItem("userName");
   const userId = localStorage.getItem("userId");
   const userPlan = localStorage.getItem("userPlan");
-
+  const lastName = localStorage.getItem("lastName");
   useEffect(() => {
     const storedPhone = localStorage.getItem("userPhone");
     const storedSemester = localStorage.getItem("userSemester");
@@ -94,6 +94,8 @@ const PsychologistMonitor = () => {
     fetchUserData();
   }, [selectedDate, userId]);
 
+  
+  
   const filterDatesBySelectedDay = (formattedSelectedDate, dates = availableDates) => {
     if (!Array.isArray(dates)) {
       console.error("dates no es un array válido", dates);
@@ -106,56 +108,126 @@ const PsychologistMonitor = () => {
     setFilteredDates(filtered);
   };
 
-  const handleConfirmReserve = () => {
-    if (isPhoneError || isSemesterError) return;
-
+  const fetchPendingAppointment = async () => {
     const storedToken = localStorage.getItem("access");
 
-    setConfirmLoading(true);
+    if (!storedToken || !userId) {
+        console.error("ACCESS_TOKEN o userId no encontrados.");
+        return;
+    }
 
-    api
-      .post(
-        "/appointment-reservation",
-        {
-          pacientId: userId,
-          availableDateId: selectedAppointmentId,
-          semester,
-          phone,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        message.success(response.data.message);
+    try {
+        const response = await api.get(`/appointment-reservation/student/${userId}`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+        });
 
-        localStorage.setItem("userPhone", phone);
-        localStorage.setItem("userSemester", semester);
+        console.log("Response Data:", response.data);
 
-        setPhone(phone);
-        setSemester(semester);
-
-        setFilteredDates((prevDates) =>
-          prevDates.filter((date) => date.id !== selectedAppointmentId)
+        const psychologyAppointment = response.data.appointments.find(
+            (appt) =>
+                appt.availableDate.typeAppointment === "PSICOLOGIA" &&
+                appt.pending === true
         );
-        setPendingAppointment(null);
-      })
-      .catch((error) => {
-        if (error.response && error.response.data?.message) {
-          message.error(error.response.data.message);
+
+        if (psychologyAppointment) {
+            console.log("Psychology Appointment:", psychologyAppointment);
+            setPendingAppointment(psychologyAppointment);
         } else {
-          console.error("Error inesperado:", error);
-          message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+            console.warn("No hay citas pendientes.");
+            setPendingAppointment(null);
         }
-      })
-      .finally(() => {
-        setConfirmLoading(false);
-        setModalVisible(false);
+    } catch (error) {
+        console.error("Error al obtener las citas del estudiante:", error);
+        message.error("Hubo un error al cargar las citas pendientes.");
+    }
+};
+
+const fetchUserData = async () => {
+  const storedToken = localStorage.getItem("access");
+
+  if (!storedToken || !userId) {
+      console.error("ACCESS_TOKEN o userId no encontrados en localStorage");
+      return;
+  }
+
+  try {
+      const datesResponse = await api.get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
+          headers: { Authorization: `Bearer ${storedToken}` },
       });
-  };
+
+      // Configurar fechas disponibles
+      const availableDates = datesResponse.data.availableDates || [];
+      setAvailableDates(availableDates);
+
+      // Filtrar fechas
+      filterDatesBySelectedDay(selectedDate, availableDates);
+
+      // Obtener citas pendientes
+      await fetchPendingAppointment();
+  } catch (error) {
+      console.error("Error al obtener datos del usuario:", error);
+      message.error("No se pudieron cargar los datos. Inténtalo nuevamente.");
+  }
+};
+
+const handleConfirmReserve = () => {
+  if (isPhoneError) return;
+
+  const storedToken = localStorage.getItem("access");
+
+  setConfirmLoading(true);
+
+  api
+    .post(
+      "/appointment-reservation",
+      {
+        pacientId: userId,
+        availableDateId: selectedAppointmentId,
+        phone,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .then(async (response) => {
+      message.success(response.data.message);
+
+      localStorage.setItem("userPhone", phone);
+      setPhone(phone);
+
+      // Actualizar citas pendientes
+      await fetchPendingAppointment();
+
+      // Volver a obtener las fechas disponibles
+      const datesResponse = await api.get(
+        `/appointment/all-dates/${userId}?type=PSICOLOGIA`,
+        {
+          headers: { Authorization: `Bearer ${storedToken}` },
+        }
+      );
+
+      const updatedAvailableDates = datesResponse.data.availableDates || [];
+      setAvailableDates(updatedAvailableDates);
+
+      // Actualizar citas filtradas según la fecha seleccionada
+      filterDatesBySelectedDay(selectedDate, updatedAvailableDates);
+    })
+    .catch((error) => {
+      if (error.response && error.response.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        console.error("Error inesperado:", error);
+        message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+      }
+    })
+    .finally(() => {
+      setConfirmLoading(false);
+      setModalVisible(false);
+    });
+};
 
   const onDateSelect = (date) => {
     if (date && date.isValid()) {
@@ -245,35 +317,59 @@ const PsychologistMonitor = () => {
   
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("access");
-
-    setConfirmLoading(true);
-    if (pendingAppointment) {
-      api
-        .delete(
-          `/appointment-reservation/cancel/${pendingAppointment.reservationId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          }
-        )
-        .then(() => {
-          message.success("Cita cancelada con éxito");
-
-          setPendingAppointment(null);
-          fetchAvailableDates();
-          filterDatesBySelectedDay(selectedDate);
-        })
-        .catch((error) => {
-          console.error("Error al cancelar la cita:", error);
-          message.error("Hubo un error al cancelar la cita.");
-        })
-        .finally(() => {
-          setConfirmLoading(false);
-          setModalVisible(false);
-        });
+  
+    // Validación para asegurarse de que pendingAppointment es válido
+    if (!pendingAppointment || !pendingAppointment.reservationId) {
+      console.error("Error: No hay una cita pendiente o falta el reservationId.");
+      message.error("No se puede cancelar la cita. Intenta nuevamente.");
+      return;
     }
+  
+    setConfirmLoading(true);
+  
+    // Llamada para cancelar la cita
+    api
+      .delete(
+        `/appointment-reservation/cancel/${pendingAppointment.reservationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+        }
+      )
+      .then(async () => {
+        message.success("Cita cancelada con éxito");
+  
+        // Limpiar la cita pendiente
+        setPendingAppointment(null);
+  
+        // Volver a obtener las fechas disponibles
+        const datesResponse = await api.get(
+          `/appointment/all-dates/${userId}?type=PSICOLOGIA`,
+          {
+            headers: { Authorization: `Bearer ${storedToken}` },
+          }
+        );
+  
+        const updatedAvailableDates = datesResponse.data.availableDates || [];
+        setAvailableDates(updatedAvailableDates);
+  
+        // Actualizar citas filtradas según la fecha seleccionada
+        filterDatesBySelectedDay(selectedDate, updatedAvailableDates);
+      })
+      .catch((error) => {
+        console.error("Error al cancelar la cita:", error);
+        message.error("Hubo un error al cancelar la cita.");
+      })
+      .finally(() => {
+        setConfirmLoading(false);
+        setModalVisible(false);
+      });
   };
+  
+
+
+  
 
   return (
     <>
@@ -335,7 +431,7 @@ const PsychologistMonitor = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item label="Nombre">
-                  <Input value={userName || ""} disabled />
+                <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
 

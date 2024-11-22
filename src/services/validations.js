@@ -5,7 +5,7 @@ const EMPTY_FIELD = "El campo está vacío";
 
 // Función para verificar si el campo está vacío
 const validEmptyField = (text) => {
-  if (text.length === 0) {
+  if ( text === null || text === "" || text.length === 0) {
     return EMPTY_FIELD;
   }
   return true; // Si no está vacío, retorna true
@@ -80,9 +80,9 @@ export const validPlan = plan => {
   return EMPTY_FIELD
 }
 
-export const validEmail = (email, funcionary, edit) => {
+export const validEmail = (email, funcionary, isExtern, edit) => {
   if(funcionary){
-    return edit && email === null ? true : forEmailFuncionary(email)
+    return edit && isExtern ? validEmptyField(email) : forEmailFuncionary(email)
   }
   return forEmailStudent(email)
 }

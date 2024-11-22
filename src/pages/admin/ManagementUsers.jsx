@@ -194,7 +194,8 @@ export default function ManagementUsers(){
         ...user,
         isActive: tranformToStateUser(user.isActive),
         roles: getArrObjInArrStr(user.roles),
-        name: `${user.name}  ${ user.lastName === undefined || user.lastName === null ? "": user.lastName }`
+        name: `${user.name}  ${ user.lastName === undefined || user.lastName === null ? "": user.lastName }`,
+        email: user.email ?? "no tiene"
       })));
       setTotalItems(result.page.totalElements)
     } catch (error) {
@@ -395,7 +396,7 @@ const handlePageChange = page => {
         username: validCode(user.username, !isFuncionary, isFuncionary),
         name: validName(user.name),
         lastName: validLastname(user.lastName),
-        email: validEmail(user.email, isFuncionary, isModalEdit),
+        email: validEmail(user.email, isFuncionary, user.roles.includes("EXTERNO"),isModalEdit),
         plan: validPlan(user.plan),
         roles: validRol(user.roles),
         grant: !isBeneficiary ? true : validGrant(user.grant, isModalEdit)
@@ -617,7 +618,7 @@ useEffect(() => {
   if (pressedSave) {
       handlerOkValidation({
           name: "email",
-          value: validEmail(user.email, isFuncionary, isModalEdit),
+          value: validEmail(user.email, isFuncionary, false,isModalEdit),
           fnState: setOkValidation
       });
   }
@@ -693,7 +694,7 @@ useEffect(() => {
   if (pressedEdit && objectSelected) {
       handlerOkValidation({
           name: "email",
-          value: validEmail(objectSelected.email, isFuncionary, isModalEdit),
+          value: validEmail(objectSelected.email, isFuncionary, objectSelected.roles.includes("EXTERNO"),isModalEdit),
           fnState: setOkValidationEdit
       });
   }
@@ -864,7 +865,7 @@ useEffect(() => {
             />
           <SelectWithError title={isStudent ? "Estado" 
             : isFuncionary ? "Rol"
-            : "Tipo de Beca"}
+            : "Tipo de beneficio"}
             isRenderAsteric={!isModalEdit}
             style={{width:"11.5rem"}}
             errorMessage={isStudent ? okValidationEdit.status : isFuncionary ? okValidationEdit.roles : okValidationEdit.grant} 
@@ -1071,7 +1072,7 @@ useEffect(() => {
               onChange={e => handlerCreateUser(e)}
             />
           {(!isStudent || !enableResponsive) && 
-            <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beca"}
+            <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beneficio"}
               isRenderAsteric={isBeneficiary || isFuncionary}
               name={isBeneficiary ? "grant" : ""}
               key={`SelectImportant${changesDescription}${refreshFields}`}
