@@ -11,20 +11,19 @@ const api = axios.create({
 
 // Cargar env.json y configurar baseURL dinámicamente
 export const loadConfig = async () => {
-    let storedBaseURL = false;
-    
     try {
-        let response = null
-        if(storedBaseURL){
-            response = await fetch("/env.json");
-            storedBaseURL = true
+        // Hacemos fetch de env.json
+        const response = await fetch("/env.json");
+        if (!response.ok) {
+            throw new Error("No se pudo cargar el archivo env.json");
         }
-        const config = await response.json(); // Lee el JSON una vez
-        console.log(config); // Ahora puedes imprimirlo aquí si lo necesitas
-        api.defaults.baseURL = config.API; // Establecemos baseURL dinámicamente
-        console.log(config.API);
+        const config = await response.json();
+
+        // Configuramos baseURL
+        api.defaults.baseURL = config.API;
+        console.log("BaseURL configurada como:", config.API);
     } catch (error) {
-        console.error("Error loading env.json:", error);
+        console.error("Error cargando env.json:", error);
         throw new Error("Failed to load API configuration");
     }
 };
