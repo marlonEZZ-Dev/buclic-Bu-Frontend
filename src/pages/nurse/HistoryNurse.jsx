@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import HeaderNurse from "../../components/nurse/HeaderNurse";
 import SearchPicker from '../../components/global/SearchPicker.jsx';
 import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx"
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
-import { Card, Button, Modal, Descriptions, Badge, message } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { Card, Button, Modal, Descriptions, Badge, message, Flex} from 'antd';
+import { EyeOutlined, DownloadOutlined } from '@ant-design/icons';
 import api from '../../api';
 import { searchBy } from '../../services/nurse/historyNurse.js';
 
@@ -123,7 +123,13 @@ const HistoryNurse = () => {
                             }}
                             />
                         </div>
-                        <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0, marginTop:"1.875rem"}}>Tabla de actividades realizadas</p>
+                        <Flex justify='space-between' style={{marginTop:"1.875rem"}}>
+                        <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0 }}>Tabla de actividades realizadas</p>
+                        <Button 
+                        icon={<DownloadOutlined />} 
+                        style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
+                        onClick={() => {}}/>
+                        </Flex>                        
                         <TablePaginationR
                             columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles cita']}
                             rows={rows}
