@@ -21,54 +21,55 @@ const HistoryDentistry = () => {
     const [messageApi, contextHook] = message.useMessage();
     const itemsPerPage = 10;
 
-    const fetchVisits = useCallback(async (page = 1) => {
+    const fetchAllVisits = useCallback(async () => {
         try {
-            let params = {
-                page: page - 1, // La API espera un índice base 0
-                size: itemsPerPage,
-            };
-    
-            if (queryValue) params.username = queryValue;
-            if (rangeValue.length === 2) {
-                params.startDate = rangeValue[0].format('YYYY-MM-DD');
-                params.endDate = rangeValue[1].format('YYYY-MM-DD');
+            let allActivities = [];
+            let currentPage = 0;
+            let totalPages = 1; // Inicialmente asumimos una sola página
+
+            while (currentPage < totalPages) {
+                const params = {
+                    page: currentPage, // La API espera un índice base 0
+                    size: itemsPerPage,
+                };
+
+                if (queryValue) params.username = queryValue;
+                if (rangeValue.length === 2) {
+                    params.startDate = rangeValue[0].format('YYYY-MM-DD');
+                    params.endDate = rangeValue[1].format('YYYY-MM-DD');
+                }
+
+                const response = await api.get('/odontology-visits', { params });
+
+                const formattedActivities = (response.data.list.content || []).map(activity => ({
+                    ...activity,
+                    date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible',
+                    fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastName || 'Apellido no disponible'}`,
+                    document: activity.user?.username || 'Documento no disponible',
+                }));
+
+                allActivities = [...allActivities, ...formattedActivities]; // Concatenamos los resultados
+                totalPages = response.data.list.page.totalPages; // Actualizamos el total de páginas
+                currentPage += 1; // Avanzamos a la siguiente página
             }
-    
-            if (!params.username && (!params.startDate || !params.endDate)) {
-                messageApi.error("Debe suministrar el nombre de usuario o el rango de fechas para realizar la búsqueda");
-                return;
-            }
-    
-            const response = await api.get('/odontology-visits', { params });
-    
-            const formattedActivities = (response.data.list.content || []).map(activity => ({
-                ...activity,
-                date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible',
-                fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastName || 'Apellido no disponible'}`,
-                document: activity.user?.username || 'Documento no disponible',
-            }));
-    
+
             // Ordenar por fecha (ascendente)
-            const sortedActivities = formattedActivities.sort((a, b) => {
+            const sortedActivities = allActivities.sort((a, b) => {
                 const dateA = moment(a.date, 'DD/MM/YYYY');
                 const dateB = moment(b.date, 'DD/MM/YYYY');
                 return dateA - dateB; // Cambia a `dateB - dateA` para descendente
             });
-    
-            setActivities(sortedActivities); // Actualiza actividades con el orden aplicado
-            setCurrentPage(page); // Actualizamos la página actual
-            setTotalPages(response.data.list.page.totalPages); // Actualizamos el total de páginas
-            setTotalItems(response.data.list.page.totalElements); // Actualizamos el total de elementos
-    
-            console.log('Response Data:', response.data.list);
-            console.log('Total Elements:', response.data.list?.totalElements);
+
+            setActivities(sortedActivities); // Actualiza todas las actividades ordenadas
+            setTotalItems(sortedActivities.length); // Actualiza el total de elementos
+            setTotalPages(Math.ceil(sortedActivities.length / itemsPerPage)); // Actualiza el total de páginas
+
+            console.log('Total Activities:', sortedActivities.length);
         } catch (err) {
             console.error("Error fetching visits:", err);
             messageApi.error("Error al obtener los datos de visitas");
         }
     }, [queryValue, rangeValue, messageApi]);
-    
-
 
     const handleDownload = async () => {
         try {
@@ -138,7 +139,16 @@ const HistoryDentistry = () => {
         setCurrentPage(1);
     };
 
-    const rows = activities.map(visit => [
+    const handleSearch = () => {
+        fetchAllVisits(); // Realiza la consulta y ordena globalmente
+    };
+
+    const paginatedActivities = activities.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const rows = paginatedActivities.map(visit => [
         visit.date,
         visit.fullName,
         visit.document,
@@ -150,9 +160,6 @@ const HistoryDentistry = () => {
         />
     ]);
 
-    const handleSearch = () => {
-        fetchVisits(1);
-    };
 
     return (
         <>
@@ -196,9 +203,10 @@ const HistoryDentistry = () => {
                         rows={rows}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
-                        totalItems={totalItems} // Se usa el estado actualizado
+                        totalItems={totalItems} // Total de elementos global
                         onPageChange={handlePageChange}
                     />
+
 
                 </Card>
                 <Modal
