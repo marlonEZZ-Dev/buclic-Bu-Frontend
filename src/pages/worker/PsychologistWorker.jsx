@@ -92,17 +92,20 @@ const PsychologistWorker = () => {
 
   
   
-  const filterDatesBySelectedDay = (formattedSelectedDate, dates = availableDates) => {
-    if (!Array.isArray(dates)) {
-      console.error("dates no es un array válido", dates);
-      return;
-    }
-    const filtered = dates.filter((item) => {
-      const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
-      return itemDate === formattedSelectedDate && item.available === true;
-    });
+  const filterDatesBySelectedDay = (
+    formattedSelectedDate,
+    dates = availableDates
+  ) => {
+    const filtered = dates
+      .filter((item) => {
+        const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
+        return itemDate === formattedSelectedDate && item.available === true;
+      })
+      .sort((a, b) => moment(a.dateTime).diff(moment(b.dateTime))); // Ordenar por hora
+  
     setFilteredDates(filtered);
   };
+  
 
   const fetchPendingAppointment = async () => {
     const storedToken = localStorage.getItem("access");
