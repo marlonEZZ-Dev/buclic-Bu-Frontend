@@ -229,12 +229,16 @@ const DentistMonitor = () => {
     formattedSelectedDate,
     dates = availableDates
   ) => {
-    const filtered = dates.filter((item) => {
-      const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
-      return itemDate === formattedSelectedDate && item.available === true;
-    });
+    const filtered = dates
+      .filter((item) => {
+        const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
+        return itemDate === formattedSelectedDate && item.available === true;
+      })
+      .sort((a, b) => moment(a.dateTime).diff(moment(b.dateTime))); // Ordenar por hora
+  
     setFilteredDates(filtered);
   };
+  
 
   const onDateSelect = (date) => {
     if (date && date.isValid()) {
@@ -367,7 +371,8 @@ const DentistMonitor = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 201 bloque A"
+                salon="Servicio de odontología, segundo piso, bloque A
+"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>

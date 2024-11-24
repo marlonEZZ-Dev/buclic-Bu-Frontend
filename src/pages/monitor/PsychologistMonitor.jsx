@@ -96,17 +96,20 @@ const PsychologistMonitor = () => {
 
   
   
-  const filterDatesBySelectedDay = (formattedSelectedDate, dates = availableDates) => {
-    if (!Array.isArray(dates)) {
-      console.error("dates no es un array válido", dates);
-      return;
-    }
-    const filtered = dates.filter((item) => {
-      const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
-      return itemDate === formattedSelectedDate && item.available === true;
-    });
+  const filterDatesBySelectedDay = (
+    formattedSelectedDate,
+    dates = availableDates
+  ) => {
+    const filtered = dates
+      .filter((item) => {
+        const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
+        return itemDate === formattedSelectedDate && item.available === true;
+      })
+      .sort((a, b) => moment(a.dateTime).diff(moment(b.dateTime))); // Ordenar por hora
+  
     setFilteredDates(filtered);
   };
+  
 
   const fetchPendingAppointment = async () => {
     const storedToken = localStorage.getItem("access");
@@ -171,7 +174,7 @@ const fetchUserData = async () => {
 };
 
 const handleConfirmReserve = () => {
-  if (isPhoneError) return;
+  if (isPhoneError||isSemesterError) return;
 
   const storedToken = localStorage.getItem("access");
 
@@ -184,6 +187,7 @@ const handleConfirmReserve = () => {
         pacientId: userId,
         availableDateId: selectedAppointmentId,
         phone,
+        semester,
       },
       {
         headers: {
@@ -197,7 +201,8 @@ const handleConfirmReserve = () => {
 
       localStorage.setItem("userPhone", phone);
       setPhone(phone);
-
+      localStorage.setItem("userSemester", semester);
+      setSemester(semester);
       // Actualizar citas pendientes
       await fetchPendingAppointment();
 
@@ -510,7 +515,7 @@ const handleConfirmReserve = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 312 bloque A"
+                salon="Servicio de psicología, tercer piso, bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
