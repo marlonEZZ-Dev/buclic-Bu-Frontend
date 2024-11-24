@@ -13,4 +13,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['jwt-decode'],  // Aseguramos que jwt-decode sea optimizado
   },
+  build:{
+    outDir:"bienestar"
+  }
 });
