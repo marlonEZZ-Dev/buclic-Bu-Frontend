@@ -359,17 +359,17 @@ const Externos = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form.Item label={<span>Tipo de beca</span>}
+                  <Form.Item label={<span>Tipo de beneficio</span>}
                     name="becas" labelAlign="left"
                     rules={[
-                      { required: true, message: 'Por favor ingrese el tipo de beca' },
+                      { required: true, message: 'Por favor ingrese el tipo de beneficio' },
                     ]}
                   >
                     <Select
                       value={becas}
                       options={becasOptions}
                       onChange={handleBecasChange}
-                      placeholder="Seleccione tipo de beca"
+                      placeholder="Seleccione tipo de beneficio"
                     />
                   </Form.Item>
                 </Col>
