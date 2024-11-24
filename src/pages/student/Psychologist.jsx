@@ -170,7 +170,7 @@ const fetchUserData = async () => {
 };
 
 const handleConfirmReserve = () => {
-  if (isPhoneError) return;
+  if (isPhoneError||isSemesterError) return;
 
   const storedToken = localStorage.getItem("access");
 
@@ -183,6 +183,7 @@ const handleConfirmReserve = () => {
         pacientId: userId,
         availableDateId: selectedAppointmentId,
         phone,
+        semester,
       },
       {
         headers: {
@@ -196,6 +197,8 @@ const handleConfirmReserve = () => {
 
       localStorage.setItem("userPhone", phone);
       setPhone(phone);
+      localStorage.setItem("userSemester", semester);
+      setSemester(semester);
 
       // Actualizar citas pendientes
       await fetchPendingAppointment();
@@ -365,10 +368,6 @@ const handleConfirmReserve = () => {
         setModalVisible(false);
       });
   };
-  
-
-
-  
 
   return (
     <>
@@ -509,7 +508,7 @@ const handleConfirmReserve = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 312 bloque A"
+                salon="Servicio de psicología, tercer piso, bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>

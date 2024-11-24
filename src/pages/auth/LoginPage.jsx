@@ -12,6 +12,7 @@ import api from "../../api";
 import { ACCESS_TOKEN } from "../../constants";
 import "../../styles/HomePage.css";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import LogoBienestar from "../../assets/logo_bienestar.svg";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -116,26 +117,38 @@ export default function LoginPage() {
             <div
               style={{
                 display: "flex",
+                flexDirection: "column", // Cambiar a columna para apilar el logo y el título
                 justifyContent: "center",
                 alignItems: "center",
-                padding: "5px 0", // Reduce el padding superior e inferior del encabezado
+                padding: "5px 0", // Reducir el padding superior e inferior
               }}
             >
-              <h1
-                className="welcome-title"
-                style={{ margin: 0, textAlign: "center" }}
-              >
-                BUclick
-              </h1>
-            </div>
-          }
-          style={{
-            width: 401,
-            height: "auto",
-            boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
-            borderRadius: "8px",
-          }}
-        >
+              {/* Imagen del logo */}
+              <img
+                src={LogoBienestar}
+                alt="Logo Universidad del Valle"
+                style={{
+                  height: "80px",
+                  marginBottom: "0px", // Espacio entre el logo y el título
+                }}
+              />
+             
+         {/* Título BUclick */}
+      <h1
+        className="welcome-title"
+        style={{ margin: 0, textAlign: "center" }}
+      >
+        BUclick
+      </h1>
+    </div>
+  }
+  style={{
+    width: 401,
+    height: "auto",
+    boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+  }}
+>
           <form onSubmit={handleLogin}>
             <Input
               placeholder="Código/cédula"
@@ -180,6 +193,5 @@ export default function LoginPage() {
       </div>
       <FooterProfessionals />
     </Fragment>
-    
   );
 }

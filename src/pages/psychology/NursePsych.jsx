@@ -470,7 +470,7 @@ const NursePsych = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 102 bloque A"
+                salon=" Servicio de enfermería, primer piso, bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>

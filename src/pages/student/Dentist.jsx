@@ -370,7 +370,7 @@ const Dentist = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 201 bloque A"
+                salon="Servicio de odontología, segundo piso, bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>

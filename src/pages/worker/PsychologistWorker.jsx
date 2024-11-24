@@ -481,7 +481,7 @@ const handleConfirmReserve = () => {
                   showModal("reserve", availableDateId)
                 }
                 disableReserveButton={!!pendingAppointment}
-                salon="Salón 312 bloque A"
+                salon="Servicio de psicología, tercer piso, bloque A"
               />
             ) : (
               <p style={{ fontSize: "16px", textAlign: "center" }}>
