@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, message, Spin, Card, Table } from 'antd';
 import { LeftOutlined, DownloadOutlined } from '@ant-design/icons';
-import HeaderAdmin from "../../components/admin/HeaderAdmin.jsx";
+import HeaderNurse from "../../components/nurse/HeaderNurse";
 import api from '../../api';
 
 const ViewNursingReport = () => {
@@ -111,8 +111,8 @@ const ViewNursingReport = () => {
 
   return (
     <div>
-      {/* Encabezado del Administrador */}
-      <HeaderAdmin />
+      {/* Encabezado del enfermero */}
+      <HeaderNurse />
 
       {/* Contenido Principal */}
       <div style={{ padding: '20px', maxWidth: '1000px', margin: 'auto', marginTop: '60px' }}>

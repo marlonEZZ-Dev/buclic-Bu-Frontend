@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 import HeaderDentist from "../../components/dentist/HeaderDentist";
 import SearchPicker from '../../components/global/SearchPicker.jsx';
-import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx"
+import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx";
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Card, Button, Modal, Descriptions, message } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, DownloadOutlined } from '@ant-design/icons';
 import api from '../../api';
 import moment from 'moment';
 
@@ -23,8 +23,8 @@ const HistoryDentistry = () => {
     const fetchVisits = useCallback(async (page = 1) => {
         try {
             let params = {
-                page: page - 1, // La API probablemente espera una página base-0
-                size: itemsPerPage
+                page: page - 1,
+                size: itemsPerPage,
             };
 
             if (queryValue) params.username = queryValue;
@@ -39,12 +39,6 @@ const HistoryDentistry = () => {
             }
 
             const response = await api.get('/odontology-visits', { params });
-            console.log('Respuesta completa:', response.data);
-            console.log('Content:', response.data.list.content);
-            console.log('Total elementos:', response.data.list.totalElements);
-
-            // Asumiendo que la respuesta tiene esta estructura:
-            // { content: [...], totalElements: number, totalPages: number }
             const formattedActivities = (response.data.list.content || []).map(activity => ({
                 ...activity,
                 date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible',
@@ -62,48 +56,56 @@ const HistoryDentistry = () => {
         }
     }, [queryValue, rangeValue, messageApi]);
 
+    const handleDownload = async () => {
+        try {
+            const response = await api.get('/odontology-visits/download', {
+                responseType: 'blob', // Para descargar como archivo binario
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'odontology_visits_report.xlsx'); // Nombre del archivo
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Error downloading file:", error);
+            messageApi.error("Error al descargar el archivo");
+        }
+    };
+
     const showVisitDetail = useCallback(async (visitId) => {
         if (!visitId) {
             messageApi.error("ID de la visita no válido");
             return;
         }
-    
+
         try {
             const response = await api.get(`/odontology-visits/visit/${visitId}`);
-            console.log("Detalles recibidos desde el backend:", response.data);
-            if (response.data) {
-                console.log('Detalles recibidos:', response.data); // Depuración: verifica los datos recibidos.
-    
-                // Asegúrate de que `name` y `lastName` existen en `response.data`.
-                const fullName = [
-                    response.data.name || "Nombre no disponible",
-                    response.data.lastName || "Apellido no disponible"
-                ].join(" ").trim();
-    
-                const visitDetails = {
-                    user: {
-                        fullName,
-                        document: response.data.username || "Documento no disponible",
-                    },
-                    date: response.data.date
-                        ? moment(response.data.date).format("DD/MM/YYYY")
-                        : "Fecha no disponible",
-                    plan: response.data.plan || "Plan no disponible",
-                    reason: response.data.reason || "Razón no disponible",
-                    description: response.data.description || "Descripción no disponible",
-                };
-    
-                setSelectedVisit(visitDetails);
-                setIsModalVisible(true);
-            } else {
-                messageApi.error("No se encontraron detalles para esta visita");
-            }
+            const visitDetails = {
+                user: {
+                    fullName: [
+                        response.data.name || "Nombre no disponible",
+                        response.data.lastName || "Apellido no disponible",
+                    ].join(" ").trim(),
+                    document: response.data.username || "Documento no disponible",
+                },
+                date: response.data.date
+                    ? moment(response.data.date).format("DD/MM/YYYY")
+                    : "Fecha no disponible",
+                plan: response.data.plan || "Plan no disponible",
+                reason: response.data.reason || "Razón no disponible",
+                description: response.data.description || "Descripción no disponible",
+            };
+
+            setSelectedVisit(visitDetails);
+            setIsModalVisible(true);
         } catch (error) {
             console.error("Error fetching visit details:", error);
             messageApi.error("Error al obtener los detalles de la visita");
         }
     }, [messageApi]);
-    
+
     const handleModalClose = () => {
         setIsModalVisible(false);
         setSelectedVisit(null);
@@ -134,7 +136,7 @@ const HistoryDentistry = () => {
     ]);
 
     const handleSearch = () => {
-        fetchVisits(1); // Reset a la primera página cuando se hace una nueva búsqueda
+        fetchVisits(1);
     };
 
     return (
@@ -154,7 +156,7 @@ const HistoryDentistry = () => {
                         textAlign: 'left',
                     }}
                 >
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', gap: '10px' }}>
                         <SearchPicker
                             placeholder="Código/Cédula del paciente"
                             dateRangeValue={rangeValue}
@@ -164,6 +166,14 @@ const HistoryDentistry = () => {
                             onSearch={handleSearch}
                         />
                         <ButtonRefresh onClick={handleRefresh} />
+                        <Button
+                            type="primary"
+                            icon={<DownloadOutlined />}
+                            style={{ backgroundColor: '#C20E1A', border: 'none' }}
+                            onClick={handleDownload}
+                        >
+                            Descargar
+                        </Button>
                     </div>
                     <p style={{ fontWeight: 'bold' }}>Tabla de actividades realizadas</p>
                     <TablePaginationR

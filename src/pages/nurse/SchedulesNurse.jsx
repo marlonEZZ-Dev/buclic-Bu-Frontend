@@ -496,7 +496,7 @@ export default function SchedulesNurse() {
         >
           <div style={styles.modalCentered}>
             <span style={styles.modalFontSizeTitle}>
-              <InfoCircleOutlined /> Guardar Cambios
+              <InfoCircleOutlined /> Guardar cambios
             </span>
             <p style={styles.modalFontSizeContent}>¿Desea guardar estos cambios?</p>
           </div>
@@ -527,7 +527,7 @@ export default function SchedulesNurse() {
         >
           <div style={styles.modalCentered}>
             <span style={styles.modalFontSizeTitle}>
-              <InfoCircleOutlined /> Confirmar Eliminación
+              <InfoCircleOutlined /> Confirmar eliminación
             </span>
             <p style={styles.modalFontSizeContent}>¿Está seguro de que desea eliminar esta hora?</p>
           </div>
@@ -548,7 +548,7 @@ export default function SchedulesNurse() {
         </Modal>
 
         <div style={styles.contentTitle}>
-          <h1>Definir Horarios</h1>
+          <h1>Definir horarios</h1>
           <p>Aquí se puede definir el horario para citas disponibles</p>
         </div>
 

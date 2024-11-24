@@ -10,9 +10,9 @@ export default function HomePage() {
           <button className="welcome-button">BUclick</button>
         </Link>
         <p className="welcome-text">
-          Con BUclick, gestiona tus becas de alimentación y reserva citas de
-          bienestar en un solo click. ¡Todo en un solo lugar para ahorrarte
-          tiempo y estrés!
+        Con BUclick, gestiona tus becas de alimentación y reserva tus citas 
+        en los servicios de bienestar. Bienestar en un solo click. ¡Todo en 
+        un solo lugar para ahorrarte tiempo y estrés!
         </p>
       </div>
     </div>
