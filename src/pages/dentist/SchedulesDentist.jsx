@@ -5,6 +5,7 @@ import HeaderDentist from '../../components/dentist/HeaderDentist.jsx';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import DateSpanish from "../../components/global/DateSpanish.jsx";
 import TimeSpanish from "../../components/global/TimeSpanish.jsx";
+import ReusableModal from "../../components/global/ReusableModal.jsx";
 import api from '../../api';
 import { Flex, Button, message, Modal } from "antd";
 import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
@@ -62,18 +63,6 @@ const styles = {
     justifyContent: 'center',
     flexWrap: 'wrap',
     padding: '0 1rem',
-  },
-  modalCentered: {
-    textAlign: 'center',
-    padding: '1rem',
-  },
-  modalFontSizeTitle: {
-    fontSize: window.innerWidth <= 768 ? '1rem' : '1.2rem',
-    fontWeight: 'bold',
-  },
-  modalFontSizeContent: {
-    fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
-    marginTop: '1rem',
   },
   timeContainer: {
     display: 'flex',
@@ -146,12 +135,12 @@ export default function SchedulesDentist() {
     try {
       const response = await api.get(`/appointment/${userId}`);
       const fetchedData = response.data.availableDates || [];
-  
+
       const now = dayjs();
       const scheduleDataFormatted = fetchedData.reduce((acc, item) => {
         const [date, time] = item.dateTime.split('T');
         const dateTime = dayjs(`${date}T${time}`);
-  
+
         // Asegurarse de que solo incluimos horarios futuros
         if (dateTime.isAfter(now)) {
           const existingDate = acc.find(entry => entry.date === date);
@@ -164,15 +153,15 @@ export default function SchedulesDentist() {
         }
         return acc;
       }, []);
-  
+
       // Ordenar horarios de cada fecha
       scheduleDataFormatted.forEach(schedule => {
         schedule.times.sort((a, b) => dayjs(`1970-01-01T${a.time}`).diff(dayjs(`1970-01-01T${b.time}`)));
       });
-  
+
       // Ordenar las fechas cronológicamente
       scheduleDataFormatted.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
-  
+
       setScheduleData(scheduleDataFormatted);
       setOriginalScheduleData(scheduleDataFormatted);
     } catch (error) {
@@ -180,7 +169,7 @@ export default function SchedulesDentist() {
       showNotification('error', 'Error al cargar los horarios. Intente nuevamente.');
     }
   };
-  
+
 
   useEffect(() => {
     fetchAvailableDates();
@@ -222,7 +211,7 @@ export default function SchedulesDentist() {
       },
       onCancel: () => {
         // El usuario ha cancelado la acción, no se hace nada
-        showNotification("info", "Eliminación cancelada.");
+        showNotification("warning", "Eliminación cancelada.");
       },
     });
   };
@@ -360,6 +349,17 @@ export default function SchedulesDentist() {
     }
   };
 
+  const getDisabledHours = () => {
+    const disabledHours = [];
+    for (let i = 0; i < 24; i++) {
+      if (i < 8 || i > 22) {
+        disabledHours.push(i); // Deshabilita antes de las 8 am y después de las 11 pm
+      }
+    }
+    return disabledHours;
+  };
+
+  // Modificar la función handlerTimeChange para manejar bloques de horarios
   const handlerTimeChange = (newTime, dateIndex, timeIndex) => {
     const now = dayjs();
     const selectedDate = dayjs(scheduleData[dateIndex].date);
@@ -371,13 +371,66 @@ export default function SchedulesDentist() {
       return;
     }
 
+    // Obtener todos los horarios del mismo día ordenados
+    const dayTimes = scheduleData[dateIndex].times
+      .filter((t, idx) => idx !== timeIndex && t.time) // Excluir la hora actual y filtrar vacíos
+      .map(t => dayjs(`${scheduleData[dateIndex].date}T${t.time}`))
+      .sort((a, b) => a - b);
+
+    if (dayTimes.length > 0) {
+      // Encontrar el horario más cercano antes y después del seleccionado
+      const previousTime = dayTimes.filter(t => t.isBefore(selectedTime)).pop();
+      const nextTime = dayTimes.find(t => t.isAfter(selectedTime));
+
+      // Si hay un horario previo, verificar la diferencia
+      if (previousTime) {
+        const diffWithPrevious = selectedTime.diff(previousTime, 'minute');
+
+        // Si la diferencia es menor a 2 horas, debe mantener el mismo formato de minutos
+        if (diffWithPrevious < 120) {
+          const previousMinutes = previousTime.minute();
+          const selectedMinutes = selectedTime.minute();
+
+          if (previousMinutes !== selectedMinutes) {
+            showNotification('warning', `Para continuar la secuencia, debe usar el formato XX:${previousMinutes.toString().padStart(2, '0')}`);
+            return;
+          }
+
+          // Verificar que haya al menos una hora de diferencia
+          if (diffWithPrevious < 60) {
+            showNotification('warning', 'Debe haber al menos una hora de diferencia con el horario anterior');
+            return;
+          }
+        }
+      }
+
+      // Si hay un horario siguiente, verificar la diferencia
+      if (nextTime) {
+        const diffWithNext = nextTime.diff(selectedTime, 'minute');
+
+        // Si la diferencia es menor a 2 horas, debe mantener el mismo formato de minutos
+        if (diffWithNext < 120) {
+          const nextMinutes = nextTime.minute();
+          const selectedMinutes = selectedTime.minute();
+
+          if (nextMinutes !== selectedMinutes) {
+            showNotification('warning', `Para continuar la secuencia, debe usar el formato XX:${nextMinutes.toString().padStart(2, '0')}`);
+            return;
+          }
+
+          // Verificar que haya al menos una hora de diferencia
+          if (diffWithNext < 60) {
+            showNotification('warning', 'Debe haber al menos una hora de diferencia con el horario siguiente');
+            return;
+          }
+        }
+      }
+    }
+
     // Verificar duplicados en toda la tabla
     const isDuplicateTime = scheduleData.some((schedule, sDateIndex) =>
-      // Si es la misma fecha
       schedule.date === scheduleData[dateIndex].date &&
-      // Buscar en todos los horarios de esa fecha
       schedule.times.some((time, sTimeIndex) =>
-        // Excluir la posición actual que estamos editando
         (sDateIndex !== dateIndex || sTimeIndex !== timeIndex) &&
         time.time === newTime
       )
@@ -487,65 +540,27 @@ export default function SchedulesDentist() {
       {contextHolder}
       <HeaderDentist />
       <div className="becas-section" style={{ marginTop: "100px" }}>
-        {/* Modal para Confirmación de Guardar Cambios */}
-        <Modal
-          open={isSaveChangesModalVisible}
-          footer={null}
-          onClose={handleCloseSaveChangesModal}
-          centered
-        >
-          <div style={styles.modalCentered}>
-            <span style={styles.modalFontSizeTitle}>
-              <InfoCircleOutlined /> Guardar Cambios
-            </span>
-            <p style={styles.modalFontSizeContent}>¿Desea guardar estos cambios?</p>
-          </div>
-          <div style={styles.buttonContainer}>
-            <button
-              className="button-cancel"
-              onClick={handleCloseSaveChangesModal}
-              disabled={isLoading}
-            >
-              No
-            </button>
-            <button
-              className="button-save"
-              onClick={confirmSaveChanges}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Guardando...' : 'Sí'}
-            </button>
-          </div>
-        </Modal>
+        {/* Modal para Guardar Cambios */}
+        <ReusableModal
+          visible={isSaveChangesModalVisible}
+          title="Guardar Cambios"
+          content="¿Desea guardar estos cambios?"
+          cancelText="No"
+          confirmText={isLoading ? 'Guardando...' : 'Sí'}
+          onCancel={() => setIsSaveChangesModalVisible(false)}
+          onConfirm={confirmSaveChanges}
+        />
 
-        {/* Modal para Confirmación de Eliminar Hora */}
-        <Modal
-          open={isDeleteTimeModalVisible}
-          footer={null}
-          onClose={handleCloseDeleteTimeModal}
-          centered
-        >
-          <div style={styles.modalCentered}>
-            <span style={styles.modalFontSizeTitle}>
-              <InfoCircleOutlined /> Confirmar Eliminación
-            </span>
-            <p style={styles.modalFontSizeContent}>¿Está seguro de que desea eliminar esta hora?</p>
-          </div>
-          <div style={styles.buttonContainer}>
-            <button
-              className="button-cancel"
-              onClick={handleCloseDeleteTimeModal}
-            >
-              No
-            </button>
-            <button
-              className="button-save"
-              onClick={handleDeleteTime}
-            >
-              Sí
-            </button>
-          </div>
-        </Modal>
+        {/* Modal para Eliminar Hora */}
+        <ReusableModal
+          visible={isDeleteTimeModalVisible}
+          title="Confirmar Eliminación"
+          content="¿Está seguro de que desea eliminar esta hora?"
+          cancelText="No"
+          confirmText="Sí"
+          onCancel={() => setIsDeleteTimeModalVisible(false)}
+          onConfirm={handleDeleteTime}
+        />
 
         <div style={styles.contentTitle}>
           <h1>Definir Horarios</h1>
@@ -578,7 +593,7 @@ export default function SchedulesDentist() {
                               value={schedule.date}
                               onChange={(date) => handlerDateChange(date, dateIndex)}
                               disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
-                              disabled={!isEditing || !schedule.times.some(time => time.isNew)}
+                              disabled={!isEditing || schedule.date !== ""} // Solo editable si está en modo edición y es una fecha nueva
                               style={{ width: '100%' }}
                             />
                             <Button
@@ -605,6 +620,7 @@ export default function SchedulesDentist() {
                                   value={time.time}
                                   onChange={(newTime) => handlerTimeChange(newTime, dateIndex, timeIndex)}
                                   disabled={!isEditing || !time.isNew}
+                                  disabledHours={getDisabledHours}
                                   style={{ width: '100%', marginBottom: '0.5rem' }}
                                 />
                                 <Button
