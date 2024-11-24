@@ -136,6 +136,7 @@ const HistoryDentistry = () => {
         setQueryValue('');
         setRangeValue([]);
         setActivities([]);
+        setTotalItems(0);
         setCurrentPage(1);
     };
 
