@@ -12,7 +12,8 @@ import moment from 'moment';
 const HistoryDentistry = () => {
     const [activities, setActivities] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalItems, setTotalItems] = useState(0);
+    const [totalItems, setTotalItems] = useState(0); // Estado para manejar el total de elementos
+    const [totalPages, setTotalPages] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedVisit, setSelectedVisit] = useState(null);
     const [queryValue, setQueryValue] = useState("");
@@ -23,38 +24,51 @@ const HistoryDentistry = () => {
     const fetchVisits = useCallback(async (page = 1) => {
         try {
             let params = {
-                page: page - 1,
+                page: page - 1, // La API espera un índice base 0
                 size: itemsPerPage,
             };
-
+    
             if (queryValue) params.username = queryValue;
             if (rangeValue.length === 2) {
                 params.startDate = rangeValue[0].format('YYYY-MM-DD');
                 params.endDate = rangeValue[1].format('YYYY-MM-DD');
             }
-
+    
             if (!params.username && (!params.startDate || !params.endDate)) {
                 messageApi.error("Debe suministrar el nombre de usuario o el rango de fechas para realizar la búsqueda");
                 return;
             }
-
+    
             const response = await api.get('/odontology-visits', { params });
+    
             const formattedActivities = (response.data.list.content || []).map(activity => ({
                 ...activity,
                 date: activity.date ? moment(activity.date).format('DD/MM/YYYY') : 'Fecha no disponible',
                 fullName: `${activity.user?.name || 'Nombre no disponible'} ${activity.user?.lastName || 'Apellido no disponible'}`,
                 document: activity.user?.username || 'Documento no disponible',
             }));
-
-            setActivities(formattedActivities);
-            setTotalItems(response.data.list.totalElements || formattedActivities.length);
-            setCurrentPage(page);
-
+    
+            // Ordenar por fecha (ascendente)
+            const sortedActivities = formattedActivities.sort((a, b) => {
+                const dateA = moment(a.date, 'DD/MM/YYYY');
+                const dateB = moment(b.date, 'DD/MM/YYYY');
+                return dateA - dateB; // Cambia a `dateB - dateA` para descendente
+            });
+    
+            setActivities(sortedActivities); // Actualiza actividades con el orden aplicado
+            setCurrentPage(page); // Actualizamos la página actual
+            setTotalPages(response.data.list.page.totalPages); // Actualizamos el total de páginas
+            setTotalItems(response.data.list.page.totalElements); // Actualizamos el total de elementos
+    
+            console.log('Response Data:', response.data.list);
+            console.log('Total Elements:', response.data.list?.totalElements);
         } catch (err) {
             console.error("Error fetching visits:", err);
             messageApi.error("Error al obtener los datos de visitas");
         }
     }, [queryValue, rangeValue, messageApi]);
+    
+
 
     const handleDownload = async () => {
         try {
@@ -112,14 +126,15 @@ const HistoryDentistry = () => {
     };
 
     const handlePageChange = (page) => {
-        fetchVisits(page);
+        setCurrentPage(page); // Actualiza la página actual
+        fetchVisits(page);    // Llama a la API para obtener los datos de la página seleccionada
     };
+
 
     const handleRefresh = () => {
         setQueryValue('');
         setRangeValue([]);
         setActivities([]);
-        setTotalItems(0);
         setCurrentPage(1);
     };
 
@@ -181,9 +196,10 @@ const HistoryDentistry = () => {
                         rows={rows}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}
-                        totalItems={totalItems}
+                        totalItems={totalItems} // Se usa el estado actualizado
                         onPageChange={handlePageChange}
                     />
+
                 </Card>
                 <Modal
                     title={
