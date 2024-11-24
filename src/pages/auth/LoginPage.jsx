@@ -128,27 +128,27 @@ export default function LoginPage() {
                 src={LogoBienestar}
                 alt="Logo Universidad del Valle"
                 style={{
-                  height: "80px",
+                  height: "90px",
                   marginBottom: "0px", // Espacio entre el logo y el título
                 }}
               />
-             
-         {/* Título BUclick */}
-      <h1
-        className="welcome-title"
-        style={{ margin: 0, textAlign: "center" }}
-      >
-        BUclick
-      </h1>
-    </div>
-  }
-  style={{
-    width: 401,
-    height: "auto",
-    boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
-    borderRadius: "8px",
-  }}
->
+
+              {/* Título BUclick */}
+              <h1
+                className="welcome-title"
+                style={{ margin: 0, textAlign: "center" }}
+              >
+                BUclick
+              </h1>
+            </div>
+          }
+          style={{
+            width: 401,
+            height: "auto",
+            boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
+            borderRadius: "8px",
+          }}
+        >
           <form onSubmit={handleLogin}>
             <Input
               placeholder="Código/cédula"
