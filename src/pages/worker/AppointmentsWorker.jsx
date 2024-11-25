@@ -5,6 +5,7 @@ import FooterProfessionals from '../../components/global/FooterProfessionals';
 import psicologiaImage from '../../assets/psicologia.jpg';
 import enfermeriaImage from '../../assets/enfermeria.png';
 import odontologiaImage from '../../assets/odontologia.jpg';
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 
 const AppointmentsWorker = () => {
   const navigate = useNavigate(); // Inicializa el hook useNavigate
@@ -95,6 +96,7 @@ const AppointmentsWorker = () => {
           
         </section>
       </main>
+      <ButtonTutorial role="funcionary"/>
       <FooterProfessionals/>
     </>
   );

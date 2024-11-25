@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 import HeaderWorker from "../../components/worker/HeaderWorker.jsx"
 import {
   Form,
@@ -9,7 +10,6 @@ import {
   Row,
   Col,
   message,
-  Typography,
   Button,
 } from "antd";
 import SchedulingTable from "../../components/global/SchedulingTable";
@@ -21,7 +21,6 @@ import ReusableModal from "../../components/global/ReusableModal";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 
-const { Text } = Typography;
 
 const NursingWorker = () => {
   const { token } = theme.useToken();
@@ -533,6 +532,7 @@ const NursingWorker = () => {
           </Col>
         </Row>
       </main>
+      <ButtonTutorial role="funcionary"/>
       <FooterProfessionals />
     </>
   );
