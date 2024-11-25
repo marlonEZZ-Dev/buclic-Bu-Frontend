@@ -7,11 +7,11 @@ import Tables from "../../components/global/Tables.jsx";
 import AssistanceButtons from "../../components/global/AssistanceButtons.jsx";
 import api from "../../api.js";
 import { Card, Flex, Button, message } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import styles from "../../styles/psychology/agendaPsych.module.css";
-
+import { downloadAppointmentById } from "../../services/professionals/agenda.js";
 import { useEffect, useState } from "react";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx";
 
@@ -199,6 +199,19 @@ export default function AgendaDentist() {
     }
   };
 
+  const handlerDownloadActivitiesPerfomaced = async () => {
+    try {
+        const response = await downloadAppointmentById(localStorage.getItem("userId"))
+        if(response.success){
+            messageApi.success(response.message)
+        }else{
+            messageApi.error(response.message)
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
   return (
     <>
       {showMessage}
@@ -252,7 +265,13 @@ export default function AgendaDentist() {
             </Flex>
           </Flex>
           <Flex vertical>
-            <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0}} className="text-left">Tabla historial de citas realizadas</p>
+            <Flex justify='space-between' style={{marginTop:"1.875rem"}}>
+              <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0 }}>Tabla de actividades realizadas</p>
+              <Button 
+                icon={<DownloadOutlined />} 
+                style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
+                onClick={handlerDownloadActivitiesPerfomaced}/>
+            </Flex>
             <TablePagination
               columns={appointmentDoneColums}
               rows={appointmentDone}
