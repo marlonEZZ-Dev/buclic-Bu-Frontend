@@ -45,7 +45,7 @@ export default function LoginPage() {
 
     try {
       const response = await api.post("/auth/login", { username, password });
-
+      
       if (response.data && response.data.token) {
         const token = response.data.token;
         const userResponse = response.data.userResponse;

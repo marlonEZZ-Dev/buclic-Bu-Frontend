@@ -1,7 +1,8 @@
 import { FloatButton, ConfigProvider } from "antd"
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import PropTypes from "prop-types"
 
-export default function ButtonTutorial(role){
+export default function ButtonTutorial({role}){
   
   const URL_STUDENT = "https://drive.google.com/drive/folders/1r2CKKFPdwbryTmrKjWAuU8E_8VwjklOl?usp=sharing"
   
@@ -10,7 +11,13 @@ export default function ButtonTutorial(role){
   const handlerNewPage = () => {
     const isStudent = role === "student"
     const isFuncionary = role === "funcionary"
-    window.open(isStudent ? URL_STUDENT : isFuncionary ? URL_FUNCIONARY : "#", "_blank")    
+    if(isStudent){
+      window.open(URL_STUDENT, "_blank")
+    }else if(isFuncionary){
+      window.open(URL_FUNCIONARY, "_blank")
+    }else{
+      console.error("Algo Falla en el flotante")
+    }
   }
   return (
     <>
@@ -30,4 +37,8 @@ export default function ButtonTutorial(role){
     </ConfigProvider>
     </>
   )
+}
+
+ButtonTutorial.propTypes = {
+  role: PropTypes.string
 }
