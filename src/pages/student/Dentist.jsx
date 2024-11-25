@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 import {
   Form,
   Input,
@@ -8,7 +9,6 @@ import {
   Row,
   Col,
   message,
-  Typography,
   Button,
 } from "antd";
 import SchedulingTable from "../../components/global/SchedulingTable";
@@ -18,7 +18,6 @@ import api from "../../api.js";
 import ReusableModal from "../../components/global/ReusableModal"; // Importar el modal reutilizable
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-const { Text } = Typography;
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import TopNavbar from "../../components/TopNavbar";
 
@@ -429,6 +428,7 @@ const Dentist = () => {
             )}
           </Col>
         </Row>
+        <ButtonTutorial role="student"/>        
       </main>
       <FooterProfessionals />
     </>

@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
-import HeaderNurse from "../../components/nurse/HeaderNurse.jsx"
+import { useEffect, useState } from "react";
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 import {
   Form,
   Input,
   Calendar,
-  theme,
   ConfigProvider,
   Row,
   Col,
   message,
-  Typography,
   Button,
 } from "antd";
 import SchedulingTable from "../../components/global/SchedulingTable";
@@ -21,7 +19,6 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import HeaderWorker from "../../components/worker/HeaderWorker.jsx"
-const { Text } = Typography;
 
 const PsychologistWorker = () => {
   const navigate = useNavigate();
@@ -540,6 +537,7 @@ const handleConfirmReserve = () => {
           </Col>
         </Row>
       </main>
+      <ButtonTutorial role="funcionary"/>
       <FooterProfessionals/>
     </>
   );

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 import { useNavigate } from 'react-router-dom';
 import HeaderWorker from "../../components/worker/HeaderWorker";
 import { Button, Form, Input, message, Card } from 'antd';
@@ -67,6 +68,7 @@ const SettingWorker = () => {
                     )}
                 </Card>
             </main>
+            <ButtonTutorial role="funcionary"/>
         </>
     );
 };

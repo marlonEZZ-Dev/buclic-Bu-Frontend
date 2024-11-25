@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import HeaderWorker from "../../components/worker/HeaderWorker";
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 import { Card, Space, Button, Form, Input, message } from 'antd';
 import { InfoCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import Modal from '../../components/global/Modal';
@@ -194,6 +195,7 @@ const PasswordWorker = () => {
           </Modal>
         </Card>
       </main>
+      <ButtonTutorial role="funcionary"/>
     </>
   );
 };

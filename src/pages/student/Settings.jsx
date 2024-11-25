@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../../components/TopNavbar';
 import { Button, Form, Input, message, Card } from 'antd';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 import api from '../../api';
 
 const Settings = () => {
@@ -67,6 +68,7 @@ const Settings = () => {
                         <p>Por favor selecciona una opción de perfil para ver los datos.</p>
                     )}
                 </Card>
+            <ButtonTutorial role="student"/>
             </main>
             <FooterProfessionals />
         </>

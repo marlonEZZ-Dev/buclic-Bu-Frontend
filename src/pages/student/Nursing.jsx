@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx"
+import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
+
 import {
   Form,
   Input,
@@ -533,6 +535,7 @@ const Nursing = () => {
           </Col>
         </Row>
       </main>
+      <ButtonTutorial role="student"/>
       <FooterProfessionals />
     </>
   );
