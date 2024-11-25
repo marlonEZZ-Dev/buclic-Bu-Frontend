@@ -1,28 +1,44 @@
-import axios from "axios"
-import { ACCESS_TOKEN } from "./constants"
+import axios from "axios";
+import { ACCESS_TOKEN } from "./constants";
 
-// Usando la variable de entorno de Vite para el backend en localhost:8080
+// Inicializamos una instancia de Axios
 const api = axios.create({
-    // baseURL: 'http://127.0.0.1:8080',
-    baseURL: import.meta.env.VITE_API_URL,
-    
     headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-})
+        "Content-Type": "application/json",
+        'Accept': "application/json",
+    },
+});
 
+// Cargar env.json y configurar baseURL dinámicamente
+export const loadConfig = async () => {
+    try {
+        // Hacemos fetch de env.json
+        const response = await fetch("/env.json");
+        if (!response.ok) {
+            throw new Error("No se pudo cargar el archivo env.json");
+        }
+        const config = await response.json();
+
+        // Configuramos baseURL
+        api.defaults.baseURL = config.API;
+        console.log("BaseURL configurada como:", config.API);
+    } catch (error) {
+        console.error("Error cargando env.json:", error);
+        throw new Error("Failed to load API configuration");
+    }
+};
+// Llamamos a loadConfig inmediatamente para inicializar 
+
+// Configurar interceptores de Axios
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem(ACCESS_TOKEN)
+        const token = localStorage.getItem(ACCESS_TOKEN);
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`
+            config.headers.Authorization = `Bearer ${token}`;
         }
-        return config
+        return config;
     },
-    (error) => {
-        return Promise.reject(error)
-    }
-)
+    (error) => Promise.reject(error)
+);
 
-export default api
+export default api;

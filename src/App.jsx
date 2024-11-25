@@ -73,9 +73,9 @@ import PsychologistMonitor from "./pages/monitor/PsychologistMonitor";
 import NursingMonitor from "./pages/monitor/NursingMonitor";
 import DentistMonitor from "./pages/monitor/DentistMonitor";
 
-
 function App() {
   return (
+    
     <MenuProvider>
       {" "}
       {/* proveedor del contexto */}
