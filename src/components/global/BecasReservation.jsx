@@ -176,31 +176,50 @@ const BecasReservation = () => {
   };
 
 
-  // Obtener la disponibilidad de reservas con polling cada 1 segundos
   useEffect(() => {
-    const fetchAvailability = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await api.get('/reservations/availability');
-
+        const response = await api.get('/reservations/availability'); // Llamada REST inicial
         setAvailability({
-          remainingSlotsLunch: response.data.remainingSlotsLunch || 0,
-          remainingSlotsSnack: response.data.remainingSlotsSnack || 0,
+          remainingSlotsLunch: response.data.remainingSlotsLunch,
+          remainingSlotsSnack: response.data.remainingSlotsSnack,
         });
       } catch (error) {
-        console.error('Error al obtener la disponibilidad de reservas:', error.response?.data || error.message);
-
-        setAvailability({ remainingSlotsLunch: 0, remainingSlotsSnack: 0 }); // Establecer 0 si hay un error
+        console.error("Error al cargar los datos iniciales:", error);
       }
     };
 
-    // Llamada inicial
-    fetchAvailability();
+    fetchInitialData(); // Cargar datos iniciales
 
-    // Configurar polling cada 1 segundos
-    const intervalId = setInterval(fetchAvailability, 1000);
+    const socket = new WebSocket("ws://localhost:8080/ws");
 
-    // Limpiar el intervalo cuando el componente se desmonte
-    return () => clearInterval(intervalId);
+    socket.onopen = () => {
+      console.log("Conexión WebSocket establecida");
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setAvailability({
+          remainingSlotsLunch: data.remainingSlotsLunch,
+          remainingSlotsSnack: data.remainingSlotsSnack,
+        });
+      } catch (error) {
+        console.error("Error al procesar el mensaje del servidor:", error);
+      }
+    };
+
+    socket.onclose = () => {
+      console.log("Conexión WebSocket cerrada");
+    };
+
+    socket.onerror = (error) => {
+      console.error("Error en la conexión WebSocket:", error);
+    };
+
+    return () => {
+      socket.close();
+    };
   }, []);
 
 

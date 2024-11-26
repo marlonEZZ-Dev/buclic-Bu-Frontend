@@ -387,12 +387,12 @@ export default function SchedulesDentist() {
         const diffWithPrevious = selectedTime.diff(previousTime, 'minute');
 
         // Si la diferencia es menor a 2 horas, debe mantener el mismo formato de minutos
-        if (diffWithPrevious < 120) {
+        if (diffWithPrevious < 60) {
           const previousMinutes = previousTime.minute();
           const selectedMinutes = selectedTime.minute();
 
           if (previousMinutes !== selectedMinutes) {
-            showNotification('warning', `Para continuar la secuencia, debe usar el formato XX:${previousMinutes.toString().padStart(2, '0')}`);
+            showNotification('warning', `Se debe establecer un horario mínimo de una hora de diferencia`);
             return;
           }
 
@@ -409,7 +409,7 @@ export default function SchedulesDentist() {
         const diffWithNext = nextTime.diff(selectedTime, 'minute');
 
         // Si la diferencia es menor a 2 horas, debe mantener el mismo formato de minutos
-        if (diffWithNext < 120) {
+        if (diffWithNext < 60) {
           const nextMinutes = nextTime.minute();
           const selectedMinutes = selectedTime.minute();
 
