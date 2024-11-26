@@ -6,7 +6,6 @@ import "antd/dist/reset.css";
 import LoginPage from "./pages/auth/LoginPage";
 import Becas from "./pages/student/Becas";
 import Appointments from "./pages/student/Appointments";
-import MainStudentView from "./pages/student/MainStudentView";
 import ManagementUsers from "./pages/admin/ManagementUsers";
 import Informs from "./pages/admin/Informs";
 import ViewInforms from "./pages/admin/ViewInforms";

@@ -1,6 +1,6 @@
 import HeaderMonitor from "../../components/monitor/HeaderMonitor";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import api from '../../api';
 import { ReloadOutlined } from '@ant-design/icons';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
@@ -20,6 +20,7 @@ const Reservation = () => {
     const [availabilityType, setAvailabilityType] = useState(''); // Agregado para tipo de disponibilidad
     const [modalVisible, setModalVisible] = useState(false);
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
+    const availabilityTypeRef = useRef(''); // Referencia para sincronizar availabilityType
 
     const handleSearch = async (username) => {
         if (!username.trim()) {
@@ -166,9 +167,80 @@ const Reservation = () => {
     };
 
     useEffect(() => {
-        fetchAvailability();
-        const intervalId = setInterval(fetchAvailability, 1000);
-        return () => clearInterval(intervalId);
+        const fetchInitialData = async () => {
+            try {
+                console.log("Iniciando llamada al endpoint '/reservations/availability-per-hour'");
+                const response = await api.get('/reservations/availability-per-hour');
+                console.log("Respuesta del endpoint '/reservations/availability-per-hour':", response.data);
+                setAvailability(response.data.availability || 0);
+                setAvailabilityType(response.data.type || '');
+                availabilityTypeRef.current = response.data.type || ''; // Actualizar referencia
+                console.log("Estado inicial actualizado -> availability:", response.data.availability, "type:", response.data.type);
+            } catch (error) {
+                console.error("Error al obtener la disponibilidad de reservas:", error.response?.data || error.message);
+                message.error('No se pudo cargar la disponibilidad.');
+                setAvailability(0);
+                setAvailabilityType('');
+                availabilityTypeRef.current = ''; // Restablecer referencia
+            }
+        };
+
+        fetchInitialData(); // Cargar datos iniciales
+
+        console.log("Intentando establecer conexión WebSocket en 'ws://localhost:8080/ws'");
+        const socket = new WebSocket("ws://localhost:8080/ws");
+
+        socket.onopen = () => {
+            console.log("Conexión WebSocket establecida");
+        };
+
+        socket.onmessage = (event) => {
+            console.log("Mensaje recibido desde WebSocket:", event.data);
+            try {
+                const data = JSON.parse(event.data);
+
+                if (data.availability !== undefined && data.type !== undefined) {
+                    // Manejar formato de disponibilidad por hora
+                    setAvailability(data.availability);
+                    setAvailabilityType(data.type);
+                    availabilityTypeRef.current = data.type; // Actualizar referencia
+                    console.log("Estado actualizado por WebSocket -> availability:", data.availability, "type:", data.type);
+                } else if (data.remainingSlotsLunch !== undefined && data.remainingSlotsSnack !== undefined) {
+                    // Manejar formato de disponibilidad general
+                    if (availabilityTypeRef.current === "Almuerzo") {
+                        setAvailability(data.remainingSlotsLunch);
+                        console.log(
+                            "Estado actualizado para Almuerzo -> remainingSlotsLunch:",
+                            data.remainingSlotsLunch
+                        );
+                    } else if (availabilityTypeRef.current === "Refrigerio") {
+                        setAvailability(data.remainingSlotsSnack);
+                        console.log(
+                            "Estado actualizado para Refrigerio -> remainingSlotsSnack:",
+                            data.remainingSlotsSnack
+                        );
+                    }
+                } else {
+                    console.warn("Mensaje recibido con datos desconocidos o incompletos:", data);
+                }
+            } catch (error) {
+                console.error("Error al procesar el mensaje del servidor:", error);
+            }
+        };
+
+        socket.onclose = () => {
+            console.log("Conexión WebSocket cerrada");
+        };
+
+        socket.onerror = (error) => {
+            console.error("Error en la conexión WebSocket:", error);
+        };
+
+        // Cleanup al desmontar el componente
+        return () => {
+            console.log("Cerrando conexión WebSocket");
+            socket.close();
+        };
     }, []);
 
 
