@@ -16,17 +16,17 @@ const TablePaginationR = ({
     const headerStyle = {
         backgroundColor: '#CFCFCF',
         color: 'black',
-        fontSize: '1.1rem', // Tamaño de fuente un poco más pequeño
-        padding: '0.8rem', // Usar rem para un mejor ajuste
+        fontSize: 'clamp(0.8rem, 2vw, 1rem)', // Tamaño de fuente un poco más pequeño
+        padding: '0.5rem', // Usar rem para un mejor ajuste
         textAlign: 'center',
     };
 
     // Estilos para las celdas
     const cellStyle = {
         border: '1px solid #ddd',
-        padding: '0.8rem', // Usar rem para un mejor ajuste
+        padding: '0.5rem', // Usar rem para un mejor ajuste
         textAlign: 'center',
-        fontSize: '1rem', // Tamaño de fuente base
+        fontSize: 'clamp(0.8rem, 2vw, 1rem)', // Tamaño de fuente base
     };
 
     // Estilo de los botones de paginación
