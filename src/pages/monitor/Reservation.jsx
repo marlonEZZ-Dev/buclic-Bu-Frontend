@@ -1,6 +1,6 @@
 import HeaderMonitor from "../../components/monitor/HeaderMonitor";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import api from '../../api';
 import { ReloadOutlined } from '@ant-design/icons';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
