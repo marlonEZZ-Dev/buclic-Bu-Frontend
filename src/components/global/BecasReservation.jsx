@@ -486,7 +486,7 @@ const BecasReservation = () => {
           />
 
           <p style={{ textAlign: 'left', marginTop: '8px' }}>
-            Eres beneficiario/a de {benefitType}
+            Eres beneficiario/a de {benefitType.toLowerCase()}
           </p>
 
 

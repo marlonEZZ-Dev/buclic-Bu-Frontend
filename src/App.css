@@ -346,7 +346,8 @@ que debería ocupar si no lo estuviera */
 
   /* Aumenta el espacio entre los botones para evitar solapamiento en móviles */
   .button-save,
-  .button-cancel {
+  .button-cancel
+  .button-pay {
     width: 100%;
     /* Aumenta el ancho de los botones en pantallas pequeñas */
     margin-bottom: 10px;
