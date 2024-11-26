@@ -22,6 +22,7 @@ export const loadConfig = async () => {
         // Configuramos baseURL
         api.defaults.baseURL = config.API;
         console.log("BaseURL configurada como:", config.API);
+        window.env = {WEB_SOCKET:config.WS}
     } catch (error) {
         console.error("Error cargando env.json:", error);
         throw new Error("Failed to load API configuration");

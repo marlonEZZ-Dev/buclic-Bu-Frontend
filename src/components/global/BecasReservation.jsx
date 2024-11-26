@@ -191,7 +191,7 @@ const BecasReservation = () => {
 
     fetchInitialData(); // Cargar datos iniciales
 
-    const socket = new WebSocket("ws://localhost:8080/ws");
+    const socket = new WebSocket(window.env.WEB_SOCKET);
 
     socket.onopen = () => {
       console.log("Conexión WebSocket establecida");

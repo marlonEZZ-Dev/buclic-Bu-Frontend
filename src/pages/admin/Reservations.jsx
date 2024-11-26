@@ -187,7 +187,7 @@ const Reservations = () => {
         fetchInitialData(); // Cargar datos iniciales
 
         console.log("Intentando establecer conexión WebSocket en 'ws://localhost:8080/ws'");
-        const socket = new WebSocket("ws://localhost:8080/ws");
+        const socket = new WebSocket(window.env.WEB_SOCKET);
 
         socket.onopen = () => {
             console.log("Conexión WebSocket establecida");
