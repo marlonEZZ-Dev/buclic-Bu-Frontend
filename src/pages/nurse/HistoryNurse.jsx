@@ -3,14 +3,13 @@ import HeaderNurse from "../../components/nurse/HeaderNurse";
 import SearchPicker from '../../components/global/SearchPicker.jsx';
 import ButtonRefresh from "../../components/admin/ButtonRefresh.jsx"
 import TablePaginationR from '../../components/global/TablePaginationR.jsx';
-import { Card, Button, Modal, Descriptions, Badge, message, Flex} from 'antd';
+import { Card, Button, Modal, Descriptions, Badge, message} from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import api from '../../api';
 import { searchBy } from '../../services/nurse/historyNurse.js';
 
 
 const HistoryNurse = () => {
-    const [username, setUsername] = useState('');
     const [activities, setActivities] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -86,6 +85,7 @@ const HistoryNurse = () => {
         `${activity.user.name} ${activity.user.lastname}`,
         activity.user.username,
         <Button
+            key={activity.user.id}
             icon={<EyeOutlined />}
             style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
             onClick={() => showActivityDetail(activity.id)}
