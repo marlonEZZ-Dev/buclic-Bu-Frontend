@@ -103,7 +103,7 @@ const TablePaginationR = ({
                 >
                     <LeftOutlined /> Anterior
                 </button>
-                <div style={pageIndicatorStyle}> Página {currentPage} de {totalPages} </div>
+                <div style={pageIndicatorStyle}> Página {currentPage} de {totalPages + 1} </div>
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
