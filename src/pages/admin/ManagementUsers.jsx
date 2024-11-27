@@ -606,7 +606,7 @@ useEffect(() => {
   setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
-          name: "lastname",
+          name: "lastName",
           value: validLastname(user.lastName),
           fnState: setOkValidation
       });
