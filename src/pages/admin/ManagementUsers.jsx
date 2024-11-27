@@ -83,7 +83,7 @@ export default function ManagementUsers(){
     lastName:"",
     email: "",
     plan:"",
-    roles: [""],
+    roles: "",
     grant: null
   }
   const [user, setUser] = useState(initialUser)
