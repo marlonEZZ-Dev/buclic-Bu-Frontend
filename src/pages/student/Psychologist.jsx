@@ -452,7 +452,7 @@ const Psychologist = () => {
                   validateStatus={isPhoneError ? "error" : ""}
                   help={
                     isPhoneError
-                      ? "El campo teléfono debe tener 10 dígitos."
+                      ? "El campo celular debe tener 10 dígitos."
                       : ""
                   }
                 >
