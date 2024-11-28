@@ -88,6 +88,12 @@ const VisitsDentist = () => {
     form.resetFields();
   };
 
+  // Función para deshabilitar fechas futuras
+  const disableFutureDates = (current) => {
+    return current && current.isAfter(new Date());  // Deshabilita fechas futuras
+  };
+
+
   return (
     <>
       <HeaderDentist />
@@ -113,6 +119,7 @@ const VisitsDentist = () => {
                       style={{ width: "100%" }}
                       allowClear={false} // Evita que se borre el contenido al escribir
                       inputReadOnly // Previene entrada manual en el input de fecha
+                      disabledDate={disableFutureDates} // Deshabilita fechas futuras
                     />
                   </Form.Item>
                 </Col>
