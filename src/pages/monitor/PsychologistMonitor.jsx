@@ -265,9 +265,16 @@ const handleConfirmReserve = () => {
   };
 
   const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo letras
-    setSemester(value);
-    setIsSemesterError(value.trim() === "");
+    const value = e.target.value.replace(/[^0-9]/g, ""); // Solo numeros
+    const numericValue = parseInt(value, 10);
+    // Validar que esté entre 1 y 11
+    if (numericValue >= 1 && numericValue <= 11) {
+      setSemester(numericValue);
+      setIsSemesterError(false);
+    } else {
+      setSemester("");
+      setIsSemesterError(true);
+    }
   };
 
   const handleBack = () => {
@@ -435,7 +442,7 @@ const handleConfirmReserve = () => {
           <Form layout="vertical" style={{ marginBottom: "20px" }}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Nombre">
+                <Form.Item label="Nombre y apellido">
                 <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
@@ -444,10 +451,11 @@ const handleConfirmReserve = () => {
                 <Form.Item label="Programa académico">
                   <Input value={userPlan || ""} disabled />
                 </Form.Item>
+                
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
-                  label="Teléfono"
+                  label="Número de celular"
                   validateStatus={isPhoneError ? "error" : ""}
                   help={
                     isPhoneError
@@ -461,6 +469,7 @@ const handleConfirmReserve = () => {
                     onChange={handlePhoneChange}
                     maxLength={10}
                     style={{ borderColor: isPhoneError ? "red" : "" }}
+                    placeholder="Número de celular"
                   />
                 </Form.Item>
               </Col>
@@ -469,7 +478,7 @@ const handleConfirmReserve = () => {
                   label="Semestre"
                   validateStatus={isSemesterError ? "error" : ""}
                   help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
+                    isSemesterError ? "El semestre máximo es 11." : ""
                   }
                 >
                   <Input
@@ -477,6 +486,7 @@ const handleConfirmReserve = () => {
                     value={semester}
                     onChange={handleSemesterChange}
                     style={{ borderColor: isSemesterError ? "red" : "" }}
+                    placeholder="Ej: 1 - 11"
                   />
                 </Form.Item>
               </Col>

@@ -389,7 +389,7 @@ const NursingWorker = () => {
           <Form layout="vertical" style={{ marginBottom: "20px" }}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Nombre">
+                <Form.Item label="Nombre y apellido">
                 <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
@@ -410,11 +410,11 @@ const NursingWorker = () => {
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
-                  label="Teléfono"
+                  label="Número de celular"
                   validateStatus={isPhoneError ? "error" : ""}
                   help={
                     isPhoneError
-                      ? "El campo teléfono debe tener 10 dígitos."
+                      ? "El campo celular debe tener 10 dígitos."
                       : ""
                   }
                 >
@@ -424,6 +424,7 @@ const NursingWorker = () => {
                     onChange={handlePhoneChange}
                     maxLength={10}
                     style={{ borderColor: isPhoneError ? "red" : "" }}
+                    placeholder="Número de celular"
                   />
                 </Form.Item>
               </Col>
@@ -438,6 +439,7 @@ const NursingWorker = () => {
                     value={eps}
                     onChange={handleEpsChange}
                     style={{ borderColor: isEpsError ? "red" : "" }}
+                    placeholder="Eps"
                   />
                 </Form.Item>
               </Col>
