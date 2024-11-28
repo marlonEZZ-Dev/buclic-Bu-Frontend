@@ -91,8 +91,8 @@ const Psychologist = () => {
     fetchUserData();
   }, [selectedDate, userId]);
 
-  
-  
+
+
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
     dates = availableDates
@@ -103,56 +103,56 @@ const Psychologist = () => {
         return itemDate === formattedSelectedDate && item.available === true;
       })
       .sort((a, b) => moment(a.dateTime).diff(moment(b.dateTime))); // Ordenar por hora
-  
+
     setFilteredDates(filtered);
   };
-  
+
 
   const fetchPendingAppointment = async () => {
     const storedToken = localStorage.getItem("access");
 
     if (!storedToken || !userId) {
-        console.error("ACCESS_TOKEN o userId no encontrados.");
-        return;
+      console.error("ACCESS_TOKEN o userId no encontrados.");
+      return;
     }
 
     try {
-        const response = await api.get(`/appointment-reservation/student/${userId}`, {
-            headers: { Authorization: `Bearer ${storedToken}` },
-        });
+      const response = await api.get(`/appointment-reservation/student/${userId}`, {
+        headers: { Authorization: `Bearer ${storedToken}` },
+      });
 
-        console.log("Response Data:", response.data);
+      console.log("Response Data:", response.data);
 
-        const psychologyAppointment = response.data.appointments.find(
-            (appt) =>
-                appt.availableDate.typeAppointment === "PSICOLOGIA" &&
-                appt.pending === true
-        );
+      const psychologyAppointment = response.data.appointments.find(
+        (appt) =>
+          appt.availableDate.typeAppointment === "PSICOLOGIA" &&
+          appt.pending === true
+      );
 
-        if (psychologyAppointment) {
-            console.log("Psychology Appointment:", psychologyAppointment);
-            setPendingAppointment(psychologyAppointment);
-        } else {
-            console.warn("No hay citas pendientes.");
-            setPendingAppointment(null);
-        }
+      if (psychologyAppointment) {
+        console.log("Psychology Appointment:", psychologyAppointment);
+        setPendingAppointment(psychologyAppointment);
+      } else {
+        console.warn("No hay citas pendientes.");
+        setPendingAppointment(null);
+      }
     } catch (error) {
-        console.error("Error al obtener las citas del estudiante:", error);
-        message.error("Hubo un error al cargar las citas pendientes.");
+      console.error("Error al obtener las citas del estudiante:", error);
+      message.error("Hubo un error al cargar las citas pendientes.");
     }
-};
+  };
 
-const fetchUserData = async () => {
-  const storedToken = localStorage.getItem("access");
+  const fetchUserData = async () => {
+    const storedToken = localStorage.getItem("access");
 
-  if (!storedToken || !userId) {
+    if (!storedToken || !userId) {
       console.error("ACCESS_TOKEN o userId no encontrados en localStorage");
       return;
-  }
+    }
 
-  try {
+    try {
       const datesResponse = await api.get(`/appointment/all-dates/${userId}?type=PSICOLOGIA`, {
-          headers: { Authorization: `Bearer ${storedToken}` },
+        headers: { Authorization: `Bearer ${storedToken}` },
       });
 
       // Configurar fechas disponibles
@@ -164,73 +164,73 @@ const fetchUserData = async () => {
 
       // Obtener citas pendientes
       await fetchPendingAppointment();
-  } catch (error) {
+    } catch (error) {
       console.error("Error al obtener datos del usuario:", error);
       message.error("No se pudieron cargar los datos. Inténtalo nuevamente.");
-  }
-};
+    }
+  };
 
-const handleConfirmReserve = () => {
-  if (isPhoneError||isSemesterError) return;
+  const handleConfirmReserve = () => {
+    if (isPhoneError || isSemesterError) return;
 
-  const storedToken = localStorage.getItem("access");
+    const storedToken = localStorage.getItem("access");
 
-  setConfirmLoading(true);
+    setConfirmLoading(true);
 
-  api
-    .post(
-      "/appointment-reservation",
-      {
-        pacientId: userId,
-        availableDateId: selectedAppointmentId,
-        phone,
-        semester,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
-    .then(async (response) => {
-      message.success(response.data.message);
-
-      localStorage.setItem("userPhone", phone);
-      setPhone(phone);
-      localStorage.setItem("userSemester", semester);
-      setSemester(semester);
-
-      // Actualizar citas pendientes
-      await fetchPendingAppointment();
-
-      // Volver a obtener las fechas disponibles
-      const datesResponse = await api.get(
-        `/appointment/all-dates/${userId}?type=PSICOLOGIA`,
+    api
+      .post(
+        "/appointment-reservation",
         {
-          headers: { Authorization: `Bearer ${storedToken}` },
+          pacientId: userId,
+          availableDateId: selectedAppointmentId,
+          phone,
+          semester,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+            "Content-Type": "application/json",
+          },
         }
-      );
+      )
+      .then(async (response) => {
+        message.success(response.data.message);
 
-      const updatedAvailableDates = datesResponse.data.availableDates || [];
-      setAvailableDates(updatedAvailableDates);
+        localStorage.setItem("userPhone", phone);
+        setPhone(phone);
+        localStorage.setItem("userSemester", semester);
+        setSemester(semester);
 
-      // Actualizar citas filtradas según la fecha seleccionada
-      filterDatesBySelectedDay(selectedDate, updatedAvailableDates);
-    })
-    .catch((error) => {
-      if (error.response && error.response.data?.message) {
-        message.error(error.response.data.message);
-      } else {
-        console.error("Error inesperado:", error);
-        message.error("Ocurrió un error inesperado. Intenta nuevamente.");
-      }
-    })
-    .finally(() => {
-      setConfirmLoading(false);
-      setModalVisible(false);
-    });
-};
+        // Actualizar citas pendientes
+        await fetchPendingAppointment();
+
+        // Volver a obtener las fechas disponibles
+        const datesResponse = await api.get(
+          `/appointment/all-dates/${userId}?type=PSICOLOGIA`,
+          {
+            headers: { Authorization: `Bearer ${storedToken}` },
+          }
+        );
+
+        const updatedAvailableDates = datesResponse.data.availableDates || [];
+        setAvailableDates(updatedAvailableDates);
+
+        // Actualizar citas filtradas según la fecha seleccionada
+        filterDatesBySelectedDay(selectedDate, updatedAvailableDates);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data?.message) {
+          message.error(error.response.data.message);
+        } else {
+          console.error("Error inesperado:", error);
+          message.error("Ocurrió un error inesperado. Intenta nuevamente.");
+        }
+      })
+      .finally(() => {
+        setConfirmLoading(false);
+        setModalVisible(false);
+      });
+  };
 
   const onDateSelect = (date) => {
     if (date && date.isValid()) {
@@ -263,9 +263,16 @@ const handleConfirmReserve = () => {
   };
 
   const handleSemesterChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Solo letras
-    setSemester(value);
-    setIsSemesterError(value.trim() === "");
+    const value = e.target.value.replace(/[^0-9]/g, ""); // Solo numeros
+    const numericValue = parseInt(value, 10);
+    // Validar que esté entre 1 y 11
+    if (numericValue >= 1 && numericValue <= 11) {
+      setSemester(numericValue);
+      setIsSemesterError(false);
+    } else {
+      setSemester("");
+      setIsSemesterError(true);
+    }
   };
 
   const handleBack = () => {
@@ -275,30 +282,30 @@ const handleConfirmReserve = () => {
   const showModal = (type, appointmentId = null) => {
     if (type === "reserve") {
       let hasError = false;
-  
+
       if (phone.length !== 10) {
         setIsPhoneError(true);
         hasError = true;
       } else {
         setIsPhoneError(false);
       }
-  
+
       if (!semester) {
         setIsSemesterError(true);
         hasError = true;
       } else {
         setIsSemesterError(false);
       }
-  
+
       if (hasError) {
         message.error("Digita los campos teléfono y semestre.");
         return; // Detener la ejecución si hay errores
       }
-  
+
       const selectedAppointment = availableDates.find(
         (date) => date.id === appointmentId
       );
-  
+
       setActionType(type);
       setSelectedAppointmentId(appointmentId);
       setModalVisible(true);
@@ -317,19 +324,19 @@ const handleConfirmReserve = () => {
       );
     }
   };
-  
+
   const handleConfirmCancel = () => {
     const storedToken = localStorage.getItem("access");
-  
+
     // Validación para asegurarse de que pendingAppointment es válido
     if (!pendingAppointment || !pendingAppointment.reservationId) {
       console.error("Error: No hay una cita pendiente o falta el reservationId.");
       message.error("No se puede cancelar la cita. Intenta nuevamente.");
       return;
     }
-  
+
     setConfirmLoading(true);
-  
+
     // Llamada para cancelar la cita
     api
       .delete(
@@ -342,10 +349,10 @@ const handleConfirmReserve = () => {
       )
       .then(async () => {
         message.success("Cita cancelada con éxito");
-  
+
         // Limpiar la cita pendiente
         setPendingAppointment(null);
-  
+
         // Volver a obtener las fechas disponibles
         const datesResponse = await api.get(
           `/appointment/all-dates/${userId}?type=PSICOLOGIA`,
@@ -353,10 +360,10 @@ const handleConfirmReserve = () => {
             headers: { Authorization: `Bearer ${storedToken}` },
           }
         );
-  
+
         const updatedAvailableDates = datesResponse.data.availableDates || [];
         setAvailableDates(updatedAvailableDates);
-  
+
         // Actualizar citas filtradas según la fecha seleccionada
         filterDatesBySelectedDay(selectedDate, updatedAvailableDates);
       })
@@ -429,8 +436,8 @@ const handleConfirmReserve = () => {
           <Form layout="vertical" style={{ marginBottom: "20px" }}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Nombre">
-                <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
+                <Form.Item label="Nombre y apellido">
+                  <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
 
@@ -441,7 +448,7 @@ const handleConfirmReserve = () => {
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
-                  label="Teléfono"
+                  label="Número de celular"
                   validateStatus={isPhoneError ? "error" : ""}
                   help={
                     isPhoneError
@@ -455,6 +462,7 @@ const handleConfirmReserve = () => {
                     onChange={handlePhoneChange}
                     maxLength={10}
                     style={{ borderColor: isPhoneError ? "red" : "" }}
+                    placeholder="Número de celular"
                   />
                 </Form.Item>
               </Col>
@@ -463,14 +471,15 @@ const handleConfirmReserve = () => {
                   label="Semestre"
                   validateStatus={isSemesterError ? "error" : ""}
                   help={
-                    isSemesterError ? "El campo semestre es obligatorio." : ""
+                    isSemesterError ? "El semestre máximo es 11." : ""
                   }
                 >
                   <Input
-                    type="text"
+                    type="number"
                     value={semester}
                     onChange={handleSemesterChange}
                     style={{ borderColor: isSemesterError ? "red" : "" }}
+                    placeholder="Ej: 1 - 11"
                   />
                 </Form.Item>
               </Col>
@@ -565,8 +574,8 @@ const handleConfirmReserve = () => {
           </Col>
         </Row>
       </main>
-      <ButtonTutorial role="student"/>
-      <FooterProfessionals/>
+      <ButtonTutorial role="student" />
+      <FooterProfessionals />
     </>
   );
 };
