@@ -416,7 +416,7 @@ const handleConfirmReserve = () => {
           <Form layout="vertical" style={{ marginBottom: "20px" }}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Nombre">
+                <Form.Item label="Nombre y apellido">
                 <Input value={`${userName} ${lastName || ""}`.trim()} disabled />
                 </Form.Item>
               </Col>
@@ -428,11 +428,11 @@ const handleConfirmReserve = () => {
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
-                  label="Teléfono"
+                  label="Número de celular"
                   validateStatus={isPhoneError ? "error" : ""}
                   help={
                     isPhoneError
-                      ? "El campo teléfono debe tener 10 dígitos."
+                      ? "El campo celular debe tener 10 dígitos."
                       : ""
                   }
                 >
@@ -442,6 +442,7 @@ const handleConfirmReserve = () => {
                     onChange={handlePhoneChange}
                     maxLength={10}
                     style={{ borderColor: isPhoneError ? "red" : "" }}
+                    placeholder="Celular"
                   />
                 </Form.Item>
               </Col>
