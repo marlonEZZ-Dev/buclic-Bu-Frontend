@@ -144,6 +144,9 @@ const VisitsNurse = () => {
     setGenero("");
     setConducta("");
     setDiagnostico("");
+    setTelefono(""); // Restablece el teléfono a un valor vacío o a un valor por defecto
+    setIsPhoneError(false);
+    setTelefonoModificado(false);
     form.resetFields(); // Resetear el formulario de Ant Design
   };
 
