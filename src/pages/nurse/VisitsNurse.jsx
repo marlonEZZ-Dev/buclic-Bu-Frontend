@@ -31,6 +31,8 @@ const VisitsNurse = () => {
   const [conducta, setConducta] = useState("");
   const [diagnostico, setDiagnostico] = useState("");
   const [isPhoneError, setIsPhoneError] = useState(false);
+  const [telefonoModificado, setTelefonoModificado] = useState(false);
+
   const [form] = Form.useForm();
 
 
@@ -145,6 +147,21 @@ const VisitsNurse = () => {
     form.resetFields(); // Resetear el formulario de Ant Design
   };
 
+  // Función para deshabilitar fechas futuras
+  const disableFutureDates = (current) => {
+    return current && current.isAfter(new Date());  // Deshabilita fechas futuras
+  };
+
+  // Esta función se ejecuta cuando el usuario escribe en el campo
+  const handleChange = (e) => {
+    const value = e.target.value.slice(0, 10); // Limita a 10 dígitos
+    setTelefono(value);
+
+    // Marca que el teléfono ha sido modificado por el usuario
+    setTelefonoModificado(true);
+    setIsPhoneError(value.length !== 10);
+  };
+
   return (
     <>
       <HeaderNurse />
@@ -177,6 +194,9 @@ const VisitsNurse = () => {
                       onChange={(date) => setFecha(date)}
                       value={fecha}
                       style={{ width: "100%" }}
+                      allowClear={false} // Evita que se borre el contenido al escribir
+                      inputReadOnly // Previene entrada manual en el input de fecha
+                      disabledDate={disableFutureDates} // Deshabilita fechas futuras
                     />
                   </Form.Item>
                 </Col>
@@ -245,27 +265,31 @@ const VisitsNurse = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    label="Teléfono"
+                    label="Celular"
                     name="telefono"
                     required
                     rules={[
-                      { required: true, message: "El teléfono es obligatorio" },
+                      { required: true, message: "El celular es obligatorio" },
+                      {
+                        validator: (_, value) => {
+                          if (telefonoModificado && (value.length !== 10)) {
+                            return Promise.reject(new Error("El número de celular debe tener 10 dígitos"));
+                          }
+                          return Promise.resolve();
+                        },
+                      },
                     ]}
                   >
                     <Input
                       type="text"
-                      placeholder="Teléfono"
+                      placeholder="Celular"
                       value={telefono}
                       onKeyPress={(e) => {
                         if (!/[0-9]/.test(e.key)) {
-                          e.preventDefault(); // Previene la entrada de cualquier caracter que no sea un número
+                          e.preventDefault(); // Previene la entrada de cualquier carácter que no sea un número
                         }
                       }}
-                      onChange={(e) => {
-                        const value = e.target.value.slice(0, 10); // Limita a 10 dígitos
-                        setTelefono(value);
-                        setIsPhoneError(value.length !== 10);
-                      }}
+                      onChange={handleChange}
                       maxLength={10}
                       style={{ borderColor: isPhoneError ? "red" : "" }}
                     />
@@ -298,11 +322,20 @@ const VisitsNurse = () => {
                 <Col span={12}>
                   <Form.Item label="Semestre">
                     <Input
-                      placeholder="Semestre"
+                      placeholder="Valor numérico entre 1 y 11"
                       value={semestre}
                       onChange={(e) => setSemestre(e.target.value)}
-                    />
-                  </Form.Item>
+                      onKeyPress={(e) => {
+                        const key = e.key;
+                        const currentValue = e.target.value;
+                        const newValue = currentValue + key;
+
+                        // Permitir solo números entre 1 y 11
+                        if (!/^[1-9]$|^10$|^11$/.test(newValue)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    />                  </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
