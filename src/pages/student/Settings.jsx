@@ -51,7 +51,11 @@ const Settings = () => {
                                 <Input value={profileData.email} disabled style={{ color: '#767676' }} />
                             </Form.Item>
                             <Form.Item label={<span style={{ color: 'black' }}>Tipo de beneficio</span>}>
-                                <Input value={profileData.benefitType} disabled style={{ color: '#767676' }} />
+                                <Input
+                                    value={profileData.benefitType === 'Sin beneficios' ? 'Venta libre' : profileData.benefitType}
+                                    disabled
+                                    style={{ color: '#767676' }}
+                                />
                             </Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
                                 <Button
@@ -68,7 +72,7 @@ const Settings = () => {
                         <p>Por favor selecciona una opción de perfil para ver los datos.</p>
                     )}
                 </Card>
-            <ButtonTutorial role="student"/>
+                <ButtonTutorial role="student" />
             </main>
             <FooterProfessionals />
         </>

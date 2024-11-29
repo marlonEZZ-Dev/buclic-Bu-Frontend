@@ -122,7 +122,7 @@ const NursePsych = () => {
     }
 
     if (hasError) {
-      message.error("Digita los campos teléfono y EPS.");
+      message.error("Digita los campos celular y EPS.");
       return;
     }
 
@@ -383,7 +383,7 @@ const NursePsych = () => {
           <Form layout="vertical" style={{ marginBottom: "20px" }}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item label="Nombre">
+                <Form.Item label="Nombre y apellido">
                   {/* Combina userName y lastName */}
                   <Input
                     value={`${userName} ${lastName || ""}`.trim()}
@@ -408,11 +408,11 @@ const NursePsych = () => {
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
-                  label="Teléfono"
+                  label="Número de celular"
                   validateStatus={isPhoneError ? "error" : ""}
                   help={
                     isPhoneError
-                      ? "El campo teléfono debe tener 10 dígitos."
+                      ? "El campo celular debe tener 10 dígitos."
                       : ""
                   }
                 >
@@ -422,6 +422,7 @@ const NursePsych = () => {
                     onChange={handlePhoneChange}
                     maxLength={10}
                     style={{ borderColor: isPhoneError ? "red" : "" }}
+                    placeholder="Celular"
                   />
                 </Form.Item>
               </Col>
@@ -436,6 +437,7 @@ const NursePsych = () => {
                     value={eps}
                     onChange={handleEpsChange}
                     style={{ borderColor: isEpsError ? "red" : "" }}
+                    placeholder="Eps"
                   />
                 </Form.Item>
               </Col>

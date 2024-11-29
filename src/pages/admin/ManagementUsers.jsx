@@ -83,7 +83,7 @@ export default function ManagementUsers(){
     lastName:"",
     email: "",
     plan:"",
-    roles: [""],
+    roles: "",
     grant: null
   }
   const [user, setUser] = useState(initialUser)
@@ -606,7 +606,7 @@ useEffect(() => {
   setItemsInLocalStorage()
   if (pressedSave) {
       handlerOkValidation({
-          name: "lastname",
+          name: "lastName",
           value: validLastname(user.lastName),
           fnState: setOkValidation
       });

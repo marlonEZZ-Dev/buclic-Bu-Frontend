@@ -89,14 +89,7 @@ export const validEmail = (email, funcionary, isExtern, edit) => {
 
 export const validRol = (rol) => {
   
-  if(rol.length === 0) return "Debe elegir un rol"
-  
-  const hasMonitor = rol.includes("MONITOR")
-  const hasStudent = rol.includes("ESTUDIANTE")
-
-  if(rol.length === 2 && !(hasStudent && hasMonitor)){
-    return "El usuario solo debe tener dos roles sí y solo sí es un estudiante"
-  }
+  if(rol === null || rol.length === 0) return "Debe elegir un rol"
 
   return true
 }

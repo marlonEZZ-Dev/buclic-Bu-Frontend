@@ -414,7 +414,7 @@ export default function SchedulesDentist() {
           const selectedMinutes = selectedTime.minute();
 
           if (nextMinutes !== selectedMinutes) {
-            showNotification('warning', `Para continuar la secuencia, debe usar el formato XX:${nextMinutes.toString().padStart(2, '0')}`);
+            showNotification('warning', `Se debe establecer un horario mínimo de una hora de diferencia`);
             return;
           }
 

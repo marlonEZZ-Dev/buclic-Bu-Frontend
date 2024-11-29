@@ -292,9 +292,6 @@ const SettingsAdmin = () => {
                             <Form.Item label={<span style={{ color: 'black' }}>Correo</span>}>
                                 <Input value={profileData.email} disabled style={{ color: '#767676' }} />
                             </Form.Item>
-                            <Form.Item label={<span style={{ color: 'black' }}>Tipo de beneficio</span>}>
-                                <Input value={profileData.benefitType} disabled style={{ color: '#767676' }} />
-                            </Form.Item>
                             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
                                 <Button className="button-save" style={{ width: '180px' }} type="primary" onClick={handleChangePasswordClick}>
                                     Cambiar contraseña
