@@ -416,15 +416,16 @@ const handlePageChange = page => {
     const responseCreate = await createUser(user);
     if(responseCreate.success === false){
       notifyError(responseCreate.message)
-      return
+      return false
     }
     
     const responseLoad = await loadUsers()
     if((responseLoad !== undefined) && ("success" in responseLoad)){
       notifyError(responseLoad.message)
     }
-      notifySuccess(responseCreate)
-      setRefreshFields(refreshFields + 1)
+    notifySuccess(responseCreate)
+    setRefreshFields(refreshFields + 1)
+    return true
     } catch (error) {
       console.error(`Esto es en handlerSave ${error}`);
     }
@@ -563,6 +564,7 @@ const handlePageChange = page => {
     setStatusEstadoRolTipoBecaSelect(undefined)
     setStatusRolesGrantSelect(undefined)    
     setUser(initialUser)
+    localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
   }
   
   useEffect(() => {
@@ -1105,7 +1107,7 @@ useEffect(() => {
         
         >
           <button className={`button-save ${styles.buttons}`} 
-          onClick={() => {
+          onClick={async () => {
             setPressedSave(true)
             if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
             if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
@@ -1113,11 +1115,14 @@ useEffect(() => {
             if(handlerVerify(user)){
               verify = "Entro"
               SetSavePressed(!savePressed)
-              handlerSave()
+              const evalResult = await handlerSave()
+              if(!evalResult) {
+                setPressedSave(false)
+                return
+              }
               handlerClearFields()
               handlerOkValidation({clear:true, fnState: setOkValidation})
               setPressedSave(false)
-              localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
             }            
             console.log(verify)
             console.dir(okValidation)
@@ -1127,7 +1132,6 @@ useEffect(() => {
             handlerClearFields()
             setPressedSave(false)
             handlerOkValidation({clear: true, fnState: setOkValidation})
-            localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
           }}
           >Cancelar</button>
         </Flex>
