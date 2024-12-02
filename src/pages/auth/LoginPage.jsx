@@ -155,7 +155,7 @@ export default function LoginPage() {
               prefix={<UserOutlined />}
               style={{ height: 33, width: "100%", marginBottom: 20 }}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
             />
 
             <Input.Password
@@ -165,7 +165,7 @@ export default function LoginPage() {
               }
               style={{ height: 33, width: "100%", marginBottom: 20 }}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
             />
 
             <Button
