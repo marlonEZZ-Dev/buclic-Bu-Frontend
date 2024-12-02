@@ -261,6 +261,10 @@ const handlePageChange = page => {
     const allowedKeys = [
       'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
     ];
+    // Permite combinaciones como Ctrl+V y Cmd+V
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'c' || e.key === 'x')) {
+      return; // Permite Ctrl+V, Ctrl+C, y Ctrl+X
+    }
     // Evita la entrada de signos negativos y puntos
     if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
       e.preventDefault();
@@ -1147,6 +1151,15 @@ useEffect(() => {
             onChange={e => setCodeUser(e.target.value)}
             onClick ={handlerSearchUser}
             onKeyDown={handlerOnlyIntegerPositive}
+            onPaste={e => {
+              const pasteData = e.clipboardData.getData('text'); // Obtiene el texto pegado
+            
+              // Verifica si el texto pegado contiene solo números
+              if (!/^[0-9]+$/.test(pasteData)) {
+                e.preventDefault(); // Evita pegar si no son solo números
+                notifyError("El campo sólo permite números")
+              }
+            }}
             />
           {isBeneficiary && 
           <button 
