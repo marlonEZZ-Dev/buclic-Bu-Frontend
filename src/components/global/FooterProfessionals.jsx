@@ -78,7 +78,7 @@ export default function FooterProfessionals({...props}){
               <br /><br />            
               <MailOutlined className={styles.email}/>  Servicio de Odontología
               <br />
-                <a className={styles.ancle} href="mailto:carlosfer2284@hotmail.com">carlosfer2284@hotmail.com</a>
+                <a className={styles.ancle} href="mailto:odontologia.uvp@gmail.com">odontologia.uvp@gmail.com</a>
               <br /><br />            
               <MailOutlined className={styles.email}/>  Trabajo Social
               <br />
