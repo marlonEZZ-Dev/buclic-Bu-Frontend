@@ -72,15 +72,44 @@ const Menu = () => {
     fetchMenuData(); // Llama a la función para obtener los datos al cargar el componente
   }, [navigate, setMenuData]);
 
-  // Maneja los cambios de los inputs en el estado temporal y la validación
-  const handleInputChange = (field, value) => {
-    // Expresión regular para permitir solo letras y tildes
-    const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
+  // // Maneja los cambios de los inputs en el estado temporal y la validación
+  // const handleInputChange = (field, value) => {
+  //   // Expresión regular para permitir solo letras y tildes
+  //   const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
 
+  //   if (field === "mainDish" || field === "drink" || field === "dessert") {
+  //     // Validar solo para campos de texto
+  //     if (!validTextRegex.test(value)) {
+  //       return;
+  //     }
+  //   }
+
+  //   setTempMenuData((prevData) => ({
+  //     ...prevData,
+  //     [selectedType]: {
+  //       ...prevData[selectedType],
+  //       [field]: value,
+  //     },
+  //   }));
+
+  //   // Si el campo se llena, eliminar el error de validación para ese campo
+  //   if (value) {
+  //     setValidationErrors((prevErrors) => ({
+  //       ...prevErrors,
+  //       [field]: false,
+  //     }));
+  //   }
+  // };
+
+  // Modificación de la expresión regular para permitir letras, tildes, comas y puntos
+  const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,\.]*$/;
+
+  const handleInputChange = (field, value) => {
+    // Validar solo para campos de texto (plato principal, bebida, postre)
     if (field === "mainDish" || field === "drink" || field === "dessert") {
-      // Validar solo para campos de texto
+      // Validar solo letras, espacios, comas y puntos
       if (!validTextRegex.test(value)) {
-        return;
+        return; // No permitir el valor si no cumple con la expresión regular
       }
     }
 
