@@ -102,7 +102,7 @@ const HistoryNurse = () => {
                 {contextHook}
                 <main className="becas-section" style={{ marginTop: '100px' }}>
                     <h1 className="text-xl font-bold">Historial de actividades</h1>
-                    <p>Aquí se podrán buscar las visitas por paciente o fecha que se han realizado en el servicio.</p>
+                    <p>Aquí se podrán buscar las actividades por paciente o fecha que se han realizado en el servicio.</p>
                     <Card bordered={true}
                         style={{
                             width: '100%', maxWidth: '700px', marginTop: '100px', margin: '3px auto', justifyContent: 'center'
@@ -126,7 +126,7 @@ const HistoryNurse = () => {
                         </div>
                         <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0, marginTop:"1.875rem"}}>Tabla de actividades realizadas</p>                        
                         <TablePaginationR
-                            columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles cita']}
+                            columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles actividad']}
                             rows={rows}
                             currentPage={currentPage}
                             itemsPerPage={itemsPerPage}
