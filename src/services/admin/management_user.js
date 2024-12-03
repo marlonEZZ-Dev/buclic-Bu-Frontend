@@ -54,6 +54,7 @@ export const listUsers = async (filter, page, size) => {
 
 export const searchUser = async (username, isFuncionary) => {
   let response;
+  username = username.trim()
   const url = `/users/search?username=${username}&type=${ isFuncionary ? "funcionarios":"estudiantes"}`
   try {
     response = await axios.get(url)
@@ -71,12 +72,12 @@ export const searchUser = async (username, isFuncionary) => {
 export const createUser = async (user) => {
   try{
     const response = await axios.post("/users", {
-      username: user.username, //codigo
-      name: user.name,
-      lastName: user.lastName,
-      email: user.email,
+      username: user.username.trim(), //codigo
+      name: user.name.trim(),
+      lastName: user.lastName.trim(),
+      email: user.email.trim(),
       password: "",
-      plan: user.plan,
+      plan: user.plan.trim(),
       beca: user.grant,
       roles: user.roles //tipo de usuario
     });
@@ -133,11 +134,11 @@ export const editUser = async (user) => {
   try {
     const response = await axios.put("/users/edit",{
       id:user.id,
-      username:user.username,
-      name: user.name,
-      lastName: user.lastName,
-      email: user.email,
-      plan: user.plan,
+      username:user.username.trim(),
+      name: user.name.trim(),
+      lastName: user.lastName.trim(),
+      email: user.email.trim(),
+      plan: user.plan.trim(),
       eps: user.eps,
       semester: user.semester,
       phone: user.phone,
