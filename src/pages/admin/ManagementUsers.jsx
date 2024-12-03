@@ -1080,7 +1080,7 @@ useEffect(() => {
           {(!isStudent || !enableResponsive) && 
             <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beneficio"}
               isRenderAsteric={isBeneficiary || isFuncionary}
-              name={isBeneficiary ? "grant" : ""}
+              name={isBeneficiary ? "grant" : "roles"}
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
               classContainer={`${isStudent ? "visibility-hidden" :""}`}
@@ -1121,7 +1121,6 @@ useEffect(() => {
               SetSavePressed(!savePressed)
               const evalResult = await handlerSave()
               if(!evalResult) {
-                setPressedSave(false)
                 return
               }
               handlerClearFields()
