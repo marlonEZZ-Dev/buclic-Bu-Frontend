@@ -51,7 +51,7 @@ export default function LoginPage() {
         const userResponse = response.data.userResponse;
         const roles = userResponse.roles.map((role) => role.name);
 
-        console.log("Rol del usuario:", roles);
+       
 
         // Guardar token y datos en localStorage
         localStorage.setItem(ACCESS_TOKEN, token);
