@@ -165,7 +165,6 @@ export default function SchedulesNurse() {
       setScheduleData(scheduleDataFormatted);
       setOriginalScheduleData(scheduleDataFormatted);
     } catch (error) {
-      console.error("Error al cargar los horarios disponibles:", error);
       showNotification('error', 'Error al cargar los horarios. Intente nuevamente.');
     }
   };
@@ -205,7 +204,6 @@ export default function SchedulesNurse() {
             showNotification("error", "Error al eliminar los horarios. Intente nuevamente.");
           }
         } catch (error) {
-          console.error("Error al eliminar la fecha:", error);
           showNotification("error", "Error al eliminar la fecha y sus horas. Intente nuevamente.");
         }
       },
@@ -241,7 +239,6 @@ export default function SchedulesNurse() {
       // Recargar los datos desde el servidor después de eliminar una hora
       await fetchAvailableDates();
     } catch (error) {
-      console.error("Error al eliminar la hora:", error);
       showNotification('error', 'Error al eliminar la hora. Intente nuevamente.');
     } finally {
       handleCloseDeleteTimeModal();
@@ -509,7 +506,6 @@ export default function SchedulesNurse() {
         throw new Error('Error al guardar los horarios.');
       }
     } catch (error) {
-      console.error('Error al guardar horarios:', error);
       if (error.response && error.response.status === 409) {
         showNotification('error', 'Algunos horarios ya existen. Por favor, verifique e intente nuevamente.');
       } else {
