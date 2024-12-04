@@ -199,7 +199,7 @@ export default function ManagementUsers(){
       })));
       setTotalItems(result.page.totalElements)
     } catch (error) {
-        console.log(`Esto ocurre en loadUsers ${error}`);
+        console.error(`Esto ocurre en loadUsers ${error}`);
         return { success: false, message: error.message };
     }
   }
@@ -416,7 +416,6 @@ const handlePageChange = page => {
 
   const handlerSave = useCallback(async () => {
   try {
-    console.log(user)
     const responseCreate = await createUser(user);
     if(responseCreate.success === false){
       notifyError(responseCreate.message)
@@ -449,7 +448,6 @@ const handlePageChange = page => {
       return
     }
     setFile(fileSelected)
-    console.log(file)
     setUploadStatus("exitoso")     
   }
 
@@ -529,7 +527,6 @@ const handlePageChange = page => {
 
       if(responseEdit.success){
         notifySuccess(responseEdit.message)
-        console.log(objectSelected)
         return
       }
     } catch (error) {
@@ -544,7 +541,7 @@ const handlePageChange = page => {
       await loadUsers()
       notifySuccess(responseDel.message)
     } catch (error) {
-      console.log("mensaje de error " + error.message)
+      console.error("Esto ocurre en handlerDeleteUser " + error.message)
     }
   }
 
@@ -559,7 +556,7 @@ const handlePageChange = page => {
       await loadUsers()
       notifySuccess(responseAllDelete.message)
     } catch (error) {
-      console.log(error.message);
+      console.error("Esto ocurre en HandlerDeleteUsers " + error.message);
     }
   }
 
@@ -927,7 +924,6 @@ useEffect(() => {
                   setObjectSelectedClone(null)
                   handlerCloseModalEdit(false)
                   setObjectSelected(null)
-                  console.dir(objectSelected)
                 })
               }
             }
@@ -954,7 +950,7 @@ useEffect(() => {
         onConfirm={() => {
           handlerDeleteUsers()
           .then(() => handlerCloseModalAllDelete())
-          .catch( error => console.log(error))
+          .catch( error => console.error("Ocurre en confirm de modal delete " + error))
         }}/>)}
       {isModalDelete && (
         <ReusableModal 
@@ -1115,9 +1111,7 @@ useEffect(() => {
             setPressedSave(true)
             if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
             if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
-            let verify = "No entro"
             if(handlerVerify(user)){
-              verify = "Entro"
               SetSavePressed(!savePressed)
               const evalResult = await handlerSave()
               if(!evalResult) {
@@ -1126,9 +1120,7 @@ useEffect(() => {
               handlerClearFields()
               handlerOkValidation({clear:true, fnState: setOkValidation})
               setPressedSave(false)
-            }            
-            console.log(verify)
-            console.dir(okValidation)
+            }
           }}>Guardar</button>
           <button className={`button-cancel ${styles.buttons}`}
           onClick={() => {

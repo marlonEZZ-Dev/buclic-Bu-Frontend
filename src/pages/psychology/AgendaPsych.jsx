@@ -257,7 +257,7 @@ export default function AgendaPsych() {
                   setCurrentPage(1); // Resetea la página al refrescar
                   await fetchAttendedAppointments(1);
                 } catch (error) {
-                  console.log(error)
+                  console.error("Esto ocurre en Button Refresh event onClick" + error)
                 }
               }}/>
             </Flex>

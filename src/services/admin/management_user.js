@@ -115,7 +115,6 @@ export const importUsers = async (role, fileCSV) => {
 
 //PETICIONES PUT
 export const editUser = async (user) => {
-  // console.log("En edit user Revisando el array de roles "+ user.roles)
   
   if(user.lunchBeneficiary === "Beneficiario almuerzo"){
     user.lunchBeneficiary = true
@@ -124,10 +123,6 @@ export const editUser = async (user) => {
     user.lunchBeneficiary = false
     user.snackBeneficiary = true
   }
-  // else{
-  //   user.lunchBeneficiary = false
-  //   user.snackBeneficiary = false
-  // }
   if(!("eps" in user)) user.eps = "eps"
   if(!("semester" in user)) user.semester = "semester"
   if(!("phone" in user)) user.phone = 1023456789

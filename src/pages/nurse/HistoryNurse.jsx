@@ -13,7 +13,7 @@ const HistoryNurse = () => {
     const [activities, setActivities] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [selectedActivity, setSelectedActivity] = useState(null); // Detalles de actividad seleccionada
+    const [selectedActivity, setSelectedActivity] = useState(null);
     const [queryValue, setQueryValue] = useState("")
     const [rangeValue, setRangeValue] = useState([])
     const [messageApi, contextHook] = message.useMessage()
@@ -25,10 +25,6 @@ const HistoryNurse = () => {
         let existQuery = queryValue.length !== 0
         let existRange = rangeValue && rangeValue.length === 2
 
-        // if(!existQuery && !existRange){
-        //     messageApi.error("Los campos estan vacios")
-        //     return
-        // }
         if(existQuery && existRange){
             setRangeValue(rangeValue)
             response = await searchBy({
@@ -57,7 +53,7 @@ const HistoryNurse = () => {
         }
         setActivities(response)
         }catch(err){
-        console.log(err);
+        console.error("Esto ocurre en filter Info " + err);
         }
     }, [queryValue, rangeValue])
 

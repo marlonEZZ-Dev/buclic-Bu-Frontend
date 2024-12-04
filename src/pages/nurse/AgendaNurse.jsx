@@ -234,7 +234,7 @@ export default function AgendaNurse() {
                 placeholder="Fecha de consulta (dd/MM/yyyy)"
                 format={"DD/MM/YYYY"}
                 value={searchDate}
-                onChange={value => {setSearchDate(value); console.log(dayjs(value));}}
+                onChange={value => setSearchDate(value)}
               />
               <Button
               type="primary"
@@ -260,7 +260,7 @@ export default function AgendaNurse() {
                   setCurrentPage(1); // Resetea la página al refrescar
                   await fetchAttendedAppointments(1);
                 } catch (error) {
-                  console.log(error)
+                  console.error("Esto ocurre en Button Refresh event onClick" + error)
                 }
               }}/>
             </Flex>
