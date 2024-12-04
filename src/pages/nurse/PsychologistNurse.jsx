@@ -92,21 +92,41 @@ const PsychologistNurse = () => {
 
   
   
+  // const filterDatesBySelectedDay = (
+  //   formattedSelectedDate,
+  //   dates = availableDates
+  // ) => {
+  //   const filtered = dates
+  //     .filter((item) => {
+  //       const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
+  //       return itemDate === formattedSelectedDate && item.available === true;
+  //     })
+  //     .sort((a, b) => moment(a.dateTime).diff(moment(b.dateTime))); // Ordenar por hora
+  
+  //   setFilteredDates(filtered);
+  // };
+  
   const filterDatesBySelectedDay = (
     formattedSelectedDate,
     dates = availableDates
   ) => {
     const filtered = dates
       .filter((item) => {
-        const itemDate = moment(item.dateTime).format("YYYY-MM-DD");
-        return itemDate === formattedSelectedDate && item.available === true;
+        const itemDate = moment(item.dateTime);
+        const currentDateTime = moment();
+  
+        // Filtramos solo las citas que no hayan pasado
+        return (
+          moment(itemDate).format("YYYY-MM-DD") === formattedSelectedDate &&
+          item.available === true &&
+          itemDate.isAfter(currentDateTime) // Aseguramos que la cita no haya pasado
+        );
       })
       .sort((a, b) => moment(a.dateTime).diff(moment(b.dateTime))); // Ordenar por hora
   
     setFilteredDates(filtered);
   };
   
-
   const fetchPendingAppointment = async () => {
     const storedToken = localStorage.getItem("access");
 

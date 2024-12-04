@@ -373,8 +373,7 @@ const VisitsNurse = () => {
                   >
                     <Select
                       value={diagnostico}
-                      onChange={(value) => {
-                        console.log("Valor seleccionado para backend:", value);
+                      onChange={(value) => {                
                         setDiagnostico(value);
                       }}
                       options={diagnosticOptions}

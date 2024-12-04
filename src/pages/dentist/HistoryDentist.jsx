@@ -198,9 +198,9 @@ const HistoryDentistry = () => {
                             Descargar
                         </Button>
                     </div>
-                    <p style={{ fontWeight: 'bold' }}>Tabla de actividades realizadas</p>
+                    <p style={{ fontWeight: 'bold' }}>Tabla de visitas realizadas</p>
                     <TablePaginationR
-                        columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles cita']}
+                        columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles visita']}
                         rows={rows}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}

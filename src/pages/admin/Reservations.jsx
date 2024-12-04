@@ -43,9 +43,6 @@ const Reservations = () => {
         }
 
         try {
-            // Verifica el ID de la reserva y el username
-            console.log("Datos de reserva:", reservationData);
-            console.log("Intentando registrar pago para el usuario:", reservationData.username);
 
             const paymentRequest = {
                 username: reservationData.username, // Enviar el nombre de usuario
@@ -53,9 +50,6 @@ const Reservations = () => {
             };
 
             const response = await api.put('/reservations/register-payment', paymentRequest);
-
-            // Verifica la respuesta del backend
-            console.log("Respuesta del servidor:", response.data);
 
             // Mostrar mensaje de éxito
             message.success(response.data.message);
@@ -77,13 +71,7 @@ const Reservations = () => {
         }
 
         try {
-            // Verifica el ID de la reserva
-            console.log("Intentando cancelar la reserva con ID:", reservationData.reservationId);
-
             const response = await api.delete(`/reservations/cancel/${reservationData.reservationId}`);
-
-            // Verifica la respuesta del backend
-            console.log("Respuesta del servidor:", response.data);
 
             // Mostrar mensaje de éxito
             message.success(response.data.message);
@@ -168,13 +156,13 @@ const Reservations = () => {
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                console.log("Iniciando llamada al endpoint '/reservations/availability-per-hour'");
+
                 const response = await api.get('/reservations/availability-per-hour');
-                console.log("Respuesta del endpoint '/reservations/availability-per-hour':", response.data);
+
                 setAvailability(response.data.availability || 0);
                 setAvailabilityType(response.data.type || '');
                 availabilityTypeRef.current = response.data.type || ''; // Actualizar referencia
-                console.log("Estado inicial actualizado -> availability:", response.data.availability, "type:", response.data.type);
+
             } catch (error) {
                 console.error("Error al obtener la disponibilidad de reservas:", error.response?.data || error.message);
                 message.error('No se pudo cargar la disponibilidad.');
@@ -185,8 +173,6 @@ const Reservations = () => {
         };
 
         fetchInitialData(); // Cargar datos iniciales
-
-        console.log("Intentando establecer conexión WebSocket en 'ws://localhost:8080/ws'");
         const socket = new WebSocket(window.env.WEB_SOCKET);
 
         socket.onopen = () => {
@@ -194,7 +180,6 @@ const Reservations = () => {
         };
 
         socket.onmessage = (event) => {
-            console.log("Mensaje recibido desde WebSocket:", event.data);
             try {
                 const data = JSON.parse(event.data);
 
@@ -203,21 +188,12 @@ const Reservations = () => {
                     setAvailability(data.availability);
                     setAvailabilityType(data.type);
                     availabilityTypeRef.current = data.type; // Actualizar referencia
-                    console.log("Estado actualizado por WebSocket -> availability:", data.availability, "type:", data.type);
                 } else if (data.remainingSlotsLunch !== undefined && data.remainingSlotsSnack !== undefined) {
                     // Manejar formato de disponibilidad general
                     if (availabilityTypeRef.current === "Almuerzo") {
                         setAvailability(data.remainingSlotsLunch);
-                        console.log(
-                            "Estado actualizado para Almuerzo -> remainingSlotsLunch:",
-                            data.remainingSlotsLunch
-                        );
                     } else if (availabilityTypeRef.current === "Refrigerio") {
                         setAvailability(data.remainingSlotsSnack);
-                        console.log(
-                            "Estado actualizado para Refrigerio -> remainingSlotsSnack:",
-                            data.remainingSlotsSnack
-                        );
                     }
                 } else {
                     console.warn("Mensaje recibido con datos desconocidos o incompletos:", data);
@@ -237,7 +213,6 @@ const Reservations = () => {
 
         // Cleanup al desmontar el componente
         return () => {
-            console.log("Cerrando conexión WebSocket");
             socket.close();
         };
     }, []);

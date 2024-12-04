@@ -68,8 +68,6 @@ const SettingsAdmin = () => {
             const response = await api.get('/setting');
             const settingsList = response.data;
 
-            console.log('Response from /setting:', settingsList);
-
             if (settingsList.length === 0) {
                 // No hay ajustes
                 setSettingId(null);
@@ -97,7 +95,7 @@ const SettingsAdmin = () => {
                 setSettingData(fetchedData);
                 setInitialSettingData(fetchedData); // Guardar los datos originales
             } else {
-                console.log('Unexpected number of settings:', settingsList.length);
+                console.log('Unexpected number of settings:');
             }
         } catch (error) {
             console.error('Error fetching settings:', error);
