@@ -42,6 +42,7 @@ export default function InformNurse() {
         fetchReports(1);
       }
     } catch (error) {
+      console.error('Error al generar informe:', error);
       message.error(`Error: ${error.response?.data?.message || 'Error al generar el informe'}`);
     } finally {
       setIsLoading(false);
@@ -77,6 +78,7 @@ export default function InformNurse() {
         message.warning('No se encontró ningún informe para el trimestre especificado.');
       }
     } catch (error) {
+      console.error('Error al buscar el informe:', error);
       message.error(`Error al realizar la búsqueda: ${error.response?.data?.message || error.message}`);
       setNoResults(true);
     } finally {
@@ -102,9 +104,11 @@ export default function InformNurse() {
         setTotalItems(response.data.page.totalElements);
         setNoResults(response.data.content.length === 0);
       } else {
+        console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
       }
     } catch (error) {
+      console.error('Error al obtener informes:', error);
       message.error('No se pudieron cargar los informes');
       setNoResults(true);
     } finally {
@@ -170,6 +174,7 @@ export default function InformNurse() {
 
       message.success('Informe descargado exitosamente');
     } catch (error) {
+      console.error('Error al descargar informe:', error);
       message.error(`No se pudo descargar el informe: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -185,6 +190,7 @@ export default function InformNurse() {
         message.error('No se pudo eliminar el informe');
       }
     } catch (error) {
+      console.error('Error al eliminar informe:', error);
       message.error(`Error: ${error.response?.data?.message || error.message}`);
     }
   };

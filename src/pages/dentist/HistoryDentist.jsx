@@ -63,8 +63,8 @@ const HistoryDentistry = () => {
             setActivities(sortedActivities); // Actualiza todas las actividades ordenadas
             setTotalItems(sortedActivities.length); // Actualiza el total de elementos
             setTotalPages(Math.ceil(sortedActivities.length / itemsPerPage)); // Actualiza el total de páginas
-
         } catch (err) {
+            console.error("Error fetching visits:", err);
             messageApi.error("Error al obtener los datos de visitas");
         }
     }, [queryValue, rangeValue, messageApi]);
@@ -82,6 +82,7 @@ const HistoryDentistry = () => {
             link.click();
             link.remove();
         } catch (error) {
+            console.error("Error downloading file:", error);
             messageApi.error("Error al descargar el archivo");
         }
     };
@@ -113,6 +114,7 @@ const HistoryDentistry = () => {
             setSelectedVisit(visitDetails);
             setIsModalVisible(true);
         } catch (error) {
+            console.error("Error fetching visit details:", error);
             messageApi.error("Error al obtener los detalles de la visita");
         }
     }, [messageApi]);

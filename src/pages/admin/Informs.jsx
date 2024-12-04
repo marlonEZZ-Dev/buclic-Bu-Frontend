@@ -42,9 +42,11 @@ const CombinedReports = () => {
         setCurrentPage(response.data.page.number + 1);
         setNoResults(response.data.content.length === 0); // Verifica si no hay resultados
       } else {
+        console.error('Unexpected API response structure:', response.data);
         message.error('Error en la estructura de datos recibida');
       }
     } catch (error) {
+      console.error('Error fetching reports:', error);
       message.error('No se pudieron cargar los informes');
       setNoResults(true); // En caso de error, también mostramos el mensaje de no resultados
     }
@@ -80,6 +82,7 @@ const CombinedReports = () => {
       message.success('Informe generado exitosamente');
       fetchReports();
     } catch (error) {
+      console.error('Error al generar informe:', error);
       message.error(`No se pudo generar el informe: ${error.response?.data?.message || error.message}`);
     }
   }, [selectedType, semesterInput, fetchReports]);
@@ -102,6 +105,7 @@ const CombinedReports = () => {
       setReportToDelete(null);
       fetchReports();
     } catch (error) {
+      console.error('Error al eliminar informe:', error);
       message.error(`No se pudo eliminar el informe: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -124,6 +128,7 @@ const CombinedReports = () => {
 
       message.success('Informe descargado exitosamente');
     } catch (error) {
+      console.error('Error al descargar informe:', error);
       message.error(`No se pudo descargar el informe: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -190,6 +195,7 @@ const CombinedReports = () => {
       setTotalItems(response.data.length);
       setNoResults(false); // Reinicia el estado de no resultados
     } catch (error) {
+      console.error('Error en la búsqueda:', error);
       message.error(`No se pudo realizar la búsqueda: ${error.response?.data?.message || error.message}`);
       setNoResults(true); // Indicar que no hay resultados disponibles
     }

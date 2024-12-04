@@ -28,6 +28,7 @@ export default function ConfirmationPassword() {
                     }
                 })
                 .catch((error) => {
+                    console.error("Error validating token:", error);
                     message.error("Token inválido o expirado");
                     navigate('/login');
                 })
@@ -81,6 +82,7 @@ export default function ConfirmationPassword() {
             message.success("Contraseña actualizada con éxito");    
             navigate('/login');
         } catch (error) {
+            console.error("Error resetting password:", error.response || error);
             if (error.response && error.response.data && error.response.data.message) {
                 message.error(error.response.data.message);
             } else {
