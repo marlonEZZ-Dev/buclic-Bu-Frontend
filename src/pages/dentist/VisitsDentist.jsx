@@ -43,7 +43,6 @@ const VisitsDentist = () => {
       });
     } catch (error) {
       message.error("Usuario no registrado. Realice el registro para crearlo.");
-      console.error("Error en la búsqueda de usuario:", error);
     }
   };
   
@@ -61,7 +60,6 @@ const VisitsDentist = () => {
           description: descripcion,
         };
 
-        console.log("Payload enviado al backend:", payload);
 
         try {
           await api.post("/odontology-visits/register", payload);
@@ -69,7 +67,6 @@ const VisitsDentist = () => {
           resetFields();
         } catch (error) {
           message.error("Ocurrió un error al registrar la visita.");
-          console.error("Error en el registro:", error);
         }
       })
       .catch(() => {
