@@ -74,7 +74,6 @@ const Tracking = () => {
       setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching user data:", error);
-      console.log("Error response:", error.response); // Para inspeccionar la estructura del error en la consola
 
       // Extrae el mensaje de error del backend si está disponible
       const errorMessage =
@@ -131,8 +130,7 @@ const Tracking = () => {
     setSelectedDate(null);
     setSelectedTime(null);
     } catch (error) {
-      console.error("Error saving appointment:", error);
-      console.log("Error response:", error.response); // Imprime los detalles de la respuesta de error para depuración
+      console.error("Error saving appointment:", error);// Imprime los detalles de la respuesta de error para depuración
 
       // Obtener el mensaje de error específico del backend o mostrar un mensaje genérico
       const errorMessage =

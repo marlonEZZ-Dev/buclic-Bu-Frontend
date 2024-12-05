@@ -51,7 +51,7 @@ export default function LoginPage() {
         const userResponse = response.data.userResponse;
         const roles = userResponse.roles.map((role) => role.name);
 
-        console.log("Rol del usuario:", roles);
+       
 
         // Guardar token y datos en localStorage
         localStorage.setItem(ACCESS_TOKEN, token);
@@ -155,7 +155,7 @@ export default function LoginPage() {
               prefix={<UserOutlined />}
               style={{ height: 33, width: "100%", marginBottom: 20 }}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
             />
 
             <Input.Password
@@ -165,7 +165,7 @@ export default function LoginPage() {
               }
               style={{ height: 33, width: "100%", marginBottom: 20 }}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
             />
 
             <Button

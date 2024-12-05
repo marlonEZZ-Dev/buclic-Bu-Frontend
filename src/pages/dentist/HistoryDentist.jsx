@@ -63,10 +63,7 @@ const HistoryDentistry = () => {
             setActivities(sortedActivities); // Actualiza todas las actividades ordenadas
             setTotalItems(sortedActivities.length); // Actualiza el total de elementos
             setTotalPages(Math.ceil(sortedActivities.length / itemsPerPage)); // Actualiza el total de páginas
-
-            console.log('Total Activities:', sortedActivities.length);
         } catch (err) {
-            console.error("Error fetching visits:", err);
             messageApi.error("Error al obtener los datos de visitas");
         }
     }, [queryValue, rangeValue, messageApi]);
@@ -84,7 +81,6 @@ const HistoryDentistry = () => {
             link.click();
             link.remove();
         } catch (error) {
-            console.error("Error downloading file:", error);
             messageApi.error("Error al descargar el archivo");
         }
     };
@@ -116,7 +112,6 @@ const HistoryDentistry = () => {
             setSelectedVisit(visitDetails);
             setIsModalVisible(true);
         } catch (error) {
-            console.error("Error fetching visit details:", error);
             messageApi.error("Error al obtener los detalles de la visita");
         }
     }, [messageApi]);
@@ -198,9 +193,9 @@ const HistoryDentistry = () => {
                             Descargar
                         </Button>
                     </div>
-                    <p style={{ fontWeight: 'bold' }}>Tabla de actividades realizadas</p>
+                    <p style={{ fontWeight: 'bold' }}>Tabla de visitas realizadas</p>
                     <TablePaginationR
-                        columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles cita']}
+                        columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles visita']}
                         rows={rows}
                         currentPage={currentPage}
                         itemsPerPage={itemsPerPage}

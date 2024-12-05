@@ -199,7 +199,7 @@ export default function ManagementUsers(){
       })));
       setTotalItems(result.page.totalElements)
     } catch (error) {
-        console.log(`Esto ocurre en loadUsers ${error}`);
+        console.error(`Esto ocurre en loadUsers ${error}`);
         return { success: false, message: error.message };
     }
   }
@@ -261,6 +261,10 @@ const handlePageChange = page => {
     const allowedKeys = [
       'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End'
     ];
+    // Permite combinaciones como Ctrl+V y Cmd+V
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'c' || e.key === 'x')) {
+      return; // Permite Ctrl+V, Ctrl+C, y Ctrl+X
+    }
     // Evita la entrada de signos negativos y puntos
     if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
       e.preventDefault();
@@ -412,19 +416,19 @@ const handlePageChange = page => {
 
   const handlerSave = useCallback(async () => {
   try {
-    console.log(user)
     const responseCreate = await createUser(user);
     if(responseCreate.success === false){
       notifyError(responseCreate.message)
-      return
+      return false
     }
     
     const responseLoad = await loadUsers()
     if((responseLoad !== undefined) && ("success" in responseLoad)){
       notifyError(responseLoad.message)
     }
-      notifySuccess(responseCreate)
-      setRefreshFields(refreshFields + 1)
+    notifySuccess(responseCreate)
+    setRefreshFields(refreshFields + 1)
+    return true
     } catch (error) {
       console.error(`Esto es en handlerSave ${error}`);
     }
@@ -444,7 +448,6 @@ const handlePageChange = page => {
       return
     }
     setFile(fileSelected)
-    console.log(file)
     setUploadStatus("exitoso")     
   }
 
@@ -524,7 +527,6 @@ const handlePageChange = page => {
 
       if(responseEdit.success){
         notifySuccess(responseEdit.message)
-        console.log(objectSelected)
         return
       }
     } catch (error) {
@@ -539,7 +541,7 @@ const handlePageChange = page => {
       await loadUsers()
       notifySuccess(responseDel.message)
     } catch (error) {
-      console.log("mensaje de error " + error.message)
+      console.error("Esto ocurre en handlerDeleteUser " + error.message)
     }
   }
 
@@ -554,7 +556,7 @@ const handlePageChange = page => {
       await loadUsers()
       notifySuccess(responseAllDelete.message)
     } catch (error) {
-      console.log(error.message);
+      console.error("Esto ocurre en HandlerDeleteUsers " + error.message);
     }
   }
 
@@ -563,6 +565,7 @@ const handlePageChange = page => {
     setStatusEstadoRolTipoBecaSelect(undefined)
     setStatusRolesGrantSelect(undefined)    
     setUser(initialUser)
+    localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
   }
   
   useEffect(() => {
@@ -921,7 +924,6 @@ useEffect(() => {
                   setObjectSelectedClone(null)
                   handlerCloseModalEdit(false)
                   setObjectSelected(null)
-                  console.dir(objectSelected)
                 })
               }
             }
@@ -948,7 +950,7 @@ useEffect(() => {
         onConfirm={() => {
           handlerDeleteUsers()
           .then(() => handlerCloseModalAllDelete())
-          .catch( error => console.log(error))
+          .catch( error => console.error("Ocurre en confirm de modal delete " + error))
         }}/>)}
       {isModalDelete && (
         <ReusableModal 
@@ -1074,7 +1076,7 @@ useEffect(() => {
           {(!isStudent || !enableResponsive) && 
             <SelectWithError title={isFuncionary ? "Rol" : "Tipo de beneficio"}
               isRenderAsteric={isBeneficiary || isFuncionary}
-              name={isBeneficiary ? "grant" : ""}
+              name={isBeneficiary ? "grant" : "roles"}
               key={`SelectImportant${changesDescription}${refreshFields}`}
               placeholder="Selecciona"
               classContainer={`${isStudent ? "visibility-hidden" :""}`}
@@ -1105,29 +1107,26 @@ useEffect(() => {
         
         >
           <button className={`button-save ${styles.buttons}`} 
-          onClick={() => {
+          onClick={async () => {
             setPressedSave(true)
             if(isStudent || isBeneficiary) user.roles = ["ESTUDIANTE"]
             if(user.roles.includes("MONITOR")) user.roles[1] = "ESTUDIANTE"
-            let verify = "No entro"
             if(handlerVerify(user)){
-              verify = "Entro"
               SetSavePressed(!savePressed)
-              handlerSave()
+              const evalResult = await handlerSave()
+              if(!evalResult) {
+                return
+              }
               handlerClearFields()
               handlerOkValidation({clear:true, fnState: setOkValidation})
               setPressedSave(false)
-              localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
-            }            
-            console.log(verify)
-            console.dir(okValidation)
+            }
           }}>Guardar</button>
           <button className={`button-cancel ${styles.buttons}`}
           onClick={() => {
             handlerClearFields()
             setPressedSave(false)
             handlerOkValidation({clear: true, fnState: setOkValidation})
-            localStorage.setItem("userManagementUser", JSON.stringify(initialUser))
           }}
           >Cancelar</button>
         </Flex>
@@ -1143,6 +1142,15 @@ useEffect(() => {
             onChange={e => setCodeUser(e.target.value)}
             onClick ={handlerSearchUser}
             onKeyDown={handlerOnlyIntegerPositive}
+            onPaste={e => {
+              const pasteData = e.clipboardData.getData('text'); // Obtiene el texto pegado
+            
+              // Verifica si el texto pegado contiene solo números
+              if (!/^[0-9]+$/.test(pasteData)) {
+                e.preventDefault(); // Evita pegar si no son solo números
+                notifyError("El campo sólo permite números")
+              }
+            }}
             />
           {isBeneficiary && 
           <button 

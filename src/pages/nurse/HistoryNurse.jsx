@@ -13,7 +13,7 @@ const HistoryNurse = () => {
     const [activities, setActivities] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [selectedActivity, setSelectedActivity] = useState(null); // Detalles de actividad seleccionada
+    const [selectedActivity, setSelectedActivity] = useState(null);
     const [queryValue, setQueryValue] = useState("")
     const [rangeValue, setRangeValue] = useState([])
     const [messageApi, contextHook] = message.useMessage()
@@ -25,10 +25,6 @@ const HistoryNurse = () => {
         let existQuery = queryValue.length !== 0
         let existRange = rangeValue && rangeValue.length === 2
 
-        // if(!existQuery && !existRange){
-        //     messageApi.error("Los campos estan vacios")
-        //     return
-        // }
         if(existQuery && existRange){
             setRangeValue(rangeValue)
             response = await searchBy({
@@ -57,7 +53,7 @@ const HistoryNurse = () => {
         }
         setActivities(response)
         }catch(err){
-        console.log(err);
+        console.error("Esto ocurre en filter Info " + err);
         }
     }, [queryValue, rangeValue])
 
@@ -102,7 +98,7 @@ const HistoryNurse = () => {
                 {contextHook}
                 <main className="becas-section" style={{ marginTop: '100px' }}>
                     <h1 className="text-xl font-bold">Historial de actividades</h1>
-                    <p>Aquí se podrán buscar las visitas por paciente o fecha que se han realizado en el servicio.</p>
+                    <p>Aquí se podrán buscar las actividades por paciente o fecha que se han realizado en el servicio.</p>
                     <Card bordered={true}
                         style={{
                             width: '100%', maxWidth: '700px', marginTop: '100px', margin: '3px auto', justifyContent: 'center'
@@ -126,7 +122,7 @@ const HistoryNurse = () => {
                         </div>
                         <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0, marginTop:"1.875rem"}}>Tabla de actividades realizadas</p>                        
                         <TablePaginationR
-                            columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles cita']}
+                            columns={['Fecha cita', 'Nombre', 'Código/cédula', 'Detalles actividad']}
                             rows={rows}
                             currentPage={currentPage}
                             itemsPerPage={itemsPerPage}

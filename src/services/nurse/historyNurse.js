@@ -12,6 +12,7 @@ const errorForGet = new Map([
 export const searchBy = async ({name="", startDate = "", endDate = ""}) => {
   const baseUrl = "/nursing-activities"
   let queryParams = [];
+  name = name.trim()
 
   if (name) {
     queryParams.push(`username=${name}`)

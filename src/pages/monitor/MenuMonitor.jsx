@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { MenuContext } from "../../utils/MenuContext"; // Importar el contexto
 import { Button, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx"
+import HeaderMonitor from "../../components/monitor/HeaderMonitor.jsx";
 import MenuBecas from "../../components/global/MenuBecas.jsx";
 import api from "../../api.js";
 import { ACCESS_TOKEN } from "../../constants";
@@ -72,19 +72,18 @@ const MenuMonitor = () => {
     fetchMenuData(); // Llama a la función para obtener los datos al cargar el componente
   }, [navigate, setMenuData]);
 
-  // Maneja los cambios de los inputs en el estado temporal y la validación
+  // Modificación de la expresión regular para permitir letras, tildes, comas y puntos
+  const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,\.]*$/;
+
   const handleInputChange = (field, value) => {
-    // Expresión regular para permitir solo letras y tildes
-    const validTextRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
-  
+    // Validar solo para campos de texto (plato principal, bebida, postre)
     if (field === "mainDish" || field === "drink" || field === "dessert") {
-      // Validar solo para campos de texto
+      // Validar solo letras, espacios, comas y puntos
       if (!validTextRegex.test(value)) {
-        
-        return;
+        return; // No permitir el valor si no cumple con la expresión regular
       }
     }
-  
+
     setTempMenuData((prevData) => ({
       ...prevData,
       [selectedType]: {
@@ -92,7 +91,7 @@ const MenuMonitor = () => {
         [field]: value,
       },
     }));
-  
+
     // Si el campo se llena, eliminar el error de validación para ese campo
     if (value) {
       setValidationErrors((prevErrors) => ({
@@ -101,7 +100,6 @@ const MenuMonitor = () => {
       }));
     }
   };
-  
 
   const saveMenu = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
@@ -234,10 +232,10 @@ const MenuMonitor = () => {
       ...prevEditable,
       [selectedType]: false,
     }));
-  
+
     // Restaurar los datos temporales con los valores originales
     setTempMenuData(menuData);
-  
+
     // Limpiar los errores de validación
     setValidationErrors({
       mainDish: false,
@@ -245,7 +243,6 @@ const MenuMonitor = () => {
       price: false,
     });
   };
-  
 
   const isLunch = selectedType === "Almuerzo";
   const mainDishLabel = isLunch ? "Plato principal" : "Aperitivo";
@@ -309,30 +306,29 @@ const MenuMonitor = () => {
             Diligencia los datos para el {selectedType} -{" "}
             {new Date().toLocaleDateString()}
           </p>
-{/* TextArea para el plato principal o aperitivo */}
-<div style={{ width: "100%", marginBottom: "12px" }}>
-  <label
-    style={{
-      marginBottom: "6px",
-      textAlign: "left",
-      display: "block",
-    }}
-  >
-    {mainDishLabel} <span style={{ color: "red" }}>*</span>
-  </label>
-  <TextArea
-    placeholder={mainDishPlaceholder}
-    autoSize
-    style={{
-      width: "100%",
-      borderColor: validationErrors.mainDish ? "red" : undefined,
-    }}
-    value={tempMenuData[selectedType].mainDish}
-    onChange={(e) => handleInputChange("mainDish", e.target.value)}
-    disabled={!isEditable[selectedType]}
-  />
-</div>
-
+          {/* TextArea para el plato principal o aperitivo */}
+          <div style={{ width: "100%", marginBottom: "12px" }}>
+            <label
+              style={{
+                marginBottom: "6px",
+                textAlign: "left",
+                display: "block",
+              }}
+            >
+              {mainDishLabel} <span style={{ color: "red" }}>*</span>
+            </label>
+            <TextArea
+              placeholder={mainDishPlaceholder}
+              autoSize
+              style={{
+                width: "100%",
+                borderColor: validationErrors.mainDish ? "red" : undefined,
+              }}
+              value={tempMenuData[selectedType].mainDish}
+              onChange={(e) => handleInputChange("mainDish", e.target.value)}
+              disabled={!isEditable[selectedType]}
+            />
+          </div>
 
           {/* TextArea para Bebida */}
           <div style={{ width: "100%", marginBottom: "12px" }}>
@@ -512,7 +508,7 @@ const MenuMonitor = () => {
           </div>
         </MenuBecas>
       </div>
-      <FooterProfessionals/>
+      <FooterProfessionals />
     </>
   );
 };

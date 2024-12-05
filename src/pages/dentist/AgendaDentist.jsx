@@ -259,14 +259,14 @@ export default function AgendaDentist() {
                   setCurrentPage(1); // Resetea la página al refrescar
                   await fetchAttendedAppointments(1);
                 } catch (error) {
-                  console.log(error)
+                  console.error("Esto ocurre en Button Refresh event onClick" + error)
                 }
               }}/>
             </Flex>
           </Flex>
           <Flex vertical>
             <Flex justify='space-between' style={{marginTop:"1.875rem"}}>
-              <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0 }}>Tabla de actividades realizadas</p>
+              <p style={{fontSize: "1.25rem", fontWeight: "bold", marginBottom: 0 }}>Tabla de citas realizadas</p>
               <Button 
                 icon={<DownloadOutlined />} 
                 style={{ backgroundColor: '#C20E1A', color: 'white', marginRight: 8, border: 'none' }}
