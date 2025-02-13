@@ -22,7 +22,8 @@ export default function LogoutButton() {
         // Redirige después de un breve retardo para permitir que se limpie el storage
         setTimeout(() => {
             setLoading(false);
-            window.location.href = '/login';
+            // window.location.href = '/login';
+            window.location.href = '/bienestar/login';
         }, 1000);
     };
 
