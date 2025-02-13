@@ -11,7 +11,7 @@ const root = createRoot(container);
 loadConfig()
   .then(() => {
     root.render(
-      <BrowserRouter>
+      <BrowserRouter basename='/bienestar'>
         <App />
       </BrowserRouter>
     );
