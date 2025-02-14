@@ -1,6 +1,6 @@
 import HeaderMonitor from "../../components/monitor/HeaderMonitor";
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
 import { Button, Col, Form, Card, Space, Row, Input, Select, message } from 'antd';
 import api from '../../api';

@@ -1,5 +1,4 @@
 // DateSpanish.jsx
-import React from 'react';
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';

@@ -1,6 +1,5 @@
 import HeaderPsych from "../../components/psychology/HeaderPsych";
-import React, { useState } from "react";
-import TablePagination from "../../components/global/TablePagination.jsx";
+import { useState } from "react";
 import StateUser from "../../components/global/StateUser.jsx";
 import {
   Card,

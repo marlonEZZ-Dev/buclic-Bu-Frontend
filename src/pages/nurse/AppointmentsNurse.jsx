@@ -1,7 +1,6 @@
 import HeaderNurse from "../../components/nurse/HeaderNurse";
 
 import { useNavigate } from 'react-router-dom';
-import TopNavbar from '../../components/TopNavbar';
 import AppointmentMenu from '../../components/global/AppointmentMenu';
 import FooterProfessionals from '../../components/global/FooterProfessionals';
 import psicologiaImage from '../../assets/psicologia.jpg';

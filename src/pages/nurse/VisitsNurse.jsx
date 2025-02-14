@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import HeaderNurse from "../../components/nurse/HeaderNurse.jsx";
 import esLocale from "antd/es/date-picker/locale/es_ES";
 import SearchInputR from "../../components/global/SearchInputR.jsx";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";
-import moment from "moment";
 import {
   DatePicker,
   Form,
   Card,
   Space,
   Input,
-  InputNumber,
   Select,
   Row,
   Col,

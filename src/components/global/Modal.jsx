@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal as AntModal } from 'antd';
 
 const Modal = ({ children, open, onClose, modalTitle }) => {

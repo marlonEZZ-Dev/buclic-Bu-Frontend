@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import HeaderDentist from "../../components/dentist/HeaderDentist.jsx"
 import ButtonTutorial from '../../components/global/ButtonTutorial.jsx';
 
