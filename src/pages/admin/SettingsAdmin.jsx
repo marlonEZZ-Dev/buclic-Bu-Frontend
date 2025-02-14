@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useSettings } from '../../utils/SettingsContext';  // Importar el contexto
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import MenuBecas from '../../components/global/MenuBecas';

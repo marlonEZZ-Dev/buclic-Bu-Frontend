@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import LogoUnivalleLight from '../assets/logo_univalle_light.svg';
 import '../styles/TopNavbar.css';
 import LogoutButton from './auth/LogoutButton';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Drawer, Button } from 'antd';
 import { MenuOutlined, CloseOutlined } from '@ant-design/icons'; 
 

@@ -1,6 +1,5 @@
 import { Modal, Button } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
 
 const ReusableModal = ({
   title = "Confirmar acción",  // Título dinámico

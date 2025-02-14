@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Tables from './Tables';
 import MenuBecas from './MenuBecas';
 import ReusableModal from './ReusableModal';

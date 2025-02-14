@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Typography, Space } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import Modal from '../global/Modal';
+import { useNavigate } from 'react-router-dom';
 
 const { Text } = Typography;
 
@@ -10,6 +11,7 @@ export default function LogoutButton() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isActive, setIsActive] = useState(false);
+    const navigate = useNavigate()
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -22,7 +24,8 @@ export default function LogoutButton() {
         // Redirige después de un breve retardo para permitir que se limpie el storage
         setTimeout(() => {
             setLoading(false);
-            window.location.href = '/login';
+            //window.location.href = '/bienestar/login';
+            navigate("/login")
         }, 1000);
     };
 

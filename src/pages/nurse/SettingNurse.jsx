@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderNurse from "../../components/nurse/HeaderNurse";
 import FooterProfessionals from "../../components/global/FooterProfessionals.jsx";

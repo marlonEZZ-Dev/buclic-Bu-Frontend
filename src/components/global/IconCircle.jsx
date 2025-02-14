@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Hook de navegación
 
 const IconCircle = ({ icon, hoverIcon, text, size = 64, bgColor = 'bg-gray-200', iconSize, url }) => {
