@@ -4,7 +4,7 @@ Se creó el proyecto para dar solución a la problemática en el área de bienes
 
 ## Practicamente un fork
 
-Se crea este repositorio como un fork público por motivo de que ya no es posible contactar con la persona encargada para cambiar estado de visualización del repositorio de github que actualmente es privado puede comprobarlo aquí[https://github.com/anamaria2211/bu-frontend]. Por ende este repositorio solo se le permitirá ser visible y lograr
+Se crea este repositorio como un fork público por motivo de que ya no es posible contactar con la persona encargada para cambiar estado de visualización del repositorio de github que actualmente es privado puede comprobarlo [aquí](https://github.com/anamaria2211/bu-frontend). Por ende este repositorio solo se le permitirá ser visible y lograr
 
 ### Para la visualización
 
